@@ -1,0 +1,25 @@
+# AnyLogic
+*.alp.bak*
+*.alp~
+Objects/
+bin/
+build/
+export/
+*.class
+*.jar.tmp
+
+# Salidas de simulación (se versionan sólo los resultados publicados)
+salidas/
+resultados/
+*.log
+
+# Datos con tarifas reales (confidenciales). Versionar sólo ejemplos.
+datos/entrada_*.xlsx
+!datos/entrada_ejemplo.xlsx
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
