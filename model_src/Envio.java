@@ -1,0 +1,29 @@
+// ARCHIVO GENERADO POR tools/exportar_modelo.py — NO EDITAR A MANO.
+// Espejo legible del modelo AnyLogic. La fuente de verdad es el .alp.
+
+
+class Envio extends Agent {
+
+    // ----- Parámetros -----
+    EstadoEnvio estado = EstadoEnvio.CREADO;
+    double diaCreacion = 0;
+    double diaInicioCarga = -1;
+    double diaSalidaDeposito = -1;
+    double diaLlegadaTerminal = -1;
+    double tiempoRetornoHoras = 0;
+    double diaEntrega = -1;
+    double tiempoCargaHoras = 0;
+    double tiempoViajeIdaHoras = 0;
+    double tiempoDescargaHoras = 0;
+    double tiempoConsolidacionHoras = 0;
+    double costoFleteReal = 0;
+    double costoConsolidacionReal = 0;
+    double costoTotalReal;
+    int idEnvio = 0;
+    String codigoEnvio = "";
+    Pedido pedido = null;
+    Deposito depositoOrigen = null;
+    Terminal terminalDestino = null;
+    TipoProducto producto = TipoProducto.JUGO;
+    double toneladas = 0;
+}

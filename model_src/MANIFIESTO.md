@@ -1,0 +1,22 @@
+# Manifiesto del espejo del modelo
+
+Generado por `tools/exportar_modelo.py`. No editar a mano.
+
+- Archivo: `RedLogistica_Exportacion.alp`
+- SHA-256: `80409c636c94180a7899076a1261dd7cd47222714efcb9efe812ebd1ada500c5`
+- Bytes: 500620
+- AnyLogic: 8.9.9.202606170507
+- Tipos de agente: 10 de 10 permitidos por PLE
+
+| # | Tipo de agente |
+|---:|---|
+| 1 | `Main` |
+| 2 | `Planta` |
+| 3 | `Deposito` |
+| 4 | `Terminal` |
+| 5 | `Pedido` |
+| 6 | `LoteProducto` |
+| 7 | `Camion` |
+| 8 | `Envio` |
+| 9 | `ContenedorExportacion` |
+| 10 | `PlanLogistico` |

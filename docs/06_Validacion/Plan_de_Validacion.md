@@ -187,6 +187,18 @@ Producido = físico + reservado/despachado + excedente/merma según definición
 
 **Esperado:** dos corridas del mismo escenario con la misma semilla producen salidas idénticas byte a byte; con variabilidades en cero, el resultado es independiente de la semilla.
 
+### V-023 Almacenaje sin doble conteo (H-04)
+
+**Esperado:** el almacenaje total del día calculado por depósito coincide con la suma del imputado a cada lote, incluidos los lotes reservados. Hoy divergen porque el cálculo por lote excluye el estado `RESERVADO` y el agregado por depósito no.
+
+### V-024 Independencia del orden de eventos (H-06, H-07)
+
+**Esperado:** ningún evento tiene cadencia fraccionaria y la corrida completa produce los mismos resultados tras reordenar la creación de los eventos en el modelo. Verifica que la secuencia diaria sea la de ADR-034 y no el orden interno del motor.
+
+### V-025 Presupuesto de agentes de PLE (ADR-020)
+
+**Esperado:** el escenario más cargado termina sin alcanzar los 50 000 agentes creados dinámicamente. El total creado se registra en el resumen de cada corrida.
+
 ## 4.1 Validación de datos de entrada
 
 Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.
@@ -196,7 +208,7 @@ Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada(
 | Fase | Compila | Prueba funcional | Balance | Integración | Aprobación |
 |---|---:|---:|---:|---:|---:|
 | Lote acumulativo | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
-| Ubicaciones múltiples | Parcial | Parcial | Pendiente | Pendiente | Pendiente |
+| Ubicaciones múltiples | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | Transferencia parcial | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | Reserva nueva | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | Contenedores | Parcial | Parcial | Pendiente | Pendiente | Pendiente |

@@ -48,29 +48,20 @@ Cada función debe registrar:
 
 ## 3. Funciones de LoteProducto
 
-### `buscarIndiceUbicacion(Agent ubicacion)`
+### Implementadas hoy
 
-Busca la posición de una ubicación dentro de las listas paralelas. Retorna `-1` cuando no existe.
+El agente tiene **una sola función**: `getToneladasLibres()`, que devuelve `toneladasDisponibles - toneladasReservadas` sobre escalares del lote, sin desagregar por ubicación.
 
-### `agregarToneladasEnUbicacion(Agent ubicacion, double toneladas)`
+Las funciones por ubicación que este documento describía como existentes (`buscarIndiceUbicacion`, `agregarToneladasEnUbicacion`, `getToneladasEnUbicacion`, `getToneladasLibresEnUbicacion`, `retirarToneladasDeUbicacion`) **no existen en el modelo** (hallazgo H-03).
 
-Suma toneladas a una ubicación existente o crea una nueva entrada sincronizada.
+### Funciones objetivo sobre capas
 
-### `getToneladasEnUbicacion(Agent ubicacion)`
+Reemplazan a las anteriores y operan sobre `List<Capa>` (ADR-021, ADR-030):
 
-Retorna el saldo físico registrado.
-
-### `getToneladasLibresEnUbicacion(Agent ubicacion)`
-
-Retorna:
-
-```text
-toneladas físicas - toneladas reservadas
-```
-
-### `retirarToneladasDeUbicacion(Agent ubicacion, double toneladas)`
-
-Retira únicamente toneladas libres. Elimina la entrada si el saldo queda dentro de la tolerancia cero.
+- `agregarCapa(Agent ubicacion, double toneladas)`: acumula sobre la capa del mismo día y ubicación, o crea una nueva.
+- `getToneladasEnUbicacion(Agent ubicacion)`: suma de las capas de esa ubicación.
+- `getToneladasLibresEnUbicacion(Agent ubicacion)`: idem, descontando lo reservado.
+- `retirarToneladas(Agent ubicacion, double toneladas)`: consume capas en orden FIFO por `diaIngreso`, retira sólo toneladas libres y elimina las capas que quedan en cero.
 
 ### Funciones objetivo pendientes
 

@@ -632,14 +632,17 @@ Representa simultáneamente identidad de lote y ubicación física. Esta mezcla 
 - `costoAcumulado`
 - `pedidoAsignado`
 
-### Variables agregadas para múltiples ubicaciones compatibles con PLE
+### Variables objetivo para múltiples ubicaciones
 
-- `ArrayList<Agent> ubicacionesFisicas`
-- `ArrayList<Double> toneladasPorUbicacion`
-- `ArrayList<Double> reservadasPorUbicacion`
-- `ArrayList<Double> diasIngresoPorUbicacion`
+> **Estado real:** no implementadas. Las cuatro listas siguientes se describían como existentes, pero no aparecen en el `.alp` (hallazgo H-03). Quedan reemplazadas por una colección de capas (ADR-021) implementada como clase Java (ADR-030).
 
-### Funciones agregadas
+```java
+List<Capa> capas;  // Capa = (ubicacion, diaIngreso, toneladas, toneladasReservadas)
+```
+
+### Funciones sobre listas paralelas (no implementadas)
+
+> El código de esta sección **no está en el `.alp`** (hallazgo H-03). Se conserva como referencia del diseño descartado; el reemplazo son las capas (ADR-021) descritas en [Funciones](03_Logica/Funciones.md) §3.
 
 #### `buscarIndiceUbicacion(Agent ubicacion)`
 
@@ -782,9 +785,9 @@ La ubicación física debe representarse por saldos por ubicación.
 
 ### Restricción PLE
 
-AnyLogic PLE limita la cantidad de clases de objeto activas. Por ese motivo no se creó un agente independiente `ExistenciaLote`. Se implementó una solución compatible con listas paralelas dentro de `LoteProducto`.
+El límite que impidió crear `ExistenciaLote` quedó identificado: PLE admite **10 tipos de agente por modelo** y el modelo ya tiene exactamente 10.
 
-La migración futura a una licencia sin esa restricción deberá reemplazar estas listas por una clase dedicada.
+La solución no es esperar una licencia: la existencia física se implementa como **clase Java** dentro del modelo (ADR-030), que no consume ese cupo ni el de agentes dinámicos. Ver [Inventario del modelo](03_Logica/Inventario_del_Modelo.md) §2.
 
 ---
 
@@ -1851,19 +1854,12 @@ Secuencia:
 
 ## Límite y licencia PLE
 
-Dos riesgos distintos, ver ADR-020:
+Verificado y acotado, ver ADR-020 e [Inventario del modelo](03_Logica/Inventario_del_Modelo.md) §2:
 
-1. **Licencia:** PLE es de uso no comercial y limita experimentos con réplicas y barridos, que son el núcleo del uso definido para el modelo.
-2. **Límite técnico:** se asume que PLE impidió crear el agente `ExistenciaLote`. Falta verificar empíricamente qué límite se alcanzó (tipos de agente, agentes en población o clases Java propias) antes de dar la restricción por cierta.
-
-Mitigación actual:
-
-- capas de inventario como estructuras de datos dentro de `LoteProducto`, sin agente nuevo (ADR-021).
-
-Mitigación futura:
-
-- migrar a licencia completa;
-- clase dedicada de existencia física.
+- **Límite alcanzado:** 10 tipos de agente, los 10 en uso. Mitigación: toda estructura nueva es clase Java (ADR-030) y el presupuesto de slots queda fijado (ADR-031).
+- **Límites con margen:** 50 000 agentes dinámicos por corrida, 200 bloques por agente.
+- **Límites que no aplican:** el tope de 5 horas de tiempo de modelo excluye a la Process Modeling Library, la única librería usada; los experimentos de barrido y réplicas están incluidos en PLE.
+- **Restricción no técnica:** la licencia PLE cubre aprendizaje personal e instrucción, no uso comercial.
 
 ## Doble contabilidad
 

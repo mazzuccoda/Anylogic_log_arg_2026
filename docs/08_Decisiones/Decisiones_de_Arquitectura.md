@@ -129,20 +129,30 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 **Alternativas:** statecharts y colas horarias con la Process Modeling Library.  
 **Consecuencias:** menos código y sin transiciones ilegales posibles; no se detecta congestión intradiaria; la regla de cross docking "mismo día" queda definida como coincidencia en el mismo día simulado entero.
 
-## ADR-020 — Licencia de AnyLogic
+## ADR-020 — El proyecto se desarrolla dentro de los límites de PLE
 
-**Estado:** propuesta, pendiente de decisión del responsable del proyecto.  
-**Contexto:** el desarrollo se hace sobre PLE 8.9.9. PLE es de uso no comercial y limita el tamaño del modelo y los experimentos.  
-**Problema:** el uso primario definido (ADR-018) requiere barridos de parámetros con réplicas, que es justamente lo que PLE limita; y un uso empresarial no está cubierto por la licencia.  
-**Decisión propuesta:** resolver la licencia antes de la fase de escenarios. Mientras tanto, mantener el diseño libre de estructuras que dependan de límites de PLE y verificar empíricamente qué límite bloqueó la creación de `ExistenciaLote`.
+**Estado:** aceptada.  
+**Contexto:** no hay licencia paga disponible. Los límites de PLE fueron verificados contra la documentación oficial y contra el modelo (ver [Inventario del modelo](../03_Logica/Inventario_del_Modelo.md) §2).  
+**Hallazgo que corrige un supuesto previo:** Parameter Variation, Monte Carlo, Compare Runs, Sensitivity Analysis y Calibration **sí** están disponibles en PLE. El barrido de escenarios con réplicas, que es el uso primario (ADR-018), no está bloqueado. Tampoco lo está el horizonte de 183 días: el límite de 5 horas de tiempo de modelo no aplica a la Process Modeling Library, la única librería que el modelo usa.  
+**Límites que sí condicionan el diseño:**
+
+| Límite | Valor | Regla que impone |
+|---|---:|---|
+| Tipos de agente | 10, **ya agotados** | ninguna estructura nueva puede ser un tipo de agente (ADR-030) |
+| Agentes dinámicos por corrida | 50 000 | presupuestar creación de lotes, reservas y contenedores; no crear agentes para representar datos |
+| Custom Experiment | no disponible | los barridos se construyen con Parameter Variation, no con código de experimento propio (ADR-032) |
+| OptQuest | 500 iteraciones, 7 variables | la optimización queda fuera del alcance comprometido |
+
+**Consecuencias:** el proyecto es viable en PLE tal como está definido. Queda una restricción no técnica: la licencia PLE autoriza únicamente aprendizaje personal e instrucción, de modo que un uso comercial del modelo requiere licencia Professional. Es una decisión del responsable del proyecto, no un impedimento para construirlo.
 
 ## ADR-021 — Capas de inventario como unidad atómica
 
 **Estado:** aceptada.  
 **Reemplaza:** ADR-007.  
-**Contexto:** el almacenaje debe imputarse por toneladas y días de permanencia, con retiros parciales.  
+**Contexto:** el inventario debe soportar un lote distribuido en varias ubicaciones, con ingresos en fechas distintas y retiros parciales. La estructura documentada de cuatro listas paralelas nunca llegó a existir en el modelo (hallazgo H-03).  
 **Decisión:** la unidad atómica del inventario físico es la capa `(lote, ubicacion, diaIngreso, toneladas, toneladasReservadas)`. Un lote tiene N capas.  
-**Consecuencias:** el storage se calcula exacto por capa; desaparecen las cuatro listas paralelas y su riesgo de desalineación de índices; se requiere una política de consumo explícita (ADR-022).
+**Precisión sobre el almacenaje:** el devengo diario de storage no necesita capas — acumular `toneladas × tarifa` cada día funciona igual. Lo que sí exige capas es imputar IN y OUT por movimiento parcial, ordenar el consumo por antigüedad (ADR-022) y evitar partir el lote en agentes nuevos para reservar (hallazgo H-05).  
+**Consecuencias:** desaparece la desalineación de índices de las listas paralelas; se requiere una política de consumo explícita (ADR-022); las capas no consumen slots de tipo de agente porque son clases Java (ADR-030).
 
 ## ADR-022 — Consumo FIFO por día de ingreso
 
@@ -197,6 +207,70 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 **Estado:** aceptada.  
 **Decisión:** ningún parámetro operativo, tarifa, capacidad o duración vive en código. Todo se lee de las tablas definidas en el contrato de datos, y el generador sintético produce exactamente las mismas tablas que el Excel.  
 **Consecuencias:** el paso de datos sintéticos a datos reales no requiere cambios de lógica; una tarifa faltante produce error explícito (ADR-014) y no cero.
+
+## ADR-030 — Las estructuras de datos son clases Java, no tipos de agente
+
+**Estado:** aceptada.  
+**Contexto:** los 10 tipos de agente que permite PLE están ocupados (H-01), y el diseño necesita al menos tres estructuras nuevas: capa de inventario, reserva y registro de costo.  
+**Decisión:** toda estructura que sea sólo datos y comportamiento propio se implementa como **clase Java** dentro del modelo (`New > Java Class`). Se reserva el tipo de agente para lo que necesita capacidades de agente: participar en un flowchart, tener statechart, moverse o animarse.  
+**Alternativas:** liberar slots retirando `Envio` y `Camion` antes de tiempo (obliga a migrar el camino legado antes de tener reemplazo, contra ADR-009); usar listas paralelas (ADR-007, ya reemplazada).  
+**Consecuencias:** el límite de PLE deja de condicionar el modelo de dominio; menor consumo de memoria y ningún consumo del cupo de 50 000 agentes dinámicos; se pierde la posibilidad de animar esas entidades, que no se necesita. AnyLogic permite convertir una clase Java en tipo de agente más adelante si hiciera falta.
+
+## ADR-031 — Presupuesto de tipos de agente
+
+**Estado:** aceptada.  
+**Decisión:** los 10 slots quedan asignados así, y agregar un tipo exige retirar otro en el mismo cambio:
+
+| Slot | Tipo | Situación |
+|---|---|---|
+| 1-6 | `Main`, `Planta`, `Deposito`, `Terminal`, `Pedido`, `LoteProducto` | permanentes |
+| 7 | `ContenedorExportacion` | permanente; ejecuta el flowchart de despacho |
+| 8 | `PlanLogistico` | permanente hasta que el planificador se convierta en función pura |
+| 9 | `Envio` | legado, se retira al validar el reemplazo (fase 12) |
+| 10 | `Camion` | legado, se retira junto con `Envio` |
+
+**Consecuencias:** el proyecto sabe de antemano que tiene exactamente dos slots recuperables y no puede gastarlos en estructuras de datos.
+
+## ADR-032 — El barrido se construye con Parameter Variation sobre parámetros de `Main`
+
+**Estado:** aceptada.  
+**Contexto:** PLE no ofrece Custom Experiment, que sería la forma natural de recorrer una tabla de escenarios por código.  
+**Decisión:** cada escenario se identifica con un parámetro `idEscenario` de `Main`; el experimento de Parameter Variation recorre `idEscenario × replica`, y `Main` carga de la tabla `Escenario` todos los valores correspondientes al arrancar. La semilla es `semillaBase + replica`, fijada en el modelo y no en el experimento.  
+**Alternativas:** enumerar cada parámetro barrido como dimensión del experimento (no escala y desacopla el barrido del contrato de datos).  
+**Consecuencias:** agregar un escenario es agregar una fila, no tocar el experimento; el experimento queda con dos dimensiones sin importar cuántos parámetros cambien; exige que los parámetros de escenario se lean en el arranque y no en la definición del agente.
+
+## ADR-033 — Parámetros para entradas, variables para estado
+
+**Estado:** aceptada.  
+**Contexto:** hoy todo el estado del modelo está declarado como parámetro (H-02): `stockJugo`, `excedenteJugo`, `costoFletePlantaDeposito` y `siguienteIdLote` conviven con `capacidadJugo` sin distinción.  
+**Decisión:** un parámetro es una entrada que el escenario fija y nunca se modifica durante la corrida. Todo lo que cambia durante la corrida es variable. Todo lo que se reporta es variable o dataset.  
+**Consecuencias:** la lista de parámetros de cada agente pasa a ser exactamente la interfaz de configuración que el barrido manipula; el reset entre réplicas queda bien definido; requiere una migración de las declaraciones existentes.
+
+## ADR-034 — Secuencia diaria explícita
+
+**Estado:** aceptada.  
+**Contexto:** cinco eventos ocurren cada día y su orden lo decide el motor, no el modelo (H-07); además dos eventos usan cadencias de 1,2 y 1,9 días (H-06).  
+**Decisión:** un único evento diario `pasoDiario` invoca las fases en orden fijo:
+
+```text
+1. producir
+2. recibir e ingresar (IN)
+3. planificar y comprometer pedidos
+4. reservar
+5. ejecutar movimientos y consolidar (consume recursos del día)
+6. devengar almacenaje (storage)
+7. registrar KPIs del día
+```
+
+**Alternativas:** prioridades por evento (funciona, pero deja la secuencia implícita y dispersa).  
+**Consecuencias:** el resultado deja de depender del orden interno de creación de los eventos; el devengo de almacenaje queda definido sobre el saldo de cierre del día; cualquier operación nueva debe declarar en qué fase entra.
+
+## ADR-035 — El modelo se versiona junto a su espejo legible
+
+**Estado:** aceptada.  
+**Contexto:** el `.alp` es un XML con el código Java embebido: un cambio de una línea produce un diff irrevisable, y hasta ahora el modelo no estaba versionado.  
+**Decisión:** el `.alp` es la fuente de verdad y se versiona. Además, `tools/exportar_modelo.py` genera `model_src/`, un espejo de sólo lectura con parámetros, variables, funciones y eventos por agente, que se regenera y se commitea en el mismo cambio.  
+**Consecuencias:** los pull requests muestran el cambio real de lógica; `model_src/` puede quedar desactualizado si alguien olvida regenerarlo, por lo que la regeneración es parte de la definición de terminado.
 
 ## Plantilla para nuevas decisiones
 
