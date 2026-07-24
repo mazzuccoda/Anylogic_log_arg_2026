@@ -99,11 +99,16 @@ Cada fase debe superar cuatro niveles:
 
 **Esperado:** reservado 80, libre 20, pedido `RESERVADO`.
 
-### V-009 Reserva insuficiente
+### V-009 Reserva insuficiente (reserva incremental, ADR-024)
 
-**Datos:** pedido 120 tn y saldo libre 100 tn.
+**Datos:** pedido 120 tn, saldo libre 100 tn, capacidad de contenedor 25 tn.
 
-**Esperado inicial recomendado:** reserva atómica revertida y pedido pendiente.
+**Esperado:**
+
+- se reservan 100 tn;
+- 4 contenedores quedan ejecutables y el quinto espera producción;
+- el pedido queda `PARCIALMENTE_RESERVADO`, no revertido;
+- al producirse 20 tn más, la reserva se completa sin intervención manual.
 
 ### V-010 Cantidad de contenedores
 
@@ -134,9 +139,9 @@ Cada fase debe superar cuatro niveles:
 
 Verificar que el recurso permanezca ocupado desde retiro vacío hasta ingreso cargado.
 
-### V-015 Fecha límite
+### V-015 Fecha límite (ADR-027)
 
-Un plan que finaliza después del día límite debe quedar no factible o penalizado según la política vigente.
+Un plan que finaliza después del día límite se ejecuta igual y registra el atraso en días. Verificar que el pedido no quede bloqueado y que el atraso aparezca en el KPI de nivel de servicio.
 
 ### V-016 Tarifa faltante
 
@@ -153,6 +158,38 @@ Costo pedido = suma de costos reales de sus contenedores y movimientos asociados
 ```text
 Producido = físico + reservado/despachado + excedente/merma según definición
 ```
+
+### V-019 Imputación de almacenaje por capas (ADR-021, ADR-022)
+
+**Datos:** un lote ingresa 30 tn al día 4 y 50 tn al día 9 al mismo depósito; se retiran 40 tn al día 20; tarifa 0,10 USD/tn/día.
+
+**Esperado:**
+
+- el retiro consume FIFO: 30 tn de la capa del día 4 y 10 tn de la del día 9;
+- el storage devengado se calcula por capa, no con una fecha única de ubicación;
+- saldo remanente 40 tn en la capa del día 9.
+
+### V-020 Stock derivado (ADR-023)
+
+**Esperado:** en cualquier instante, `stock de la ubicación = suma de las capas de todos los lotes en esa ubicación`, sin excepción y sin necesidad de una rutina de reconciliación.
+
+### V-021 Recursos y esperas (ADR-019)
+
+**Datos:** demanda de 5 viajes en un día con 3 camiones disponibles.
+
+**Esperado:**
+
+- 3 viajes ejecutados, 2 pospuestos al día siguiente;
+- 2 registros en `esperas_recursos.csv` con causa `CAMION_PRODUCTO`;
+- ningún viaje se pierde ni se duplica.
+
+### V-022 Reproducibilidad
+
+**Esperado:** dos corridas del mismo escenario con la misma semilla producen salidas idénticas byte a byte; con variabilidades en cero, el resultado es independiente de la semilla.
+
+## 4.1 Validación de datos de entrada
+
+Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.
 
 ## 5. Matriz de aceptación por fase
 

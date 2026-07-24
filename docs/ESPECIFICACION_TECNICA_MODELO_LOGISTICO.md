@@ -6,8 +6,12 @@
 **Estado del documento:** Documento vivo y editable  
 **Versión inicial:** 0.1.0  
 **Fecha:** 2026-07-24  
-**Herramienta objetivo:** AnyLogic 8.9.9 PLE  
+**Herramienta objetivo:** AnyLogic 8.9.9 PLE (licencia a resolver, ver ADR-020)  
 **Idioma:** Español  
+
+> **Alcance:** el uso primario del modelo y las definiciones de tiempo, recursos, variabilidad, inventario y datos de entrada están en [Definición del proyecto](09_Definicion/Definicion_del_Proyecto.md). Ante conflicto, ese documento prevalece sobre este.
+>
+> Este documento describe el dominio, las reglas de negocio y el código actual del modelo. No duplica estado de avance (ver [Roadmap](07_Roadmap/Roadmap.md)) ni numera decisiones (ver [Decisiones](08_Decisiones/Decisiones_de_Arquitectura.md)).
 
 ---
 
@@ -1678,29 +1682,15 @@ flowchart TD
 
 # 13. Estado actual del proyecto
 
-| Módulo | Estado | Avance estimado | Observación |
-|---|---|---:|---|
-| Producción base | Implementado | 100% | Genera stock diario |
-| Capacidades planta | Implementado | 100% | Controla excedente |
-| Lotes diarios | Implementado | 100% | Será reemplazado conceptualmente |
-| Transferencia planta-depósito | Implementado | 100% | Actualmente mueve lote completo |
-| Depósitos | Implementado | 80% | Falta costeo completo y recursos |
-| Reservas antiguas | Implementado | 80% | Debe adaptarse a lote comercial |
-| Pedidos | Implementado | 80% | Ampliado con terminal, naviera y contenedores |
-| Envíos antiguos | Implementado | 100% | Marcado para reemplazo |
-| Camiones | Implementado | 70% | Falta separar roles completamente |
-| Terminal | Parcial | 50% | Falta flujo completo de contenedores |
-| ContenedorExportacion | Creado | 25% | Estructura y prueba técnica |
-| PlanLogistico | Creado | 30% | Costos y validación básica |
-| Costeo detallado | Parcial | 25% | Falta registro auditable |
-| Cross docking | Diseño validado | 10% | Falta ejecución DES |
-| Lote comercial acumulativo | Diseño validado | 15% | Estructura de ubicaciones iniciada |
-| Optimización | Diseño | 5% | Pendiente |
-| KPIs profesionales | Parcial | 20% | Pendiente consolidación |
+El estado y el avance por fase se mantienen en un único lugar: [Roadmap y estado de avance](07_Roadmap/Roadmap.md).
+
+No replicar tablas de avance en este documento; dos tablas divergentes equivalen a no tener información de estado.
 
 ---
 
 # 14. Roadmap de implementación
+
+El roadmap vigente, con el reordenamiento derivado de la definición estratégica, está en [Roadmap y estado de avance](07_Roadmap/Roadmap.md). Las fases descriptas abajo se conservan como referencia histórica del plan original.
 
 ## Fase 0 — Congelamiento y respaldo
 
@@ -1859,19 +1849,21 @@ Secuencia:
 
 # 16. Riesgos técnicos
 
-## Límite PLE
+## Límite y licencia PLE
 
-La edición PLE limita clases y puede impedir crear agentes auxiliares.
+Dos riesgos distintos, ver ADR-020:
+
+1. **Licencia:** PLE es de uso no comercial y limita experimentos con réplicas y barridos, que son el núcleo del uso definido para el modelo.
+2. **Límite técnico:** se asume que PLE impidió crear el agente `ExistenciaLote`. Falta verificar empíricamente qué límite se alcanzó (tipos de agente, agentes en población o clases Java propias) antes de dar la restricción por cierta.
 
 Mitigación actual:
 
-- listas paralelas en `LoteProducto`.
+- capas de inventario como estructuras de datos dentro de `LoteProducto`, sin agente nuevo (ADR-021).
 
 Mitigación futura:
 
 - migrar a licencia completa;
-- usar clases Java internas si la licencia lo permite;
-- externalizar módulos.
+- clase dedicada de existencia física.
 
 ## Doble contabilidad
 
@@ -1880,7 +1872,7 @@ Durante la transición pueden coexistir:
 - stock antiguo;
 - saldo nuevo por ubicación.
 
-Debe evitarse sumar ambas representaciones en KPIs.
+Debe evitarse sumar ambas representaciones en KPIs. Solución estructural: el stock de cada ubicación se deriva de las capas y deja de ser una variable de estado independiente (ADR-023).
 
 ## Costos duplicados
 
@@ -1898,46 +1890,9 @@ Las funciones de prueba deben identificarse y eliminarse al cerrar cada fase.
 
 # 17. Decisiones de arquitectura
 
-## ADR-001 — Contenedor independiente
+Las decisiones se registran y numeran en un único archivo: [Decisiones de arquitectura](08_Decisiones/Decisiones_de_Arquitectura.md).
 
-**Decisión:** cada contenedor será una entidad individual.  
-**Motivo:** permite representar recursos, colas, tiempos y costos reales.  
-**Estado:** aceptada.
-
-## ADR-002 — Mismo portacontenedor
-
-**Decisión:** el mismo camión retira vacío y devuelve cargado.  
-**Estado:** aceptada.
-
-## ADR-003 — Cross docking sincronizado
-
-**Decisión:** requiere ambos camiones y posición, dentro del mismo día.  
-**Estado:** aceptada.
-
-## ADR-004 — Depósitos habilitados por capacidad
-
-**Decisión:** capacidad mayor que cero implica compatibilidad.  
-**Estado:** aceptada.
-
-## ADR-005 — Sin depósito a depósito
-
-**Decisión:** no modelar transferencias entre depósitos en la versión actual.  
-**Estado:** aceptada.
-
-## ADR-006 — Lote comercial no diario
-
-**Decisión:** el lote se completa durante varios días y permite despachos parciales.  
-**Estado:** aceptada.
-
-## ADR-007 — Múltiples ubicaciones
-
-**Decisión:** un lote puede estar distribuido físicamente.  
-**Estado:** aceptada.
-
-## ADR-008 — Compatibilidad PLE
-
-**Decisión:** usar listas internas en lugar de un nuevo agente de existencia física.  
-**Estado:** solución transitoria aceptada.
+Este documento no debe numerar ADR propios. La numeración duplicada anterior (ADR-001..008 aquí, con contenidos distintos a los del archivo de decisiones) hacía ambigua cualquier referencia y quedó eliminada.
 
 ---
 

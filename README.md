@@ -4,13 +4,21 @@ Modelo de simulación para producción, almacenamiento, consolidación, cross do
 
 ## Estado
 
-Proyecto en desarrollo sobre AnyLogic 8.9.9 PLE.
+Proyecto en desarrollo sobre AnyLogic 8.9.9 PLE (licencia a resolver, ver ADR-020).
+
+**Uso primario del modelo:** dimensionar depósitos, flota, posiciones de consolidación y costo total de campaña. No es un modelo de decisión táctica por pedido. Ver [Definición del proyecto](docs/09_Definicion/Definicion_del_Proyecto.md).
+
+**Advertencia:** el modelo `.alp` todavía no está versionado en este repositorio. Hasta que lo esté, la documentación describe un artefacto que vive fuera del control de versiones.
 
 ## Documentación
 
 La documentación técnica está organizada en módulos navegables:
 
 - [Índice general](docs/README.md)
+- [Glosario](docs/00_Glosario.md)
+- [Definición del proyecto](docs/09_Definicion/Definicion_del_Proyecto.md)
+- [Contrato de datos de entrada](docs/09_Definicion/Contrato_de_Datos.md)
+- [Escenarios y experimentos](docs/09_Definicion/Escenarios_y_Experimentos.md)
 - [Especificación técnica maestra](docs/ESPECIFICACION_TECNICA_MODELO_LOGISTICO.md)
 - [Arquitectura general](docs/01_Arquitectura/Arquitectura_General.md)
 - [Agentes](docs/02_Modelo/Agentes.md)
@@ -31,6 +39,8 @@ La documentación técnica está organizada en módulos navegables:
 - Permitir múltiples ubicaciones físicas para un mismo lote.
 - Mantener migración segura desde la lógica actual.
 - No eliminar componentes existentes hasta validar su reemplazo.
+- Ningún parámetro, tarifa ni duración vive en código: todo se lee de tablas de datos.
+- Ninguna magnitud tiene dos fuentes de verdad.
 
 ## Productos y equipos
 

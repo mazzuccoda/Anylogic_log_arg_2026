@@ -6,11 +6,15 @@
 
 Los porcentajes son estimaciones técnicas y deben actualizarse con evidencia de prueba.
 
+**Este archivo es la única fuente de estado de avance del proyecto.** Ningún otro documento debe replicar tablas de avance.
+
+El orden de ejecución vigente está en §16, derivado de la [Definición del proyecto](../09_Definicion/Definicion_del_Proyecto.md). Las fases 0 a 14 se conservan como inventario de trabajo, no como secuencia.
+
 ## 2. Resumen
 
 | Fase | Estado | Avance |
 |---|---|---:|
-| 0. Respaldo y documentación inicial | Completada | 100% |
+| 0. Respaldo y documentación inicial | Reabierta: falta versionar el modelo | 60% |
 | 1. Normalización del dominio | En curso | 65% |
 | 2. Lote comercial acumulativo | Diseño validado | 15% |
 | 3. Existencias físicas múltiples | En transición | 30% |
@@ -33,6 +37,11 @@ Los porcentajes son estimaciones técnicas y deben actualizarse con evidencia de
 - [x] Crear repositorio.
 - [x] Crear especificación técnica maestra.
 - [x] Crear documentación navegable inicial.
+- [ ] **Versionar el `.alp` en el repositorio.**
+- [ ] **Versionar el código exportado por agente en `model_src/`.**
+- [ ] **Crear `CHANGELOG.md` y parámetro `versionModelo` visible en las salidas.**
+
+La fase estaba declarada como completada al 100%, pero el modelo no está versionado: hoy el activo crítico vive sólo en una máquina. Queda reabierta.
 
 ## 4. Fase 1 — Dominio
 
@@ -162,7 +171,27 @@ Orden estricto:
 4. implementar transferencia parcial;
 5. recién después conectar contenedores a la ejecución.
 
-## 16. Definición de terminado
+## 16. Orden de ejecución vigente
+
+Reordenamiento derivado del uso estratégico del modelo (ADR-018). Cierra el dominio y los datos antes de implementar, y deja el planificador después del ejecutor porque estimar costo y tiempo exige que exista quién los produzca.
+
+| Paso | Contenido | Fases originales que absorbe |
+|---|---|---|
+| 0 | Versionar `.alp`, código exportado, CHANGELOG y `versionModelo` | 0 |
+| 1 | Cerrar definición y ADR nuevos; resolver licencia (ADR-020) | — |
+| 2 | Datos maestros y tarifas como tablas + generador sintético (ADR-029) | parte de 1 y 10 |
+| 3 | Capas de inventario y stock derivado (ADR-021, 022, 023) | 3 |
+| 4 | Lote comercial acumulativo sobre capas | 2 |
+| 5 | Reservas trazables, compromiso y prioridad (ADR-024, 025, 026) | 5 |
+| 6 | Transferencia parcial transaccional | 4 |
+| 7 | Registro de costos idempotente y suite de verificación ejecutable | 10 |
+| 8 | Ejecución con recursos de conteo diario (ADR-019): consolidación, terminal, cross dock | 6, 7, 8, 9, 12 |
+| 9 | Planificador de alternativas y selección | 11 |
+| 10 | Escenarios, réplicas y KPIs de dimensionamiento (ADR-028) | 13 |
+
+La fase 14 (optimización avanzada) queda fuera del alcance comprometido.
+
+## 17. Definición de terminado
 
 Una fase está terminada cuando:
 
