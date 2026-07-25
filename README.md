@@ -14,6 +14,8 @@ Qué contiene hoy el modelo y qué problemas tiene: [Inventario del modelo](docs
 
 La documentación técnica está organizada en módulos navegables:
 
+- [Manual de uso](docs/10_Manual/Manual_de_Uso.md) — **empezar por acá**: abrir el modelo, correr una campaña, cargar datos desde Excel, correr el barrido y leer los resultados
+- [Tablero e indicadores](docs/10_Manual/Tablero_e_Indicadores.md) — qué muestra cada panel y cómo se define cada KPI
 - [Índice general](docs/README.md)
 - [Glosario](docs/00_Glosario.md)
 - [Inventario del modelo real](docs/03_Logica/Inventario_del_Modelo.md)

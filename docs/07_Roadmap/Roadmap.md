@@ -162,6 +162,16 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [ ] Solapamiento de intervalos en la comparación contra E-00.
 - [ ] Escenario de capacidad de planta y de política de prioridad (la política es hoy única).
 
+## 11c. Fase 15 — Tablero, indicadores y manual
+
+- [x] Tablero en la vista de `Main`: ocho paneles (campaña, producción y stock, transporte y flota, pedidos y servicio, inventario y reservas, contenedores y envíos, consolidación y cross dock, costos) en lugar de los 54 textos sueltos anteriores (ADR-045).
+- [x] Cinco gráficos de evolución: stock en planta, stock por depósito, utilización de las dos flotas, costos acumulados y pedidos por estado, con la ventana temporal igual al horizonte de la corrida.
+- [x] Los indicadores del tablero usan las mismas funciones que el CSV del barrido, así que tablero y barrido no pueden discrepar. Verificado en PLE: E-00 réplica 0 da 1.922.761 USD, 95% de servicio y 1.173 viajes en los dos lados.
+- [x] Variables y parámetros de `Main` ocultos en la corrida (`PresentationFlag = false`): antes se dibujaban sobre el tablero.
+- [x] [Manual de uso](../10_Manual/Manual_de_Uso.md) y [Tablero e indicadores](../10_Manual/Tablero_e_Indicadores.md).
+- [ ] Intervalos de confianza y comparación entre escenarios en pantalla: hoy sólo están en la salida del barrido.
+- [ ] Panel de terminal: la terminal todavía no tiene cola ni costo propio (fase 9).
+
 ## 12. Fase 9 — Terminal
 
 - [ ] Entrega de vacíos.

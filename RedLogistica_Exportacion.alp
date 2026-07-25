@@ -476,7 +476,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-800</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[DatosEntrada]]></Type>        
@@ -491,7 +491,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-760</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -506,7 +506,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-360</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -521,7 +521,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-720</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -536,7 +536,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-680</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -551,7 +551,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -566,7 +566,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-600</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -581,7 +581,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-560</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -596,7 +596,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -611,7 +611,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-480</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -626,7 +626,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -641,7 +641,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>60</X><Y>-1060</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -656,7 +656,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-800</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[boolean]]></Type>        
@@ -671,7 +671,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-200</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -686,7 +686,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-160</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -701,7 +701,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>1200</X><Y>140</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[Inventario]]></Type>        
@@ -716,7 +716,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[java.util.HashMap<String, Integer>]]></Type>        
@@ -731,7 +731,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-80</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -746,7 +746,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-40</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -761,7 +761,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>860</X><Y>-120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -776,7 +776,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>860</X><Y>-80</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -791,7 +791,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>-140</X><Y>740</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[java.util.HashMap<String, Integer>]]></Type>        
@@ -806,7 +806,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>-140</X><Y>760</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -821,7 +821,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>-140</X><Y>780</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -836,7 +836,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>-140</X><Y>800</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -851,7 +851,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>-140</X><Y>820</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -866,7 +866,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>-140</X><Y>840</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -881,7 +881,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>-140</X><Y>860</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -896,7 +896,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>860</X><Y>-380</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
@@ -911,7 +911,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>1020</X><Y>-340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[EstrategiaLogistica]]></Type>        
@@ -926,7 +926,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>1020</X><Y>-300</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[boolean]]></Type>        
@@ -941,7 +941,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>1180</X><Y>-420</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -956,7 +956,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>1180</X><Y>-380</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
@@ -971,7 +971,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>1020</X><Y>-420</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
 						<Type><![CDATA[OrigenDatos]]></Type>
@@ -995,7 +995,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>1020</X><Y>-380</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
 						<Type><![CDATA[String]]></Type>
@@ -1019,7 +1019,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-420</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
 						<Type><![CDATA[String]]></Type>
@@ -1043,7 +1043,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>860</X><Y>-420</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
 						<Type><![CDATA[long]]></Type>
@@ -1067,7 +1067,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-320</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
 						<Type><![CDATA[double]]></Type>
@@ -1091,7 +1091,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
 						<Type><![CDATA[double]]></Type>
@@ -1115,7 +1115,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-240</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
 						<Type><![CDATA[double]]></Type>
@@ -1139,7 +1139,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-400</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
 						<Type><![CDATA[double]]></Type>
@@ -1163,7 +1163,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>700</X><Y>-380</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
 						<Type><![CDATA[int]]></Type>
@@ -1187,7 +1187,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>1000</X><Y>-960</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
 						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
@@ -1205,7 +1205,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>1000</X><Y>-1000</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
 						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
@@ -1224,7 +1224,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>-140</X><Y>1020</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>
@@ -1239,7 +1239,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>-140</X><Y>1040</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>
@@ -1254,7 +1254,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<X>-140</X><Y>1060</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>
@@ -4376,7 +4376,7 @@ return flotaPortacontenedores.utilization();]]></Body>
 					<X>50</X><Y>-50</Y>
 					<Label><X>15</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<HandleReceiveInConnections>false</HandleReceiveInConnections>
 					<AgentLinkType>COLLECTION_OF_LINKS</AgentLinkType>
@@ -5455,7 +5455,7 @@ return flotaPortacontenedores.utilization();]]></Body>
 				<EmbeddedObject>
 					<Id>1784592621437</Id>
 					<Name><![CDATA[flotaPortacontenedores]]></Name>
-					<X>60</X><Y>960</Y>
+					<X>60</X><Y>1660</Y>
 					<Label><X>-40</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5772,7 +5772,7 @@ return flotaPortacontenedores.utilization();]]></Body>
 				<EmbeddedObject>
 					<Id>1784595025582</Id>
 					<Name><![CDATA[colaCamiones]]></Name>
-					<X>150</X><Y>680</Y>
+					<X>150</X><Y>1380</Y>
 					<Label><X>-10</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5869,7 +5869,7 @@ return flotaPortacontenedores.utilization();]]></Body>
 				<EmbeddedObject>
 					<Id>1784595048406</Id>
 					<Name><![CDATA[tomarCamion]]></Name>
-					<X>290</X><Y>680</Y>
+					<X>290</X><Y>1380</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6075,7 +6075,7 @@ return flotaPortacontenedores.utilization();]]></Body>
 				<EmbeddedObject>
 					<Id>1784595070475</Id>
 					<Name><![CDATA[cargarCamion]]></Name>
-					<X>420</X><Y>680</Y>
+					<X>420</X><Y>1380</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6206,7 +6206,7 @@ if (
 				<EmbeddedObject>
 					<Id>1784595074085</Id>
 					<Name><![CDATA[viajarPuerto]]></Name>
-					<X>550</X><Y>680</Y>
+					<X>550</X><Y>1380</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6302,7 +6302,7 @@ if (envio.contenedor != null) {
 				<EmbeddedObject>
 					<Id>1784595080525</Id>
 					<Name><![CDATA[descargarPuerto]]></Name>
-					<X>660</X><Y>680</Y>
+					<X>660</X><Y>1380</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6411,7 +6411,7 @@ if (envio.contenedor != null) {
 				<EmbeddedObject>
 					<Id>1784595084468</Id>
 					<Name><![CDATA[consolidarCarga]]></Name>
-					<X>810</X><Y>680</Y>
+					<X>810</X><Y>1380</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6522,7 +6522,7 @@ envio.estado =
 				<EmbeddedObject>
 					<Id>1784595089008</Id>
 					<Name><![CDATA[retornarDeposito]]></Name>
-					<X>960</X><Y>680</Y>
+					<X>960</X><Y>1380</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6608,7 +6608,7 @@ envio.estado =
 				<EmbeddedObject>
 					<Id>1784595099816</Id>
 					<Name><![CDATA[liberarCamion]]></Name>
-					<X>1120</X><Y>680</Y>
+					<X>1120</X><Y>1380</Y>
 					<Label><X>-15</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6699,7 +6699,7 @@ envio.estado =
 				<EmbeddedObject>
 					<Id>1784595109075</Id>
 					<Name><![CDATA[salidaEnvios]]></Name>
-					<X>1240</X><Y>690</Y>
+					<X>1240</X><Y>1390</Y>
 					<Label><X>-10</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6812,7 +6812,7 @@ if (envio.contenedor != null) {
 				<EmbeddedObject>
 					<Id>1784595201321</Id>
 					<Name><![CDATA[entradaEnvios]]></Name>
-					<X>20</X><Y>690</Y>
+					<X>20</X><Y>1390</Y>
 					<Label><X>-10</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7050,6 +7050,1517 @@ if (!retirado) {
 			</EmbeddedObjects>
 
 			<Presentation>
+				<Text>
+					<Id>1785000009000</Id>
+					<Name><![CDATA[tituloGrafico0]]></Name>
+					<X>0</X><Y>362</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Stock en planta (tn)"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000009001</Id>
+					<Name><![CDATA[tituloGrafico1]]></Name>
+					<X>450</X><Y>362</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Stock por depósito (tn)"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000009002</Id>
+					<Name><![CDATA[tituloGrafico2]]></Name>
+					<X>870</X><Y>362</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Utilización de flota (%)"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000009003</Id>
+					<Name><![CDATA[tituloGrafico3]]></Name>
+					<X>0</X><Y>662</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Costos acumulados (USD)"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000009004</Id>
+					<Name><![CDATA[tituloGrafico4]]></Name>
+					<X>450</X><Y>662</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Pedidos por estado"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+
+				<Text>
+					<Id>1785000000001</Id>
+					<Name><![CDATA[tituloTablero]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Red logística de exportación de subproductos cítricos"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>18</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000002</Id>
+					<Name><![CDATA[subtituloTablero]]></Name>
+					<X>0</X><Y>24</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-13421773</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Tablero de campaña · los KPIs del barrido se leen en resultados/kpis_por_corrida.csv"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1785000000010</Id>
+					<Name><![CDATA[panelCampania]]></Name>
+					<X>0</X><Y>40</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>155</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1785000000011</Id>
+					<Name><![CDATA[panelCampaniaTitulo]]></Name>
+					<X>14</X><Y>50</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Campaña"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000012</Id>
+					<Name><![CDATA[panelCampaniaLinea0]]></Name>
+					<X>14</X><Y>78</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Día " + floor(time()) + " de " + duracionCampaniaDias]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000013</Id>
+					<Name><![CDATA[panelCampaniaLinea1]]></Name>
+					<X>14</X><Y>98</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Escenario " + idEscenario + " · réplica " + replica]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000014</Id>
+					<Name><![CDATA[panelCampaniaLinea2]]></Name>
+					<X>14</X><Y>118</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Datos: " + (origenDatos == OrigenDatos.SINTETICO ? "sintéticos" : "Excel")]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000015</Id>
+					<Name><![CDATA[panelCampaniaLinea3]]></Name>
+					<X>14</X><Y>138</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Cross dock: " + (habilitaCrossDock ? "habilitado" : "deshabilitado")]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000016</Id>
+					<Name><![CDATA[panelCampaniaLinea4]]></Name>
+					<X>14</X><Y>158</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Consolidación: "
++ (
+    estrategiaConsolidacion == EstrategiaLogistica.CONSOLIDACION_DEPOSITO
+    ? "en depósito"
+    : "en terminal"
+)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1785000000017</Id>
+					<Name><![CDATA[panelProduccion]]></Name>
+					<X>370</X><Y>40</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>155</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1785000000018</Id>
+					<Name><![CDATA[panelProduccionTitulo]]></Name>
+					<X>384</X><Y>50</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Producción y stock (tn)"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000019</Id>
+					<Name><![CDATA[panelProduccionLinea0]]></Name>
+					<X>384</X><Y>78</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Jugo: " + round(planta.getStock(TipoProducto.JUGO))
++ " en planta · "
++ round(stockTotalDepositos(TipoProducto.JUGO)) + " en depósito"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000020</Id>
+					<Name><![CDATA[panelProduccionLinea1]]></Name>
+					<X>384</X><Y>98</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Cáscara: " + round(planta.getStock(TipoProducto.CASCARA))
++ " en planta · "
++ round(stockTotalDepositos(TipoProducto.CASCARA)) + " en depósito"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000021</Id>
+					<Name><![CDATA[panelProduccionLinea2]]></Name>
+					<X>384</X><Y>118</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Aceite: " + round(planta.getStock(TipoProducto.ACEITE))
++ " en planta · "
++ round(stockTotalDepositos(TipoProducto.ACEITE)) + " en depósito"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000022</Id>
+					<Name><![CDATA[panelProduccionLinea3]]></Name>
+					<X>384</X><Y>138</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Lotes abiertos: " + lotes.size()]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000023</Id>
+					<Name><![CDATA[panelProduccionLinea4]]></Name>
+					<X>384</X><Y>158</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Excedente sin lugar: "
++ round(
+    planta.excedenteJugo
+    + planta.excedenteCascara
+    + planta.excedenteAceite
+) + " tn"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1785000000024</Id>
+					<Name><![CDATA[panelFlota]]></Name>
+					<X>740</X><Y>40</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>155</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1785000000025</Id>
+					<Name><![CDATA[panelFlotaTitulo]]></Name>
+					<X>754</X><Y>50</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Transporte y flota"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000026</Id>
+					<Name><![CDATA[panelFlotaLinea0]]></Name>
+					<X>754</X><Y>78</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Camión-día de hoy: "
++ round(100 * flotaProductoUsadaHoy) / 100.0
++ " de " + round(flotaProductoOfrecidaHoy)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000027</Id>
+					<Name><![CDATA[panelFlotaLinea1]]></Name>
+					<X>754</X><Y>98</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Utilización flota de producto: "
++ round(100 * utilizacionFlota()) + "%"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000028</Id>
+					<Name><![CDATA[panelFlotaLinea2]]></Name>
+					<X>754</X><Y>118</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Viajes planta-depósito: " + viajesPlantaDeposito]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000029</Id>
+					<Name><![CDATA[panelFlotaLinea3]]></Name>
+					<X>754</X><Y>138</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Toneladas transferidas: "
++ round(toneladasTransferidasDepositos) + " tn"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000030</Id>
+					<Name><![CDATA[panelFlotaLinea4]]></Name>
+					<X>754</X><Y>158</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Portacontenedores ocupados: "
++ flotaPortacontenedores.busy()
++ " de " + flotaPortacontenedores.size()]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000031</Id>
+					<Name><![CDATA[panelFlotaLinea5]]></Name>
+					<X>754</X><Y>178</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Utilización portacontenedores: "
++ round(100 * utilizacionPortacontenedor()) + "%"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1785000000032</Id>
+					<Name><![CDATA[panelServicio]]></Name>
+					<X>1110</X><Y>40</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>155</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1785000000033</Id>
+					<Name><![CDATA[panelServicioTitulo]]></Name>
+					<X>1124</X><Y>50</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Pedidos y servicio"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000034</Id>
+					<Name><![CDATA[panelServicioLinea0]]></Name>
+					<X>1124</X><Y>78</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Recibidos: " + pedidosRecibidos
++ " · " + round(toneladasSolicitadasAcumuladas) + " tn"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000035</Id>
+					<Name><![CDATA[panelServicioLinea1]]></Name>
+					<X>1124</X><Y>98</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Pendientes: " + contarPedidos(EstadoPedido.PENDIENTE)
++ " · reservados: " + contarPedidos(EstadoPedido.RESERVADO)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000036</Id>
+					<Name><![CDATA[panelServicioLinea2]]></Name>
+					<X>1124</X><Y>118</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Entregados: " + contarPedidos(EstadoPedido.ENTREGADO)
++ " · atrasados: " + contarPedidos(EstadoPedido.ATRASADO)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000037</Id>
+					<Name><![CDATA[panelServicioLinea3]]></Name>
+					<X>1124</X><Y>138</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Nivel de servicio: " + round(100 * nivelServicio()) + "%"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000038</Id>
+					<Name><![CDATA[panelServicioLinea4]]></Name>
+					<X>1124</X><Y>158</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Atraso promedio: "
++ round(10 * atrasoPromedioDias()) / 10.0 + " días"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000039</Id>
+					<Name><![CDATA[panelServicioLinea5]]></Name>
+					<X>1124</X><Y>178</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Exportado: " + round(toneladasExportadas()) + " tn"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1785000000040</Id>
+					<Name><![CDATA[panelInventario]]></Name>
+					<X>0</X><Y>205</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>155</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1785000000041</Id>
+					<Name><![CDATA[panelInventarioTitulo]]></Name>
+					<X>14</X><Y>215</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Inventario y reservas (tn)"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000042</Id>
+					<Name><![CDATA[panelInventarioLinea0]]></Name>
+					<X>14</X><Y>243</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Capas de inventario: " + inventario.capas.size()]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000043</Id>
+					<Name><![CDATA[panelInventarioLinea1]]></Name>
+					<X>14</X><Y>263</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Reservado en depósito: "
++ round(
+    stockReservadoDepositos(TipoProducto.JUGO)
+    + stockReservadoDepositos(TipoProducto.CASCARA)
+    + stockReservadoDepositos(TipoProducto.ACEITE)
+)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000044</Id>
+					<Name><![CDATA[panelInventarioLinea2]]></Name>
+					<X>14</X><Y>283</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Libre en depósito: "
++ round(
+    stockTotalDepositos(TipoProducto.JUGO)
+    + stockTotalDepositos(TipoProducto.CASCARA)
+    + stockTotalDepositos(TipoProducto.ACEITE)
+    - stockReservadoDepositos(TipoProducto.JUGO)
+    - stockReservadoDepositos(TipoProducto.CASCARA)
+    - stockReservadoDepositos(TipoProducto.ACEITE)
+)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000045</Id>
+					<Name><![CDATA[panelInventarioLinea3]]></Name>
+					<X>14</X><Y>303</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Transferencias: " + round(cantidadTransferenciasDepositos)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000046</Id>
+					<Name><![CDATA[panelInventarioLinea4]]></Name>
+					<X>14</X><Y>323</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Toneladas reservadas acumuladas: "
++ round(toneladasReservadasAcumuladas)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1785000000047</Id>
+					<Name><![CDATA[panelContenedores]]></Name>
+					<X>370</X><Y>205</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>155</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1785000000048</Id>
+					<Name><![CDATA[panelContenedoresTitulo]]></Name>
+					<X>384</X><Y>215</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Contenedores y envíos"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000049</Id>
+					<Name><![CDATA[panelContenedoresLinea0]]></Name>
+					<X>384</X><Y>243</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Contenedores: " + contenedoresExportacion.size()]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000050</Id>
+					<Name><![CDATA[panelContenedoresLinea1]]></Name>
+					<X>384</X><Y>263</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Esperando posición: " + contenedoresEnEspera]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000051</Id>
+					<Name><![CDATA[panelContenedoresLinea2]]></Name>
+					<X>384</X><Y>283</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Exportados: "
++ contarContenedores(EstadoContenedor.EXPORTADO)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000052</Id>
+					<Name><![CDATA[panelContenedoresLinea3]]></Name>
+					<X>384</X><Y>303</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Envíos: " + envios.size()
++ " · en tránsito: " + contarEnvios(EstadoEnvio.EN_TRANSITO)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000053</Id>
+					<Name><![CDATA[panelContenedoresLinea4]]></Name>
+					<X>384</X><Y>323</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Envíos entregados: " + contarEnvios(EstadoEnvio.ENTREGADO)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1785000000054</Id>
+					<Name><![CDATA[panelEstiba]]></Name>
+					<X>740</X><Y>205</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>155</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1785000000055</Id>
+					<Name><![CDATA[panelEstibaTitulo]]></Name>
+					<X>754</X><Y>215</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Consolidación y cross dock"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000056</Id>
+					<Name><![CDATA[panelEstibaLinea0]]></Name>
+					<X>754</X><Y>243</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Consolidaciones: " + consolidacionesRealizadas]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000057</Id>
+					<Name><![CDATA[panelEstibaLinea1]]></Name>
+					<X>754</X><Y>263</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Uso de posiciones: "
++ round(100 * usoPosicionesConsolidacion()) + "%"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000058</Id>
+					<Name><![CDATA[panelEstibaLinea2]]></Name>
+					<X>754</X><Y>283</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Espera de posición: "
++ round(esperaConsolidacionContenedorDia) + " contenedor-día"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000059</Id>
+					<Name><![CDATA[panelEstibaLinea3]]></Name>
+					<X>754</X><Y>303</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Cross dock: " + operacionesCrossDock + " operaciones · "
++ round(toneladasCrossDock) + " tn"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000060</Id>
+					<Name><![CDATA[panelEstibaLinea4]]></Name>
+					<X>754</X><Y>323</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Cross dock reprogramados: " + crossDockReprogramados]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1785000000061</Id>
+					<Name><![CDATA[panelCostos]]></Name>
+					<X>1110</X><Y>205</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>155</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1785000000062</Id>
+					<Name><![CDATA[panelCostosTitulo]]></Name>
+					<X>1124</X><Y>215</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Costos (USD)"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000063</Id>
+					<Name><![CDATA[panelCostosLinea0]]></Name>
+					<X>1124</X><Y>243</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Almacenaje: " + round(getCostoAlmacenamientoTotal())]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000064</Id>
+					<Name><![CDATA[panelCostosLinea1]]></Name>
+					<X>1124</X><Y>263</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Flete planta-depósito: " + round(costoFletePlantaDeposito)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000065</Id>
+					<Name><![CDATA[panelCostosLinea2]]></Name>
+					<X>1124</X><Y>283</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Flete depósito-puerto: " + round(costoFleteDepositoPuertoReal)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000066</Id>
+					<Name><![CDATA[panelCostosLinea3]]></Name>
+					<X>1124</X><Y>303</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Consolidación: " + round(costoConsolidacionReal)
++ " · cross dock: " + round(costoCrossDockReal)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000067</Id>
+					<Name><![CDATA[panelCostosLinea4]]></Name>
+					<X>1124</X><Y>323</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Total de campaña: " + round(costoTotalCampania())]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785000000068</Id>
+					<Name><![CDATA[panelCostosLinea5]]></Name>
+					<X>1124</X><Y>343</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Por tonelada exportada: "
++ round(10 * costoPorToneladaExportada()) / 10.0]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+
+
 				<Level>
 					<Id>1784231466974</Id>
 					<Name><![CDATA[level]]></Name>
@@ -7063,98 +8574,10 @@ if (!retirado) {
 					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
 
 			<Presentation>
-				<Text>
-					<Id>1784246407608</Id>
-					<Name><![CDATA[Stock_Jugo]]></Name>
-					<X>-480</X><Y>80</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Stock jugo: " + round(planta.getStock(TipoProducto.JUGO)) + " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784246700865</Id>
-					<Name><![CDATA[Stock_Cascara]]></Name>
-					<X>-340</X><Y>80</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Stock cáscara: " + round(planta.getStock(TipoProducto.CASCARA)) + " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784246789051</Id>
-					<Name><![CDATA[Stock_Aceite]]></Name>
-					<X>-180</X><Y>80</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Stock aceite: " + round(planta.getStock(TipoProducto.ACEITE)) + " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784246922163</Id>
-					<Name><![CDATA[Día_Simulado]]></Name>
-					<X>880</X><Y>260</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Día: " + floor(time())]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
     			<TimePlot>
 					<Id>1784247083654</Id>
 					<Name><![CDATA[graficoStocksPlanta]]></Name>
-					<X>560</X><Y>0</Y>
+					<X>0</X><Y>385</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7237,514 +8660,14 @@ if (!retirado) {
 						<LineWidth>1.0</LineWidth>
 					</DatasetExpression>
 					<SamplesToKeep>365</SamplesToKeep>
-					<TimeWindowExpression><![CDATA[100]]></TimeWindowExpression>
+					<TimeWindowExpression><![CDATA[getEngine().getStopTime()]]></TimeWindowExpression>
 					<FillAreaUnderLine>false</FillAreaUnderLine>
 					<LabelFormat>MODEL_TIME_UNITS</LabelFormat>
     			</TimePlot>
-				<Text>
-					<Id>1784251502360</Id>
-					<Name><![CDATA[Excedente_jugo]]></Name>
-					<X>-490</X><Y>130</Y>
-					<Label><X>10</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Excedente jugo: " + round(planta.excedenteJugo) + " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784251510328</Id>
-					<Name><![CDATA[Balance_Jugo]]></Name>
-					<X>-490</X><Y>170</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Balance lotes jugo: "
-+ round(
-    planta.getStock(TipoProducto.JUGO)
-    - toneladasLotesEnPlanta(TipoProducto.JUGO)
-)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784251611287</Id>
-					<Name><![CDATA[Excedente_Cascara]]></Name>
-					<X>-340</X><Y>130</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Excedente cáscara: " + round(planta.excedenteCascara) + " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784251625113</Id>
-					<Name><![CDATA[Excedente_Aceite]]></Name>
-					<X>-170</X><Y>120</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Excedente aceite: " + round(planta.excedenteAceite) + " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784251673971</Id>
-					<Name><![CDATA[Balance_Cascara]]></Name>
-					<X>-340</X><Y>170</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Balance lotes cáscara: "
-+ round(
-    planta.getStock(TipoProducto.CASCARA)
-    - toneladasLotesEnPlanta(TipoProducto.CASCARA)
-)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784251679924</Id>
-					<Name><![CDATA[Balance_Aceite]]></Name>
-					<X>-170</X><Y>170</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Balance lotes aceite: "
-+ round(
-    planta.getStock(TipoProducto.ACEITE)
-    - toneladasLotesEnPlanta(TipoProducto.ACEITE)
-)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784255092092</Id>
-					<Name><![CDATA[Lote_Jugo]]></Name>
-					<X>-480</X><Y>40</Y>
-					<Label><X>0</X><Y>-20</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Toneladas en lotes de jugo: "
-+ round(toneladasLotesEnPlanta(TipoProducto.JUGO))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784288428668</Id>
-					<Name><![CDATA[Lote_Cascara]]></Name>
-					<X>-330</X><Y>30</Y>
-					<Label><X>-5</X><Y>-15</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Toneladas en lotes de cáscara: "
-+ round(toneladasLotesEnPlanta(TipoProducto.CASCARA))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784288665414</Id>
-					<Name><![CDATA[Lote_Aceite]]></Name>
-					<X>240</X><Y>-60</Y>
-					<Label><X>-5</X><Y>-15</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Toneladas en lotes de aceite: "
-+ round(toneladasLotesEnPlanta(TipoProducto.ACEITE))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784334440914</Id>
-					<Name><![CDATA[lotesJugo]]></Name>
-					<X>-490</X><Y>210</Y>
-					<Label><X>0</X><Y>-5</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Lotes de jugo: "
-+ cantidadLotesEnPlanta(TipoProducto.JUGO)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784334486242</Id>
-					<Name><![CDATA[loteCascara]]></Name>
-					<X>-340</X><Y>220</Y>
-					<Label><X>-10</X><Y>-15</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Lotes de cáscara: "
-+ cantidadLotesEnPlanta(TipoProducto.CASCARA)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784334556580</Id>
-					<Name><![CDATA[loteAceite]]></Name>
-					<X>-170</X><Y>220</Y>
-					<Label><X>-10</X><Y>-15</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Lotes de aceite: "
-+ cantidadLotesEnPlanta(TipoProducto.ACEITE)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784386804112</Id>
-					<Name><![CDATA[stock_dep_jugo]]></Name>
-					<X>-470</X><Y>260</Y>
-					<Label><X>-20</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Stock depósitos jugo: "
-+ round(stockTotalDepositos(TipoProducto.JUGO))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784386827653</Id>
-					<Name><![CDATA[stock_dep_jugo1]]></Name>
-					<X>460</X><Y>-60</Y>
-					<Label><X>-100</X><Y>-20</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Stock depósitos jugo: "
-+ round(stockTotalDepositos(TipoProducto.JUGO))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784386835878</Id>
-					<Name><![CDATA[stock_dep_cascara]]></Name>
-					<X>-340</X><Y>250</Y>
-					<Label><X>5</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Stock depósitos cáscara: "
-+ round(stockTotalDepositos(TipoProducto.CASCARA))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784386868443</Id>
-					<Name><![CDATA[stock_dep_aceite]]></Name>
-					<X>-180</X><Y>250</Y>
-					<Label><X>5</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Stock depósitos aceite: "
-+ round(stockTotalDepositos(TipoProducto.ACEITE))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784386964804</Id>
-					<Name><![CDATA[Tn_transf]]></Name>
-					<X>720</X><Y>590</Y>
-					<Label><X>-5</X><Y>-25</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Toneladas transferidas: "
-+ round(toneladasTransferidasDepositos)
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784387001003</Id>
-					<Name><![CDATA[cant_transf]]></Name>
-					<X>560</X><Y>590</Y>
-					<Label><X>-5</X><Y>-25</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Cantidad de transferencias: "
-+ cantidadTransferenciasDepositos]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784387223538</Id>
-					<Name><![CDATA[Cost_alm]]></Name>
-					<X>20</X><Y>580</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Costo almacenamiento: USD "
-+ round(getCostoAlmacenamientoTotal())]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784387251508</Id>
-					<Name><![CDATA[Cost_flete]]></Name>
-					<X>200</X><Y>580</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Costo flete planta-depósito: USD "
-+ round(costoFletePlantaDeposito)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784387282074</Id>
-					<Name><![CDATA[cost_total]]></Name>
-					<X>380</X><Y>580</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Costo fase 4: USD "
-+ round(
-    getCostoAlmacenamientoTotal()
-    + costoFletePlantaDeposito
-)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
     			<BarChart>
 					<Id>1784388760356</Id>
 					<Name><![CDATA[stocks]]></Name>
-					<X>160</X><Y>20</Y>
+					<X>450</X><Y>385</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7791,31 +8714,41 @@ if (!retirado) {
 					<ShowLegend>true</ShowLegend>
 					<DataItem>
 					<Id>1784388762399</Id>
-					<Expression><![CDATA[depFrinoa.getStock(TipoProducto.JUGO)]]></Expression>
+					<Expression><![CDATA[depFrinoa.getStock(TipoProducto.JUGO)
++ depFrinoa.getStock(TipoProducto.CASCARA)
++ depFrinoa.getStock(TipoProducto.ACEITE)]]></Expression>
 					<Color>-9807155</Color>
 						<Title><![CDATA[Frinoa]]></Title>
 					</DataItem>
 					<DataItem>
 					<Id>1784388812835</Id>
-					<Expression><![CDATA[depNorry.getStock(TipoProducto.JUGO)]]></Expression>
+					<Expression><![CDATA[depNorry.getStock(TipoProducto.JUGO)
++ depNorry.getStock(TipoProducto.CASCARA)
++ depNorry.getStock(TipoProducto.ACEITE)]]></Expression>
 					<Color>-2987746</Color>
 						<Title><![CDATA[Norry]]></Title>
 					</DataItem>
 					<DataItem>
 					<Id>1784388833092</Id>
-					<Expression><![CDATA[depBoreas.getStock(TipoProducto.JUGO)]]></Expression>
+					<Expression><![CDATA[depBoreas.getStock(TipoProducto.JUGO)
++ depBoreas.getStock(TipoProducto.CASCARA)
++ depBoreas.getStock(TipoProducto.ACEITE)]]></Expression>
 					<Color>-2448096</Color>
 						<Title><![CDATA[Boreas]]></Title>
 					</DataItem>
 					<DataItem>
 					<Id>1784388849973</Id>
-					<Expression><![CDATA[depRuta9.getStock(TipoProducto.JUGO)]]></Expression>
+					<Expression><![CDATA[depRuta9.getStock(TipoProducto.JUGO)
++ depRuta9.getStock(TipoProducto.CASCARA)
++ depRuta9.getStock(TipoProducto.ACEITE)]]></Expression>
 					<Color>-9728477</Color>
 						<Title><![CDATA[Ruta9]]></Title>
 					</DataItem>
 					<DataItem>
 					<Id>1784388872861</Id>
-					<Expression><![CDATA[depDodero.getStock(TipoProducto.JUGO)]]></Expression>
+					<Expression><![CDATA[depDodero.getStock(TipoProducto.JUGO)
++ depDodero.getStock(TipoProducto.CASCARA)
++ depDodero.getStock(TipoProducto.ACEITE)]]></Expression>
 					<Color>-16728065</Color>
 						<Title><![CDATA[Dodero]]></Title>
 					</DataItem>
@@ -7827,714 +8760,309 @@ if (!retirado) {
 						<RelativeWidth>0.8</RelativeWidth>
 					</Bars>
     			</BarChart>
-				<Text>
-					<Id>1784409856532</Id>
-					<Name><![CDATA[pedRecividos]]></Name>
-					<X>-490</X><Y>310</Y>
-					<Label><X>0</X><Y>-15</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Pedidos recibidos: " + pedidos.size()]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784409893480</Id>
-					<Name><![CDATA[pedPendientes]]></Name>
-					<X>-340</X><Y>310</Y>
-					<Label><X>0</X><Y>-15</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Pedidos pendientes: "
-+ contarPedidos(EstadoPedido.PENDIENTE)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784409950950</Id>
-					<Name><![CDATA[pedRecervado]]></Name>
-					<X>-180</X><Y>310</Y>
-					<Label><X>0</X><Y>-15</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Pedidos reservados: "
-+ contarPedidos(EstadoPedido.RESERVADO)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784410008322</Id>
-					<Name><![CDATA[pedAtrasado]]></Name>
-					<X>-490</X><Y>370</Y>
-					<Label><X>0</X><Y>-15</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Pedidos atrasados: "
-+ contarPedidos(EstadoPedido.ATRASADO)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784410155023</Id>
-					<Name><![CDATA[tnSolicitada]]></Name>
-					<X>-350</X><Y>370</Y>
-					<Label><X>0</X><Y>-15</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Toneladas solicitadas: "
-+ round(toneladasSolicitadasAcumuladas)
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784410218590</Id>
-					<Name><![CDATA[tnReserv]]></Name>
-					<X>-180</X><Y>360</Y>
-					<Label><X>0</X><Y>-15</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Toneladas reservadas: "
-+ round(toneladasReservadasAcumuladas)
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784413431836</Id>
-					<Name><![CDATA[text]]></Name>
-					<X>-480</X><Y>410</Y>
+							<TimePlot>
+					<Id>1785100000100</Id>
+					<Name><![CDATA[graficoFlota]]></Name>
+					<X>870</X><Y>385</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<AutoUpdate>true</AutoUpdate>
+					<RecurrenceProperties>
+						<Id>1785100000101</Id>
+						<OccurrenceAtTime>true</OccurrenceAtTime>
+						<OccurrenceDate>1784275200000</OccurrenceDate>
+						<OccurrenceTime Class="CodeUnitValue">
+							<Code><![CDATA[0]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[DAY]]></Unit>
+						</OccurrenceTime>
+						<RecurrenceCode Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[DAY]]></Unit>
+						</RecurrenceCode>
+					</RecurrenceProperties>
 					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Balance reserva jugo: "
-+ round(
-    stockReservadoDepositos(TipoProducto.JUGO)
-    - toneladasReservadasEnLotes(TipoProducto.JUGO)
-)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784413459821</Id>
-					<Name><![CDATA[text1]]></Name>
-					<X>-290</X><Y>410</Y>
+					<Width>430</Width>
+					<Height>235</Height>
+					<BackgroundColor/>
+					<BorderColor/>
+					<ChartArea>
+						<XOffset>50</XOffset>
+						<YOffset>30</YOffset>
+						<Width>350</Width>
+						<Height>145</Height>
+						<BackgroundColor>-1</BackgroundColor>
+						<BorderColor>-16777216</BorderColor>
+						<GridColor>-12566464</GridColor>
+					</ChartArea>
+					<Legend>
+						<Place>SOUTH</Place>
+						<TextColor>-16777216</TextColor>
+						<Size>30</Size>
+					</Legend>
+					<Labels>
+						<HorLabelsPosition>DEFAULT</HorLabelsPosition>
+						<VerLabelsPosition>DEFAULT</VerLabelsPosition>
+						<TextColor>-12566464</TextColor>
+					</Labels>
+					<ShowLegend>true</ShowLegend>
+					<TimeWindowsMovementType>MOVEMENT_WITH_TIME</TimeWindowsMovementType>		
+					<TimeWindowUnits>MODEL_TIME_UNIT</TimeWindowUnits>
+					<VerScaleFromExpression><![CDATA[0]]></VerScaleFromExpression>
+					<VerScaleToExpression><![CDATA[1]]></VerScaleToExpression>
+					<VerScaleType>AUTO</VerScaleType>
+					<DrawLine>true</DrawLine>
+					<Interpolation>LINEAR</Interpolation>
+					<DatasetExpression>
+						<Title><![CDATA[Flota de producto (%)]]></Title>
+					<Id>1785100000110</Id>
+					<Expression><![CDATA[dataset10]]></Expression>
+					<Color>-10496</Color>
+					<Expression2><![CDATA[100 * utilizacionFlota()]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>
+						<Title><![CDATA[Portacontenedores (%)]]></Title>
+					<Id>1785100000111</Id>
+					<Expression><![CDATA[dataset11]]></Expression>
+					<Color>-6632142</Color>
+					<Expression2><![CDATA[100 * utilizacionPortacontenedor()]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>
+						<Title><![CDATA[Flota usada hoy (%)]]></Title>
+					<Id>1785100000112</Id>
+					<Expression><![CDATA[dataset12]]></Expression>
+					<Color>-14774017</Color>
+					<Expression2><![CDATA[flotaProductoOfrecidaHoy <= 0
+? 0
+: 100 * flotaProductoUsadaHoy / flotaProductoOfrecidaHoy]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<SamplesToKeep>365</SamplesToKeep>
+					<TimeWindowExpression><![CDATA[getEngine().getStopTime()]]></TimeWindowExpression>
+					<FillAreaUnderLine>false</FillAreaUnderLine>
+					<LabelFormat>MODEL_TIME_UNITS</LabelFormat>
+    			</TimePlot>
+				<TimePlot>
+					<Id>1785100000200</Id>
+					<Name><![CDATA[graficoCostos]]></Name>
+					<X>0</X><Y>685</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<AutoUpdate>true</AutoUpdate>
+					<RecurrenceProperties>
+						<Id>1785100000201</Id>
+						<OccurrenceAtTime>true</OccurrenceAtTime>
+						<OccurrenceDate>1784275200000</OccurrenceDate>
+						<OccurrenceTime Class="CodeUnitValue">
+							<Code><![CDATA[0]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[DAY]]></Unit>
+						</OccurrenceTime>
+						<RecurrenceCode Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[DAY]]></Unit>
+						</RecurrenceCode>
+					</RecurrenceProperties>
 					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Balance reserva cáscara: "
-+ round(
-    stockReservadoDepositos(TipoProducto.CASCARA)
-    - toneladasReservadasEnLotes(TipoProducto.CASCARA)
-)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784413475759</Id>
-					<Name><![CDATA[text2]]></Name>
-					<X>-100</X><Y>410</Y>
+					<Width>430</Width>
+					<Height>235</Height>
+					<BackgroundColor/>
+					<BorderColor/>
+					<ChartArea>
+						<XOffset>50</XOffset>
+						<YOffset>30</YOffset>
+						<Width>350</Width>
+						<Height>145</Height>
+						<BackgroundColor>-1</BackgroundColor>
+						<BorderColor>-16777216</BorderColor>
+						<GridColor>-12566464</GridColor>
+					</ChartArea>
+					<Legend>
+						<Place>SOUTH</Place>
+						<TextColor>-16777216</TextColor>
+						<Size>30</Size>
+					</Legend>
+					<Labels>
+						<HorLabelsPosition>DEFAULT</HorLabelsPosition>
+						<VerLabelsPosition>DEFAULT</VerLabelsPosition>
+						<TextColor>-12566464</TextColor>
+					</Labels>
+					<ShowLegend>true</ShowLegend>
+					<TimeWindowsMovementType>MOVEMENT_WITH_TIME</TimeWindowsMovementType>		
+					<TimeWindowUnits>MODEL_TIME_UNIT</TimeWindowUnits>
+					<VerScaleFromExpression><![CDATA[0]]></VerScaleFromExpression>
+					<VerScaleToExpression><![CDATA[1]]></VerScaleToExpression>
+					<VerScaleType>AUTO</VerScaleType>
+					<DrawLine>true</DrawLine>
+					<Interpolation>LINEAR</Interpolation>
+					<DatasetExpression>
+						<Title><![CDATA[Almacenaje]]></Title>
+					<Id>1785100000210</Id>
+					<Expression><![CDATA[dataset20]]></Expression>
+					<Color>-10496</Color>
+					<Expression2><![CDATA[getCostoAlmacenamientoTotal()]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>
+						<Title><![CDATA[Flete planta-deposito]]></Title>
+					<Id>1785100000211</Id>
+					<Expression><![CDATA[dataset21]]></Expression>
+					<Color>-6632142</Color>
+					<Expression2><![CDATA[costoFletePlantaDeposito]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>
+						<Title><![CDATA[Flete deposito-puerto]]></Title>
+					<Id>1785100000212</Id>
+					<Expression><![CDATA[dataset22]]></Expression>
+					<Color>-14774017</Color>
+					<Expression2><![CDATA[costoFleteDepositoPuertoReal]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>
+						<Title><![CDATA[Consolidacion]]></Title>
+					<Id>1785100000213</Id>
+					<Expression><![CDATA[dataset23]]></Expression>
+					<Color>-2987746</Color>
+					<Expression2><![CDATA[costoConsolidacionReal]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>
+						<Title><![CDATA[Cross dock]]></Title>
+					<Id>1785100000214</Id>
+					<Expression><![CDATA[dataset24]]></Expression>
+					<Color>-9807155</Color>
+					<Expression2><![CDATA[costoCrossDockReal]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<SamplesToKeep>365</SamplesToKeep>
+					<TimeWindowExpression><![CDATA[getEngine().getStopTime()]]></TimeWindowExpression>
+					<FillAreaUnderLine>false</FillAreaUnderLine>
+					<LabelFormat>MODEL_TIME_UNITS</LabelFormat>
+    			</TimePlot>
+				<TimePlot>
+					<Id>1785100000300</Id>
+					<Name><![CDATA[graficoServicio]]></Name>
+					<X>450</X><Y>685</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<AutoUpdate>true</AutoUpdate>
+					<RecurrenceProperties>
+						<Id>1785100000301</Id>
+						<OccurrenceAtTime>true</OccurrenceAtTime>
+						<OccurrenceDate>1784275200000</OccurrenceDate>
+						<OccurrenceTime Class="CodeUnitValue">
+							<Code><![CDATA[0]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[DAY]]></Unit>
+						</OccurrenceTime>
+						<RecurrenceCode Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[DAY]]></Unit>
+						</RecurrenceCode>
+					</RecurrenceProperties>
 					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Balance reserva aceite: "
-+ round(
-    stockReservadoDepositos(TipoProducto.ACEITE)
-    - toneladasReservadasEnLotes(TipoProducto.ACEITE)
-)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784413497196</Id>
-					<Name><![CDATA[text3]]></Name>
-					<X>-480</X><Y>460</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Reservado jugo: "
-+ round(stockReservadoDepositos(TipoProducto.JUGO))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784413530068</Id>
-					<Name><![CDATA[text4]]></Name>
-					<X>-300</X><Y>460</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Reservado cáscara: "
-+ round(stockReservadoDepositos(TipoProducto.CASCARA))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784413543254</Id>
-					<Name><![CDATA[text5]]></Name>
-					<X>-110</X><Y>460</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Reservado aceite: "
-+ round(stockReservadoDepositos(TipoProducto.ACEITE))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784682133185</Id>
-					<Name><![CDATA[text6]]></Name>
-					<X>60</X><Y>20</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Envíos totales: " + envios.size()]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784682164841</Id>
-					<Name><![CDATA[text7]]></Name>
-					<X>60</X><Y>90</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Esperando camión: "
-+ contarEnvios(EstadoEnvio.ESPERANDO_CAMION)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784682181931</Id>
-					<Name><![CDATA[text8]]></Name>
-					<X>60</X><Y>150</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["En tránsito: "
-+ contarEnvios(EstadoEnvio.EN_TRANSITO)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784682197835</Id>
-					<Name><![CDATA[text9]]></Name>
-					<X>60</X><Y>210</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Entregados: "
-+ contarEnvios(EstadoEnvio.ENTREGADO)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784682229911</Id>
-					<Name><![CDATA[text10]]></Name>
-					<X>60</X><Y>260</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Camiones de producto: "
-+ round(flotaProductoUsadaHoy * 100) / 100.0
-+ " / "
-+ flotaProductoOfrecidaHoy
-+ " camion-dia"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784682287496</Id>
-					<Name><![CDATA[text11]]></Name>
-					<X>60</X><Y>320</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Portacontenedores ocupados: "
-+ flotaPortacontenedores.busy()
-+ " / "
-+ flotaPortacontenedores.size()]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784682322762</Id>
-					<Name><![CDATA[text12]]></Name>
-					<X>60</X><Y>380</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Pedidos entregados: "
-+ contarPedidos(EstadoPedido.ENTREGADO)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784682326462</Id>
-					<Name><![CDATA[text13]]></Name>
-					<X>60</X><Y>430</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[]]></Text>
-					<TextCode><![CDATA["Flete depósito-puerto: USD "
-+ round(costoFleteDepositoPuertoReal)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784682335559</Id>
-					<Name><![CDATA[text14]]></Name>
-					<X>60</X><Y>480</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Consolidación real: USD "
-+ round(costoConsolidacionReal)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784733947002</Id>
-					<Name><![CDATA[text15]]></Name>
-					<X>250</X><Y>340</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Entregado jugo: "
-+ round(toneladasEntregadas(TipoProducto.JUGO))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784733963059</Id>
-					<Name><![CDATA[text16]]></Name>
-					<X>250</X><Y>390</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Entregado cáscara: "
-+ round(toneladasEntregadas(TipoProducto.CASCARA))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784733979466</Id>
-					<Name><![CDATA[text17]]></Name>
-					<X>260</X><Y>440</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Entregado aceite: "
-+ round(toneladasEntregadas(TipoProducto.ACEITE))
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1784999600</Id>
-					<Name><![CDATA[textContenedores]]></Name>
-					<X>720</X><Y>320</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Contenedores: "
-+ contenedoresExportacion.size()
-+ " | exportados: "
-+ contarContenedores(
-    EstadoContenedor.EXPORTADO
-)]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1785000300</Id>
-					<Name><![CDATA[textEsperaConsolidacion]]></Name>
-					<X>720</X><Y>340</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Esperando posicion: "
-+ contenedoresEnEspera
-+ " | espera acum.: "
-+ round(esperaConsolidacionContenedorDia)
-+ " cont-dia"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1785000302</Id>
-					<Name><![CDATA[textUsoPosiciones]]></Name>
-					<X>720</X><Y>360</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Uso de posiciones: "
-+ round(
-    100.0 * consolidacionesRealizadas
-    / max(1, capacidadConsolidacionOfrecida)
-)
-+ " %"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1785010500</Id>
-					<Name><![CDATA[textCrossDock]]></Name>
-					<X>720</X><Y>380</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Cross dock: "
-+ (habilitaCrossDock ? "on" : "off")
-+ " | operaciones: "
-+ operacionesCrossDock
-+ " | "
-+ round(toneladasCrossDock)
-+ " tn"]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
-					<Id>1785010502</Id>
-					<Name><![CDATA[textCrossDockCosto]]></Name>
-					<X>720</X><Y>400</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Cross dock USD "
-+ round(costoCrossDockReal)
-+ " | reprogramados: "
-+ crossDockReprogramados
-+ " | degradados: "
-+ crossDockDegradados]]></TextCode>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>10</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-			</Presentation>
+					<Width>430</Width>
+					<Height>235</Height>
+					<BackgroundColor/>
+					<BorderColor/>
+					<ChartArea>
+						<XOffset>50</XOffset>
+						<YOffset>30</YOffset>
+						<Width>350</Width>
+						<Height>145</Height>
+						<BackgroundColor>-1</BackgroundColor>
+						<BorderColor>-16777216</BorderColor>
+						<GridColor>-12566464</GridColor>
+					</ChartArea>
+					<Legend>
+						<Place>SOUTH</Place>
+						<TextColor>-16777216</TextColor>
+						<Size>30</Size>
+					</Legend>
+					<Labels>
+						<HorLabelsPosition>DEFAULT</HorLabelsPosition>
+						<VerLabelsPosition>DEFAULT</VerLabelsPosition>
+						<TextColor>-12566464</TextColor>
+					</Labels>
+					<ShowLegend>true</ShowLegend>
+					<TimeWindowsMovementType>MOVEMENT_WITH_TIME</TimeWindowsMovementType>		
+					<TimeWindowUnits>MODEL_TIME_UNIT</TimeWindowUnits>
+					<VerScaleFromExpression><![CDATA[0]]></VerScaleFromExpression>
+					<VerScaleToExpression><![CDATA[1]]></VerScaleToExpression>
+					<VerScaleType>AUTO</VerScaleType>
+					<DrawLine>true</DrawLine>
+					<Interpolation>LINEAR</Interpolation>
+					<DatasetExpression>
+						<Title><![CDATA[Entregados]]></Title>
+					<Id>1785100000310</Id>
+					<Expression><![CDATA[dataset30]]></Expression>
+					<Color>-10496</Color>
+					<Expression2><![CDATA[contarPedidos(EstadoPedido.ENTREGADO)]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>
+						<Title><![CDATA[Atrasados]]></Title>
+					<Id>1785100000311</Id>
+					<Expression><![CDATA[dataset31]]></Expression>
+					<Color>-6632142</Color>
+					<Expression2><![CDATA[contarPedidos(EstadoPedido.ATRASADO)]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>
+						<Title><![CDATA[Pendientes]]></Title>
+					<Id>1785100000312</Id>
+					<Expression><![CDATA[dataset32]]></Expression>
+					<Color>-14774017</Color>
+					<Expression2><![CDATA[contarPedidos(EstadoPedido.PENDIENTE)]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>
+						<Title><![CDATA[Reservados]]></Title>
+					<Id>1785100000313</Id>
+					<Expression><![CDATA[dataset33]]></Expression>
+					<Color>-2987746</Color>
+					<Expression2><![CDATA[contarPedidos(EstadoPedido.RESERVADO)]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<SamplesToKeep>365</SamplesToKeep>
+					<TimeWindowExpression><![CDATA[getEngine().getStopTime()]]></TimeWindowExpression>
+					<FillAreaUnderLine>false</FillAreaUnderLine>
+					<LabelFormat>MODEL_TIME_UNITS</LabelFormat>
+    			</TimePlot>
+</Presentation>
 
 				</Level>
 			</Presentation>
@@ -14784,7 +15312,7 @@ estado = factible
 			<Name><![CDATA[Escenarios]]></Name>
 			<AdditionalClassCode><![CDATA[// Version del modelo con la que se corrio el barrido: sin esto un csv de
 // resultados no se puede volver a atar al codigo que lo produjo.
-static final String VERSION_MODELO = "fase-13";
+static final String VERSION_MODELO = "fase-15";
 
 static final int REPLICAS = 30;
 

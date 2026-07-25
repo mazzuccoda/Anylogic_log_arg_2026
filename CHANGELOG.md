@@ -37,9 +37,14 @@ Formato: una entrada por cambio relevante del modelo o de las definiciones. Las 
 - Flota de producto como capacidad diaria (ADR-044): `Main.abrirFlotaDelDia()`, `camionDiaViaje(origen, destino)`, `viajesNecesariosCamion(toneladas)`, `flotaProductoLibreHoy()`, `tomarFlotaProducto(idDestino, viajes)` y `flotaProductoAlcanza(idDestino, toneladas)`. Cada día se ofrecen `camiones_producto` camión-día; un viaje redondo consume `2 × distancia / velocidad / horas_operativas_dia` de jornada y mueve a lo sumo `capacidad_camion_tn`. `tomarFlotaProducto()` aborta la corrida si la capacidad del día se sobregira (V-026).
 - Columnas `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh` y `horas_operativas_dia` en la tabla `Escenario`, validadas al arrancar. La velocidad del camión dejó de estar cableada en el cálculo del tiempo de viaje.
 - KPIs `utilizacion_portacontenedor` (`Main.utilizacionPortacontenedor()`) y `viajes_planta_deposito` (`Main.viajesPlantaDeposito`) en `resultados/kpis_por_corrida.csv`.
+- Tablero de indicadores en la vista de `Main` (fase 15, ADR-045): ocho paneles —campaña, producción y stock, transporte y flota, pedidos y servicio, inventario y reservas, contenedores y envíos, consolidación y cross dock, costos— y cinco gráficos de evolución: stock en planta, stock por depósito, utilización de las dos flotas, costos acumulados y pedidos por estado. Reemplaza los 54 textos sueltos que se superponían con el diagrama de flujo. Ningún indicador recalcula nada: cada línea llama a la misma función de `Main` que alimenta el CSV del barrido, así que tablero y barrido no pueden discrepar. Las variables y los parámetros de `Main` dejan de dibujarse en la corrida.
+- [Manual de uso](docs/10_Manual/Manual_de_Uso.md): paso a paso para abrir el modelo, correr una campaña, cargar datos propios desde Excel, definir escenarios, correr el barrido, leer `resultados/kpis_por_corrida.csv` y resolver los errores frecuentes, con recetas para dimensionar flota y depósitos.
+- [Tablero e indicadores](docs/10_Manual/Tablero_e_Indicadores.md): qué muestra cada panel y cada gráfico, la definición formal de los doce KPIs del barrido y cómo leerlos sin equivocarse.
 - Campo `deterministico` del escenario (ADR-043): E-09 deja de sortear el día de llegada, el plazo, el producto y la terminal de cada pedido, no sólo la magnitud. Verificado en PLE: desvío exactamente 0 del costo total en 30 réplicas, contra 4,2% antes del cambio.
 
 ### Cambiado
+
+- `VERSION_MODELO` del experimento pasa de `fase-13` a `fase-15`: el CSV del barrido queda etiquetado con la versión que lo produjo.
 
 - Modelo, datos de entrada como tablas (paso 2, H-08 parcial, H-09, H-10, H-11):
   - la demanda deja de ser tres pedidos cableados y se lee de la tabla `PedidoPlan`;
