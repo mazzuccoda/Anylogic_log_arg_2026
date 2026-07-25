@@ -601,26 +601,33 @@ class Main extends Agent {
             return false;
         }
 
-        double capacidadCamion = 25;
-        double pendiente =
-            pedido.toneladasReservadas;
+        // Fase 6: la carga se divide en contenedores y cada envio mueve uno. La capacidad ya
+        // no es un camion generico de 25 tn: es la del tipo de contenedor del producto.
+        int cantidad = crearContenedoresParaPedido(pedido);
 
-        while (pendiente > 0.0001) {
+        if (cantidad <= 0) {
+            return false;
+        }
 
-            double toneladasEnvio =
-                min(capacidadCamion, pendiente);
+        for (
+            ContenedorExportacion contenedor
+            : pedido.contenedores
+        ) {
 
             Envio envio =
                 crearEnvio(
                     pedido,
-                    toneladasEnvio
+                    contenedor.cantidadAsignadaTon
                 );
 
             if (envio == null) {
                 return false;
             }
 
-            pendiente -= toneladasEnvio;
+            envio.contenedor = contenedor;
+
+            contenedor.estado =
+                EstadoContenedor.ESPERANDO_CARGA;
         }
 
         pedido.estado =
@@ -745,23 +752,6 @@ class Main extends Agent {
         error("Capacidad no definida para el contenedor: " + tipo);
 
         return 0;
-    }
-
-    void pruebaCrearContenedor() {
-        ContenedorExportacion c = add_contenedoresExportacion();
-
-        c.idContenedor = "CONT-TEST-001";
-        c.tipoContenedor = TipoContenedor.REEFER_40;
-        c.capacidadTon = obtenerCapacidadContenedorTon(c.tipoContenedor);
-        c.cantidadAsignadaTon = 24.5;
-        c.estado = EstadoContenedor.CREADO;
-
-        traceln(
-            "Creado: " + c.idContenedor
-            + " | Tipo: " + c.tipoContenedor
-            + " | Capacidad: " + c.capacidadTon
-            + " tn"
-        );
     }
 
     void cargarDatosEntrada() {
@@ -1157,6 +1147,138 @@ class Main extends Agent {
         if (lote.estado == EstadoLote.EN_PLANTA) {
             lote.estado = EstadoLote.EN_DEPOSITO;
         }
+    }
+
+    int crearContenedoresParaPedido(Pedido pedido) {
+        // Fase 6: la unidad de exportacion pasa a ser el contenedor. Se crean tantos como haga
+        // falta para lo reservado, con la capacidad del tipo de contenedor del producto, y el
+        // ultimo va parcial. Cada uno queda asociado al lote que mas aporta a su carga.
+        if (
+            pedido == null
+            || pedido.depositoAsignado == null
+            || pedido.puertoSalida == null
+            || pedido.toneladasReservadas <= 0.0001
+        ) {
+            return 0;
+        }
+
+        if (!pedido.contenedores.isEmpty()) {
+            return pedido.contenedores.size();
+        }
+
+        pedido.tipoContenedor =
+            obtenerTipoContenedor(pedido.producto);
+
+        pedido.capacidadContenedorTon =
+            obtenerCapacidadContenedorTon(pedido.tipoContenedor);
+
+        Deposito deposito = pedido.depositoAsignado;
+
+        double distancia =
+            deposito.getDistanciaTerminal(pedido.puertoSalida);
+
+        // Capas que este pedido tiene reservadas, en el mismo orden FIFO en que se van a
+        // despachar: recorrerlas en paralelo a los contenedores da el lote de cada uno.
+        java.util.List<Capa> reservadas =
+            inventario.capasReservadasDe(
+                deposito.idUbicacion,
+                pedido.producto,
+                pedido.codigoPedido
+            );
+
+        int indiceCapa = 0;
+
+        double saldoCapa =
+            reservadas.isEmpty()
+            ? 0
+            : reservadas.get(0).reservadasDe(pedido.codigoPedido);
+
+        double pendiente = pedido.toneladasReservadas;
+        int numero = 0;
+
+        while (pendiente > 0.0001) {
+
+            double carga =
+                min(pedido.capacidadContenedorTon, pendiente);
+
+            numero++;
+
+            ContenedorExportacion contenedor =
+                add_contenedoresExportacion();
+
+            contenedor.idContenedor =
+                pedido.codigoPedido + "-C" + numero;
+
+            contenedor.Pedido = pedido;
+            contenedor.producto = pedido.producto;
+            contenedor.tipoContenedor = pedido.tipoContenedor;
+            contenedor.capacidadTon = pedido.capacidadContenedorTon;
+            contenedor.cantidadAsignadaTon = carga;
+            contenedor.terminalDestino = pedido.puertoSalida;
+            contenedor.lugarConsolidacion = deposito;
+            contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
+
+            contenedor.costoEstimado =
+                150
+                + distancia * 2 * 1.20
+                + carga
+                * pedido.puertoSalida.getCostoConsolidado(
+                    pedido.producto
+                );
+
+            double resto = carga;
+            double mayorAporte = 0;
+
+            while (resto > 0.0001 && indiceCapa < reservadas.size()) {
+
+                double toma = min(resto, saldoCapa);
+
+                if (toma > mayorAporte) {
+                    mayorAporte = toma;
+                    contenedor.lote =
+                        buscarLote(
+                            reservadas.get(indiceCapa).idLote
+                        );
+                }
+
+                resto -= toma;
+                saldoCapa -= toma;
+
+                if (saldoCapa <= 0.0001) {
+                    indiceCapa++;
+
+                    saldoCapa =
+                        indiceCapa < reservadas.size()
+                        ? reservadas.get(indiceCapa)
+                            .reservadasDe(pedido.codigoPedido)
+                        : 0;
+                }
+            }
+
+            pedido.contenedores.add(contenedor);
+
+            pendiente -= carga;
+        }
+
+        pedido.cantidadContenedores = numero;
+
+        return numero;
+    }
+
+    int contarContenedores(EstadoContenedor estadoBuscado) {
+        int cantidad = 0;
+
+        for (
+            ContenedorExportacion contenedor
+            : contenedoresExportacion
+        ) {
+
+            if (contenedor.estado == estadoBuscado) {
+                cantidad++;
+            }
+        }
+
+        return cantidad;
     }
 
     // ----- Eventos -----

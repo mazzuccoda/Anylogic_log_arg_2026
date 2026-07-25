@@ -20,7 +20,7 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 | 3. Existencias físicas múltiples | Capas de inventario implementadas y verificadas en PLE | 90% |
 | 4. Transferencias parciales | Planta → depósito parcial, verificada en PLE; falta depósito → depósito | 80% |
 | 5. Reserva profesional | Reservas trazables por capa y pedido; falta compromiso y reserva parcial | 60% |
-| 6. Contenedores individuales | Parcial | 25% |
+| 6. Contenedores individuales | Contenedores reales por pedido, verificados en PLE; falta el ciclo del vacío | 70% |
 | 7. Consolidación directa | Pendiente | 10% |
 | 8. Cross docking | Diseño validado | 10% |
 | 9. Terminal | Parcial | 20% |
@@ -114,12 +114,13 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 
 - [x] Crear tipo de agente.
 - [x] Definir variables iniciales.
-- [x] Crear prueba técnica de un contenedor.
-- [ ] Crear N por pedido.
-- [ ] Distribuir toneladas.
-- [ ] Manejar último parcial.
-- [ ] Asociar lote y reserva.
-- [ ] Implementar estados.
+- [x] Crear prueba técnica de un contenedor. Reemplazada por la lógica real: se eliminaron `Main.pruebaCrearContenedor()`, `Pedido.probarCalculoContenedores()` y el botón de prueba.
+- [x] Crear N por pedido (`Main.crearContenedoresParaPedido()`).
+- [x] Distribuir toneladas con la capacidad del tipo de contenedor del producto.
+- [x] Manejar último parcial.
+- [x] Asociar lote y reserva: cada contenedor guarda el lote que más aporta a su carga, tomado de las capas reservadas del pedido en orden FIFO.
+- [x] Implementar estados a lo largo del flujo: `ESPERANDO_PROGRAMACION` → `ESPERANDO_CARGA` → `CONSOLIDANDO` → `EN_TRANSITO_CARGADO` → `INGRESADO_TERMINAL` → `EXPORTADO`.
+- [ ] Ciclo del contenedor vacío (`ESPERANDO_RETIRO_VACIO`, `EN_TRANSITO_VACIO`): sin modelar, y por eso `horaRetiroVacio` y `horaLlegadaLugarCarga` quedan en `-1`.
 - [ ] Validar V-010 y V-011.
 
 ## 10. Fase 7 — Consolidación

@@ -86,6 +86,8 @@ Se mantienen como referencia comercial y de presentación; no son saldos y no de
 
 ## 4. ContenedorExportacion
 
+Desde la fase 6 los contenedores son reales: `Main.crearContenedoresParaPedido()` crea uno por cada carga en que se divide lo reservado del pedido, y `Envio.contenedor` los vincula con el flujo de transporte. Los campos `hora*` guardan tiempo del modelo, cuya unidad es el día.
+
 | Campo | Tipo | Unidad |
 |---|---|---|
 | `idContenedor` | String/int | — |
@@ -99,11 +101,11 @@ Se mantienen como referencia comercial y de presentación; no son saldos y no de
 | `lugarConsolidacion` | Agent | — |
 | `camionPortacontenedor` | Camion | — |
 | `estado` | EstadoContenedor | — |
-| `horaRetiroVacio` | double | hora/día simulado |
-| `horaLlegadaLugarCarga` | double | hora/día simulado |
-| `horaInicioCarga` | double | hora/día simulado |
-| `horaFinCarga` | double | hora/día simulado |
-| `horaIngresoTerminal` | double | hora/día simulado |
+| `horaRetiroVacio` | double | día simulado; sin usar (ciclo del vacío no modelado) |
+| `horaLlegadaLugarCarga` | double | día simulado; sin usar |
+| `horaInicioCarga` | double | día simulado |
+| `horaFinCarga` | double | día simulado |
+| `horaIngresoTerminal` | double | día simulado |
 | `costoEstimado` | double | USD |
 | `costoReal` | double | USD |
 | `diaProgramadoCrossDock` | double | día |

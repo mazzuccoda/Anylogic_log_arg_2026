@@ -58,14 +58,4 @@ class Pedido extends Agent {
             toneladasSolicitadas / capacidadContenedorTon
         );
     }
-
-    void probarCalculoContenedores() {
-        traceln(
-            "Pedido: " + codigoPedido
-            + " | Producto: " + producto
-            + " | Toneladas: " + toneladasSolicitadas
-            + " | Contenedores: "
-            + calcularCantidadContenedores()
-        );
-    }
 }

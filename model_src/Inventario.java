@@ -225,6 +225,18 @@ public class Inventario implements java.io.Serializable {
 		return mejor;
 	}
 
+	/** Capas de una ubicacion con reserva viva de un pedido, de la mas antigua a la mas nueva. */
+	public java.util.List<Capa> capasReservadasDe(String idUbicacion, TipoProducto producto,
+			String codigoPedido) {
+		java.util.List<Capa> sel = new java.util.ArrayList<Capa>();
+		for (Capa c : fifo(idUbicacion, producto)) {
+			if (c.reservadasDe(codigoPedido) > EPS) {
+				sel.add(c);
+			}
+		}
+		return sel;
+	}
+
 	// ---------------------------------------------------- movimientos (FIFO)
 
 	/** Retira saldo libre consumiendo primero lo mas antiguo. Devuelve lo retirado. */
