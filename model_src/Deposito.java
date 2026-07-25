@@ -25,6 +25,9 @@ class Deposito extends Agent {
     double toneladasConsolidadas = 0;
     int contenedoresConsolidados = 0;
     double costoConsolidacionAcumulado = 0;
+    double toneladasCrossDock = 0;
+    int contenedoresCrossDock = 0;
+    double costoCrossDockAcumulado = 0;
 
     // ----- Funciones -----
 
@@ -148,6 +151,18 @@ class Deposito extends Agent {
         return modelo.datos.servicioCargaUsdTn(
             idUbicacion,
             producto
+        );
+    }
+
+    double getCostoCrossDock(TipoProducto producto) {
+        // El cross dock es otro servicio que la estiba desde stock: tiene su propia
+        // fila en TarifaServicioCarga (ADR-041).
+        Main modelo = (Main) getRootAgent();
+
+        return modelo.datos.servicioCargaUsdTn(
+            idUbicacion,
+            producto,
+            "CROSS_DOCK"
         );
     }
 }

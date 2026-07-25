@@ -88,7 +88,7 @@ Se mantienen como referencia comercial y de presentación; no son saldos y no de
 
 Desde la fase 6 los contenedores son reales: `Main.crearContenedoresParaPedido()` crea uno por cada carga en que se divide lo reservado del pedido, y `Envio.contenedor` los vincula con el flujo de transporte. Los campos `hora*` guardan tiempo del modelo, cuya unidad es el día.
 
-Desde la fase 7 `lugarConsolidacion` es el sitio donde efectivamente se estiba —el depósito o la terminal, según `Main.estrategiaConsolidacion` (ADR-040)— y es el que cobra la tarifa y consume la posición del día.
+Desde la fase 7 `lugarConsolidacion` es el sitio donde efectivamente se estiba —el depósito o la terminal, según `Main.estrategiaConsolidacion` (ADR-040)— y es el que cobra la tarifa y consume la posición del día. Desde la fase 8, un contenedor de un pedido cruzado se estiba siempre en el depósito de cross dock, cobra la tarifa `CROSS_DOCK` y tiene prioridad de despacho, porque su producto no puede quedarse guardado (ADR-041).
 
 | Campo | Tipo | Unidad |
 |---|---|---|
@@ -104,6 +104,8 @@ Desde la fase 7 `lugarConsolidacion` es el sitio donde efectivamente se estiba �
 | `camionPortacontenedor` | Camion | — |
 | `estado` | EstadoContenedor | — |
 | `diasEsperaPosicion` | int | días que el contenedor esperó una posición de consolidación (fase 7) |
+| `esCrossDock` | boolean | el contenedor se arma con producto que cruza el depósito sin almacenarse (fase 8) |
+| `diaProgramadoCrossDock` | double | día en que se programó el cruce; `-1` si no es cross dock |
 | `horaRetiroVacio` | double | día simulado; sin usar (ciclo del vacío no modelado) |
 | `horaLlegadaLugarCarga` | double | día simulado; sin usar |
 | `horaInicioCarga` | double | día simulado |

@@ -77,7 +77,8 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.numero("velocidad_consolidacion_tn_hora"),
 					f.numero("capacidad_diaria_tn"),
 					f.numero("posiciones_consolidacion"),
-					f.numero("contenedores_por_posicion_dia")));
+					f.numero("contenedores_por_posicion_dia"),
+					f.numero("posiciones_cross_dock")));
 		}
 
 		for (Fila f : filas("CapacidadUbicacion", null, null)) {
@@ -103,7 +104,8 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		for (Fila f : filas("TarifaServicioCarga", null, null)) {
 			datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-					f.texto("id_ubicacion"), f.producto("producto"), f.numero("tarifa_usd_tn")));
+					f.texto("id_ubicacion"), f.producto("producto"), f.texto("tipo_servicio"),
+					f.numero("tarifa_usd_tn")));
 		}
 
 		for (Fila f : filas("ProduccionPlan", "id_escenario", idEscenario)) {

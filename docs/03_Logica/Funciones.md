@@ -186,6 +186,24 @@ Fase 7 de la secuencia diaria. Recorre los contenedores en `ESPERANDO_PROGRAMACI
 
 Reemplaza a `generarEnviosParaPedido()`, que creaba de una vez todos los envíos del pedido: con capacidad finita, un pedido puede despachar sus contenedores a lo largo de varios días.
 
+### `abrirPosicionesCrossDockDelDia()`, `capacidadCrossDockLibre(String idUbicacion)` y `tomarPosicionesCrossDock(String idUbicacion, int cantidad)`
+
+**Estado:** implementadas (fase 8).
+
+El cupo de cross dock es un recurso contado por día y por sitio (ADR-041): cada depósito habilitado ofrece `posiciones_cross_dock` operaciones diarias, donde una operación es un contenedor cruzado. La primera función abre el cupo del día y acumula la capacidad ofrecida; las otras dos consultan y consumen. Con `habilitaCrossDock = false` no se abre capacidad y ningún pedido se cruza.
+
+### `programarCrossDockDelDia()`, `intentarCrossDockPedido(Pedido pedido)` y `seleccionarSitioCrossDock(Pedido pedido)`
+
+**Estado:** implementadas (fase 8).
+
+Fase 5 de la secuencia diaria, antes de las transferencias normales. Recorre los pedidos `PENDIENTE` o `ATRASADO` en orden de fecha límite e intenta servirlos con producto que todavía está en planta: elige el sitio de menor costo (flete planta–depósito + flete depósito–puerto + tarifa de cross dock, sin almacenaje) entre los que tienen cupo y espacio, exige camión libre ese mismo día (ADR-011), toma las posiciones, mueve el producto y lo reserva para el pedido, que queda marcado `esCrossDock`. Si falta stock, cupo o camión, el pedido no se cruza, suma en `crossDockReprogramados` y compite de nuevo al día siguiente por el camino normal.
+
+### `costoServicioEstibaUsdTn(Pedido pedido, Deposito deposito)` y `estibaEnDeposito(Pedido pedido)`
+
+**Estado:** implementadas (fase 8).
+
+Resuelven quién cobra la estiba y dónde se arma el contenedor: la tarifa `CROSS_DOCK` del depósito si el pedido se cruzó, la de `CONSOLIDACION` del depósito si la estrategia consolida ahí, y la de la terminal en el caso contrario. Se usan tanto para el costo estimado del contenedor como para el costo real del envío, de modo que no puedan divergir.
+
 ### Funciones objetivo de planificación
 
 - `localizarExistenciasPedido(Pedido pedido)`;
@@ -204,7 +222,8 @@ Reemplaza a `generarEnviosParaPedido()`, que creaba de una vez todos los envíos
 
 - `getStock(producto)`, `getReservado(producto)`, `getDisponible(producto)`: derivadas de las capas del depósito (ADR-023);
 - `getCapacidad(producto)`, `getEspacioDisponible(producto)`, `puedeRecibir(producto, toneladas)`, `puedeReservar(producto, toneladas)`;
-- `getCostoConsolidado(producto)`: tarifa de estiba del depósito, leída de `TarifaServicioCarga`. Desde la fase 7 es la que se cobra cuando se consolida en depósito. Las posiciones no viven en el depósito: las resuelven `Main.tomarPosicionConsolidacion()` y `DatosEntrada.capacidadConsolidacionDia()` (ADR-039).
+- `getCostoConsolidado(producto)`: tarifa de estiba del depósito, leída de `TarifaServicioCarga` con `tipo_servicio = CONSOLIDACION`. Desde la fase 7 es la que se cobra cuando se consolida en depósito. Las posiciones no viven en el depósito: las resuelven `Main.tomarPosicionConsolidacion()` y `DatosEntrada.capacidadConsolidacionDia()` (ADR-039).
+- `getCostoCrossDock(producto)`: la misma tabla con `tipo_servicio = CROSS_DOCK`, que es la que se cobra cuando el producto cruza el depósito sin almacenarse (fase 8). El depósito acumula `toneladasCrossDock`, `contenedoresCrossDock` y `costoCrossDockAcumulado`.
 
 Las mutadoras `recibirProducto`, `retirarProducto`, `reservarProducto`, `liberarReserva` y `despacharReservado` se eliminaron: el depósito no tiene saldo propio, y el movimiento lo hace `Main.inventario`.
 

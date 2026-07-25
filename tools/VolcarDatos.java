@@ -37,12 +37,13 @@ public class VolcarDatos {
 
 		hoja("Ubicacion", "id_ubicacion\ttipo\thabilitada\tvelocidad_carga_tn_hora"
 				+ "\tvelocidad_descarga_tn_hora\tvelocidad_consolidacion_tn_hora\tcapacidad_diaria_tn"
-				+ "\tposiciones_consolidacion\tcontenedores_por_posicion_dia");
+				+ "\tposiciones_consolidacion\tcontenedores_por_posicion_dia\tposiciones_cross_dock");
 		for (DatosEntrada.Ubicacion u : d.ubicaciones) {
 			System.out.println(u.idUbicacion + "\t" + u.tipo + "\t" + u.habilitada
 					+ "\t" + u.velocidadCargaTnHora + "\t" + u.velocidadDescargaTnHora
 					+ "\t" + u.velocidadConsolidacionTnHora + "\t" + u.capacidadDiariaTn
-					+ "\t" + u.posicionesConsolidacion + "\t" + u.contenedoresPorPosicionDia);
+					+ "\t" + u.posicionesConsolidacion + "\t" + u.contenedoresPorPosicionDia
+					+ "\t" + u.posicionesCrossDock);
 		}
 
 		hoja("CapacidadUbicacion", "id_ubicacion\tproducto\tcapacidad_tn");
@@ -65,9 +66,10 @@ public class VolcarDatos {
 			System.out.println(t.origen + "\t" + t.destino + "\t" + t.producto + "\t" + t.tarifaUsdTn);
 		}
 
-		hoja("TarifaServicioCarga", "id_ubicacion\tproducto\ttarifa_usd_tn");
+		hoja("TarifaServicioCarga", "id_ubicacion\tproducto\ttipo_servicio\ttarifa_usd_tn");
 		for (DatosEntrada.TarifaServicioCarga t : d.tarifasServicioCarga) {
-			System.out.println(t.idUbicacion + "\t" + t.producto + "\t" + t.tarifaUsdTn);
+			System.out.println(t.idUbicacion + "\t" + t.producto + "\t" + t.tipoServicio
+					+ "\t" + t.tarifaUsdTn);
 		}
 
 		hoja("ProduccionPlan", "id_escenario\tdia\tproducto\tproduccion_tn");
