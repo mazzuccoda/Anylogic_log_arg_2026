@@ -135,7 +135,11 @@ public class GeneradorSintetico implements java.io.Serializable {
 		e.pedidosPorCampania = 40;
 		e.toneladasMediasPedido = 400;
 		e.plazoPedidoDias = 15;
-		e.camionesProducto = 8;
+		e.camionesProducto = 3;
+		e.camionesPortacontenedor = 4;
+		e.capacidadCamionTn = 25;
+		e.velocidadCamionKmh = 70;
+		e.horasOperativasDia = 10;
 		e.factorProduccion = 1;
 		e.factorCapacidadPlanta = 1;
 		e.factorCapacidadDeposito = 1;
@@ -148,9 +152,11 @@ public class GeneradorSintetico implements java.io.Serializable {
 		if (idEscenario.equals("E-00")) {
 			return e;                                    // caso base
 		} else if (idEscenario.equals("E-01")) {
-			e.camionesProducto = 4;                      // flota reducida
+			e.camionesProducto = 1;                      // flota reducida
+			e.camionesPortacontenedor = 1;
 		} else if (idEscenario.equals("E-02")) {
-			e.camionesProducto = 12;                     // flota ampliada
+			e.camionesProducto = 6;                      // flota ampliada
+			e.camionesPortacontenedor = 8;
 		} else if (idEscenario.equals("E-03")) {
 			e.factorCapacidadDeposito = 0.5;             // depositos a la mitad
 		} else if (idEscenario.equals("E-04")) {

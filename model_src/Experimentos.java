@@ -29,7 +29,8 @@ class Escenarios extends ParamVariationExperiment {
 
         static final String[] KPIS = {
         	"costo_total_usd", "costo_usd_tn", "nivel_servicio", "atraso_promedio_dias",
-        	"utilizacion_flota", "uso_posiciones_consolidacion", "toneladas_exportadas",
+        	"utilizacion_flota", "utilizacion_portacontenedor", "viajes_planta_deposito",
+        	"uso_posiciones_consolidacion", "toneladas_exportadas",
         	"excedente_final_tn", "toneladas_cross_dock", "contenedores_exportados"
         };
 
@@ -100,6 +101,8 @@ class Escenarios extends ParamVariationExperiment {
         	root.nivelServicio(),
         	root.atrasoPromedioDias(),
         	root.utilizacionFlota(),
+        	root.utilizacionPortacontenedor(),
+        	root.viajesPlantaDeposito,
         	root.usoPosicionesConsolidacion(),
         	root.toneladasExportadas(),
         	root.excedenteFinalTn(),

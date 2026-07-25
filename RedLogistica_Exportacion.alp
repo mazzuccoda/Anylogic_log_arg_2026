@@ -1217,6 +1217,52 @@ cargarDatosEntrada();]]></StartupCode>
 					</Properties>
 
 				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1795300001</Id>
+					<Name><![CDATA[flotaProductoOfrecidaHoy]]></Name>
+					<X>-140</X><Y>1020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1795300003</Id>
+					<Name><![CDATA[flotaProductoUsadaHoy]]></Name>
+					<X>-140</X><Y>1040</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1795300005</Id>
+					<Name><![CDATA[viajesPlantaDeposito]]></Name>
+					<X>-140</X><Y>1060</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Connectors>
 				<Connector>
@@ -1550,6 +1596,7 @@ cargarDatosEntrada();]]></StartupCode>
 					</Properties>
 					<Action><![CDATA[// Secuencia diaria del modelo (ADR-034). El orden es parte de la
 // definicion: cambiarlo cambia el costo y el servicio del dia.
+abrirFlotaDelDia();                      // 0. abrir la capacidad de flota del dia
 producirEnPlantas();                     // 1. producir
 registrarPedidosDelDia();                // 2. planificar y comprometer
 abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
@@ -1561,7 +1608,6 @@ prepararPedidosReservados();             // 8. armar los contenedores del pedido
 despacharContenedoresPendientes();       // 9. consolidar y despachar lo que entra
 devengarAlmacenamientoDiario();          // 10. devengar almacenaje
 registrarAtrasos();                      // 11. registrar indicadores del dia
-registrarUsoFlota();                     // utilizacion de la flota del dia
 validarInventario();              // invariantes de las capas (ADR-023)]]></Action>
 				</Event>
 			</Events>
@@ -1672,8 +1718,13 @@ return lote;]]></Body>
     return Double.POSITIVE_INFINITY;
 }
 
-return costoFijoViajePD
-    + datos.distanciaKm("PLANTA", deposito.idUbicacion) * costoKmPD
+// El costo fijo y el kilometraje son por viaje, y un viaje mueve a lo sumo un
+// camion cargado: mover el doble de toneladas cuesta dos veces el viaje.
+return viajesNecesariosCamion(toneladas)
+    * (
+        costoFijoViajePD
+        + datos.distanciaKm("PLANTA", deposito.idUbicacion) * costoKmPD
+    )
     + toneladas * costoTnPD;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -2285,7 +2336,7 @@ double distancia =
             envio.terminalDestino
         );
 
-double velocidadCamion = 70;
+double velocidadCamion = datos.escenario.velocidadCamionKmh;
 
 // Fase 7: si el contenedor se estiba en el deposito, la carga es la
 // consolidacion y en la terminal solo queda el ingreso.
@@ -3029,6 +3080,24 @@ if (aMover <= 0.0001) {
     return 0;
 }
 
+// La flota del dia acota el movimiento: se mueve lo que entra en los viajes que
+// todavia se pueden hacer hoy, y el resto queda en planta (ADR-044).
+double camionDiaPorViaje =
+    camionDiaViaje("PLANTA", destino.idUbicacion);
+
+int viajesPosibles = (int) floor(
+    flotaProductoLibreHoy() / camionDiaPorViaje + 0.0001
+);
+
+if (viajesPosibles <= 0) {
+    return 0;
+}
+
+aMover = min(
+    aMover,
+    viajesPosibles * datos.escenario.capacidadCamionTn
+);
+
 double movidas = inventario.moverLote(
     lote.idLote,
     "PLANTA",
@@ -3040,6 +3109,11 @@ double movidas = inventario.moverLote(
 if (movidas <= 0.0001) {
     return 0;
 }
+
+tomarFlotaProducto(
+    destino.idUbicacion,
+    viajesNecesariosCamion(movidas)
+);
 
 lote.depositoActual = destino;
 lote.diaIngresoDeposito = time();
@@ -3616,20 +3690,6 @@ return (int) ceil(toneladas / capacidad - 0.0001);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1785010408</Id>
-					<Name><![CDATA[camionDisponibleHoy]]></Name>
-					<X>130</X><Y>1480</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[// ADR-011: la operacion necesita el camion el mismo dia. Si no hay ninguno
-// libre, no se mueve nada y el producto se queda en planta.
-return flotaCamiones.idle() > 0;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[Deposito]]></ReturnType>
 					<Id>1785010410</Id>
 					<Name><![CDATA[seleccionarSitioCrossDock]]></Name>
@@ -3785,7 +3845,12 @@ if (sitio == null) {
     return false;
 }
 
-if (!camionDisponibleHoy()) {
+if (
+    !flotaProductoAlcanza(
+        sitio.idUbicacion,
+        pedido.toneladasSolicitadas
+    )
+) {
     crossDockReprogramados++;
     return false;
 }
@@ -3992,22 +4057,8 @@ estrategiaConsolidacion =
     ? EstrategiaLogistica.CONSOLIDACION_TERMINAL
     : EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
 
-flotaCamiones.set_capacity(escenario.camionesProducto);]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1786000102</Id>
-					<Name><![CDATA[registrarUsoFlota]]></Name>
-					<X>130</X><Y>1620</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[// Camion-dia: con paso diario la utilizacion es cuantos camiones estan
-// ocupados al cierre de cada dia sobre los que hay.
-camionDiaOcupado += flotaCamiones.busy();
-camionDiaOfrecido += flotaCamiones.size();]]></Body>
+// La flota de portacontenedores se fija al abrir el dia: en el arranque el pool
+// todavia no leyo su capacidad y set_capacity aca se pierde.]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -4158,6 +4209,164 @@ return total;]]></Body>
 					<Body><![CDATA[return capacidadConsolidacionOfrecida <= 0
     ? 0
     : consolidacionesRealizadas / capacidadConsolidacionOfrecida;]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1795300011</Id>
+					<Name><![CDATA[abrirFlotaDelDia]]></Name>
+					<X>130</X><Y>1300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// La flota de producto es capacidad diaria, igual que las posiciones (ADR-039):
+// cada dia se ofrece un camion-dia por camion y lo que no entra espera al dia
+// siguiente. Los portacontenedores, en cambio, se toman y se liberan en el flujo.
+flotaProductoUsadaHoy = 0;
+flotaProductoOfrecidaHoy = datos.escenario.camionesProducto;
+
+flotaPortacontenedores.set_capacity(
+    datos.escenario.camionesPortacontenedor
+);
+
+camionDiaOfrecido += flotaProductoOfrecidaHoy;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1795300013</Id>
+					<Name><![CDATA[camionDiaViaje]]></Name>
+					<X>130</X><Y>1340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[origen]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[destino]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Un camion-dia es un camion durante una jornada, asi que un viaje consume la
+// fraccion de jornada que tarda el viaje redondo. La carga y la descarga todavia
+// no se le cobran al camion: PLANTA no tiene velocidades cargadas.
+double distancia = datos.distanciaKm(origen, destino);
+
+return 2 * distancia
+    / datos.escenario.velocidadCamionKmh
+    / datos.escenario.horasOperativasDia;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1795300015</Id>
+					<Name><![CDATA[viajesNecesariosCamion]]></Name>
+					<X>130</X><Y>1380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Un camion lleva a lo sumo su capacidad: mover mas toneladas es hacer mas viajes,
+// no un viaje mas grande.
+return (int) ceil(
+    toneladas / datos.escenario.capacidadCamionTn - 0.0001
+);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1795300017</Id>
+					<Name><![CDATA[flotaProductoLibreHoy]]></Name>
+					<X>130</X><Y>1420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[return flotaProductoOfrecidaHoy - flotaProductoUsadaHoy;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1795300019</Id>
+					<Name><![CDATA[tomarFlotaProducto]]></Name>
+					<X>130</X><Y>1460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idDestino]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[viajes]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[double camionDia = viajes * camionDiaViaje("PLANTA", idDestino);
+
+flotaProductoUsadaHoy += camionDia;
+camionDiaOcupado += camionDia;
+viajesPlantaDeposito += viajes;
+
+// La capacidad del dia es un limite fisico, no una preferencia: si se sobregira
+// es que alguien movio producto sin pedir camion (V-026).
+if (flotaProductoUsadaHoy > flotaProductoOfrecidaHoy + 0.0001) {
+    error(
+        "Dia "
+        + time()
+        + ": la flota de producto se sobregiro ("
+        + flotaProductoUsadaHoy
+        + " de "
+        + flotaProductoOfrecidaHoy
+        + " camion-dia)."
+    );
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1795300021</Id>
+					<Name><![CDATA[flotaProductoAlcanza]]></Name>
+					<X>130</X><Y>1500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idDestino]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El cross dock es todo o nada: si la flota del dia no alcanza para el pedido
+// entero, no se mueve nada (ADR-010).
+return flotaProductoLibreHoy() + 0.0001
+    >= viajesNecesariosCamion(toneladas)
+    * camionDiaViaje("PLANTA", idDestino);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1795300023</Id>
+					<Name><![CDATA[utilizacionPortacontenedor]]></Name>
+					<X>130</X><Y>1540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// El pool lleva la estadistica de ocupacion en tiempo continuo; muestrearlo una
+// vez por dia no veia los viajes que empiezan y terminan dentro del mismo dia.
+return flotaPortacontenedores.utilization();]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -5245,7 +5454,7 @@ return total;]]></Body>
 				</EmbeddedObject>
 				<EmbeddedObject>
 					<Id>1784592621437</Id>
-					<Name><![CDATA[flotaCamiones]]></Name>
+					<Name><![CDATA[flotaPortacontenedores]]></Name>
 					<X>60</X><Y>960</Y>
 					<Label><X>-40</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -5272,7 +5481,7 @@ return total;]]></Body>
 						<Parameter>
 							<Name><![CDATA[capacity]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[8]]></Code>
+								<Code><![CDATA[0]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -5693,7 +5902,7 @@ return total;]]></Body>
 						<Parameter>
 							<Name><![CDATA[resourcePool]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[flotaCamiones]]></Code>
+								<Code><![CDATA[flotaPortacontenedores]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -6337,7 +6546,7 @@ envio.estado =
 							<Name><![CDATA[delayTime]]></Name>
 							<Value Class="CodeUnitValue">
 								<Code><![CDATA[agent.tiempoRetornoHoras]]></Code>
-								<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+								<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -8012,8 +8221,11 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Camiones ocupados: "
-+ flotaCamiones.busy()]]></TextCode>
+					<TextCode><![CDATA["Camiones de producto: "
++ round(flotaProductoUsadaHoy * 100) / 100.0
++ " / "
++ flotaProductoOfrecidaHoy
++ " camion-dia"]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8035,8 +8247,10 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Camiones disponibles: "
-+ flotaCamiones.idle()]]></TextCode>
+					<TextCode><![CDATA["Portacontenedores ocupados: "
++ flotaPortacontenedores.busy()
++ " / "
++ flotaPortacontenedores.size()]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -14584,7 +14798,8 @@ static class Corrida {
 
 static final String[] KPIS = {
 	"costo_total_usd", "costo_usd_tn", "nivel_servicio", "atraso_promedio_dias",
-	"utilizacion_flota", "uso_posiciones_consolidacion", "toneladas_exportadas",
+	"utilizacion_flota", "utilizacion_portacontenedor", "viajes_planta_deposito",
+	"uso_posiciones_consolidacion", "toneladas_exportadas",
 	"excedente_final_tn", "toneladas_cross_dock", "contenedores_exportados"
 };
 
@@ -14651,6 +14866,8 @@ c.kpis = new double[] {
 	root.nivelServicio(),
 	root.atrasoPromedioDias(),
 	root.utilizacionFlota(),
+	root.utilizacionPortacontenedor(),
+	root.viajesPlantaDeposito,
 	root.usoPosicionesConsolidacion(),
 	root.toneladasExportadas(),
 	root.excedenteFinalTn(),
@@ -14868,7 +15085,11 @@ public class DatosEntrada implements java.io.Serializable {
 
 		// Palancas del barrido (ADR-032): la fila del escenario define la corrida
 		// entera, asi que agregar un escenario es agregar una fila.
-		public int camionesProducto;
+		public int camionesProducto;               // planta -> deposito (granel)
+		public int camionesPortacontenedor;        // deposito -> terminal
+		public double capacidadCamionTn;
+		public double velocidadCamionKmh;
+		public double horasOperativasDia;          // jornada del camion, define viajes por dia
 		public double factorProduccion;
 		public double factorCapacidadPlanta;
 		public double factorCapacidadDeposito;
@@ -15188,6 +15409,22 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.add("camiones_producto debe ser > 0.");
 		}
 
+		if (escenario.camionesPortacontenedor <= 0) {
+			errores.add("camiones_portacontenedor debe ser > 0.");
+		}
+
+		if (escenario.capacidadCamionTn <= 0) {
+			errores.add("capacidad_camion_tn debe ser > 0.");
+		}
+
+		if (escenario.velocidadCamionKmh <= 0) {
+			errores.add("velocidad_camion_kmh debe ser > 0.");
+		}
+
+		if (escenario.horasOperativasDia <= 0 || escenario.horasOperativasDia > 24) {
+			errores.add("horas_operativas_dia debe estar en (0, 24].");
+		}
+
 		if (escenario.factorProduccion <= 0 || escenario.factorCapacidadPlanta <= 0
 				|| escenario.factorCapacidadDeposito <= 0 || escenario.factorStorage <= 0) {
 			errores.add("Los factores del escenario deben ser > 0.");
@@ -15490,7 +15727,11 @@ public class GeneradorSintetico implements java.io.Serializable {
 		e.pedidosPorCampania = 40;
 		e.toneladasMediasPedido = 400;
 		e.plazoPedidoDias = 15;
-		e.camionesProducto = 8;
+		e.camionesProducto = 3;
+		e.camionesPortacontenedor = 4;
+		e.capacidadCamionTn = 25;
+		e.velocidadCamionKmh = 70;
+		e.horasOperativasDia = 10;
 		e.factorProduccion = 1;
 		e.factorCapacidadPlanta = 1;
 		e.factorCapacidadDeposito = 1;
@@ -15503,9 +15744,11 @@ public class GeneradorSintetico implements java.io.Serializable {
 		if (idEscenario.equals("E-00")) {
 			return e;                                    // caso base
 		} else if (idEscenario.equals("E-01")) {
-			e.camionesProducto = 4;                      // flota reducida
+			e.camionesProducto = 1;                      // flota reducida
+			e.camionesPortacontenedor = 1;
 		} else if (idEscenario.equals("E-02")) {
-			e.camionesProducto = 12;                     // flota ampliada
+			e.camionesProducto = 6;                      // flota ampliada
+			e.camionesPortacontenedor = 8;
 		} else if (idEscenario.equals("E-03")) {
 			e.factorCapacidadDeposito = 0.5;             // depositos a la mitad
 		} else if (idEscenario.equals("E-04")) {
@@ -15759,6 +16002,10 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.toneladasMediasPedido = f.numero("toneladas_medias_pedido");
 			e.plazoPedidoDias = f.entero("plazo_pedido_dias");
 			e.camionesProducto = f.entero("camiones_producto");
+			e.camionesPortacontenedor = f.entero("camiones_portacontenedor");
+			e.capacidadCamionTn = f.numero("capacidad_camion_tn");
+			e.velocidadCamionKmh = f.numero("velocidad_camion_kmh");
+			e.horasOperativasDia = f.numero("horas_operativas_dia");
 			e.factorProduccion = f.numero("factor_produccion");
 			e.factorCapacidadPlanta = f.numero("factor_capacidad_planta");
 			e.factorCapacidadDeposito = f.numero("factor_capacidad_deposito");

@@ -54,6 +54,10 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.toneladasMediasPedido = f.numero("toneladas_medias_pedido");
 			e.plazoPedidoDias = f.entero("plazo_pedido_dias");
 			e.camionesProducto = f.entero("camiones_producto");
+			e.camionesPortacontenedor = f.entero("camiones_portacontenedor");
+			e.capacidadCamionTn = f.numero("capacidad_camion_tn");
+			e.velocidadCamionKmh = f.numero("velocidad_camion_kmh");
+			e.horasOperativasDia = f.numero("horas_operativas_dia");
 			e.factorProduccion = f.numero("factor_produccion");
 			e.factorCapacidadPlanta = f.numero("factor_capacidad_planta");
 			e.factorCapacidadDeposito = f.numero("factor_capacidad_deposito");

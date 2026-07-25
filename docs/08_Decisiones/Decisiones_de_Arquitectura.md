@@ -338,6 +338,19 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 **Alternativas:** tratar variabilidad cero como determinístico implícito (acopla dos conceptos y esconde los sorteos que quedan); correr E-09 con una sola réplica (no verifica nada, sólo evita mirar el desvío).  
 **Consecuencias:** E-09 da desvío exactamente 0 en 30 réplicas y sirve como prueba de regresión del barrido. Sus resultados no son comparables con E-00 corrida a corrida, porque el plan de pedidos es otro; lo comparable es el comportamiento agregado.
 
+## ADR-044 — Dos flotas: la de producto se cuenta en camión-día, la de portacontenedores se toma en el flujo
+
+**Estado:** aceptada.  
+**Contexto:** el modelo declaraba una sola flota (`flotaCamiones`, un `ResourcePool`) que sólo usaba el tramo depósito→terminal, y la transferencia planta→depósito movía todas las toneladas del día sin pedir camión: `camionDisponibleHoy()` preguntaba si el pool tenía alguna unidad libre y nada más. Por eso E-01 y E-02 daban exactamente lo mismo que E-00 y `utilizacion_flota` daba ~0 (ADR-042, fase 13). Son además dos flotas distintas en la realidad: el granel planta→depósito lo mueve un camión de carga, y el contenedor lo mueve un portacontenedor.  
+**Decisión:** se modelan por separado y con el mecanismo que corresponde a cada paso de tiempo.
+
+- **Producto (planta→depósito, incluido el cross dock):** capacidad diaria contada en **camión-día**, igual que las posiciones de consolidación (ADR-039). Cada día `abrirFlotaDelDia()` ofrece `camiones_producto` camión-día. Un viaje consume `2 × distancia / velocidad_camion_kmh / horas_operativas_dia`, es decir la fracción de jornada que tarda ida y vuelta, y mueve a lo sumo `capacidad_camion_tn`: mover más toneladas son más viajes, no un viaje más grande. `transferirToneladasLote()` acota lo que mueve a los viajes que todavía entran hoy y lo que sobra queda en planta para el día siguiente. `tomarFlotaProducto()` aborta la corrida si la capacidad del día se sobregira.
+- **Portacontenedores (depósito→terminal):** siguen siendo el `ResourcePool` del flujo, renombrado `flotaPortacontenedores`, con capacidad `camiones_portacontenedor` fijada desde el escenario. El contenedor que no consigue camión espera en `colaCamiones`, que es lo que un pool sabe hacer y una capacidad diaria no.
+
+El costo del flete planta→depósito pasa a cobrarse **por viaje** (fijo y kilometraje por viaje, tarifa por tonelada sobre lo movido), coherente con la cantidad de viajes que la flota efectivamente hizo.  
+**Alternativas:** hacer que la transferencia diaria pase por los bloques `Seize`/`Release` del flujo (obliga a modelar cada viaje como entidad en un modelo de paso diario, sin ganar información); una sola flota para los dos tramos (mezcla camión de granel con portacontenedor y hace que el barrido no se pueda leer); dejar la utilización como muestreo diario del pool (medía 0,002 con la flota trabajando, porque no ve los viajes que empiezan y terminan el mismo día — ahora `utilizacionPortacontenedor()` usa la estadística del propio pool).  
+**Consecuencias:** E-01 (1 camión de cada flota) y E-02 (6 y 8) ya no son iguales a E-00: cambian utilización, viajes, atraso y nivel de servicio. Aparece un efecto contraintuitivo que es real y conviene tener presente al leer el barrido: **más camiones cuestan más**, porque el producto llega antes al depósito y paga más almacenaje, mientras el excedente que espera en planta no paga nada (la planta no tiene tarifa de almacenaje en el contrato de datos). El punto de quiebre de la flota hay que leerlo en nivel de servicio y atraso, no en el costo total. La carga y la descarga todavía no le consumen tiempo al camión, porque la planta no tiene velocidades cargadas.
+
 ## Plantilla para nuevas decisiones
 
 ```markdown

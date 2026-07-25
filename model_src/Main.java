@@ -49,6 +49,9 @@ class Main extends Agent {
     boolean habilitaCrossDock = false;
     double camionDiaOcupado = 0;
     double camionDiaOfrecido = 0;
+    double flotaProductoOfrecidaHoy = 0;
+    double flotaProductoUsadaHoy = 0;
+    int viajesPlantaDeposito = 0;
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -66,7 +69,7 @@ class Main extends Agent {
     //  terminalT4
     //  pedidos
     //  envios
-    //  flotaCamiones
+    //  flotaPortacontenedores
     //  colaCamiones
     //  tomarCamion
     //  cargarCamion
@@ -126,8 +129,13 @@ class Main extends Agent {
             return Double.POSITIVE_INFINITY;
         }
 
-        return costoFijoViajePD
-            + datos.distanciaKm("PLANTA", deposito.idUbicacion) * costoKmPD
+        // El costo fijo y el kilometraje son por viaje, y un viaje mueve a lo sumo un
+        // camion cargado: mover el doble de toneladas cuesta dos veces el viaje.
+        return viajesNecesariosCamion(toneladas)
+            * (
+                costoFijoViajePD
+                + datos.distanciaKm("PLANTA", deposito.idUbicacion) * costoKmPD
+            )
             + toneladas * costoTnPD;
     }
 
@@ -535,7 +543,7 @@ class Main extends Agent {
                     envio.terminalDestino
                 );
 
-        double velocidadCamion = 70;
+        double velocidadCamion = datos.escenario.velocidadCamionKmh;
 
         // Fase 7: si el contenedor se estiba en el deposito, la carga es la
         // consolidacion y en la terminal solo queda el ingreso.
@@ -1059,6 +1067,24 @@ class Main extends Agent {
             return 0;
         }
 
+        // La flota del dia acota el movimiento: se mueve lo que entra en los viajes que
+        // todavia se pueden hacer hoy, y el resto queda en planta (ADR-044).
+        double camionDiaPorViaje =
+            camionDiaViaje("PLANTA", destino.idUbicacion);
+
+        int viajesPosibles = (int) floor(
+            flotaProductoLibreHoy() / camionDiaPorViaje + 0.0001
+        );
+
+        if (viajesPosibles <= 0) {
+            return 0;
+        }
+
+        aMover = min(
+            aMover,
+            viajesPosibles * datos.escenario.capacidadCamionTn
+        );
+
         double movidas = inventario.moverLote(
             lote.idLote,
             "PLANTA",
@@ -1070,6 +1096,11 @@ class Main extends Agent {
         if (movidas <= 0.0001) {
             return 0;
         }
+
+        tomarFlotaProducto(
+            destino.idUbicacion,
+            viajesNecesariosCamion(movidas)
+        );
 
         lote.depositoActual = destino;
         lote.diaIngresoDeposito = time();
@@ -1497,12 +1528,6 @@ class Main extends Agent {
         return (int) ceil(toneladas / capacidad - 0.0001);
     }
 
-    boolean camionDisponibleHoy() {
-        // ADR-011: la operacion necesita el camion el mismo dia. Si no hay ninguno
-        // libre, no se mueve nada y el producto se queda en planta.
-        return flotaCamiones.idle() > 0;
-    }
-
     Deposito seleccionarSitioCrossDock(Pedido pedido) {
         Deposito mejorSitio = null;
         double menorCosto = Double.POSITIVE_INFINITY;
@@ -1615,7 +1640,12 @@ class Main extends Agent {
             return false;
         }
 
-        if (!camionDisponibleHoy()) {
+        if (
+            !flotaProductoAlcanza(
+                sitio.idUbicacion,
+                pedido.toneladasSolicitadas
+            )
+        ) {
             crossDockReprogramados++;
             return false;
         }
@@ -1762,14 +1792,8 @@ class Main extends Agent {
             ? EstrategiaLogistica.CONSOLIDACION_TERMINAL
             : EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
 
-        flotaCamiones.set_capacity(escenario.camionesProducto);
-    }
-
-    void registrarUsoFlota() {
-        // Camion-dia: con paso diario la utilizacion es cuantos camiones estan
-        // ocupados al cierre de cada dia sobre los que hay.
-        camionDiaOcupado += flotaCamiones.busy();
-        camionDiaOfrecido += flotaCamiones.size();
+        // La flota de portacontenedores se fija al abrir el dia: en el arranque el pool
+        // todavia no leyo su capacidad y set_capacity aca se pierde.
     }
 
     double costoTotalCampania() {
@@ -1858,12 +1882,86 @@ class Main extends Agent {
             : consolidacionesRealizadas / capacidadConsolidacionOfrecida;
     }
 
+    void abrirFlotaDelDia() {
+        // La flota de producto es capacidad diaria, igual que las posiciones (ADR-039):
+        // cada dia se ofrece un camion-dia por camion y lo que no entra espera al dia
+        // siguiente. Los portacontenedores, en cambio, se toman y se liberan en el flujo.
+        flotaProductoUsadaHoy = 0;
+        flotaProductoOfrecidaHoy = datos.escenario.camionesProducto;
+
+        flotaPortacontenedores.set_capacity(
+            datos.escenario.camionesPortacontenedor
+        );
+
+        camionDiaOfrecido += flotaProductoOfrecidaHoy;
+    }
+
+    double camionDiaViaje(String origen, String destino) {
+        // Un camion-dia es un camion durante una jornada, asi que un viaje consume la
+        // fraccion de jornada que tarda el viaje redondo. La carga y la descarga todavia
+        // no se le cobran al camion: PLANTA no tiene velocidades cargadas.
+        double distancia = datos.distanciaKm(origen, destino);
+
+        return 2 * distancia
+            / datos.escenario.velocidadCamionKmh
+            / datos.escenario.horasOperativasDia;
+    }
+
+    int viajesNecesariosCamion(double toneladas) {
+        // Un camion lleva a lo sumo su capacidad: mover mas toneladas es hacer mas viajes,
+        // no un viaje mas grande.
+        return (int) ceil(
+            toneladas / datos.escenario.capacidadCamionTn - 0.0001
+        );
+    }
+
+    double flotaProductoLibreHoy() {
+        return flotaProductoOfrecidaHoy - flotaProductoUsadaHoy;
+    }
+
+    void tomarFlotaProducto(String idDestino, int viajes) {
+        double camionDia = viajes * camionDiaViaje("PLANTA", idDestino);
+
+        flotaProductoUsadaHoy += camionDia;
+        camionDiaOcupado += camionDia;
+        viajesPlantaDeposito += viajes;
+
+        // La capacidad del dia es un limite fisico, no una preferencia: si se sobregira
+        // es que alguien movio producto sin pedir camion (V-026).
+        if (flotaProductoUsadaHoy > flotaProductoOfrecidaHoy + 0.0001) {
+            error(
+                "Dia "
+                + time()
+                + ": la flota de producto se sobregiro ("
+                + flotaProductoUsadaHoy
+                + " de "
+                + flotaProductoOfrecidaHoy
+                + " camion-dia)."
+            );
+        }
+    }
+
+    boolean flotaProductoAlcanza(String idDestino, double toneladas) {
+        // El cross dock es todo o nada: si la flota del dia no alcanza para el pedido
+        // entero, no se mueve nada (ADR-010).
+        return flotaProductoLibreHoy() + 0.0001
+            >= viajesNecesariosCamion(toneladas)
+            * camionDiaViaje("PLANTA", idDestino);
+    }
+
+    double utilizacionPortacontenedor() {
+        // El pool lleva la estadistica de ocupacion en tiempo continuo; muestrearlo una
+        // vez por dia no veia los viajes que empiezan y terminan dentro del mismo dia.
+        return flotaPortacontenedores.utilization();
+    }
+
     // ----- Eventos -----
 
     // evento pasoDiario [timeout cyclic] cada 1 day
     void pasoDiario_accion() {
         // Secuencia diaria del modelo (ADR-034). El orden es parte de la
         // definicion: cambiarlo cambia el costo y el servicio del dia.
+        abrirFlotaDelDia();                      // 0. abrir la capacidad de flota del dia
         producirEnPlantas();                     // 1. producir
         registrarPedidosDelDia();                // 2. planificar y comprometer
         abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
@@ -1875,7 +1973,6 @@ class Main extends Agent {
         despacharContenedoresPendientes();       // 9. consolidar y despachar lo que entra
         devengarAlmacenamientoDiario();          // 10. devengar almacenaje
         registrarAtrasos();                      // 11. registrar indicadores del dia
-        registrarUsoFlota();                     // utilizacion de la flota del dia
         validarInventario();              // invariantes de las capas (ADR-023)
     }
 }
