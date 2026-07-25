@@ -150,7 +150,21 @@ Mapea producto a tipo de contenedor.
 
 ### `obtenerCapacidadContenedorTon(TipoContenedor tipo)`
 
-Retorna capacidad parametrizada. Actualmente existen valores provisionales escritos en función.
+Retorna la capacidad de la tabla `Producto`; una capacidad faltante aborta el arranque.
+
+### `crearContenedoresParaPedido(Pedido pedido)`
+
+**Estado:** implementada (fase 6).
+
+**Retorno:** `int`, la cantidad de contenedores creados. Es idempotente: si el pedido ya tiene contenedores, devuelve los que hay.
+
+**Regla:** divide las toneladas **reservadas** en contenedores de la capacidad del tipo que corresponde al producto, y el último va parcial. Cada contenedor queda asociado al lote que más aporta a su carga: se recorren en paralelo los contenedores y las capas reservadas del pedido en el depósito, en el mismo orden FIFO en que se van a despachar, así que la trazabilidad contenedor–lote coincide con la salida física real.
+
+**Nota:** se dimensiona sobre lo reservado y no sobre lo solicitado, que es lo que hace `Pedido.calcularCantidadContenedores()`. Un pedido reservado a medias despacha los contenedores que su reserva permite.
+
+### `contarContenedores(EstadoContenedor estadoBuscado)`
+
+Cuenta contenedores por estado, para los indicadores de pantalla.
 
 ### Funciones objetivo de planificación
 
@@ -162,10 +176,7 @@ Retorna capacidad parametrizada. Actualmente existen valores provisionales escri
 
 ### Funciones objetivo de contenedores
 
-- `crearContenedoresParaPedido(Pedido pedido)`;
-- `asignarToneladasAContenedores(Pedido pedido)`;
-- `programarRetiroVacio(ContenedorExportacion contenedor)`;
-- `cerrarIngresoTerminal(ContenedorExportacion contenedor)`.
+- `programarRetiroVacio(ContenedorExportacion contenedor)`: el ciclo del contenedor vacío todavía no se modela, y por eso `horaRetiroVacio` y `horaLlegadaLugarCarga` siguen en `-1`.
 
 ## 5. Funciones de Deposito
 
@@ -196,7 +207,7 @@ return (int) Math.ceil(
 );
 ```
 
-Debe validar capacidad mayor que cero.
+Estimación comercial sobre lo **solicitado**. Los contenedores que efectivamente se crean salen de `Main.crearContenedoresParaPedido()`, que divide lo **reservado**; los dos números coinciden sólo si el pedido se reservó completo.
 
 ### Pendientes
 

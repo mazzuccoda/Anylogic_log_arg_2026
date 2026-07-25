@@ -2231,26 +2231,33 @@ return envio;]]></Body>
     return false;
 }
 
-double capacidadCamion = 25;
-double pendiente =
-    pedido.toneladasReservadas;
+// Fase 6: la carga se divide en contenedores y cada envio mueve uno. La capacidad ya
+// no es un camion generico de 25 tn: es la del tipo de contenedor del producto.
+int cantidad = crearContenedoresParaPedido(pedido);
 
-while (pendiente > 0.0001) {
+if (cantidad <= 0) {
+    return false;
+}
 
-    double toneladasEnvio =
-        min(capacidadCamion, pendiente);
+for (
+    ContenedorExportacion contenedor
+    : pedido.contenedores
+) {
 
     Envio envio =
         crearEnvio(
             pedido,
-            toneladasEnvio
+            contenedor.cantidadAsignadaTon
         );
 
     if (envio == null) {
         return false;
     }
 
-    pendiente -= toneladasEnvio;
+    envio.contenedor = contenedor;
+
+    contenedor.estado =
+        EstadoContenedor.ESPERANDO_CARGA;
 }
 
 pedido.estado =
@@ -2447,31 +2454,6 @@ return total;]]></Body>
 error("Capacidad no definida para el contenedor: " + tipo);
 
 return 0;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1784751330817</Id>
-					<Name><![CDATA[pruebaCrearContenedor]]></Name>
-					<X>60</X><Y>-1300</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[ContenedorExportacion c = add_contenedoresExportacion();
-
-c.idContenedor = "CONT-TEST-001";
-c.tipoContenedor = TipoContenedor.REEFER_40;
-c.capacidadTon = obtenerCapacidadContenedorTon(c.tipoContenedor);
-c.cantidadAsignadaTon = 24.5;
-c.estado = EstadoContenedor.CREADO;
-
-traceln(
-    "Creado: " + c.idContenedor
-    + " | Tipo: " + c.tipoContenedor
-    + " | Capacidad: " + c.capacidadTon
-    + " tn"
-);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -3029,6 +3011,163 @@ lote.ubicacionActual = deposito;
 if (lote.estado == EstadoLote.EN_PLANTA) {
     lote.estado = EstadoLote.EN_DEPOSITO;
 }]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>9601</Id>
+					<Name><![CDATA[crearContenedoresParaPedido]]></Name>
+					<X>130</X><Y>1220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Fase 6: la unidad de exportacion pasa a ser el contenedor. Se crean tantos como haga
+// falta para lo reservado, con la capacidad del tipo de contenedor del producto, y el
+// ultimo va parcial. Cada uno queda asociado al lote que mas aporta a su carga.
+if (
+    pedido == null
+    || pedido.depositoAsignado == null
+    || pedido.puertoSalida == null
+    || pedido.toneladasReservadas <= 0.0001
+) {
+    return 0;
+}
+
+if (!pedido.contenedores.isEmpty()) {
+    return pedido.contenedores.size();
+}
+
+pedido.tipoContenedor =
+    obtenerTipoContenedor(pedido.producto);
+
+pedido.capacidadContenedorTon =
+    obtenerCapacidadContenedorTon(pedido.tipoContenedor);
+
+Deposito deposito = pedido.depositoAsignado;
+
+double distancia =
+    deposito.getDistanciaTerminal(pedido.puertoSalida);
+
+// Capas que este pedido tiene reservadas, en el mismo orden FIFO en que se van a
+// despachar: recorrerlas en paralelo a los contenedores da el lote de cada uno.
+java.util.List<Capa> reservadas =
+    inventario.capasReservadasDe(
+        deposito.idUbicacion,
+        pedido.producto,
+        pedido.codigoPedido
+    );
+
+int indiceCapa = 0;
+
+double saldoCapa =
+    reservadas.isEmpty()
+    ? 0
+    : reservadas.get(0).reservadasDe(pedido.codigoPedido);
+
+double pendiente = pedido.toneladasReservadas;
+int numero = 0;
+
+while (pendiente > 0.0001) {
+
+    double carga =
+        min(pedido.capacidadContenedorTon, pendiente);
+
+    numero++;
+
+    ContenedorExportacion contenedor =
+        add_contenedoresExportacion();
+
+    contenedor.idContenedor =
+        pedido.codigoPedido + "-C" + numero;
+
+    contenedor.Pedido = pedido;
+    contenedor.producto = pedido.producto;
+    contenedor.tipoContenedor = pedido.tipoContenedor;
+    contenedor.capacidadTon = pedido.capacidadContenedorTon;
+    contenedor.cantidadAsignadaTon = carga;
+    contenedor.terminalDestino = pedido.puertoSalida;
+    contenedor.lugarConsolidacion = deposito;
+    contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
+
+    contenedor.costoEstimado =
+        150
+        + distancia * 2 * 1.20
+        + carga
+        * pedido.puertoSalida.getCostoConsolidado(
+            pedido.producto
+        );
+
+    double resto = carga;
+    double mayorAporte = 0;
+
+    while (resto > 0.0001 && indiceCapa < reservadas.size()) {
+
+        double toma = min(resto, saldoCapa);
+
+        if (toma > mayorAporte) {
+            mayorAporte = toma;
+            contenedor.lote =
+                buscarLote(
+                    reservadas.get(indiceCapa).idLote
+                );
+        }
+
+        resto -= toma;
+        saldoCapa -= toma;
+
+        if (saldoCapa <= 0.0001) {
+            indiceCapa++;
+
+            saldoCapa =
+                indiceCapa < reservadas.size()
+                ? reservadas.get(indiceCapa)
+                    .reservadasDe(pedido.codigoPedido)
+                : 0;
+        }
+    }
+
+    pedido.contenedores.add(contenedor);
+
+    pendiente -= carga;
+}
+
+pedido.cantidadContenedores = numero;
+
+return numero;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>9603</Id>
+					<Name><![CDATA[contarContenedores]]></Name>
+					<X>130</X><Y>1280</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[estadoBuscado]]></Name>
+						<Type><![CDATA[EstadoContenedor]]></Type>
+					</Parameter>
+					<Body><![CDATA[int cantidad = 0;
+
+for (
+    ContenedorExportacion contenedor
+    : contenedoresExportacion
+) {
+
+    if (contenedor.estado == estadoBuscado) {
+        cantidad++;
+    }
+}
+
+return cantidad;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -4766,6 +4905,16 @@ if (lote.estado == EstadoLote.EN_PLANTA) {
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[Envio envio = (Envio) agent;
+
+if (envio.contenedor != null) {
+    envio.contenedor.estado =
+        EstadoContenedor.CONSOLIDANDO;
+
+    envio.contenedor.horaInicioCarga = time();
+}]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onAtExit]]></Name>
@@ -4852,6 +5001,16 @@ if (lote.estado == EstadoLote.EN_PLANTA) {
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[Envio envio = (Envio) agent;
+
+if (envio.contenedor != null) {
+    envio.contenedor.estado =
+        EstadoContenedor.EN_TRANSITO_CARGADO;
+
+    envio.contenedor.horaFinCarga = time();
+}]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onAtExit]]></Name>
@@ -4952,7 +5111,14 @@ envio.terminalDestino
         envio.toneladas;
 
 envio.terminalDestino
-    .cantidadEnviosRecibidos++;]]></Code>
+    .cantidadEnviosRecibidos++;
+
+if (envio.contenedor != null) {
+    envio.contenedor.estado =
+        EstadoContenedor.INGRESADO_TERMINAL;
+
+    envio.contenedor.horaIngresoTerminal = time();
+}]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -5344,7 +5510,15 @@ costoFleteDepositoPuertoReal +=
 
 costoConsolidacionReal +=
     envio.costoConsolidacionReal;
-]]></Code>
+
+
+if (envio.contenedor != null) {
+    envio.contenedor.estado =
+        EstadoContenedor.EXPORTADO;
+
+    envio.contenedor.costoReal =
+        envio.costoTotalReal;
+}]]></Code>
 							</Value>
 						</Parameter>
 					</Parameters>
@@ -6958,29 +7132,33 @@ if (!retirado) {
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
-				<Control Type="Button">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1784751448006</Id>
-					<Name><![CDATA[button]]></Name>
+				<Text>
+					<Id>1784999600</Id>
+					<Name><![CDATA[textContenedores]]></Name>
 					<X>720</X><Y>320</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="120" Height="100">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<TextColor>-16777216</TextColor>
-						<Enabled>true</Enabled>
-						<ActionCode><![CDATA[if (!pedidos.isEmpty()) {
-    pedidos.get(0).probarCalculoContenedores();
-}]]></ActionCode>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<LabelText><![CDATA[button]]></LabelText>
-					</ExtendedProperties>
-				</Control>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Contenedores: "
++ contenedoresExportacion.size()
++ " | exportados: "
++ contarContenedores(
+    EstadoContenedor.EXPORTADO
+)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
 			</Presentation>
 
 				</Level>
@@ -9805,24 +9983,6 @@ return (int) Math.ceil(
     toneladasSolicitadas / capacidadContenedorTon
 );]]></Body>
 				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1784761517282</Id>
-					<Name><![CDATA[probarCalculoContenedores]]></Name>
-					<X>570</X><Y>700</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[traceln(
-    "Pedido: " + codigoPedido
-    + " | Producto: " + producto
-    + " | Toneladas: " + toneladasSolicitadas
-    + " | Contenedores: "
-    + calcularCantidadContenedores()
-);]]></Body>
-				</Function>
 			</Functions>
 			<AgentLinks>
 				<AgentLink>
@@ -11330,6 +11490,31 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
+				</Variable>
+			
+				<Variable Class="Parameter">
+					<Id>1784999001</Id>
+					<Name><![CDATA[contenedor]]></Name>
+					<X>-140</X><Y>410</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[ContenedorExportacion]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[null]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1784999002</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>
 				</Variable>
 			</Variables>
 			<AgentLinks>
@@ -14325,6 +14510,18 @@ public class Inventario implements java.io.Serializable {
 			}
 		}
 		return mejor;
+	}
+
+	/** Capas de una ubicacion con reserva viva de un pedido, de la mas antigua a la mas nueva. */
+	public java.util.List<Capa> capasReservadasDe(String idUbicacion, TipoProducto producto,
+			String codigoPedido) {
+		java.util.List<Capa> sel = new java.util.ArrayList<Capa>();
+		for (Capa c : fifo(idUbicacion, producto)) {
+			if (c.reservadasDe(codigoPedido) > EPS) {
+				sel.add(c);
+			}
+		}
+		return sel;
 	}
 
 	// ---------------------------------------------------- movimientos (FIFO)

@@ -26,4 +26,5 @@ class Envio extends Agent {
     Terminal terminalDestino = null;
     TipoProducto producto = TipoProducto.JUGO;
     double toneladas = 0;
+    ContenedorExportacion contenedor = null;
 }
