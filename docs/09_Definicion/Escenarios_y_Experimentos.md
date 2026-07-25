@@ -51,9 +51,20 @@ Prioridad de implementación: E-00, E-09, E-01, E-02, E-03. El resto son barrido
 - **Barridos:** experimento de variación de parámetros; con paso diario y 183 días el costo computacional es bajo, así que conviene barrer grillas completas antes de refinar.
 - **Trazabilidad:** cada corrida escribe `id_escenario`, `replica`, `semilla` y `version_modelo` en toda salida. Un resultado sin esas cuatro columnas no es evidencia.
 
-## 5. Restricción de licencia
+## 5. Cómo se implementa el barrido en PLE
 
-Los barridos con réplicas son exactamente lo que la edición PLE limita, y PLE es de uso no comercial. Antes de E-01 hay que resolver la licencia (ver ADR-020). Mitigación transitoria: reducir réplicas y correr los barridos en varias sesiones, aceptando pérdida de precisión estadística.
+PLE incluye Parameter Variation y Monte Carlo, así que el barrido con réplicas es viable sin licencia paga (ADR-020). Lo que PLE no ofrece es Custom Experiment, es decir, escribir código de experimento que recorra una tabla de escenarios. La forma de trabajar es la siguiente (ADR-032):
+
+- El experimento tiene **dos dimensiones y sólo dos**: `idEscenario` y `replica`. No importa cuántos parámetros cambie un escenario.
+- Al arrancar, `Main` lee la fila de la tabla `Escenario` que corresponde a `idEscenario` y carga de ahí todos sus valores.
+- La semilla se fija dentro del modelo como `semillaBase + replica`, no en la configuración aleatoria del experimento, para que la réplica sea reproducible de forma independiente.
+- Agregar un escenario es agregar una fila y ampliar el rango de `idEscenario`. Nunca es tocar el experimento.
+
+Costo computacional estimado: 11 escenarios × 30 réplicas = 330 corridas de 183 días con paso diario. Con `Ejecutar en modo virtual` y animación desactivada esto es minutos, no horas.
+
+Límite a vigilar: PLE admite 50 000 agentes creados dinámicamente **por corrida**. Con lotes, contenedores y pedidos de una campaña completa el margen es amplio, pero conviene registrar el conteo en el resumen del escenario para detectar el día en que deje de serlo.
+
+Queda una restricción no técnica: la licencia PLE cubre aprendizaje personal e instrucción, no uso comercial. Es una decisión del responsable del proyecto y no afecta al diseño.
 
 ## 6. Presentación de resultados
 

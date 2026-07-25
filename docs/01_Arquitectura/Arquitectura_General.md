@@ -134,18 +134,20 @@ Ejecución y costos por contenedor
 
 ## 7. Restricción de AnyLogic PLE
 
-La edición PLE limita la cantidad de clases de objeto. Esto impidió crear un agente independiente `ExistenciaLote`.
+PLE admite **10 tipos de agente por modelo** y el modelo ya usa los 10. Ese es el límite exacto que impidió crear el agente `ExistenciaLote`.
 
-Solución transitoria:
+Solución definitiva (ADR-030): la existencia física es una **clase Java** dentro del modelo, no un tipo de agente. No consume el cupo de tipos ni el de agentes dinámicos, y es lo apropiado para una estructura que sólo guarda datos.
 
 ```java
-ArrayList<Agent> ubicacionesFisicas;
-ArrayList<Double> toneladasPorUbicacion;
-ArrayList<Double> reservadasPorUbicacion;
-ArrayList<Double> diasIngresoPorUbicacion;
+class Capa {
+    Agent  ubicacion;
+    double diaIngreso;
+    double toneladas;
+    double toneladasReservadas;
+}
 ```
 
-Esta solución es válida para la migración, pero debe reemplazarse por una clase dedicada cuando la licencia o arquitectura lo permita.
+Un `LoteProducto` mantiene `List<Capa> capas`. Ver [Inventario del modelo](../03_Logica/Inventario_del_Modelo.md) §2 para el resto de los límites verificados.
 
 ## 8. Límites de responsabilidad
 

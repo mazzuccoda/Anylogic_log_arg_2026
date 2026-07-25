@@ -57,14 +57,20 @@ Definir variables, relaciones, unidades y reglas de integridad. Los nombres se b
 | `pedidoAsignado` | Pedido | — | Actual, demasiado restrictivo |
 | `costoAcumulado` | double | USD | Actual |
 
-### Ubicación física transitoria PLE
+### Ubicación física: capas
 
-| Campo | Tipo | Regla |
+Estado real: no implementado. Las listas paralelas que este documento describía nunca existieron en el modelo (hallazgo H-03) y quedan reemplazadas por capas (ADR-021), implementadas como clase Java (ADR-030).
+
+`LoteProducto.capas : List<Capa>`
+
+| Campo de `Capa` | Tipo | Regla |
 |---|---|---|
-| `ubicacionesFisicas` | ArrayList<Agent> | Índices sincronizados |
-| `toneladasPorUbicacion` | ArrayList<Double> | >= 0 |
-| `reservadasPorUbicacion` | ArrayList<Double> | 0..toneladas |
-| `diasIngresoPorUbicacion` | ArrayList<Double> | Misma longitud |
+| `ubicacion` | Agent | planta o depósito; no nulo |
+| `diaIngreso` | double | día simulado del ingreso; define el orden FIFO |
+| `toneladas` | double | > 0; la capa se elimina al llegar a 0 |
+| `toneladasReservadas` | double | 0..`toneladas`; derivado de las reservas activas |
+
+Invariante: no puede haber dos capas del mismo lote con la misma `ubicacion` y el mismo `diaIngreso`; se acumulan en una sola.
 
 ### Campos heredados
 

@@ -20,6 +20,7 @@ Este directorio contiene la documentación técnica viva del modelo.
 
 ## 3. Lógica
 
+- [Inventario del modelo real](03_Logica/Inventario_del_Modelo.md) — qué contiene hoy el `.alp` y qué hallazgos tiene
 - [Inventario y especificación de funciones](03_Logica/Funciones.md)
 
 ## 4. Flujos
@@ -56,6 +57,8 @@ Ante contradicción, prevalece el de mayor jerarquía:
 4. Especificación técnica maestra
 
 El estado de avance vive únicamente en el [Roadmap](07_Roadmap/Roadmap.md).
+
+Si la documentación y el modelo discrepan, manda el modelo: el desvío se anota como hallazgo en el [Inventario del modelo](03_Logica/Inventario_del_Modelo.md) y se corrige el documento.
 
 ## Regla de mantenimiento
 

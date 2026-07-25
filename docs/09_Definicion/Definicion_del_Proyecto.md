@@ -147,7 +147,7 @@ Reglas:
 1. Un lote comercial tiene una identidad única y `N` capas distribuidas en planta, depósitos y contenedores.
 2. El stock de una ubicación **se deriva** de la suma de sus capas. No existe una variable de stock independiente que pueda desincronizarse.
 3. El consumo (transferencia, reserva, despacho) es **FIFO por `diaIngreso`**.
-4. El almacenaje diario se calcula por capa: `toneladas × días de permanencia × tarifa`. Esto es lo que hace correcto el costeo con retiros parciales.
+4. El almacenaje se devenga cada día sobre el saldo de cierre de cada capa: `toneladas × tarifa`, una sola vez y en un solo lugar (ADR-034, fase 6). La capa es lo que permite imputar ese costo al lote y a la ubicación correctos cuando hubo retiros parciales.
 5. Toda operación sobre capas es transaccional: si falla un paso, se revierte todo.
 
 Esto reemplaza las cuatro listas paralelas (`ubicacionesFisicas`, `toneladasPorUbicacion`, `reservadasPorUbicacion`, `diasIngresoPorUbicacion`), que no permitían costear storage con múltiples ingresos a la misma ubicación y eran frágiles por índices.
@@ -236,7 +236,8 @@ Orden propuesto (reordena el roadmap actual, que arranca por implementación ant
 | Paso | Contenido |
 |---|---|
 | 0 | Versionar el `.alp` y el código exportado; CHANGELOG y `versionModelo` |
-| 1 | Cerrar esta definición y los ADR nuevos; resolver licencia |
+| 1 | Cerrar esta definición y los ADR nuevos |
+| 1b | Separar parámetros de estado (ADR-033) y unificar la secuencia diaria (ADR-034) |
 | 2 | Tablas de datos maestros y tarifas como datos (§8), con generador sintético |
 | 3 | Capas de inventario y stock derivado (§6) |
 | 4 | Lote comercial acumulativo sobre capas |
@@ -251,13 +252,25 @@ El planificador va después de la ejecución a propósito: estimar costo y tiemp
 
 ---
 
+## 9.1 Restricciones de la edición PLE
+
+El proyecto se desarrolla íntegramente sobre AnyLogic PLE (ADR-020). Los límites fueron verificados contra el modelo real y **ninguno impide el alcance definido**:
+
+- Los barridos con réplicas son posibles: Parameter Variation y Monte Carlo están incluidos en PLE.
+- El horizonte de 183 días es válido: el límite de 5 horas de tiempo de modelo no aplica a la Process Modeling Library, la única que el modelo usa.
+- El único límite ya alcanzado es el de **10 tipos de agente**, y está agotado. Por eso las capas, reservas y registros de costo se implementan como clases Java y no como agentes (ADR-030, ADR-031).
+
+Detalle y evidencia en el [Inventario del modelo](../03_Logica/Inventario_del_Modelo.md).
+
+---
+
 ## 10. Criterios de aceptación del proyecto
 
 El proyecto se considera cumplido cuando:
 
 1. corre una campaña completa de 183 días con 30 réplicas sin excepciones;
 2. reconcilia inventario (producido = físico + despachado + excedente) y costos (costo de pedido = suma de sus registros) en toda corrida;
-3. los casos V-001..V-018 pasan en modo determinístico y quedan registrados en CSV;
+3. los casos V-001..V-025 pasan en modo determinístico y quedan registrados en CSV;
 4. responde P1..P8 con evidencia de al menos 4 escenarios comparados;
 5. los datos de entrada provienen de Excel sin modificar la lógica;
 6. la documentación refleja el modelo implementado y el `.alp` está versionado.

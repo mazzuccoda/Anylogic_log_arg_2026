@@ -14,10 +14,10 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 
 | Fase | Estado | Avance |
 |---|---|---:|
-| 0. Respaldo y documentación inicial | Reabierta: falta versionar el modelo | 60% |
+| 0. Respaldo y documentación inicial | Modelo versionado; falta `versionModelo` en salidas | 90% |
 | 1. Normalización del dominio | En curso | 65% |
 | 2. Lote comercial acumulativo | Diseño validado | 15% |
-| 3. Existencias físicas múltiples | En transición | 30% |
+| 3. Existencias físicas múltiples | No implementada (H-03); redefinida como capas | 0% |
 | 4. Transferencias parciales | Pendiente | 5% |
 | 5. Reserva profesional | Pendiente | 10% |
 | 6. Contenedores individuales | Parcial | 25% |
@@ -37,21 +37,25 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 - [x] Crear repositorio.
 - [x] Crear especificación técnica maestra.
 - [x] Crear documentación navegable inicial.
-- [ ] **Versionar el `.alp` en el repositorio.**
-- [ ] **Versionar el código exportado por agente en `model_src/`.**
-- [ ] **Crear `CHANGELOG.md` y parámetro `versionModelo` visible en las salidas.**
+- [x] Versionar el `.alp` en el repositorio.
+- [x] Versionar el código exportado por agente en `model_src/` (`tools/exportar_modelo.py`, ADR-035).
+- [x] Inventariar el modelo real: [Inventario del modelo](../03_Logica/Inventario_del_Modelo.md).
+- [x] Crear `CHANGELOG.md`.
+- [ ] Agregar el parámetro `versionModelo` y volcarlo en todas las salidas.
 
-La fase estaba declarada como completada al 100%, pero el modelo no está versionado: hoy el activo crítico vive sólo en una máquina. Queda reabierta.
+La fase había sido declarada completada al 100% sin que el modelo estuviera versionado. Ya lo está; queda pendiente sólo la trazabilidad de versión en las salidas.
 
 ## 4. Fase 1 — Dominio
 
+- [x] Auditar todas las Option Lists y variables reales de los agentes: [Inventario del modelo](../03_Logica/Inventario_del_Modelo.md).
 - [x] Definir productos y contenedores.
 - [x] Definir estrategias.
 - [x] Crear `ContenedorExportacion`.
 - [x] Crear `PlanLogistico`.
 - [x] Ampliar `Pedido`.
-- [ ] Auditar todas las Option Lists reales.
-- [ ] Auditar variables reales de agentes.
+- [x] Separar parámetros de estado en `Main`, `Planta`, `Deposito` y `Terminal` (H-02, ADR-033). Pendiente en los agentes de entidad, junto con el rediseño de inventario.
+- [x] Unificar los eventos diarios en `pasoDiario` con orden fijo (H-06, H-07, ADR-034).
+- [x] Eliminar el doble conteo de almacenaje (H-04).
 - [ ] Eliminar nombres duplicados o ambiguos.
 
 ## 5. Fase 2 — Lote comercial
@@ -69,11 +73,12 @@ La fase estaba declarada como completada al 100%, pero el modelo no está versio
 
 ## 6. Fase 3 — Existencias físicas
 
-- [x] Crear listas de ubicaciones.
-- [x] Crear búsqueda de ubicación.
-- [x] Agregar saldo por ubicación.
-- [x] Consultar saldo y saldo libre.
-- [x] Retirar saldo libre.
+Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraban como implementadas, pero no existen en el `.alp`. Avance real 0%. Se reemplaza por capas de inventario (ADR-021) implementadas como clases Java (ADR-030).
+
+- [ ] Crear la clase `Capa` y su colección por lote.
+- [ ] Derivar el stock de cada ubicación de sus capas (ADR-023).
+- [ ] Consultar saldo y saldo libre por ubicación.
+- [ ] Retirar saldo libre con consumo FIFO (ADR-022).
 - [ ] Reservar por ubicación.
 - [ ] Liberar reserva.
 - [ ] Despachar reserva.
@@ -96,7 +101,7 @@ La fase estaba declarada como completada al 100%, pero el modelo no está versio
 - [ ] Comenzar por lote solicitado.
 - [ ] Localizar saldos físicos.
 - [ ] Definir orden de consumo.
-- [ ] Reserva atómica inicial.
+- [ ] Reserva incremental sobre capas (ADR-024); retirar `crearLoteReservadoDesdeDivision` (H-05).
 - [ ] Asociar reservas al pedido.
 - [ ] Liberar reservas canceladas.
 - [ ] Validar V-008 y V-009.
@@ -178,7 +183,8 @@ Reordenamiento derivado del uso estratégico del modelo (ADR-018). Cierra el dom
 | Paso | Contenido | Fases originales que absorbe |
 |---|---|---|
 | 0 | Versionar `.alp`, código exportado, CHANGELOG y `versionModelo` | 0 |
-| 1 | Cerrar definición y ADR nuevos; resolver licencia (ADR-020) | — |
+| 1 | Cerrar definición y ADR nuevos (licencia resuelta: se trabaja en PLE, ADR-020) | — |
+| 1b | Separar parámetros de estado (ADR-033) y unificar la secuencia diaria (ADR-034) | — |
 | 2 | Datos maestros y tarifas como tablas + generador sintético (ADR-029) | parte de 1 y 10 |
 | 3 | Capas de inventario y stock derivado (ADR-021, 022, 023) | 3 |
 | 4 | Lote comercial acumulativo sobre capas | 2 |
