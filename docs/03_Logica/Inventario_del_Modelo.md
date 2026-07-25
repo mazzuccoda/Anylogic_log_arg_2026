@@ -6,6 +6,8 @@ Este documento describe **lo que el archivo `RedLogistica_Exportacion.alp` conti
 
 Generado a partir de `model_src/`, el espejo legible que produce `tools/exportar_modelo.py`. Cada hallazgo cita archivo y línea de ese espejo.
 
+Los hallazgos marcados **resuelto** ya se corrigieron en el `.alp`; el resto describe el estado actual.
+
 ## 1. Composición del modelo
 
 | Elemento | Cantidad | Detalle |
@@ -15,10 +17,10 @@ Generado a partir de `model_src/`, el espejo legible que produce `tools/exportar
 | Experimentos | 1 | `Simulation` |
 | Librerías requeridas | 1 | Process Modeling Library |
 | Unidad de tiempo del modelo | — | `Day` |
-| Funciones | 57 | 29 en `Main` |
-| Eventos | 7 | 6 en `Main`, 1 en `Planta` |
+| Funciones | 63 | 35 en `Main` |
+| Eventos | 1 | `Main.pasoDiario`, cada 1 día |
 | Objetos embebidos en `Main` | 23 | 7 agentes de ubicación, 3 poblaciones, 1 `ResourcePool`, 11 bloques de flowchart |
-| Colecciones declaradas como tal | 0 | ninguna variable con `Class="Collection"`; la única variable no-parámetro del modelo es `Main.depositos` |
+| Variables de estado | 40 | 39 escalares (`Main` 17, `Planta` 9, `Deposito` 9, `Terminal` 4) más la colección `Main.depositos` |
 
 ## 2. Límites verificados de la edición PLE
 
@@ -40,10 +42,10 @@ Consecuencia práctica: **el barrido de escenarios con réplicas es viable en PL
 
 | Agente | Parámetros | Funciones | Eventos | Rol real en el código |
 |---|---:|---:|---:|---|
-| `Main` | 21 | 29 | 6 | coordina todo: crea lotes, transfiere, reserva, crea envíos, costea |
-| `Planta` | 21 | 6 | 1 | produce por día y mantiene stock y excedente por producto |
-| `Deposito` | 24 | 15 | 0 | stock, reserva y tarifas por producto |
-| `Terminal` | 13 | 1 | 0 | costos de consolidación |
+| `Main` | 4 | 35 | 1 | coordina todo: crea lotes, transfiere, reserva, crea envíos, costea |
+| `Planta` | 12 | 6 | 0 | produce por día y mantiene stock y excedente por producto |
+| `Deposito` | 15 | 15 | 0 | stock, reserva y tarifas por producto |
+| `Terminal` | 9 | 1 | 0 | costos de consolidación |
 | `Pedido` | 37 | 2 | 0 | demanda, estado comercial y contenedores |
 | `LoteProducto` | 15 | 1 | 0 | identidad del lote y saldos |
 | `Camion` | 9 | 0 | 0 | recurso del flowchart legado |
@@ -55,13 +57,9 @@ Eventos y su cadencia:
 
 | Agente | Evento | Cadencia |
 |---|---|---|
-| `Planta` | `produccionDiaria` | 1 día |
-| `Main` | `gestionarTransferencias` | 1 día |
-| `Main` | `calcularCostoAlmacenamientoDiario` | 1 día |
-| `Main` | `revisarPedidosPendientes` | 1 día |
-| `Main` | `prepararPedidosReservados` | 1 día |
-| `Main` | `revisarPedidosAtrasados` | **1,9 días** |
-| `Main` | `generarPedidosPrueba` | **1,2 días** |
+| `Main` | `pasoDiario` | 1 día |
+
+`pasoDiario` invoca las siete fases en orden fijo (ADR-034); cada fase es una función de `Main`. Los seis eventos diarios anteriores y `Planta.produccionDiaria` ya no existen: su cuerpo pasó a la función de la fase correspondiente.
 
 ## 4. Hallazgos
 
@@ -71,7 +69,11 @@ Eventos y su cadencia:
 
 Slots liberables: `Envio` y `Camion` pertenecen al camino legado (§H-12). Retirarlos deja 2 disponibles.
 
-### H-02 — Todo el estado está declarado como parámetro
+### H-02 — Todo el estado está declarado como parámetro — **resuelto**
+
+Corregido: 39 parámetros de `Main`, `Planta`, `Deposito` y `Terminal` pasaron a variables. Quedan como parámetros sólo las entradas (capacidades, tarifas, distancias, niveles de activación, costos unitarios de flete). Los agentes de entidad (`Pedido`, `LoteProducto`, `Envio`, `ContenedorExportacion`, `PlanLogistico`, `Camion`) siguen con sus campos como parámetros: se crean en tiempo de corrida, no aparecen en la interfaz del experimento, y su migración se hace junto con el rediseño de inventario.
+
+Diagnóstico original:
 
 `model_src/Planta.java:7-27`, `model_src/Main.java:7-28`. `stockJugo`, `excedenteJugo`, `costoFletePlantaDeposito`, `siguienteIdLote` y `pedidosRecibidos` son `Parameter`. No hay una sola variable `Class="Variable"` fuera de `Main.depositos`.
 
@@ -85,9 +87,13 @@ Regla: **entrada → parámetro; estado → variable; resultado → variable o d
 
 Un lote sigue teniendo una única `ubicacionActual` y un único `diaIngresoDeposito` (`model_src/LoteProducto.java`). El modelo no soporta un lote distribuido en varias ubicaciones.
 
-### H-04 — El almacenaje diario se contabiliza dos veces con criterios distintos
+### H-04 — El almacenaje diario se contabiliza dos veces con criterios distintos — **resuelto**
 
-`model_src/Main.java:1030-1057`. El mismo evento acumula:
+Corregido: `devengarAlmacenamientoDiario()` es la única fuente del costo de almacenaje. Recorre los lotes con depósito y toneladas disponibles, imputa el costo al lote y **en el mismo recorrido** lo agrega al depósito, de modo que el total del depósito es por construcción la suma de sus lotes. Desaparece el filtro por `EN_DEPOSITO`, así que los lotes reservados —que siguen ocupando el depósito— también devengan.
+
+Diagnóstico original:
+
+`model_src/Main.java:1030-1057`. El mismo evento acumulaba:
 
 ```java
 // (a) agregado por depósito
@@ -111,11 +117,19 @@ Dos consecuencias:
 
 Es exactamente el problema que resuelven las capas (ADR-021): la capa cambia de saldo, el lote no se parte.
 
-### H-06 — Dos eventos tienen cadencia fraccionaria
+### H-06 — Dos eventos tienen cadencia fraccionaria — **resuelto**
+
+Corregido: no quedan cadencias fraccionarias; el único evento del modelo es diario.
+
+Diagnóstico original:
 
 `revisarPedidosAtrasados` cada 1,9 días y `generarPedidosPrueba` cada 1,2 días. Con un reloj diario (ADR-019) esto produce deriva de fase: los eventos van cayendo en momentos distintos dentro del día y la regla de cross docking "mismo día" se vuelve ambigua. Ambos deben pasar a 1 día.
 
-### H-07 — El orden de los eventos diarios no está definido
+### H-07 — El orden de los eventos diarios no está definido — **resuelto**
+
+Corregido: `pasoDiario` fija el orden en el modelo y ya no depende del desempate del motor.
+
+Diagnóstico original:
 
 Cinco eventos ocurren cada 1 día. AnyLogic desempata por orden interno de programación, no por una regla del modelo. Que la producción ocurra antes o después del devengo de almacenaje cambia el costo del día. La secuencia diaria debe ser explícita (ADR-034).
 
@@ -166,10 +180,12 @@ Ni `ContenedorExportacion` ni `Terminal` tienen lógica; `Terminal` sólo calcul
 
 | Prioridad | Hallazgos | Motivo |
 |---|---|---|
-| Bloquea el uso definido | H-02, H-08, H-09, H-10, H-13 | sin esto no se puede barrer ni un solo escenario |
-| Corrompe resultados | H-04, H-05, H-11 | producen números que parecen válidos y no lo son |
-| Corrompe la semántica temporal | H-06, H-07 | el reloj diario no es consistente |
+| Bloquea el uso definido | ~~H-02~~, H-08, H-09, H-10, H-13 | sin esto no se puede barrer ni un solo escenario |
+| Corrompe resultados | ~~H-04~~, H-05, H-11 | producen números que parecen válidos y no lo son |
+| Corrompe la semántica temporal | ~~H-06~~, ~~H-07~~ | el reloj diario no es consistente |
 | Deuda estructural | H-01, H-03, H-12, H-14 | condicionan el diseño de todo lo que sigue |
+
+Tachados: resueltos en el `.alp`.
 
 ## 6. Cómo regenerar este espejo
 

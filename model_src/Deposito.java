@@ -15,20 +15,22 @@ class Deposito extends Agent {
     double costoCascaraTnDia = 0;
     double costoAceiteTnDia;
     double distanciaDesdePlantaKm = 0;
+    double costoFleteZarateUsdTn = 0;
+    double costoFleteT4UsdTn = 0;
+    double velocidadCargaTnHora = 50;
+    double distanciaZarateKm = 0;
+    double distanciaT4Km = 0;
+
+    // ----- Variables -----
     double stockJugo = 0;
     double stockCascara = 0;
     double stockAceite = 0;
     double costoAlmacenamientoAcumulado = 0;
     double toneladasRecibidasAcumuladas = 0;
     double cantidadRecepciones = 0;
-    double costoFleteZarateUsdTn = 0;
-    double costoFleteT4UsdTn = 0;
     double reservadoJugo = 0;
     double reservadoCascara = 0;
     double reservadoAceite = 0;
-    double velocidadCargaTnHora = 50;
-    double distanciaZarateKm = 0;
-    double distanciaT4Km = 0;
 
     // ----- Funciones -----
 

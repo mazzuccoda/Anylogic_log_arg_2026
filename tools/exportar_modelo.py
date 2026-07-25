@@ -46,10 +46,11 @@ def indentar(codigo: str, sangria: str = "        ") -> str:
 def valor_por_defecto(propiedades: ET.Element | None) -> str:
     if propiedades is None:
         return ""
-    defecto = propiedades.find("DefaultValue")
-    if defecto is None:
-        return ""
-    return texto(defecto, "Code")
+    for etiqueta in ("DefaultValue", "InitialValue", "CollectionInitializer"):
+        elemento = propiedades.find(etiqueta)
+        if elemento is not None:
+            return texto(elemento, "Code")
+    return ""
 
 
 def exportar_variables(agente: ET.Element) -> list[str]:
@@ -70,9 +71,9 @@ def exportar_variables(agente: ET.Element) -> list[str]:
         inicial = valor_por_defecto(propiedades)
         if clase == "Parameter":
             parametros.append((tipo, nombre, inicial))
-        elif clase == "Variable":
+        elif clase.endswith("Variable") and clase != "CollectionVariable":
             variables.append((tipo, nombre, inicial))
-        elif clase == "Collection":
+        elif clase.endswith("Collection") or clase == "CollectionVariable":
             elemento = texto(propiedades, "ElementClass")
             colecciones.append((f"{tipo}<{elemento}>" if elemento else tipo, nombre, inicial))
         else:

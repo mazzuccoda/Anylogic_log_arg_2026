@@ -53,7 +53,9 @@ La fase había sido declarada completada al 100% sin que el modelo estuviera ver
 - [x] Crear `ContenedorExportacion`.
 - [x] Crear `PlanLogistico`.
 - [x] Ampliar `Pedido`.
-- [ ] Separar parámetros de estado (H-02, ADR-033).
+- [x] Separar parámetros de estado en `Main`, `Planta`, `Deposito` y `Terminal` (H-02, ADR-033). Pendiente en los agentes de entidad, junto con el rediseño de inventario.
+- [x] Unificar los eventos diarios en `pasoDiario` con orden fijo (H-06, H-07, ADR-034).
+- [x] Eliminar el doble conteo de almacenaje (H-04).
 - [ ] Eliminar nombres duplicados o ambiguos.
 
 ## 5. Fase 2 — Lote comercial

@@ -8,15 +8,6 @@ class Planta extends Agent {
     double capacidadJugo = 5000;
     double capacidadCascara = 1800;
     double capacidadAceite = 1500;
-    double stockJugo = 0;
-    double stockCascara = 0;
-    double stockAceite = 0;
-    double produccionAcumuladaJugo = 0;
-    double produccionAcumuladaCascara = 0;
-    double produccionAcumuladaAceite = 0;
-    double excedenteJugo = 0;
-    double excedenteCascara = 0;
-    double excedenteAceite = 0;
     double produccionDiariaJugo = 100;
     double produccionDiariaCascara = 60;
     double produccionDiariaAceite = 8;
@@ -26,6 +17,17 @@ class Planta extends Agent {
     double stockObjetivoCascara = 900;
     double nivelActivacionAceite = 1200;
     double stockObjetivoAceite = 700;
+
+    // ----- Variables -----
+    double stockJugo = 0;
+    double stockCascara = 0;
+    double stockAceite = 0;
+    double produccionAcumuladaJugo = 0;
+    double produccionAcumuladaCascara = 0;
+    double produccionAcumuladaAceite = 0;
+    double excedenteJugo = 0;
+    double excedenteCascara = 0;
+    double excedenteAceite = 0;
 
     // ----- Funciones -----
 
@@ -187,12 +189,5 @@ class Planta extends Agent {
             default:
                 return false;
         }
-    }
-
-    // ----- Eventos -----
-
-    // evento produccionDiaria [timeout cyclic] cada 1 day
-    void produccionDiaria_accion() {
-        producir();
     }
 }

@@ -14,6 +14,8 @@ class Terminal extends Agent {
     double costoConsolidadoAceite = 0;
     double velocidadDescargaTnHora = 60;
     double velocidadConsolidacionTnHora = 40;
+
+    // ----- Variables -----
     double toneladasRecibidas = 0;
     double toneladasConsolidadas = 0;
     double cantidadEnviosRecibidos = 0;

@@ -244,7 +244,8 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 **Estado:** aceptada.  
 **Contexto:** hoy todo el estado del modelo está declarado como parámetro (H-02): `stockJugo`, `excedenteJugo`, `costoFletePlantaDeposito` y `siguienteIdLote` conviven con `capacidadJugo` sin distinción.  
 **Decisión:** un parámetro es una entrada que el escenario fija y nunca se modifica durante la corrida. Todo lo que cambia durante la corrida es variable. Todo lo que se reporta es variable o dataset.  
-**Consecuencias:** la lista de parámetros de cada agente pasa a ser exactamente la interfaz de configuración que el barrido manipula; el reset entre réplicas queda bien definido; requiere una migración de las declaraciones existentes.
+**Consecuencias:** la lista de parámetros de cada agente pasa a ser exactamente la interfaz de configuración que el barrido manipula; el reset entre réplicas queda bien definido; requiere una migración de las declaraciones existentes.  
+**Implementación:** aplicada en `Main`, `Planta`, `Deposito` y `Terminal`. Los agentes de entidad (`Pedido`, `LoteProducto`, `Envio`, `ContenedorExportacion`, `PlanLogistico`, `Camion`) conservan sus campos como parámetros porque se crean en tiempo de corrida y no forman parte de la interfaz del experimento; se migran junto con el rediseño de inventario.
 
 ## ADR-034 — Secuencia diaria explícita
 
@@ -263,7 +264,8 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 ```
 
 **Alternativas:** prioridades por evento (funciona, pero deja la secuencia implícita y dispersa).  
-**Consecuencias:** el resultado deja de depender del orden interno de creación de los eventos; el devengo de almacenaje queda definido sobre el saldo de cierre del día; cualquier operación nueva debe declarar en qué fase entra.
+**Consecuencias:** el resultado deja de depender del orden interno de creación de los eventos; el devengo de almacenaje queda definido sobre el saldo de cierre del día; cualquier operación nueva debe declarar en qué fase entra.  
+**Implementación:** `Main.pasoDiario` es el único evento del modelo. Cada fase es una función de `Main`: `producirEnPlantas`, `revisarTransferenciasPlanta`, `registrarPedidosDelDia`, `revisarPedidosPendientes`, `prepararPedidosReservados`, `devengarAlmacenamientoDiario` y `registrarAtrasos`. La fase 7 hoy sólo registra atrasos; los demás KPIs se agregan ahí.
 
 ## ADR-035 — El modelo se versiona junto a su espejo legible
 

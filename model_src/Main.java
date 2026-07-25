@@ -5,14 +5,16 @@
 class Main extends Agent {
 
     // ----- Parámetros -----
-    int siguienteIdLote = 1;
-    double costoFletePlantaDeposito = 0;
-    double toneladasTransferidasDepositos = 0;
-    double cantidadTransferenciasDepositos = 0;
     double costoFijoViajePD = 150;
     double costoKmPD = 1.2;
     double costoTnPD = 2.0;
     double diasEstimadosAlmacenamiento = 30;
+
+    // ----- Variables -----
+    int siguienteIdLote = 1;
+    double costoFletePlantaDeposito = 0;
+    double toneladasTransferidasDepositos = 0;
+    double cantidadTransferenciasDepositos = 0;
     int siguienteIdPedido = 1;
     int pedidosRecibidos = 0;
     int pedidosReservados = 0;
@@ -27,8 +29,8 @@ class Main extends Agent {
     double costoFleteDepositoPuertoReal = 0;
     double costoConsolidacionReal = 0;
 
-    // ----- Variables -----
-    ArrayList depositos;
+    // ----- Colecciones -----
+    ArrayList<Deposito> depositos = new ArrayList<Deposito>();
 
     // ----- Objetos embebidos (poblaciones y bloques de flowchart) -----
     //  planta
@@ -1019,78 +1021,12 @@ class Main extends Agent {
         );
     }
 
-    // ----- Eventos -----
-
-    // evento gestionarTransferencias [timeout cyclic] cada 1 day
-    void gestionarTransferencias_accion() {
-        revisarTransferenciasPlanta();
+    void producirEnPlantas() {
+        // Fase 1 de la secuencia diaria (ADR-034).
+        planta.producir();
     }
 
-    // evento calcularCostoAlmacenamientoDiario [timeout cyclic] cada 1 day
-    void calcularCostoAlmacenamientoDiario_accion() {
-        for (Deposito deposito : depositos) {
-
-            double costoDia =
-                deposito.stockJugo * deposito.costoJugoTnDia
-                + deposito.stockCascara * deposito.costoCascaraTnDia
-                + deposito.stockAceite * deposito.costoAceiteTnDia;
-
-            deposito.costoAlmacenamientoAcumulado += costoDia;
-        }
-
-
-        for (LoteProducto lote : lotes) {
-
-            if (
-                lote.estado == EstadoLote.EN_DEPOSITO
-                && lote.depositoActual != null
-                && lote.toneladasDisponibles > 0
-            ) {
-                double costoLoteDia =
-                    lote.toneladasDisponibles
-                    * lote.depositoActual
-                        .getTarifaAlmacenamiento(lote.producto);
-
-                lote.costoAlmacenamientoLote += costoLoteDia;
-                lote.costoAcumulado += costoLoteDia;
-            }
-        }
-    }
-
-    // evento revisarPedidosPendientes [timeout cyclic] cada 1 day
-    void revisarPedidosPendientes_accion() {
-        for (Pedido pedido : pedidos) {
-
-            if (
-                pedido.estado == EstadoPedido.PENDIENTE
-                || pedido.estado == EstadoPedido.ATRASADO
-            ) {
-                intentarAsignarPedido(pedido);
-            }
-        }
-    }
-
-    // evento revisarPedidosAtrasados [timeout cyclic] cada 1.9 day
-    void revisarPedidosAtrasados_accion() {
-        for (Pedido pedido : pedidos) {
-
-            if (
-                time() > pedido.diaLimite
-                && pedido.estado != EstadoPedido.ENTREGADO
-                && pedido.estado != EstadoPedido.CANCELADO
-            ) {
-                pedido.diasAtraso =
-                    time() - pedido.diaLimite;
-
-                if (pedido.estado == EstadoPedido.PENDIENTE) {
-                    pedido.estado = EstadoPedido.ATRASADO;
-                }
-            }
-        }
-    }
-
-    // evento generarPedidosPrueba [timeout cyclic] cada 1.2 day
-    void generarPedidosPrueba_accion() {
+    void registrarPedidosDelDia() {
         int diaActual = (int) floor(time());
 
 
@@ -1145,8 +1081,19 @@ class Main extends Agent {
         }
     }
 
-    // evento prepararPedidosReservados [timeout cyclic] cada 1 day
-    void prepararPedidosReservados_accion() {
+    void revisarPedidosPendientes() {
+        for (Pedido pedido : pedidos) {
+
+            if (
+                pedido.estado == EstadoPedido.PENDIENTE
+                || pedido.estado == EstadoPedido.ATRASADO
+            ) {
+                intentarAsignarPedido(pedido);
+            }
+        }
+    }
+
+    void prepararPedidosReservados() {
         for (Pedido pedido : pedidos) {
 
             if (
@@ -1156,5 +1103,63 @@ class Main extends Agent {
                 generarEnviosParaPedido(pedido);
             }
         }
+    }
+
+    void devengarAlmacenamientoDiario() {
+        // Fuente unica del costo de almacenaje del dia (H-04).
+        // Se imputa por lote y se agrega al deposito en el mismo recorrido, de modo
+        // que el total del deposito sea por construccion la suma de sus lotes.
+        for (LoteProducto lote : lotes) {
+
+            Deposito deposito = lote.depositoActual;
+
+            if (
+                deposito == null
+                || lote.toneladasDisponibles <= 0
+            ) {
+                continue;
+            }
+
+            double costoDia =
+                lote.toneladasDisponibles
+                * deposito.getTarifaAlmacenamiento(lote.producto);
+
+            lote.costoAlmacenamientoLote += costoDia;
+            lote.costoAcumulado += costoDia;
+            deposito.costoAlmacenamientoAcumulado += costoDia;
+        }
+    }
+
+    void registrarAtrasos() {
+        for (Pedido pedido : pedidos) {
+
+            if (
+                time() > pedido.diaLimite
+                && pedido.estado != EstadoPedido.ENTREGADO
+                && pedido.estado != EstadoPedido.CANCELADO
+            ) {
+                pedido.diasAtraso =
+                    time() - pedido.diaLimite;
+
+                if (pedido.estado == EstadoPedido.PENDIENTE) {
+                    pedido.estado = EstadoPedido.ATRASADO;
+                }
+            }
+        }
+    }
+
+    // ----- Eventos -----
+
+    // evento pasoDiario [timeout cyclic] cada 1 day
+    void pasoDiario_accion() {
+        // Secuencia diaria del modelo (ADR-034). El orden es parte de la
+        // definicion: cambiarlo cambia el costo y el servicio del dia.
+        producirEnPlantas();              // 1. producir
+        revisarTransferenciasPlanta();    // 2. recibir e ingresar
+        registrarPedidosDelDia();         // 3. planificar y comprometer
+        revisarPedidosPendientes();       // 4. reservar
+        prepararPedidosReservados();      // 5. ejecutar movimientos
+        devengarAlmacenamientoDiario();   // 6. devengar almacenaje
+        registrarAtrasos();               // 7. registrar indicadores del dia
     }
 }
