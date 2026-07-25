@@ -3,8 +3,8 @@
 Generado por `tools/exportar_modelo.py`. No editar a mano.
 
 - Archivo: `RedLogistica_Exportacion.alp`
-- SHA-256: `133837add6fcee0954f993d90f4e3cfdd27f8e3850967009a99c2c6cee5a6676`
-- Bytes: 461774
+- SHA-256: `ef3f7fa6f8cca896d3c308540387106d792806ebcb448b366b1cde1f2b50e136`
+- Bytes: 461864
 - AnyLogic: 8.9.9.202606170507
 - Tipos de agente: 10 de 10 permitidos por PLE
 
