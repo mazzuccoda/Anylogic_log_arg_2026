@@ -58,7 +58,7 @@ La fase había sido declarada completada al 100% sin que el modelo estuviera ver
 - [x] Eliminar el doble conteo de almacenaje (H-04).
 - [x] Sacar del código los datos maestros, las tarifas, las distancias, la producción y la demanda: hoy están en las tablas de `DatosEntrada`, generadas por `GeneradorSintetico` y validadas al arrancar (H-01, ADR-036, ADR-037).
 - [ ] Eliminar nombres duplicados o ambiguos.
-- [ ] Importador de Excel que llene las mismas tablas (fase 2 del contrato de datos).
+- [x] Importador de Excel que llena las mismas tablas (fase 2 del contrato de datos, ADR-038): `ImportadorExcel`, el parámetro `origenDatos` y la plantilla `datos/entrada_ejemplo.xlsx`.
 - [ ] Tablas del contrato todavía sin implementar: `TiemposOperativos`, tarifas por contenedor y `LoteInicial`.
 
 ## 5. Fase 2 — Lote comercial
@@ -188,7 +188,7 @@ Reordenamiento derivado del uso estratégico del modelo (ADR-018). Cierra el dom
 | 0 | Versionar `.alp`, código exportado, CHANGELOG y `versionModelo` | 0 |
 | 1 | Cerrar definición y ADR nuevos (licencia resuelta: se trabaja en PLE, ADR-020) | — |
 | 1b | Separar parámetros de estado (ADR-033) y unificar la secuencia diaria (ADR-034) | — |
-| 2 | Datos maestros y tarifas como tablas + generador sintético (ADR-029, ADR-036, ADR-037) — **hecho para el alcance del [estado de implementación](../09_Definicion/Contrato_de_Datos.md); falta el importador de Excel** | parte de 1 y 10 |
+| 2 | Datos maestros y tarifas como tablas, generador sintético e importador de Excel (ADR-029, ADR-036, ADR-037, ADR-038) — **hecho para el alcance del [estado de implementación](../09_Definicion/Contrato_de_Datos.md)** | parte de 1 y 10 |
 | 3 | Capas de inventario y stock derivado (ADR-021, 022, 023) | 3 |
 | 4 | Lote comercial acumulativo sobre capas | 2 |
 | 5 | Reservas trazables, compromiso y prioridad (ADR-024, 025, 026) | 5 |
