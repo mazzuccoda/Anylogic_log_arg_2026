@@ -43,6 +43,9 @@ class Pedido extends Agent {
     double costoReal = 0;
     boolean planificacionNuevaActiva = false;
 
+    // ----- Variables -----
+    boolean esCrossDock = false;
+
     // ----- Funciones -----
 
     int calcularCantidadContenedores() {

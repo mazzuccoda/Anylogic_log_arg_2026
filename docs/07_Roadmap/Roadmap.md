@@ -21,8 +21,8 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 | 4. Transferencias parciales | Planta → depósito parcial, verificada en PLE; falta depósito → depósito | 80% |
 | 5. Reserva profesional | Reservas trazables por capa y pedido; falta compromiso y reserva parcial | 60% |
 | 6. Contenedores individuales | Contenedores reales por pedido, verificados en PLE; falta el ciclo del vacío | 70% |
-| 7. Consolidación directa | Pendiente | 10% |
-| 8. Cross docking | Diseño validado | 10% |
+| 7. Consolidación directa | Posiciones finitas por día y estrategia del escenario, verificadas en PLE; falta consolidación en planta | 80% |
+| 8. Cross docking | Operación con cupo diario por sitio, tarifa propia y sin almacenaje, verificada en PLE; falta cross dock parcial y en terminal | 70% |
 | 9. Terminal | Parcial | 20% |
 | 10. Registro de costos | Parcial; tarifas ya vienen de tablas | 35% |
 | 11. Planificador | Parcial | 25% |
@@ -138,10 +138,13 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [x] Validar concepto de sincronización.
 - [x] Validar regla del mismo día.
 - [x] Validar exclusión de IN/storage/OUT.
-- [ ] Crear recursos.
-- [ ] Crear colas independientes.
-- [ ] Sincronizar camiones.
-- [ ] Gestionar reprogramación.
+- [x] Crear recursos (`posiciones_cross_dock`, contadas por día y por sitio).
+- [x] Sincronizar camiones (la operación necesita camión libre el mismo día).
+- [x] Gestionar reprogramación (sin cupo, sin camión o sin stock en planta el pedido no se cruza y compite de nuevo al día siguiente).
+- [x] Exención de almacenaje para lo que cruza (ADR-010).
+- [ ] Colas independientes: el contenedor de cross dock usa el mismo flujo que el resto, con prioridad de despacho.
+- [ ] Cross dock parcial: requiere reserva parcial (fase 5), hoy el pedido se cruza entero o no se cruza.
+- [ ] Cross dock en terminal (`CROSS_DOCK_TERMINAL`).
 - [ ] Validar V-013.
 
 ## 12. Fase 9 — Terminal

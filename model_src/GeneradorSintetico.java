@@ -60,14 +60,24 @@ public class GeneradorSintetico implements java.io.Serializable {
 		{ 600, 70, 60 }
 	};
 
-	// Por deposito: velocidad de estiba tn/h, posiciones de consolidacion y
-	// contenedores por posicion y dia
+	// Por deposito: velocidad de estiba tn/h, posiciones de consolidacion,
+	// contenedores por posicion y dia, y operaciones de cross dock por dia
 	private static final double[][] CONSOLIDACION_DEPOSITO = {
-		{ 30, 1, 4 },
-		{ 28, 1, 4 },
-		{ 25, 1, 3 },
-		{ 32, 2, 3 },
-		{ 26, 1, 3 }
+		{ 30, 1, 4, 12 },
+		{ 28, 1, 4, 10 },
+		{ 25, 1, 3, 0 },
+		{ 32, 2, 3, 16 },
+		{ 26, 1, 3, 8 }
+	};
+
+	// Por deposito: usd/tn de cross dock de jugo, cascara, aceite. Es mas barato que
+	// la estiba desde stock porque el producto no entra ni sale del almacenamiento.
+	private static final double[][] CROSS_DOCK_DEPOSITO = {
+		{ 7, 6, 12 },
+		{ 8, 6, 11 },
+		{ 7, 6, 13 },
+		{ 9, 7, 10 },
+		{ 7, 6, 12 }
 	};
 
 	// Por deposito: usd/tn de estiba de jugo, cascara, aceite. Consolidar en el
@@ -132,7 +142,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 	private static void cargarMaestros(DatosEntrada datos) {
 
-		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0));
+		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0, 0));
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
 			datos.productos.add(new DatosEntrada.Producto(PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i]));
@@ -143,7 +153,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 				DEPOSITOS[d], "DEPOSITO", true, 50, 0, CONSOLIDACION_DEPOSITO[d][0], 0,
-				CONSOLIDACION_DEPOSITO[d][1], CONSOLIDACION_DEPOSITO[d][2]));
+				CONSOLIDACION_DEPOSITO[d][1], CONSOLIDACION_DEPOSITO[d][2],
+				CONSOLIDACION_DEPOSITO[d][3]));
 			datos.distancias.add(new DatosEntrada.Distancia(PLANTA, DEPOSITOS[d], DISTANCIA[d][0]));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
@@ -151,8 +162,10 @@ public class GeneradorSintetico implements java.io.Serializable {
 					new DatosEntrada.Capacidad(DEPOSITOS[d], PRODUCTOS[p], CAPACIDAD[d][p]));
 				datos.tarifasAlmacenamiento.add(
 					new DatosEntrada.TarifaAlmacenamiento(DEPOSITOS[d], PRODUCTOS[p], STORAGE[d][p]));
-				datos.tarifasServicioCarga.add(
-					new DatosEntrada.TarifaServicioCarga(DEPOSITOS[d], PRODUCTOS[p], ESTIBA_DEPOSITO[d][p]));
+				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
+					DEPOSITOS[d], PRODUCTOS[p], "CONSOLIDACION", ESTIBA_DEPOSITO[d][p]));
+				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
+					DEPOSITOS[d], PRODUCTOS[p], "CROSS_DOCK", CROSS_DOCK_DEPOSITO[d][p]));
 			}
 		}
 
@@ -161,11 +174,11 @@ public class GeneradorSintetico implements java.io.Serializable {
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 				TERMINALES[t], "TERMINAL", true, 0,
 				TERMINAL_OPERACION[t][1], TERMINAL_OPERACION[t][2], TERMINAL_OPERACION[t][0],
-				CONSOLIDACION_TERMINAL[t][0], CONSOLIDACION_TERMINAL[t][1]));
+				CONSOLIDACION_TERMINAL[t][0], CONSOLIDACION_TERMINAL[t][1], 0));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
-				datos.tarifasServicioCarga.add(
-					new DatosEntrada.TarifaServicioCarga(TERMINALES[t], PRODUCTOS[p], CONSOLIDACION[t][p]));
+				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
+					TERMINALES[t], PRODUCTOS[p], "CONSOLIDACION", CONSOLIDACION[t][p]));
 			}
 
 			for (int d = 0; d < DEPOSITOS.length; d++) {

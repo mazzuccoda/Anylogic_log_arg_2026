@@ -37,11 +37,13 @@ public class DatosEntrada implements java.io.Serializable {
 		public double capacidadDiariaTn;
 		public double posicionesConsolidacion;       // posiciones de estiba del sitio
 		public double contenedoresPorPosicionDia;    // contenedores por posicion y dia
+		public double posicionesCrossDock;           // operaciones de cross dock por dia
 
 		public Ubicacion(String idUbicacion, String tipo, boolean habilitada,
 				double velocidadCargaTnHora, double velocidadDescargaTnHora,
 				double velocidadConsolidacionTnHora, double capacidadDiariaTn,
-				double posicionesConsolidacion, double contenedoresPorPosicionDia) {
+				double posicionesConsolidacion, double contenedoresPorPosicionDia,
+				double posicionesCrossDock) {
 			this.idUbicacion = idUbicacion;
 			this.tipo = tipo;
 			this.habilitada = habilitada;
@@ -51,6 +53,7 @@ public class DatosEntrada implements java.io.Serializable {
 			this.capacidadDiariaTn = capacidadDiariaTn;
 			this.posicionesConsolidacion = posicionesConsolidacion;
 			this.contenedoresPorPosicionDia = contenedoresPorPosicionDia;
+			this.posicionesCrossDock = posicionesCrossDock;
 		}
 	}
 
@@ -125,11 +128,14 @@ public class DatosEntrada implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public String idUbicacion;
 		public TipoProducto producto;
+		public String tipoServicio;                  // CONSOLIDACION o CROSS_DOCK
 		public double tarifaUsdTn;
 
-		public TarifaServicioCarga(String idUbicacion, TipoProducto producto, double tarifaUsdTn) {
+		public TarifaServicioCarga(String idUbicacion, TipoProducto producto, String tipoServicio,
+				double tarifaUsdTn) {
 			this.idUbicacion = idUbicacion;
 			this.producto = producto;
+			this.tipoServicio = tipoServicio;
 			this.tarifaUsdTn = tarifaUsdTn;
 		}
 	}
@@ -266,13 +272,26 @@ public class DatosEntrada implements java.io.Serializable {
 	}
 
 	public double servicioCargaUsdTn(String idUbicacion, TipoProducto producto) {
+		return servicioCargaUsdTn(idUbicacion, producto, "CONSOLIDACION");
+	}
+
+	public double servicioCargaUsdTn(String idUbicacion, TipoProducto producto, String tipoServicio) {
 		for (TarifaServicioCarga t : tarifasServicioCarga) {
-			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
+			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto
+					&& t.tipoServicio.equals(tipoServicio)) {
 				return t.tarifaUsdTn;
 			}
 		}
-		throw new RuntimeException("Falta la tarifa de consolidacion de " + producto + " en " + idUbicacion
-				+ " (tabla TarifaServicioCarga).");
+		throw new RuntimeException("Falta la tarifa de " + tipoServicio + " de " + producto + " en "
+				+ idUbicacion + " (tabla TarifaServicioCarga).");
+	}
+
+	/**
+	 * Capacidad de cross dock del sitio en operaciones por dia: una operacion es un
+	 * contenedor armado el mismo dia en que el producto llega (ADR-010, ADR-041).
+	 */
+	public double capacidadCrossDockDia(String idUbicacion) {
+		return ubicacion(idUbicacion).posicionesCrossDock;
 	}
 
 	public double produccionDelDia(int dia, TipoProducto producto) {
@@ -371,11 +390,19 @@ public class DatosEntrada implements java.io.Serializable {
 		for (Ubicacion deposito : ubicacionesDeTipo("DEPOSITO")) {
 			for (TipoProducto producto : TipoProducto.values()) {
 				errores.addAll(faltante(deposito.idUbicacion, producto));
-				// Consolidar en el deposito necesita su propia tarifa de estiba.
+				// Consolidar en el deposito necesita su propia tarifa de estiba, y
+				// hacer cross dock ahi tiene su propia tarifa: no es el mismo servicio.
 				try {
 					servicioCargaUsdTn(deposito.idUbicacion, producto);
 				} catch (RuntimeException e) {
 					errores.add(e.getMessage());
+				}
+				if (deposito.posicionesCrossDock > 0) {
+					try {
+						servicioCargaUsdTn(deposito.idUbicacion, producto, "CROSS_DOCK");
+					} catch (RuntimeException e) {
+						errores.add(e.getMessage());
+					}
 				}
 				for (Ubicacion terminal : ubicacionesDeTipo("TERMINAL")) {
 					try {
@@ -395,6 +422,10 @@ public class DatosEntrada implements java.io.Serializable {
 			if (u.tipo.equals("PLANTA")) {
 				continue;
 			}
+			if (u.posicionesCrossDock < 0) {
+				errores.add("posiciones_cross_dock no puede ser negativo en " + u.idUbicacion + ".");
+			}
+
 			if (u.posicionesConsolidacion < 0 || u.contenedoresPorPosicionDia < 0) {
 				errores.add("posiciones_consolidacion y contenedores_por_posicion_dia no pueden ser"
 						+ " negativos en " + u.idUbicacion + ".");

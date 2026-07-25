@@ -20,6 +20,7 @@ class Main extends Agent {
     double costoTnPD = 2.0;
     double diasEstimadosAlmacenamiento = 30;
     EstrategiaLogistica estrategiaConsolidacion = EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
+    boolean habilitaCrossDock = false;
 
     // ----- Variables -----
     DatosEntrada datos = null;
@@ -43,6 +44,13 @@ class Main extends Agent {
     double esperaConsolidacionContenedorDia = 0;
     int consolidacionesRealizadas = 0;
     double capacidadConsolidacionOfrecida = 0;
+    java.util.HashMap<String, Integer> crossDockDelDia = new java.util.HashMap<String, Integer>();
+    double capacidadCrossDockOfrecida = 0;
+    int operacionesCrossDock = 0;
+    double toneladasCrossDock = 0;
+    double costoCrossDockReal = 0;
+    int crossDockReprogramados = 0;
+    int crossDockDegradados = 0;
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -448,38 +456,7 @@ class Main extends Agent {
             return false;
         }
 
-        pedido.depositoAsignado = deposito;
-        pedido.toneladasReservadas =
-            pedido.toneladasSolicitadas;
-
-        pedido.diaReserva = time();
-        pedido.estado = EstadoPedido.RESERVADO;
-
-        pedido.costoFleteEstimado =
-            pedido.toneladasSolicitadas
-            * deposito.getCostoFletePuerto(
-                pedido.puertoSalida,
-                pedido.producto
-            );
-
-        pedido.costoConsolidadoEstimado =
-            pedido.toneladasSolicitadas
-            * (
-                consolidaEnDeposito()
-                ? deposito.getCostoConsolidado(pedido.producto)
-                : pedido.puertoSalida
-                    .getCostoConsolidado(pedido.producto)
-            );
-
-        pedido.costoTotalEstimado =
-            pedido.costoFleteEstimado
-            + pedido.costoConsolidadoEstimado;
-
-        pedidosReservados++;
-        pedidosPendientes--;
-
-        toneladasReservadasAcumuladas +=
-            pedido.toneladasSolicitadas;
+        confirmarAsignacion(pedido, deposito);
 
         return true;
     }
@@ -565,7 +542,7 @@ class Main extends Agent {
         // Fase 7: si el contenedor se estiba en el deposito, la carga es la
         // consolidacion y en la terminal solo queda el ingreso.
         envio.tiempoCargaHoras =
-            consolidaEnDeposito()
+            estibaEnDeposito(pedido)
             ? toneladas
                 / envio.depositoOrigen
                     .velocidadConsolidacionTnHora
@@ -582,7 +559,7 @@ class Main extends Agent {
                 .velocidadDescargaTnHora;
 
         envio.tiempoConsolidacionHoras =
-            consolidaEnDeposito()
+            estibaEnDeposito(pedido)
             ? 0
             : toneladas
                 / envio.terminalDestino
@@ -596,17 +573,11 @@ class Main extends Agent {
             + distancia * 2 * 1.20;
 
         envio.costoConsolidacionReal =
-            consolidaEnDeposito()
-            ? toneladas
-                * envio.depositoOrigen
-                    .getCostoConsolidado(
-                        envio.producto
-                    )
-            : toneladas
-                * envio.terminalDestino
-                    .getCostoConsolidado(
-                        envio.producto
-                    );
+            toneladas
+            * costoServicioEstibaUsdTn(
+                pedido,
+                envio.depositoOrigen
+            );
 
         envio.costoTotalReal =
             envio.costoFleteReal
@@ -919,6 +890,19 @@ class Main extends Agent {
         // Fuente unica del costo de almacenaje del dia (H-04). Se devenga por capa, que
         // es lo que tiene ubicacion y dia de ingreso propios, y se imputa al lote y al
         // deposito en el mismo recorrido, sin doble conteo.
+        //
+        // Lo comprometido por un pedido de cross dock no paga almacenaje: cruza el sitio
+        // sin ingresar al stock (ADR-010).
+        java.util.HashSet<String> cruzados =
+            new java.util.HashSet<String>();
+
+        for (Pedido pedido : pedidos) {
+
+            if (pedido.esCrossDock) {
+                cruzados.add(pedido.codigoPedido);
+            }
+        }
+
         for (Capa capa : inventario.capas) {
 
             Deposito deposito = buscarDeposito(capa.idUbicacion);
@@ -927,8 +911,21 @@ class Main extends Agent {
                 continue;
             }
 
+            double facturables = capa.toneladas;
+
+            for (Capa.Reserva reserva : capa.reservas) {
+
+                if (cruzados.contains(reserva.codigoPedido)) {
+                    facturables -= reserva.toneladas;
+                }
+            }
+
+            if (facturables <= Capa.EPS) {
+                continue;
+            }
+
             double costoDia =
-                capa.toneladas
+                facturables
                 * deposito.getTarifaAlmacenamiento(capa.producto);
 
             capa.costoAlmacenamiento += costoDia;
@@ -1204,8 +1201,13 @@ class Main extends Agent {
             contenedor.cantidadAsignadaTon = carga;
             contenedor.terminalDestino = pedido.puertoSalida;
 
+            contenedor.esCrossDock = pedido.esCrossDock;
+
+            contenedor.diaProgramadoCrossDock =
+                pedido.esCrossDock ? time() : -1;
+
             contenedor.lugarConsolidacion =
-                consolidaEnDeposito()
+                pedido.esCrossDock || consolidaEnDeposito()
                 ? (Agent) deposito
                 : (Agent) pedido.puertoSalida;
             contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
@@ -1214,13 +1216,7 @@ class Main extends Agent {
                 150
                 + distancia * 2 * 1.20
                 + carga
-                * (
-                    consolidaEnDeposito()
-                    ? deposito.getCostoConsolidado(pedido.producto)
-                    : pedido.puertoSalida.getCostoConsolidado(
-                        pedido.producto
-                    )
-                );
+                * costoServicioEstibaUsdTn(pedido, deposito);
 
             double resto = carga;
             double mayorAporte = 0;
@@ -1350,9 +1346,6 @@ class Main extends Agent {
     }
 
     void despacharContenedoresPendientes() {
-        // Fase 7: sale lo que la capacidad de consolidacion del dia permite. Prioridad
-        // por fecha limite del pedido; lo que no entra espera y suma espera por recurso,
-        // que es justamente el sintoma que el modelo tiene que medir.
         java.util.List<ContenedorExportacion> pendientes =
             new java.util.ArrayList<ContenedorExportacion>();
 
@@ -1360,7 +1353,6 @@ class Main extends Agent {
             ContenedorExportacion contenedor
             : contenedoresExportacion
         ) {
-
             if (
                 contenedor.estado
                 == EstadoContenedor.ESPERANDO_PROGRAMACION
@@ -1376,6 +1368,10 @@ class Main extends Agent {
                     ContenedorExportacion a,
                     ContenedorExportacion b
                 ) {
+                    if (a.esCrossDock != b.esCrossDock) {
+                        return a.esCrossDock ? -1 : 1;
+                    }
+
                     return Double.compare(
                         a.Pedido.diaLimite,
                         b.Pedido.diaLimite
@@ -1390,9 +1386,9 @@ class Main extends Agent {
             ContenedorExportacion contenedor
             : pendientes
         ) {
-
             if (
-                !tomarPosicionConsolidacion(
+                !contenedor.esCrossDock
+                && !tomarPosicionConsolidacion(
                     sitioConsolidacion(contenedor)
                 )
             ) {
@@ -1444,6 +1440,321 @@ class Main extends Agent {
         return true;
     }
 
+    void abrirPosicionesCrossDockDelDia() {
+        // Las posiciones de cross dock se cuentan por dia, igual que las de
+        // consolidacion (ADR-039): una operacion es un contenedor armado con producto
+        // que llega y sale el mismo dia.
+        crossDockDelDia.clear();
+
+        capacidadCrossDockOfrecida = 0;
+
+        if (!habilitaCrossDock) {
+            return;
+        }
+
+        for (Deposito deposito : depositos) {
+
+            if (!deposito.habilitado) {
+                continue;
+            }
+
+            capacidadCrossDockOfrecida +=
+                datos.capacidadCrossDockDia(
+                    deposito.idUbicacion
+                );
+
+            crossDockDelDia.put(
+                deposito.idUbicacion,
+                0
+            );
+        }
+    }
+
+    double capacidadCrossDockLibre(String idUbicacion) {
+        if (!crossDockDelDia.containsKey(idUbicacion)) {
+            return 0;
+        }
+
+        return datos.capacidadCrossDockDia(idUbicacion)
+            - crossDockDelDia.get(idUbicacion);
+    }
+
+    boolean tomarPosicionesCrossDock(String idUbicacion, int cantidad) {
+        if (capacidadCrossDockLibre(idUbicacion) < cantidad) {
+            return false;
+        }
+
+        crossDockDelDia.put(
+            idUbicacion,
+            crossDockDelDia.get(idUbicacion) + cantidad
+        );
+
+        operacionesCrossDock += cantidad;
+
+        return true;
+    }
+
+    int contenedoresNecesarios(TipoProducto producto, double toneladas) {
+        double capacidad =
+            obtenerCapacidadContenedorTon(
+                obtenerTipoContenedor(producto)
+            );
+
+        return (int) ceil(toneladas / capacidad - 0.0001);
+    }
+
+    boolean camionDisponibleHoy() {
+        // ADR-011: la operacion necesita el camion el mismo dia. Si no hay ninguno
+        // libre, no se mueve nada y el producto se queda en planta.
+        return flotaCamiones.idle() > 0;
+    }
+
+    Deposito seleccionarSitioCrossDock(Pedido pedido) {
+        Deposito mejorSitio = null;
+        double menorCosto = Double.POSITIVE_INFINITY;
+
+        int necesarios =
+            contenedoresNecesarios(
+                pedido.producto,
+                pedido.toneladasSolicitadas
+            );
+
+        for (Deposito deposito : depositos) {
+
+            if (!deposito.habilitado) {
+                continue;
+            }
+
+            if (
+                capacidadCrossDockLibre(deposito.idUbicacion)
+                < necesarios
+            ) {
+                continue;
+            }
+
+            // El producto pasa por el deposito, asi que tiene que entrar aunque no se
+            // quede: la capacidad se libera el mismo dia, al salir el contenedor.
+            if (
+                deposito.getEspacioDisponible(pedido.producto)
+                + 0.0001
+                < pedido.toneladasSolicitadas
+            ) {
+                continue;
+            }
+
+            // Sin almacenaje en el costo: no guardar es justamente el punto del
+            // cross dock (ADR-010).
+            double costo =
+                calcularCostoPlantaDeposito(
+                    deposito,
+                    pedido.toneladasSolicitadas
+                )
+                + pedido.toneladasSolicitadas
+                * (
+                    deposito.getCostoFletePuerto(
+                        pedido.puertoSalida,
+                        pedido.producto
+                    )
+                    + deposito.getCostoCrossDock(pedido.producto)
+                );
+
+            if (costo < menorCosto) {
+                menorCosto = costo;
+                mejorSitio = deposito;
+            }
+        }
+
+        return mejorSitio;
+    }
+
+    double transferirLotesADeposito(TipoProducto producto, Deposito destino, double toneladas) {
+        double pendiente = toneladas;
+
+        while (pendiente > 0.0001) {
+
+            LoteProducto lote =
+                buscarLoteMasAntiguoEnPlanta(producto);
+
+            if (lote == null) {
+                break;
+            }
+
+            double movidas =
+                transferirToneladasLote(
+                    lote,
+                    destino,
+                    min(
+                        inventario.libreDeLoteEn(
+                            lote.idLote,
+                            "PLANTA"
+                        ),
+                        pendiente
+                    )
+                );
+
+            if (movidas <= 0.0001) {
+                break;
+            }
+
+            pendiente -= movidas;
+        }
+
+        return toneladas - pendiente;
+    }
+
+    boolean intentarCrossDockPedido(Pedido pedido) {
+        // El pedido se sirve con producto que todavia esta en planta: sale hoy, se
+        // estiba hoy y no entra a almacenamiento (ADR-010). Si algo no da, no se mueve
+        // nada y el pedido sigue el camino normal.
+        if (
+            inventario.libre("PLANTA", pedido.producto)
+            + 0.0001
+            < pedido.toneladasSolicitadas
+        ) {
+            return false;
+        }
+
+        Deposito sitio = seleccionarSitioCrossDock(pedido);
+
+        if (sitio == null) {
+            crossDockReprogramados++;
+            return false;
+        }
+
+        if (!camionDisponibleHoy()) {
+            crossDockReprogramados++;
+            return false;
+        }
+
+        int necesarios =
+            contenedoresNecesarios(
+                pedido.producto,
+                pedido.toneladasSolicitadas
+            );
+
+        if (
+            !tomarPosicionesCrossDock(
+                sitio.idUbicacion,
+                necesarios
+            )
+        ) {
+            crossDockReprogramados++;
+            return false;
+        }
+
+        double movidas =
+            transferirLotesADeposito(
+                pedido.producto,
+                sitio,
+                pedido.toneladasSolicitadas
+            );
+
+        // Si el producto se movio pero el pedido no se puede armar, lo movido queda en
+        // el deposito como stock normal y devenga almacenaje: es una operacion de cross
+        // dock que se degrado, y se cuenta como tal.
+        if (
+            movidas + 0.0001 < pedido.toneladasSolicitadas
+            || !reservarLotesParaPedido(pedido, sitio)
+        ) {
+            crossDockDegradados++;
+            return false;
+        }
+
+        pedido.esCrossDock = true;
+
+        confirmarAsignacion(pedido, sitio);
+
+        toneladasCrossDock += movidas;
+
+        return true;
+    }
+
+    void programarCrossDockDelDia() {
+        if (!habilitaCrossDock) {
+            return;
+        }
+
+        java.util.List<Pedido> candidatos =
+            new java.util.ArrayList<Pedido>();
+
+        for (Pedido pedido : pedidos) {
+
+            if (
+                pedido.estado == EstadoPedido.PENDIENTE
+                || pedido.estado == EstadoPedido.ATRASADO
+            ) {
+                candidatos.add(pedido);
+            }
+        }
+
+        java.util.Collections.sort(
+            candidatos,
+            new java.util.Comparator<Pedido>() {
+                public int compare(Pedido a, Pedido b) {
+                    return Double.compare(
+                        a.diaLimite,
+                        b.diaLimite
+                    );
+                }
+            }
+        );
+
+        for (Pedido pedido : candidatos) {
+            intentarCrossDockPedido(pedido);
+        }
+    }
+
+    double costoServicioEstibaUsdTn(Pedido pedido, Deposito deposito) {
+        // Quien cobra la estiba depende de donde se arma el contenedor: el deposito si
+        // es cross dock (ADR-041) o si la estrategia consolida ahi (ADR-040), y la
+        // terminal en el caso contrario.
+        if (pedido.esCrossDock) {
+            return deposito.getCostoCrossDock(pedido.producto);
+        }
+
+        return consolidaEnDeposito()
+            ? deposito.getCostoConsolidado(pedido.producto)
+            : pedido.puertoSalida.getCostoConsolidado(
+                pedido.producto
+            );
+    }
+
+    void confirmarAsignacion(Pedido pedido, Deposito deposito) {
+        pedido.depositoAsignado = deposito;
+
+        pedido.toneladasReservadas =
+            pedido.toneladasSolicitadas;
+
+        pedido.diaReserva = time();
+        pedido.estado = EstadoPedido.RESERVADO;
+
+        pedido.costoFleteEstimado =
+            pedido.toneladasSolicitadas
+            * deposito.getCostoFletePuerto(
+                pedido.puertoSalida,
+                pedido.producto
+            );
+
+        pedido.costoConsolidadoEstimado =
+            pedido.toneladasSolicitadas
+            * costoServicioEstibaUsdTn(pedido, deposito);
+
+        pedido.costoTotalEstimado =
+            pedido.costoFleteEstimado
+            + pedido.costoConsolidadoEstimado;
+
+        pedidosReservados++;
+        pedidosPendientes--;
+
+        toneladasReservadasAcumuladas +=
+            pedido.toneladasSolicitadas;
+    }
+
+    boolean estibaEnDeposito(Pedido pedido) {
+        return pedido != null
+            && (pedido.esCrossDock || consolidaEnDeposito());
+    }
+
     // ----- Eventos -----
 
     // evento pasoDiario [timeout cyclic] cada 1 day
@@ -1451,14 +1762,16 @@ class Main extends Agent {
         // Secuencia diaria del modelo (ADR-034). El orden es parte de la
         // definicion: cambiarlo cambia el costo y el servicio del dia.
         producirEnPlantas();                     // 1. producir
-        revisarTransferenciasPlanta();           // 2. recibir e ingresar
-        registrarPedidosDelDia();                // 3. planificar y comprometer
-        revisarPedidosPendientes();              // 4. reservar
-        abrirPosicionesConsolidacionDelDia();    // 5. abrir la capacidad de estiba del dia
-        prepararPedidosReservados();             // 6. armar los contenedores del pedido
-        despacharContenedoresPendientes();       // 7. consolidar y despachar lo que entra
-        devengarAlmacenamientoDiario();          // 8. devengar almacenaje
-        registrarAtrasos();                      // 9. registrar indicadores del dia
+        registrarPedidosDelDia();                // 2. planificar y comprometer
+        abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
+        abrirPosicionesCrossDockDelDia();        // 4. abrir la capacidad de cross dock del dia
+        programarCrossDockDelDia();              // 5. cruzar lo que no necesita guardarse
+        revisarTransferenciasPlanta();           // 6. recibir e ingresar el excedente
+        revisarPedidosPendientes();              // 7. reservar contra stock
+        prepararPedidosReservados();             // 8. armar los contenedores del pedido
+        despacharContenedoresPendientes();       // 9. consolidar y despachar lo que entra
+        devengarAlmacenamientoDiario();          // 10. devengar almacenaje
+        registrarAtrasos();                      // 11. registrar indicadores del dia
         validarInventario();              // invariantes de las capas (ADR-023)
     }
 }
