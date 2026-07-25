@@ -12,7 +12,7 @@ Definir las tablas de entrada del modelo antes de implementar, para que la fase 
 
 | Fase | Origen | Mecanismo |
 |---|---|---|
-| 1 | Generador sintético | Función `generarDatosSinteticos()` que puebla las mismas tablas internas |
+| 1 | Generador sintético | `GeneradorSintetico.generar(...)` puebla las mismas tablas internas |
 | 2 | Excel | Archivo `datos/entrada_<escenario>.xlsx`, una hoja por tabla, importado a la base de datos interna de AnyLogic |
 
 Regla: si la fase 2 requiere cambiar alguna función de lógica de negocio, el contrato estaba mal definido.
@@ -194,7 +194,7 @@ Necesaria para arrancar una corrida a mitad de campaña o para reproducir un est
 
 ## 7. Validación de entrada
 
-Antes de simular, el modelo ejecuta `validarDatosEntrada()` y **aborta con mensaje explícito** si:
+Antes de simular, el modelo valida las tablas y **aborta con mensaje explícito** si:
 
 1. falta una tabla obligatoria o una columna;
 2. hay una FK inexistente (ubicación, producto, terminal, naviera);
@@ -206,6 +206,28 @@ Antes de simular, el modelo ejecuta `validarDatosEntrada()` y **aborta con mensa
 8. `transito_dias_min > moda > max` está mal ordenado.
 
 Los errores se listan **todos juntos** en un CSV (`errores_entrada.csv`) en lugar de abortar en el primero: corregir un Excel de a un error por corrida es inviable.
+
+## 7.bis Estado de implementación
+
+El paso 2 del [roadmap](../07_Roadmap/Roadmap.md) implementa la primera mitad del contrato. Las tablas viven en la clase Java `DatosEntrada` (ADR-030: no consumen tipos de agente) y las llena `GeneradorSintetico`; el importador de Excel de la fase 2 llenará las mismas listas y **no toca la lógica de negocio**.
+
+| Tabla | Implementada | Diferencias con este documento |
+|---|---|---|
+| `Producto` | sí | — |
+| `Ubicacion` | sí | sin `habilita_consolidacion`, `habilita_cross_dock` ni posiciones: el modelo todavía no consume posiciones. Agrega las velocidades operativas que hoy son parámetros de los agentes |
+| `CapacidadUbicacion` | sí | — |
+| `Distancia` | sí | sin tránsito min/moda/max: el tránsito todavía se deriva de la distancia y la velocidad del camión |
+| `TiemposOperativos` | no | los tiempos siguen calculándose como toneladas ÷ velocidad |
+| `TarifaFleteProducto` | sí, depósito → terminal | sólo `USD_TN`. El flete planta → depósito sigue siendo la fórmula `costoFijoViajePD + km × costoKmPD + tn × costoTnPD`, con los km leídos de `Distancia` |
+| `TarifaAlmacenamiento` | sí | sólo `storage_usd_tn_dia`; IN/OUT y período mínimo requieren capas (paso 3) |
+| `TarifaServicioCarga` | sí | tarifa en `USD_TN`, no en `USD_CONTENEDOR`: el modelo consolida por toneladas hasta que los contenedores individuales entren en la ejecución |
+| `TarifaCicloContenedor`, `TarifaTerminal`, `TarifaTHC`, `TarifaDespachante` | no | ninguna está consumida por el modelo todavía |
+| `Escenario` | sí, parcial | implementa `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion` y `variabilidad_demanda`, y agrega `pedidos_por_campania`, `toneladas_medias_pedido` y `plazo_pedido_dias`, que son los que gobiernan la demanda sintética |
+| `ProduccionPlan` | sí | serie diaria completa por producto |
+| `PedidoPlan` | sí | sin cliente, calidad, lote solicitado, naviera ni incoterm: el modelo aún no los usa |
+| `LoteInicial` | no | — |
+
+La validación existe y corre en el arranque: `Main.cargarDatosEntrada()` genera las tablas, ejecuta `DatosEntrada.validar()` y aborta con la lista completa de errores. Todavía no escribe `errores_entrada.csv`. Cubre los puntos 2, 3, 4 y 6 de la sección anterior; los puntos 1, 5, 7 y 8 corresponden a columnas o tablas no implementadas.
 
 ## 8. Salidas
 

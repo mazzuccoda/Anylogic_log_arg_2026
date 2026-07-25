@@ -274,6 +274,22 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 **Decisión:** el `.alp` es la fuente de verdad y se versiona. Además, `tools/exportar_modelo.py` genera `model_src/`, un espejo de sólo lectura con parámetros, variables, funciones y eventos por agente, que se regenera y se commitea en el mismo cambio.  
 **Consecuencias:** los pull requests muestran el cambio real de lógica; `model_src/` puede quedar desactualizado si alguien olvida regenerarlo, por lo que la regeneración es parte de la definición de terminado.
 
+## ADR-036 — Las tablas de entrada son una clase Java, no la base de datos de AnyLogic
+
+**Estado:** aceptada.  
+**Contexto:** el contrato de datos exige que el generador sintético y el importador de Excel produzcan el mismo esquema, y que la lógica no dependa del origen. AnyLogic ofrece su base de datos interna, pero el modelo ya usa los 10 tipos de agente de PLE (ADR-030) y la base interna obliga a que exista un archivo para poder correr.  
+**Decisión:** las tablas viven en la clase Java `DatosEntrada` (una lista por tabla, más las consultas). `GeneradorSintetico` las llena hoy; el importador de Excel las llenará mañana leyendo la base interna y traduciendo cada fila a la misma lista. La lógica de negocio consulta siempre `Main.datos`.  
+**Alternativas:** base de datos interna de AnyLogic como fuente directa (ata el modelo a un archivo y a la sintaxis de consultas de AnyLogic en cada punto de uso); parámetros por agente (es lo que estamos sacando).  
+**Consecuencias:** un escenario se define por parámetros de `Main` y una semilla, sin archivos; cambiar de sintético a Excel es cambiar quién llena las listas. El costo es que la carga desde Excel deberá escribirse a mano, fila por tabla.
+
+## ADR-037 — Un dato faltante aborta el arranque, no vale cero
+
+**Estado:** aceptada.  
+**Contexto:** `Deposito.getTarifaAlmacenamiento()` devolvía el campo correspondiente al producto, y un campo sin cargar vale 0 en Java: un depósito sin tarifa de aceite almacenaba aceite gratis y el modelo devolvía un costo de campaña plausible pero falso.  
+**Decisión:** las consultas de `DatosEntrada` lanzan una excepción con la clave que falta, y `DatosEntrada.validar()` recorre todas las combinaciones alcanzables (depósito × producto × terminal) al arrancar, junta todos los errores y aborta con la lista completa.  
+**Alternativas:** validar sólo lo que se usa (el error aparece a mitad de campaña y depende del escenario); devolver un valor por defecto (es el problema que se está corrigiendo).  
+**Consecuencias:** un dato mal cargado se ve antes de simular y de una sola vez; los agentes conservan sus campos de tarifa y capacidad, pero como copia que `Main.aplicarDatosAAgentes()` escribe desde las tablas, no como fuente.
+
 ## Plantilla para nuevas decisiones
 
 ```markdown

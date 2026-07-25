@@ -178,6 +178,15 @@ def exportar(ruta_alp: Path, destino: Path) -> int:
         (destino / "OptionLists.java").write_text("\n".join(contenido), encoding="utf-8")
         generados += 1
 
+    clases_java = modelo.find("JavaClasses")
+    for clase in clases_java if clases_java is not None else []:
+        nombre = texto(clase, "Name")
+        cuerpo = clase.findtext("Text") or ""
+        (destino / f"{nombre}.java").write_text(
+            CABECERA + "\n" + cuerpo.strip() + "\n", encoding="utf-8"
+        )
+        generados += 1
+
     nombres = []
     agentes = modelo.find("ActiveObjectClasses")
     for agente in agentes if agentes is not None else []:

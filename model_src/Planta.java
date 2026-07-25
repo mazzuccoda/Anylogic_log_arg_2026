@@ -8,9 +8,6 @@ class Planta extends Agent {
     double capacidadJugo = 5000;
     double capacidadCascara = 1800;
     double capacidadAceite = 1500;
-    double produccionDiariaJugo = 100;
-    double produccionDiariaCascara = 60;
-    double produccionDiariaAceite = 8;
     double nivelActivacionJugo = 4000;
     double stockObjetivoJugo = 2500;
     double nivelActivacionCascara = 1400;
@@ -68,10 +65,25 @@ class Planta extends Agent {
     }
 
     void producir() {
-        // Registrar toda la producción generada
-        produccionAcumuladaJugo += produccionDiariaJugo;
-        produccionAcumuladaCascara += produccionDiariaCascara;
-        produccionAcumuladaAceite += produccionDiariaAceite;
+        // La produccion del dia es un dato de entrada (tabla ProduccionPlan).
+        Main modelo = (Main) getRootAgent();
+
+        int dia = (int) floor(time());
+
+        double produccionJugo =
+            modelo.datos.produccionDelDia(dia, TipoProducto.JUGO);
+
+        double produccionCascara =
+            modelo.datos.produccionDelDia(dia, TipoProducto.CASCARA);
+
+        double produccionAceite =
+            modelo.datos.produccionDelDia(dia, TipoProducto.ACEITE);
+
+
+        // Registrar toda la produccion generada
+        produccionAcumuladaJugo += produccionJugo;
+        produccionAcumuladaCascara += produccionCascara;
+        produccionAcumuladaAceite += produccionAceite;
 
 
         // Guardar stock anterior
@@ -80,20 +92,16 @@ class Planta extends Agent {
         double stockAnteriorAceite = stockAceite;
 
 
-        // Intentar almacenar la producción
-        agregarStock(TipoProducto.JUGO, produccionDiariaJugo);
-        agregarStock(TipoProducto.CASCARA, produccionDiariaCascara);
-        agregarStock(TipoProducto.ACEITE, produccionDiariaAceite);
+        // Intentar almacenar la produccion
+        agregarStock(TipoProducto.JUGO, produccionJugo);
+        agregarStock(TipoProducto.CASCARA, produccionCascara);
+        agregarStock(TipoProducto.ACEITE, produccionAceite);
 
 
-        // Calcular cuánto ingresó realmente
+        // Calcular cuanto ingreso realmente
         double ingresoJugo = stockJugo - stockAnteriorJugo;
         double ingresoCascara = stockCascara - stockAnteriorCascara;
         double ingresoAceite = stockAceite - stockAnteriorAceite;
-
-
-        // Acceder al agente Main
-        Main modelo = (Main) getRootAgent();
 
 
         // Crear lotes solamente por las toneladas almacenadas

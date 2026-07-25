@@ -5,6 +5,7 @@
 class Deposito extends Agent {
 
     // ----- Parámetros -----
+    String idUbicacion = "";
     String nombreDeposito = "Deposito";
     int idDeposito = 0;
     boolean habilitado = true;
@@ -14,12 +15,7 @@ class Deposito extends Agent {
     double costoJugoTnDia = 0;
     double costoCascaraTnDia = 0;
     double costoAceiteTnDia;
-    double distanciaDesdePlantaKm = 0;
-    double costoFleteZarateUsdTn = 0;
-    double costoFleteT4UsdTn = 0;
     double velocidadCargaTnHora = 50;
-    double distanciaZarateKm = 0;
-    double distanciaT4Km = 0;
 
     // ----- Variables -----
     double stockJugo = 0;
@@ -163,22 +159,18 @@ class Deposito extends Agent {
         }
     }
 
-    double getCostoFletePuerto(Terminal terminal) {
-        Main modelo = (Main) getRootAgent();
-
+    double getCostoFletePuerto(Terminal terminal, TipoProducto producto) {
         if (terminal == null) {
             return Double.POSITIVE_INFINITY;
         }
 
-        if (terminal == modelo.terminalZarate) {
-            return costoFleteZarateUsdTn;
-        }
+        Main modelo = (Main) getRootAgent();
 
-        if (terminal == modelo.terminalT4) {
-            return costoFleteT4UsdTn;
-        }
-
-        return Double.POSITIVE_INFINITY;
+        return modelo.datos.fleteUsdTn(
+            idUbicacion,
+            terminal.idUbicacion,
+            producto
+        );
     }
 
     double getReservado(TipoProducto producto) {
@@ -325,14 +317,11 @@ class Deposito extends Agent {
             return Double.POSITIVE_INFINITY;
         }
 
-        if (terminal.idTerminal == 1) {
-            return distanciaZarateKm;
-        }
+        Main modelo = (Main) getRootAgent();
 
-        if (terminal.idTerminal == 2) {
-            return distanciaT4Km;
-        }
-
-        return Double.POSITIVE_INFINITY;
+        return modelo.datos.distanciaKm(
+            idUbicacion,
+            terminal.idUbicacion
+        );
     }
 }
