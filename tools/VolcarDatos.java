@@ -21,6 +21,8 @@ public class VolcarDatos {
 		hoja("Escenario", "id_escenario\tduracion_campania_dias\tsemilla_base"
 				+ "\tvariabilidad_produccion\tvariabilidad_demanda\tpedidos_por_campania"
 				+ "\ttoneladas_medias_pedido\tplazo_pedido_dias\tcamiones_producto"
+				+ "\tcamiones_portacontenedor\tcapacidad_camion_tn\tvelocidad_camion_kmh"
+				+ "\thoras_operativas_dia"
 				+ "\tfactor_produccion\tfactor_capacidad_planta\tfactor_capacidad_deposito"
 				+ "\tfactor_storage\tventana_demanda\thabilita_cross_dock\tdeterministico"
 				+ "\testrategia_consolidacion");
@@ -35,6 +37,10 @@ public class VolcarDatos {
 					+ "\t" + e.toneladasMediasPedido
 					+ "\t" + e.plazoPedidoDias
 					+ "\t" + e.camionesProducto
+					+ "\t" + e.camionesPortacontenedor
+					+ "\t" + e.capacidadCamionTn
+					+ "\t" + e.velocidadCamionKmh
+					+ "\t" + e.horasOperativasDia
 					+ "\t" + e.factorProduccion
 					+ "\t" + e.factorCapacidadPlanta
 					+ "\t" + e.factorCapacidadDeposito

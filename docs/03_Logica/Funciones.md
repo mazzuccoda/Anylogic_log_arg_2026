@@ -196,7 +196,7 @@ El cupo de cross dock es un recurso contado por día y por sitio (ADR-041): cada
 
 **Estado:** implementadas (fase 8).
 
-Fase 5 de la secuencia diaria, antes de las transferencias normales. Recorre los pedidos `PENDIENTE` o `ATRASADO` en orden de fecha límite e intenta servirlos con producto que todavía está en planta: elige el sitio de menor costo (flete planta–depósito + flete depósito–puerto + tarifa de cross dock, sin almacenaje) entre los que tienen cupo y espacio, exige camión libre ese mismo día (ADR-011), toma las posiciones, mueve el producto y lo reserva para el pedido, que queda marcado `esCrossDock`. Si falta stock, cupo o camión, el pedido no se cruza, suma en `crossDockReprogramados` y compite de nuevo al día siguiente por el camino normal.
+Fase 5 de la secuencia diaria, antes de las transferencias normales. Recorre los pedidos `PENDIENTE` o `ATRASADO` en orden de fecha límite e intenta servirlos con producto que todavía está en planta: elige el sitio de menor costo (flete planta–depósito + flete depósito–puerto + tarifa de cross dock, sin almacenaje) entre los que tienen cupo y espacio, exige que la flota de producto del día alcance para el pedido entero (ADR-011, ADR-044), toma las posiciones, mueve el producto y lo reserva para el pedido, que queda marcado `esCrossDock`. Si falta stock, cupo o camión, el pedido no se cruza, suma en `crossDockReprogramados` y compite de nuevo al día siguiente por el camino normal.
 
 ### `costoServicioEstibaUsdTn(Pedido pedido, Deposito deposito)` y `estibaEnDeposito(Pedido pedido)`
 
@@ -210,13 +210,21 @@ Resuelven quién cobra la estiba y dónde se arma el contenedor: la tarifa `CROS
 
 `costoTotalCampania()`, `toneladasExportadas()`, `costoPorToneladaExportada()`, `nivelServicio()`, `atrasoPromedioDias()`, `utilizacionFlota()`, `excedenteFinalTn()` y `usoPosicionesConsolidacion()`. Son funciones puras sobre el estado final: el experimento `Escenarios` las lee al terminar cada corrida y las escribe en `resultados/kpis_por_corrida.csv`. Que sean funciones y no acumuladores del experimento es lo que permite mirarlas también en una corrida suelta.
 
-`registrarUsoFlota()` corre todos los días y acumula `camionDiaOcupado` y `camionDiaOfrecido`, que es lo que después divide `utilizacionFlota()`. Hoy da casi siempre 0 porque la transferencia planta→depósito no toma camiones del pool (ver la limitación en [Escenarios y experimentos](../09_Definicion/Escenarios_y_Experimentos.md)).
+La utilización se informa por flota (ADR-044): `utilizacionFlota()` divide el camión-día de producto consumido por el ofrecido, y `utilizacionPortacontenedor()` devuelve la estadística de ocupación del pool `flotaPortacontenedores`. `viajesPlantaDeposito` cuenta los viajes efectivamente hechos y viaja al CSV como evidencia de que la flota se consumió.
+
+### Flota de producto: `abrirFlotaDelDia()`, `camionDiaViaje()`, `viajesNecesariosCamion()`, `flotaProductoLibreHoy()`, `tomarFlotaProducto()` y `flotaProductoAlcanza()`
+
+**Estado:** implementadas (ADR-044).
+
+La flota planta→depósito es capacidad diaria, igual que las posiciones de consolidación. `abrirFlotaDelDia()` abre la secuencia diaria ofreciendo `camiones_producto` camión-día y fija la capacidad del pool de portacontenedores desde el escenario (en el arranque el pool todavía no está inicializado y `set_capacity` se perdería). `camionDiaViaje(origen, destino)` cuesta un viaje redondo como fracción de jornada y `viajesNecesariosCamion(tn)` lo convierte en viajes según `capacidad_camion_tn`.
+
+`transferirToneladasLote()` acota lo que mueve a los viajes que todavía entran hoy y llama a `tomarFlotaProducto()`, que descuenta la capacidad y aborta la corrida si se sobregira. El cross dock, que es todo o nada, pregunta antes con `flotaProductoAlcanza()`: si la flota del día no da para el pedido entero, el pedido no se cruza y se cuenta en `crossDockReprogramados`.
 
 ### `aplicarEscenario()`
 
 **Estado:** implementada (fase 13).
 
-Traduce la fila del escenario a estado del modelo: duración de campaña, cantidad de camiones de la flota, cross dock y estrategia de consolidación. Corre una sola vez, después de cargar y validar las tablas y antes del día 1. Todo lo demás que el escenario cambia (producción, capacidades, tarifas, ventana de demanda) ya viene aplicado en las tablas, no acá.
+Traduce la fila del escenario a estado del modelo: duración de campaña, cross dock y estrategia de consolidación. Las dos flotas no se fijan acá sino en `abrirFlotaDelDia()` (ADR-044). Corre una sola vez, después de cargar y validar las tablas y antes del día 1. Todo lo demás que el escenario cambia (producción, capacidades, tarifas, ventana de demanda) ya viene aplicado en las tablas, no acá.
 
 ### Funciones objetivo de planificación
 

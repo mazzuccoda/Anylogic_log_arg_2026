@@ -27,7 +27,11 @@ public class DatosEntrada implements java.io.Serializable {
 
 		// Palancas del barrido (ADR-032): la fila del escenario define la corrida
 		// entera, asi que agregar un escenario es agregar una fila.
-		public int camionesProducto;
+		public int camionesProducto;               // planta -> deposito (granel)
+		public int camionesPortacontenedor;        // deposito -> terminal
+		public double capacidadCamionTn;
+		public double velocidadCamionKmh;
+		public double horasOperativasDia;          // jornada del camion, define viajes por dia
 		public double factorProduccion;
 		public double factorCapacidadPlanta;
 		public double factorCapacidadDeposito;
@@ -345,6 +349,22 @@ public class DatosEntrada implements java.io.Serializable {
 
 		if (escenario.camionesProducto <= 0) {
 			errores.add("camiones_producto debe ser > 0.");
+		}
+
+		if (escenario.camionesPortacontenedor <= 0) {
+			errores.add("camiones_portacontenedor debe ser > 0.");
+		}
+
+		if (escenario.capacidadCamionTn <= 0) {
+			errores.add("capacidad_camion_tn debe ser > 0.");
+		}
+
+		if (escenario.velocidadCamionKmh <= 0) {
+			errores.add("velocidad_camion_kmh debe ser > 0.");
+		}
+
+		if (escenario.horasOperativasDia <= 0 || escenario.horasOperativasDia > 24) {
+			errores.add("horas_operativas_dia debe estar en (0, 24].");
 		}
 
 		if (escenario.factorProduccion <= 0 || escenario.factorCapacidadPlanta <= 0

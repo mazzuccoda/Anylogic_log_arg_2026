@@ -154,8 +154,11 @@ Todas incluyen `vigencia_desde` y `vigencia_hasta` (fecha; `vigencia_hasta` vac�
 | `dias_operativos_semana` | int | Default 6 |
 | `cantidad_replicas` | int | Default 30 |
 | `semilla_base` | int | |
-| `camiones_producto` | int | |
-| `camiones_portacontenedor` | int | |
+| `camiones_producto` | int | Flota planta→depósito, contada en camión-día (ADR-044) |
+| `camiones_portacontenedor` | int | Flota depósito→terminal, capacidad del pool `flotaPortacontenedores` |
+| `capacidad_camion_tn` | double | Toneladas por viaje: mover más son más viajes |
+| `velocidad_camion_kmh` | double | Define cuánta jornada consume un viaje |
+| `horas_operativas_dia` | double | Jornada del camión, 0 < x ≤ 24 |
 | `indisponibilidad_flota` | double | 0..1 |
 | `variabilidad_produccion` | double | Ruido de la producción diaria |
 | `variabilidad_demanda` | double | Ruido del tamaño del pedido |
@@ -233,7 +236,7 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 
 | Hoja | Columnas |
 |---|---|
-| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion` |
+| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion` |
 | `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn` |
 | `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `posiciones_consolidacion`, `contenedores_por_posicion_dia`, `posiciones_cross_dock` |
 | `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |

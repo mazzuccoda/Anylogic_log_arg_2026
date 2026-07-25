@@ -199,6 +199,10 @@ Producido = físico + reservado/despachado + excedente/merma según definición
 
 **Esperado:** el escenario más cargado termina sin alcanzar los 50 000 agentes creados dinámicamente. El total creado se registra en el resumen de cada corrida.
 
+### V-026 Capacidad diaria de flota (ADR-044)
+
+**Esperado:** en ningún día `flotaProductoUsadaHoy` supera `flotaProductoOfrecidaHoy`; `tomarFlotaProducto()` aborta la corrida si ocurre. Verificado en el barrido completo: 360 corridas sin abortos. La utilización de las dos flotas queda entre 0 y 1: medido 0,067..0,411 (producto) y 0,057..0,310 (portacontenedores).
+
 ## 4.1 Validación de datos de entrada
 
 Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.

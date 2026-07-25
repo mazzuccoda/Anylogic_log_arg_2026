@@ -27,7 +27,7 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 | 10. Registro de costos | Parcial; tarifas ya vienen de tablas | 35% |
 | 11. Planificador | Parcial | 25% |
 | 12. Reemplazo de Envio | Pendiente | 0% |
-| 13. KPIs y experimentos | Barrido de 12 escenarios × 30 réplicas verificado en PLE; el barrido de flota no discrimina hasta que la flota se consuma | 75% |
+| 13. KPIs y experimentos | Barrido de 12 escenarios × 30 réplicas verificado en PLE, con las dos flotas consumiéndose de verdad (ADR-044) | 85% |
 | 14. Optimización avanzada | Futuro | 0% |
 
 ## 3. Fase 0 — Respaldo
@@ -139,7 +139,7 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [x] Validar regla del mismo día.
 - [x] Validar exclusión de IN/storage/OUT.
 - [x] Crear recursos (`posiciones_cross_dock`, contadas por día y por sitio).
-- [x] Sincronizar camiones (la operación necesita camión libre el mismo día).
+- [x] Sincronizar camiones: la operación necesita que la flota de producto del día alcance para el pedido entero (ADR-044).
 - [x] Gestionar reprogramación (sin cupo, sin camión o sin stock en planta el pedido no se cruza y compite de nuevo al día siguiente).
 - [x] Exención de almacenaje para lo que cruza (ADR-010).
 - [ ] Colas independientes: el contenedor de cross dock usa el mismo flujo que el resto, con prioridad de despacho.
@@ -156,7 +156,9 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [x] `resultados/kpis_por_corrida.csv` con `version_modelo`, `id_escenario`, `replica` y `semilla`.
 - [x] Media, desvío, mínimo, máximo y P95 por escenario, con delta absoluto y porcentual contra E-00.
 - [x] E-09 determinístico verificado: desvío exactamente 0 en 30 réplicas.
-- [ ] Barrido de flota útil: E-01 y E-02 dan el mismo resultado que E-00 porque la transferencia planta→depósito no consume camiones. Requiere modelar la flota como capacidad diaria (viajes por camión y día), igual que las posiciones de consolidación.
+- [x] Barrido de flota útil (ADR-044): la flota de producto se consume en camión-día y cada contenedor toma un portacontenedor del pool. E-01 (1/1) baja el nivel de servicio a 0,908 y sube el atraso a 3,17 días; E-02 (6/8) no mejora a E-00, que es la respuesta a P2 y P6.
+- [ ] Cargar y descargar no le consumen jornada al camión: la planta no tiene velocidades de carga en las tablas.
+- [ ] Almacenaje en planta: como la planta no tiene tarifa, el excedente que espera camión no cuesta nada y por eso achicar la flota baja el costo total.
 - [ ] Solapamiento de intervalos en la comparación contra E-00.
 - [ ] Escenario de capacidad de planta y de política de prioridad (la política es hoy única).
 

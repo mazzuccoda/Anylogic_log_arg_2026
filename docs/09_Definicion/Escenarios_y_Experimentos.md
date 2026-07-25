@@ -33,8 +33,8 @@ Cada escenario es **una fila**: `GeneradorSintetico.escenario(id, semilla)` part
 | ID | Nombre | Qué varía | Pregunta que responde |
 |---|---|---|---|
 | E-00 | Caso base | — | Referencia |
-| E-01 | Flota reducida | `camiones_producto` 8 → 4 | P2, P6: flota mínima sin degradar servicio |
-| E-02 | Flota ampliada | `camiones_producto` 8 → 12 | P2, P6: rendimientos decrecientes |
+| E-01 | Flota reducida | `camiones_producto` 3 → 1, `camiones_portacontenedor` 4 → 1 | P2, P6: flota mínima sin degradar servicio |
+| E-02 | Flota ampliada | `camiones_producto` 3 → 6, `camiones_portacontenedor` 4 → 8 | P2, P6: rendimientos decrecientes |
 | E-03 | Depósitos chicos | `factor_capacidad_deposito` 0,5× | P1, P8: capacidad mínima sin excedente |
 | E-04 | Depósitos grandes | `factor_capacidad_deposito` 2× | P1, P8: saturación |
 | E-05 | Cross docking | `habilita_cross_dock` | P5: ahorro real del cross docking |
@@ -65,7 +65,9 @@ KPIs de cierre de corrida (funciones de `Main`):
 | `costo_usd_tn` | `costoPorToneladaExportada()` |
 | `nivel_servicio` | `nivelServicio()` — pedidos entregados sin atraso sobre pedidos recibidos |
 | `atraso_promedio_dias` | `atrasoPromedioDias()` |
-| `utilizacion_flota` | `utilizacionFlota()` — camión-día ocupado sobre camión-día ofrecido |
+| `utilizacion_flota` | `utilizacionFlota()` — camión-día de producto ocupado sobre ofrecido (ADR-044) |
+| `utilizacion_portacontenedor` | `utilizacionPortacontenedor()` — estadística de ocupación del pool `flotaPortacontenedores` |
+| `viajes_planta_deposito` | `viajesPlantaDeposito` — viajes de camión efectivamente hechos en la campaña |
 | `uso_posiciones_consolidacion` | `usoPosicionesConsolidacion()` |
 | `toneladas_exportadas` | `toneladasExportadas()` |
 | `excedente_final_tn` | `excedenteFinalTn()` |
@@ -89,11 +91,22 @@ Límite a vigilar: PLE admite 50 000 agentes creados dinámicamente **por corrid
 
 Queda una restricción no técnica: la licencia PLE cubre aprendizaje personal e instrucción, no uso comercial. Es una decisión del responsable del proyecto y no afecta al diseño.
 
-## 6. Limitación conocida del barrido de flota
+## 6. Cómo leer el barrido de flota
 
-E-01 y E-02 dan **exactamente** el mismo resultado que E-00. No es un problema del experimento: la transferencia planta→depósito mueve todas las toneladas del día sin consumir camiones, y `camionDisponibleHoy()` sólo pregunta si queda alguno libre en un pool que casi nunca se ocupa. Por eso `utilizacion_flota` da ~0 salvo en los escenarios que despachan por otro camino.
+Desde ADR-044 la flota se consume: los viajes planta→depósito toman camión-día y los contenedores toman un portacontenedor del pool. Medias de 30 réplicas, escenarios de flota:
 
-Hasta que la flota se consuma como capacidad diaria (viajes por camión y día, igual que las posiciones de consolidación), el modelo **no puede responder P2 ni P6**. Es el primer pendiente del roadmap.
+| Escenario | Camiones (producto / portacontenedor) | `utilizacion_flota` | `utilizacion_portacontenedor` | `viajes_planta_deposito` | `nivel_servicio` | `atraso_promedio_dias` | `costo_total_usd` |
+|---|---|---|---|---|---|---|---|
+| E-01 | 1 / 1 | 0,399 | 0,278 | 1 156 | 0,908 | 3,17 | 1 759 588 |
+| E-00 | 3 / 4 | 0,138 | 0,108 | 1 196 | 0,940 | 1,93 | 1 830 480 |
+| E-02 | 6 / 8 | 0,070 | 0,065 | 1 218 | 0,939 | 1,88 | 1 884 110 |
+
+Dos lecturas importantes:
+
+- **El punto de quiebre se lee en servicio y atraso, no en costo.** De 1 a 3 camiones el nivel de servicio sube de 0,908 a 0,940 y el atraso baja de 3,17 a 1,93 días; de 3 a 6 no cambia nada (0,939 y 1,88). Con estos datos la respuesta a P2/P6 es 3 camiones de producto y 4 portacontenedores, y agregar más no compra nada.
+- **Más camiones cuestan más.** El costo total sube monótonamente con la flota porque el producto llega antes al depósito y paga más almacenaje, mientras lo que espera en planta no paga nada. Es una consecuencia del contrato de datos (la planta no tiene tarifa de almacenaje), no una ventaja de tener menos camiones: E-01 es más barato *y* peor servido.
+
+La utilización media es baja incluso en E-01 porque la demanda de transporte es a ráfagas: en los días de transferencia la flota se satura y el resto del año está ociosa. Por eso el dimensionamiento mira el servicio, y la utilización sirve para saber cuánto margen queda.
 
 ## 7. Presentación de resultados
 
