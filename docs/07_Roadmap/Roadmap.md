@@ -125,12 +125,13 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 
 ## 10. Fase 7 — Consolidación
 
-- [ ] Recursos en planta.
-- [ ] Recursos en depósito.
-- [ ] Tiempos y colas.
-- [ ] Descuento de reserva.
-- [ ] Costos reales.
-- [ ] Cambios de estado del contenedor.
+- [x] Recursos en depósito: posiciones de consolidación con capacidad diaria (`posiciones_consolidacion × contenedores_por_posicion_dia`), leídas de la tabla `Ubicacion`.
+- [x] Tiempos y colas: `Main.despacharContenedoresPendientes()` despacha por día lo que la capacidad del sitio permite, con prioridad por fecha límite del pedido; el resto espera y acumula `diasEsperaPosicion`.
+- [x] Costos reales: el servicio de consolidación se cobra con la tarifa del sitio donde se estiba el contenedor, y se acumula en ese sitio.
+- [x] Cambios de estado del contenedor: `ESPERANDO_PROGRAMACION` mientras espera posición y `CONSOLIDANDO` cuando la toma.
+- [x] Estrategia: parámetro `Main.estrategiaConsolidacion` (`CONSOLIDACION_DEPOSITO` por defecto, `CONSOLIDACION_TERMINAL` para el comportamiento anterior).
+- [ ] Recursos en planta: la consolidación en planta (`CONSOLIDACION_PLANTA`) todavía no está implementada; el pedido se reserva y se estiba desde un depósito.
+- [ ] Descuento de reserva en el momento de la estiba: la reserva se sigue descontando al entrar el envío al flujo, que con consolidación en depósito es el mismo día pero no el mismo instante.
 
 ## 11. Fase 8 — Cross docking
 

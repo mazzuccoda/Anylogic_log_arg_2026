@@ -25,4 +25,7 @@ class ContenedorExportacion extends Agent {
     double diaProgramadoCrossDock = -1;
     boolean esCrossDock = false;
     double costoReal = 0;
+
+    // ----- Variables -----
+    int diasEsperaPosicion = 0;
 }

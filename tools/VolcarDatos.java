@@ -36,11 +36,13 @@ public class VolcarDatos {
 		}
 
 		hoja("Ubicacion", "id_ubicacion\ttipo\thabilitada\tvelocidad_carga_tn_hora"
-				+ "\tvelocidad_descarga_tn_hora\tvelocidad_consolidacion_tn_hora\tcapacidad_diaria_tn");
+				+ "\tvelocidad_descarga_tn_hora\tvelocidad_consolidacion_tn_hora\tcapacidad_diaria_tn"
+				+ "\tposiciones_consolidacion\tcontenedores_por_posicion_dia");
 		for (DatosEntrada.Ubicacion u : d.ubicaciones) {
 			System.out.println(u.idUbicacion + "\t" + u.tipo + "\t" + u.habilitada
 					+ "\t" + u.velocidadCargaTnHora + "\t" + u.velocidadDescargaTnHora
-					+ "\t" + u.velocidadConsolidacionTnHora + "\t" + u.capacidadDiariaTn);
+					+ "\t" + u.velocidadConsolidacionTnHora + "\t" + u.capacidadDiariaTn
+					+ "\t" + u.posicionesConsolidacion + "\t" + u.contenedoresPorPosicionDia);
 		}
 
 		hoja("CapacidadUbicacion", "id_ubicacion\tproducto\tcapacidad_tn");

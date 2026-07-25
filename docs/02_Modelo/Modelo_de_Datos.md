@@ -88,6 +88,8 @@ Se mantienen como referencia comercial y de presentación; no son saldos y no de
 
 Desde la fase 6 los contenedores son reales: `Main.crearContenedoresParaPedido()` crea uno por cada carga en que se divide lo reservado del pedido, y `Envio.contenedor` los vincula con el flujo de transporte. Los campos `hora*` guardan tiempo del modelo, cuya unidad es el día.
 
+Desde la fase 7 `lugarConsolidacion` es el sitio donde efectivamente se estiba —el depósito o la terminal, según `Main.estrategiaConsolidacion` (ADR-040)— y es el que cobra la tarifa y consume la posición del día.
+
 | Campo | Tipo | Unidad |
 |---|---|---|
 | `idContenedor` | String/int | — |
@@ -101,6 +103,7 @@ Desde la fase 6 los contenedores son reales: `Main.crearContenedoresParaPedido()
 | `lugarConsolidacion` | Agent | — |
 | `camionPortacontenedor` | Camion | — |
 | `estado` | EstadoContenedor | — |
+| `diasEsperaPosicion` | int | días que el contenedor esperó una posición de consolidación (fase 7) |
 | `horaRetiroVacio` | double | día simulado; sin usar (ciclo del vacío no modelado) |
 | `horaLlegadaLugarCarga` | double | día simulado; sin usar |
 | `horaInicioCarga` | double | día simulado |

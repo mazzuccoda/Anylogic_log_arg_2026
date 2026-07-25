@@ -75,7 +75,9 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.numero("velocidad_carga_tn_hora"),
 					f.numero("velocidad_descarga_tn_hora"),
 					f.numero("velocidad_consolidacion_tn_hora"),
-					f.numero("capacidad_diaria_tn")));
+					f.numero("capacidad_diaria_tn"),
+					f.numero("posiciones_consolidacion"),
+					f.numero("contenedores_por_posicion_dia")));
 		}
 
 		for (Fila f : filas("CapacidadUbicacion", null, null)) {
