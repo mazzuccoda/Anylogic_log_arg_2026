@@ -2511,8 +2511,8 @@ traceln(
 				</Function>
 			
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_NOTHING</ReturnModificator>
-					<ReturnType><![CDATA[void]]></ReturnType>
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000000</Id>
 					<Name><![CDATA[producirEnPlantas]]></Name>
 					<X>1400</X><Y>-800</Y>
@@ -2524,8 +2524,8 @@ traceln(
 planta.producir();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_NOTHING</ReturnModificator>
-					<ReturnType><![CDATA[void]]></ReturnType>
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000001</Id>
 					<Name><![CDATA[registrarPedidosDelDia]]></Name>
 					<X>1400</X><Y>-770</Y>
@@ -2587,8 +2587,8 @@ if (
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_NOTHING</ReturnModificator>
-					<ReturnType><![CDATA[void]]></ReturnType>
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000002</Id>
 					<Name><![CDATA[revisarPedidosPendientes]]></Name>
 					<X>1400</X><Y>-740</Y>
@@ -2607,8 +2607,8 @@ if (
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_NOTHING</ReturnModificator>
-					<ReturnType><![CDATA[void]]></ReturnType>
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000003</Id>
 					<Name><![CDATA[prepararPedidosReservados]]></Name>
 					<X>1400</X><Y>-710</Y>
@@ -2627,8 +2627,8 @@ if (
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_NOTHING</ReturnModificator>
-					<ReturnType><![CDATA[void]]></ReturnType>
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000004</Id>
 					<Name><![CDATA[devengarAlmacenamientoDiario]]></Name>
 					<X>1400</X><Y>-680</Y>
@@ -2660,8 +2660,8 @@ for (LoteProducto lote : lotes) {
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_NOTHING</ReturnModificator>
-					<ReturnType><![CDATA[void]]></ReturnType>
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000005</Id>
 					<Name><![CDATA[registrarAtrasos]]></Name>
 					<X>1400</X><Y>-650</Y>
