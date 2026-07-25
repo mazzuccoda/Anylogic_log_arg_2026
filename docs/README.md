@@ -9,6 +9,11 @@ Este directorio contiene la documentación técnica viva del modelo.
 - [Contrato de datos de entrada](09_Definicion/Contrato_de_Datos.md)
 - [Escenarios y experimentos](09_Definicion/Escenarios_y_Experimentos.md)
 
+## Manual
+
+- [Manual de uso](10_Manual/Manual_de_Uso.md) — abrir el modelo, correr una campaña, cargar datos desde Excel, correr el barrido y leer los resultados
+- [Tablero e indicadores](10_Manual/Tablero_e_Indicadores.md) — qué muestra cada panel y cómo se define cada KPI
+
 ## 1. Arquitectura
 
 - [Arquitectura general](01_Arquitectura/Arquitectura_General.md)
