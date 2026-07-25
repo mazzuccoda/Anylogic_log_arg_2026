@@ -5,6 +5,7 @@
 class Terminal extends Agent {
 
     // ----- Parámetros -----
+    String idUbicacion = "";
     int idTerminal = 0;
     String nombreTerminal = "Terminal";
     double capacidadDiariaTn = 0;

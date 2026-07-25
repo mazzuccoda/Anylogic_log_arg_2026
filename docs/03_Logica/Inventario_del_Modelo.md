@@ -145,9 +145,13 @@ depositos.add(depNorry);
 
 Agregar o quitar un depósito exige editar el modelo. Con esto no se puede barrer "cuántos depósitos hacen falta", que es la pregunta P1 del proyecto. Deben ser una población cargada desde datos.
 
+**Parcialmente resuelto.** Los cinco depósitos y las dos terminales siguen siendo objetos embebidos, pero dejaron de ser la fuente de sus datos: cada uno declara un `idUbicacion` y `Main.aplicarDatosAAgentes()` les escribe capacidades, tarifas y velocidades desde las tablas. Falta convertirlos en población para poder variar la cantidad, lo que exige antes resolver el vínculo con la vista de `Main`.
+
 ### H-09 — La demanda es un caso de prueba cableado
 
 `model_src/Main.java:1093-1142`. Tres pedidos fijos (P001 500 tn día 60, P002 300 tn día 60, P003 80 tn día 180) con banderas booleanas de "ya creado". Sirve para probar, no para dimensionar.
+
+**Resuelto.** `registrarPedidosDelDia()` recorre `datos.pedidosDelDia(dia)`: la demanda es la tabla `PedidoPlan`, que hoy genera `GeneradorSintetico` con semilla y variabilidad, y mañana llenará el Excel.
 
 ### H-10 — Tarifas, distancias y capacidades viven en el código
 
@@ -158,9 +162,13 @@ Agregar o quitar un depósito exige editar el modelo. Con esto no se puede barre
 
 Contradice el contrato de datos (ADR-029) y hace que cada cambio de tarifa sea un cambio de modelo.
 
+**Resuelto para el alcance del paso 2.** Distancias, capacidades, tarifas de almacenaje, fletes a terminal, consolidación, tipo y capacidad de contenedor y velocidades se leen de `DatosEntrada`. Siguen como parámetros de `Main` los tres coeficientes del flete planta → depósito (`costoFijoViajePD`, `costoKmPD`, `costoTnPD`), que son una fórmula y no una tarifa por par origen-destino.
+
 ### H-11 — Una tarifa sin valor equivale hoy a cero
 
 `double costoAceiteTnDia;` es el único parámetro de `Deposito` sin valor inicial explícito. Java lo inicializa en 0, así que almacenar aceite en un depósito mal cargado **no cuesta nada** y el modelo no avisa. Viola la regla de costos "una tarifa faltante no equivale a cero".
+
+**Resuelto.** Las consultas de `DatosEntrada` lanzan una excepción con la clave faltante y `validar()` recorre todas las combinaciones alcanzables antes del día 1 (ADR-037).
 
 ### H-12 — Conviven dos caminos de despacho
 
@@ -180,8 +188,8 @@ Ni `ContenedorExportacion` ni `Terminal` tienen lógica; `Terminal` sólo calcul
 
 | Prioridad | Hallazgos | Motivo |
 |---|---|---|
-| Bloquea el uso definido | ~~H-02~~, H-08, H-09, H-10, H-13 | sin esto no se puede barrer ni un solo escenario |
-| Corrompe resultados | ~~H-04~~, H-05, H-11 | producen números que parecen válidos y no lo son |
+| Bloquea el uso definido | ~~H-02~~, H-08 (parcial), ~~H-09~~, ~~H-10~~, H-13 | sin esto no se puede barrer ni un solo escenario |
+| Corrompe resultados | ~~H-04~~, H-05, ~~H-11~~ | producen números que parecen válidos y no lo son |
 | Corrompe la semántica temporal | ~~H-06~~, ~~H-07~~ | el reloj diario no es consistente |
 | Deuda estructural | H-01, H-03, H-12, H-14 | condicionan el diseño de todo lo que sigue |
 

@@ -5,12 +5,21 @@
 class Main extends Agent {
 
     // ----- Parámetros -----
+    String idEscenario = "E-00";
+    int duracionCampaniaDias = 183;
+    long semillaBase = 1;
+    double variabilidadProduccion = 0.15;
+    double variabilidadDemanda = 0.20;
+    int pedidosPorCampania = 40;
+    double toneladasMediasPedido = 400;
+    int plazoPedidoDias = 15;
     double costoFijoViajePD = 150;
     double costoKmPD = 1.2;
     double costoTnPD = 2.0;
     double diasEstimadosAlmacenamiento = 30;
 
     // ----- Variables -----
+    DatosEntrada datos = null;
     int siguienteIdLote = 1;
     double costoFletePlantaDeposito = 0;
     double toneladasTransferidasDepositos = 0;
@@ -21,15 +30,13 @@ class Main extends Agent {
     double pedidosPendientes = 0;
     double toneladasSolicitadasAcumuladas = 0;
     double toneladasReservadasAcumuladas = 0;
-    boolean pedidoPrueba1Creado = false;
-    boolean pedidoPrueba2Creado = false;
-    boolean pedidoPrueba3Creado = false;
     int siguienteIdEnvio = 1;
     boolean enviosGenerados = false;
     double costoFleteDepositoPuertoReal = 0;
     double costoConsolidacionReal = 0;
 
     // ----- Colecciones -----
+    ArrayList<Terminal> terminales = new ArrayList<Terminal>();
     ArrayList<Deposito> depositos = new ArrayList<Deposito>();
 
     // ----- Objetos embebidos (poblaciones y bloques de flowchart) -----
@@ -121,7 +128,7 @@ class Main extends Agent {
         }
 
         return costoFijoViajePD
-            + deposito.distanciaDesdePlantaKm * costoKmPD
+            + datos.distanciaKm("PLANTA", deposito.idUbicacion) * costoKmPD
             + toneladas * costoTnPD;
     }
 
@@ -412,7 +419,8 @@ class Main extends Agent {
             double costoFlete =
                 pedido.toneladasSolicitadas
                 * deposito.getCostoFletePuerto(
-                    pedido.puertoSalida
+                    pedido.puertoSalida,
+                    pedido.producto
                 );
 
             double costoConsolidado =
@@ -646,7 +654,8 @@ class Main extends Agent {
         pedido.costoFleteEstimado =
             pedido.toneladasSolicitadas
             * deposito.getCostoFletePuerto(
-                pedido.puertoSalida
+                pedido.puertoSalida,
+                pedido.producto
             );
 
         pedido.costoConsolidadoEstimado =
@@ -969,39 +978,20 @@ class Main extends Agent {
     }
 
     TipoContenedor obtenerTipoContenedor(TipoProducto producto) {
-        switch (producto) {
-
-            case JUGO:
-                return TipoContenedor.REEFER_40;
-
-            case CASCARA:
-                return TipoContenedor.DRY_HC_40;
-
-            case ACEITE:
-                return TipoContenedor.IMO_DRY_20;
-
-            default:
-                error("No existe tipo de contenedor para el producto: " + producto);
-                return null;
-        }
+        return datos.producto(producto).tipoContenedor;
     }
 
     double obtenerCapacidadContenedorTon(TipoContenedor tipo) {
-        switch (tipo) {
+        for (DatosEntrada.Producto fila : datos.productos) {
 
-            case REEFER_40:
-                return 25.0;
-
-            case DRY_HC_40:
-                return 25.0;
-
-            case IMO_DRY_20:
-                return 20.0;
-
-            default:
-                error("Capacidad no definida para: " + tipo);
-                return 0;
+            if (fila.tipoContenedor == tipo) {
+                return fila.capacidadContenedorTn;
+            }
         }
+
+        error("Capacidad no definida para el contenedor: " + tipo);
+
+        return 0;
     }
 
     void pruebaCrearContenedor() {
@@ -1021,6 +1011,111 @@ class Main extends Agent {
         );
     }
 
+    void cargarDatosEntrada() {
+        // Fase 1 del contrato de datos: las tablas se generan; la fase 2 las va a
+        // importar desde Excel. Nada mas cambia: la logica lee siempre 'datos'.
+        datos = GeneradorSintetico.generar(
+            idEscenario,
+            duracionCampaniaDias,
+            semillaBase,
+            variabilidadProduccion,
+            variabilidadDemanda,
+            pedidosPorCampania,
+            toneladasMediasPedido,
+            plazoPedidoDias
+        );
+
+        List<String> errores = datos.validar();
+
+        if (!errores.isEmpty()) {
+
+            String detalle = "";
+
+            for (String e : errores) {
+                detalle += "\n  - " + e;
+            }
+
+            error(
+                "Datos de entrada invalidos ("
+                + errores.size()
+                + "):"
+                + detalle
+            );
+        }
+
+        aplicarDatosAAgentes();
+    }
+
+    void aplicarDatosAAgentes() {
+        // Los agentes no guardan datos propios: son una vista de las tablas.
+        planta.capacidadJugo =
+            datos.capacidadTn("PLANTA", TipoProducto.JUGO);
+
+        planta.capacidadCascara =
+            datos.capacidadTn("PLANTA", TipoProducto.CASCARA);
+
+        planta.capacidadAceite =
+            datos.capacidadTn("PLANTA", TipoProducto.ACEITE);
+
+        for (Deposito deposito : depositos) {
+
+            DatosEntrada.Ubicacion ubicacion =
+                datos.ubicacion(deposito.idUbicacion);
+
+            deposito.habilitado = ubicacion.habilitada;
+            deposito.velocidadCargaTnHora = ubicacion.velocidadCargaTnHora;
+
+            deposito.capacidadJugo =
+                datos.capacidadTn(deposito.idUbicacion, TipoProducto.JUGO);
+
+            deposito.capacidadCascara =
+                datos.capacidadTn(deposito.idUbicacion, TipoProducto.CASCARA);
+
+            deposito.capacidadAceite =
+                datos.capacidadTn(deposito.idUbicacion, TipoProducto.ACEITE);
+
+            deposito.costoJugoTnDia =
+                datos.storageUsdTnDia(deposito.idUbicacion, TipoProducto.JUGO);
+
+            deposito.costoCascaraTnDia =
+                datos.storageUsdTnDia(deposito.idUbicacion, TipoProducto.CASCARA);
+
+            deposito.costoAceiteTnDia =
+                datos.storageUsdTnDia(deposito.idUbicacion, TipoProducto.ACEITE);
+        }
+
+        for (Terminal terminal : terminales) {
+
+            DatosEntrada.Ubicacion ubicacion =
+                datos.ubicacion(terminal.idUbicacion);
+
+            terminal.habilitada = ubicacion.habilitada;
+            terminal.capacidadDiariaTn = ubicacion.capacidadDiariaTn;
+            terminal.velocidadDescargaTnHora = ubicacion.velocidadDescargaTnHora;
+            terminal.velocidadConsolidacionTnHora = ubicacion.velocidadConsolidacionTnHora;
+
+            terminal.costoConsolidadoJugo =
+                datos.servicioCargaUsdTn(terminal.idUbicacion, TipoProducto.JUGO);
+
+            terminal.costoConsolidadoCascara =
+                datos.servicioCargaUsdTn(terminal.idUbicacion, TipoProducto.CASCARA);
+
+            terminal.costoConsolidadoAceite =
+                datos.servicioCargaUsdTn(terminal.idUbicacion, TipoProducto.ACEITE);
+        }
+    }
+
+    Terminal buscarTerminal(String idUbicacion) {
+        for (Terminal terminal : terminales) {
+
+            if (terminal.idUbicacion.equals(idUbicacion)) {
+                return terminal;
+            }
+        }
+
+        return null;
+    }
+
     void producirEnPlantas() {
         // Fase 1 de la secuencia diaria (ADR-034).
         planta.producir();
@@ -1029,55 +1124,28 @@ class Main extends Agent {
     void registrarPedidosDelDia() {
         int diaActual = (int) floor(time());
 
+        // La demanda es un dato de entrada (tabla PedidoPlan), no una regla del modelo.
+        for (DatosEntrada.PedidoPlan plan : datos.pedidosDelDia(diaActual)) {
 
-        // Pedido de jugo
-        if (
-            diaActual >= 60
-            && !pedidoPrueba1Creado
-        ) {
+            Terminal terminal = buscarTerminal(plan.terminal);
+
+            if (terminal == null) {
+                error(
+                    "El pedido "
+                    + plan.codigoPedido
+                    + " referencia la terminal "
+                    + plan.terminal
+                    + ", que no existe en el modelo."
+                );
+            }
+
             crearPedido(
-                "P001",
-                TipoProducto.JUGO,
-                500,
-                terminalZarate,
-                70
+                plan.codigoPedido,
+                plan.producto,
+                plan.toneladasSolicitadas,
+                terminal,
+                plan.diaLimite
             );
-
-            pedidoPrueba1Creado = true;
-        }
-
-
-        // Pedido de cáscara
-        if (
-            diaActual >= 60
-            && !pedidoPrueba2Creado
-        ) {
-            crearPedido(
-                "P002",
-                TipoProducto.CASCARA,
-                300,
-                terminalT4,
-                75
-            );
-
-            pedidoPrueba2Creado = true;
-        }
-
-
-        // Pedido de aceite
-        if (
-            diaActual >= 180
-            && !pedidoPrueba3Creado
-        ) {
-            crearPedido(
-                "P003",
-                TipoProducto.ACEITE,
-                80,
-                terminalZarate,
-                195
-            );
-
-            pedidoPrueba3Creado = true;
         }
     }
 
