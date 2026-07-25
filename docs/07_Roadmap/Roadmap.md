@@ -17,9 +17,9 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 | 0. Respaldo y documentación inicial | Modelo versionado; falta `versionModelo` en salidas | 90% |
 | 1. Normalización del dominio | En curso | 75% |
 | 2. Lote comercial acumulativo | Diseño validado | 15% |
-| 3. Existencias físicas múltiples | No implementada (H-03); redefinida como capas | 0% |
+| 3. Existencias físicas múltiples | Capas de inventario implementadas y verificadas en PLE | 90% |
 | 4. Transferencias parciales | Pendiente | 5% |
-| 5. Reserva profesional | Pendiente | 10% |
+| 5. Reserva profesional | Reservas trazables por capa y pedido; falta compromiso y reserva parcial | 60% |
 | 6. Contenedores individuales | Parcial | 25% |
 | 7. Consolidación directa | Pendiente | 10% |
 | 8. Cross docking | Diseño validado | 10% |
@@ -76,17 +76,17 @@ La fase había sido declarada completada al 100% sin que el modelo estuviera ver
 
 ## 6. Fase 3 — Existencias físicas
 
-Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraban como implementadas, pero no existen en el `.alp`. Avance real 0%. Se reemplaza por capas de inventario (ADR-021) implementadas como clases Java (ADR-030).
+Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraban como implementadas, pero no existen en el `.alp`. Se reemplazaron por capas de inventario (ADR-021) implementadas como clases Java (ADR-030). Implementado en el modelo y verificado en PLE.
 
-- [ ] Crear la clase `Capa` y su colección por lote.
-- [ ] Derivar el stock de cada ubicación de sus capas (ADR-023).
-- [ ] Consultar saldo y saldo libre por ubicación.
-- [ ] Retirar saldo libre con consumo FIFO (ADR-022).
-- [ ] Reservar por ubicación.
-- [ ] Liberar reserva.
-- [ ] Despachar reserva.
-- [ ] Validar integridad de listas.
-- [ ] Reconciliar con stock de agentes.
+- [x] Crear la clase `Capa` y su colección por lote (`Capa`, `Inventario`).
+- [x] Derivar el stock de cada ubicación de sus capas (ADR-023): `Planta.getStock()` y `Deposito.getStock()` consultan `Main.inventario`.
+- [x] Consultar saldo y saldo libre por ubicación (`stock`, `reservado`, `libre`).
+- [x] Retirar saldo libre con consumo FIFO (ADR-022): `retirarLibre`, `mover`, `moverLote`.
+- [x] Reservar por ubicación (`reservar`).
+- [x] Liberar reserva (`liberarReserva`).
+- [x] Despachar reserva (`despachar`).
+- [x] Validar integridad de listas (`Inventario.validar()`, invocada cada día en `pasoDiario`).
+- [x] Reconciliar con stock de agentes: los agentes ya no tienen saldo propio que reconciliar.
 
 ## 7. Fase 4 — Transferencia parcial
 
@@ -103,10 +103,10 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 
 - [ ] Comenzar por lote solicitado.
 - [ ] Localizar saldos físicos.
-- [ ] Definir orden de consumo.
-- [ ] Reserva incremental sobre capas (ADR-024); retirar `crearLoteReservadoDesdeDivision` (H-05).
-- [ ] Asociar reservas al pedido.
-- [ ] Liberar reservas canceladas.
+- [x] Definir orden de consumo: FIFO por `diaIngreso` (ADR-022).
+- [x] Reserva incremental sobre capas (ADR-024); retirado `crearLoteReservadoDesdeDivision` (H-05). Falta el compromiso sobre producción futura y la aceptación de reserva parcial: hoy la reserva sigue siendo todo o nada.
+- [x] Asociar reservas al pedido: cada reserva de capa guarda `codigoPedido` y `diaReserva`.
+- [x] Liberar reservas canceladas (`Inventario.liberarReserva(codigoPedido)`).
 - [ ] Validar V-008 y V-009.
 
 ## 9. Fase 6 — Contenedores

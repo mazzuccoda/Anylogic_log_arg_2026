@@ -26,48 +26,50 @@ Cada función debe registrar:
 
 **Objetivo actual:** generar producción diaria, almacenar hasta capacidad y crear lotes por lo efectivamente ingresado.
 
-**Modifica:** producción acumulada, stocks, excedentes y población `lotes`.
+**Modifica:** producción acumulada, excedentes y población `lotes`. El stock de la planta ya no es una variable: cada ingreso crea el lote y su capa (ADR-023).
 
 **Problema:** crea un lote nuevo por día y producto.
 
 **Objetivo futuro:** acumular la producción en un lote comercial abierto.
 
-### `agregarStock(TipoProducto producto, double toneladas)`
+### `getStock(TipoProducto producto)`
 
-**Retorno:** `void`.
+**Retorno:** `double`.
 
-**Precondiciones:** producto válido; toneladas positivas.
+**Regla:** deriva el saldo de las capas de la planta (`Main.inventario.stock("PLANTA", producto)`).
 
-**Regla:** almacena hasta la capacidad disponible y registra el sobrante como excedente.
-
-### `retirarStock(TipoProducto producto, double toneladas)`
-
-**Retorno:** `boolean`.
-
-**Regla objetivo:** solo retirar si existe stock suficiente; nunca permitir saldo negativo.
+`agregarStock` y `retirarStock` se eliminaron: la planta no tiene un saldo propio que mantener. Ingresar es crear una capa; retirar es moverla (ADR-023).
 
 ## 3. Funciones de LoteProducto
 
 ### Implementadas hoy
 
-El agente tiene **una sola función**: `getToneladasLibres()`, que devuelve `toneladasDisponibles - toneladasReservadas` sobre escalares del lote, sin desagregar por ubicación.
+El lote ya no guarda saldos propios. Sus tres funciones derivan del inventario (ADR-023):
 
-Las funciones por ubicación que este documento describía como existentes (`buscarIndiceUbicacion`, `agregarToneladasEnUbicacion`, `getToneladasEnUbicacion`, `getToneladasLibresEnUbicacion`, `retirarToneladasDeUbicacion`) **no existen en el modelo** (hallazgo H-03).
+- `getToneladasDisponibles()`: suma de las capas del lote, en cualquier ubicación.
+- `getToneladasReservadas()`: suma de las reservas de esas capas.
+- `getToneladasLibres()`: la diferencia.
 
-### Funciones objetivo sobre capas
+`toneladasIniciales` es lo producido y no vuelve a modificarse.
 
-Reemplazan a las anteriores y operan sobre `List<Capa>` (ADR-021, ADR-030):
+### Funciones sobre capas
 
-- `agregarCapa(Agent ubicacion, double toneladas)`: acumula sobre la capa del mismo día y ubicación, o crea una nueva.
-- `getToneladasEnUbicacion(Agent ubicacion)`: suma de las capas de esa ubicación.
-- `getToneladasLibresEnUbicacion(Agent ubicacion)`: idem, descontando lo reservado.
-- `retirarToneladas(Agent ubicacion, double toneladas)`: consume capas en orden FIFO por `diaIngreso`, retira sólo toneladas libres y elimina las capas que quedan en cero.
+Viven en las clases Java `Capa` e `Inventario`, no en el agente (ADR-021, ADR-030), porque el presupuesto de tipos de agente de PLE está agotado. `Main.inventario` es la única instancia:
+
+- `ingresar(idLote, producto, idUbicacion, toneladas, diaIngreso, diaProduccion)`: acumula sobre la capa del mismo lote, ubicación y día, o crea una nueva.
+- `stock / reservado / libre (idUbicacion, producto)`: saldos derivados por ubicación.
+- `stockLote / reservadoLote (idLote)`: saldos derivados por lote.
+- `retirarLibre(idUbicacion, producto, toneladas)`: consume capas en FIFO por `diaIngreso`, sólo toneladas libres, y elimina las capas que quedan en cero.
+- `mover(origen, destino, producto, toneladas, dia)` y `moverLote(idLote, ...)`: retiro parcial en el origen e ingreso en el destino con el día de ingreso nuevo.
+- `reservar(idUbicacion, producto, toneladas, codigoPedido, dia)`, `liberarReserva(codigoPedido)` y `despachar(idUbicacion, producto, toneladas, codigoPedido)`.
+- `validar()`: invariantes de las capas; `Main.validarInventario()` la corre cada día.
+
+Todas devuelven las toneladas efectivamente movidas, reservadas o despachadas, de modo que quien llama puede detectar un cumplimiento parcial en lugar de asumirlo.
 
 ### Funciones objetivo pendientes
 
-- `reservarToneladasEnUbicacion(...)`;
-- `liberarReservaEnUbicacion(...)`;
-- `despacharToneladasReservadas(...)`;
+- reserva contra producción futura (compromiso, ADR-024);
+- asociación de la reserva al contenedor (ADR-025);
 - `getToneladasFisicasTotales()`;
 - `getToneladasReservadasTotales()`;
 - `validarIntegridadUbicaciones()`;
@@ -88,13 +90,12 @@ Reemplazan a las anteriores y operan sobre `List<Capa>` (ADR-021, ADR-030):
 
 **Estado:** restaurada y funcional.
 
-**Comportamiento:** mueve todo el saldo disponible, retira de planta, recibe en depósito, cambia ubicación única y carga flete.
+**Comportamiento:** mueve todo el saldo libre del lote con `Inventario.moverLote(...)`, que retira las capas de la planta e ingresa las mismas toneladas en el depósito, cambia la ubicación comercial del lote y carga el flete sobre lo efectivamente movido.
 
 **Problemas:**
 
-- no permite transferencia parcial;
-- cambia la ubicación total del lote;
-- no utiliza la nueva estructura de saldos;
+- no permite transferencia parcial (el motor de capas sí la soporta; falta usarla desde la lógica);
+- cambia la ubicación comercial del lote como si fuera única;
 - mezcla movimiento físico y estado comercial.
 
 **Reemplazo:** `transferirToneladasLote(...)`.
@@ -189,15 +190,13 @@ Retorna capacidad parametrizada. Actualmente existen valores provisionales escri
 
 ### Implementadas o conocidas
 
-- `puedeRecibir(producto, toneladas)`;
-- `recibirProducto(producto, toneladas)`;
-- `puedeReservar(producto, toneladas)`;
-- `reservarProducto(producto, toneladas)`;
-- `liberarReserva(producto, toneladas)`.
+- `getStock(producto)`, `getReservado(producto)`, `getDisponible(producto)`: derivadas de las capas del depósito (ADR-023);
+- `getCapacidad(producto)`, `getEspacioDisponible(producto)`, `puedeRecibir(producto, toneladas)`, `puedeReservar(producto, toneladas)`.
+
+Las mutadoras `recibirProducto`, `retirarProducto`, `reservarProducto`, `liberarReserva` y `despacharReservado` se eliminaron: el depósito no tiene saldo propio, y el movimiento lo hace `Main.inventario`.
 
 ### Pendientes
 
-- `retirarProductoReservado(...)`;
 - `calcularCostoIn(...)`;
 - `calcularCostoStorage(...)`;
 - `calcularCostoOut(...)`;

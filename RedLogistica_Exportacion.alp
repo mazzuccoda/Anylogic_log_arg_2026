@@ -1063,6 +1063,21 @@ cargarDatosEntrada();]]></StartupCode>
 					</Properties>
 
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791000000100</Id>
+					<Name><![CDATA[inventario]]></Name>
+					<X>1200</X><Y>140</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[Inventario]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new Inventario()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Connectors>
 				<Connector>
@@ -1402,7 +1417,8 @@ registrarPedidosDelDia();         // 3. planificar y comprometer
 revisarPedidosPendientes();       // 4. reservar
 prepararPedidosReservados();      // 5. ejecutar movimientos
 devengarAlmacenamientoDiario();   // 6. devengar almacenaje
-registrarAtrasos();               // 7. registrar indicadores del dia]]></Action>
+registrarAtrasos();               // 7. registrar indicadores del dia
+validarInventario();              // invariantes de las capas (ADR-023)]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -1439,12 +1455,22 @@ siguienteIdLote++;
 
 lote.producto = producto;
 lote.toneladasIniciales = toneladas;
-lote.toneladasDisponibles = toneladas;
 lote.diaProduccion = time();
 lote.estado = EstadoLote.EN_PLANTA;
 lote.ubicacionActual = origen;
 lote.costoAcumulado = 0;
 lote.pedidoAsignado = null;
+
+// El saldo fisico vive en la capa, no en el lote (ADR-023). 'toneladasIniciales'
+// queda como lo producido, que ya no se toca nunca mas.
+inventario.ingresar(
+    lote.idLote,
+    producto,
+    "PLANTA",
+    toneladas,
+    time(),
+    time()
+);
 
 return lote;]]></Body>
 				</Function>
@@ -1462,20 +1488,7 @@ return lote;]]></Body>
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[double total = 0;
-
-for (LoteProducto lote : lotes) {
-
-    if (
-        lote.producto == producto
-        && lote.estado == EstadoLote.EN_PLANTA
-        && lote.ubicacionActual == planta
-    ) {
-        total += lote.toneladasDisponibles;
-    }
-}
-
-return total;]]></Body>
+					<Body><![CDATA[return inventario.stock("PLANTA", producto);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1491,20 +1504,7 @@ return total;]]></Body>
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[int cantidad = 0;
-
-for (LoteProducto lote : lotes) {
-
-    if (
-        lote.producto == producto
-        && lote.estado == EstadoLote.EN_PLANTA
-        && lote.ubicacionActual == planta
-    ) {
-        cantidad++;
-    }
-}
-
-return cantidad;]]></Body>
+					<Body><![CDATA[return inventario.cantidadLotes("PLANTA", producto);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1601,7 +1601,7 @@ for (LoteProducto lote : lotes) {
         lote.producto == producto
         && lote.estado == EstadoLote.EN_PLANTA
         && lote.ubicacionActual == planta
-        && lote.toneladasDisponibles > 0
+        && lote.getToneladasLibres() > 0
     ) {
         if (lote.diaProduccion < menorDia) {
             menorDia = lote.diaProduccion;
@@ -1637,30 +1637,31 @@ return seleccionado;]]></Body>
 if (
     lote.estado != EstadoLote.EN_PLANTA
     || lote.ubicacionActual != planta
-    || lote.toneladasDisponibles <= 0
 ) {
     return false;
 }
 
-double toneladas = lote.toneladasDisponibles;
+double toneladas = lote.getToneladasLibres();
+
+if (toneladas <= 0) {
+    return false;
+}
 
 if (!destino.puedeRecibir(lote.producto, toneladas)) {
     return false;
 }
 
-boolean retirado =
-    planta.retirarStock(lote.producto, toneladas);
+// Mover es mover capas: el stock de la planta y el del deposito salen de las
+// mismas capas, asi que no hay dos saldos que puedan quedar desalineados.
+double movidas = inventario.moverLote(
+    lote.idLote,
+    "PLANTA",
+    destino.idUbicacion,
+    toneladas,
+    time()
+);
 
-if (!retirado) {
-    return false;
-}
-
-boolean recibido =
-    destino.recibirProducto(lote.producto, toneladas);
-
-if (!recibido) {
-    // Reponer stock en planta si la recepción falla
-    planta.agregarStock(lote.producto, toneladas);
+if (movidas <= 0) {
     return false;
 }
 
@@ -1670,12 +1671,15 @@ lote.depositoActual = destino;
 lote.diaIngresoDeposito = time();
 
 double costoViaje =
-    calcularCostoPlantaDeposito(destino, toneladas);
+    calcularCostoPlantaDeposito(destino, movidas);
 
 lote.costoAcumulado += costoViaje;
 costoFletePlantaDeposito += costoViaje;
 
-toneladasTransferidasDepositos += toneladas;
+destino.toneladasRecibidasAcumuladas += movidas;
+destino.cantidadRecepciones++;
+
+toneladasTransferidasDepositos += movidas;
 cantidadTransferenciasDepositos++;
 
 return true;]]></Body>
@@ -1709,8 +1713,8 @@ while (pendiente > 0.0001) {
         break;
     }
 
-    // En esta primera versión se transfieren lotes completos
-    double toneladasLote = lote.toneladasDisponibles;
+    // En esta primera version se transfieren lotes completos
+    double toneladasLote = lote.getToneladasLibres();
 
     if (toneladasLote > pendiente) {
         break;
@@ -1744,10 +1748,10 @@ while (pendiente > 0.0001) {
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[// JUGO
-if (planta.stockJugo >= planta.nivelActivacionJugo) {
+if (planta.getStock(TipoProducto.JUGO) >= planta.nivelActivacionJugo) {
 
     double toneladas =
-        planta.stockJugo - planta.stockObjetivoJugo;
+        planta.getStock(TipoProducto.JUGO) - planta.stockObjetivoJugo;
 
     transferirProductoADepositos(
         TipoProducto.JUGO,
@@ -1757,10 +1761,10 @@ if (planta.stockJugo >= planta.nivelActivacionJugo) {
 
 
 // CASCARA
-if (planta.stockCascara >= planta.nivelActivacionCascara) {
+if (planta.getStock(TipoProducto.CASCARA) >= planta.nivelActivacionCascara) {
 
     double toneladas =
-        planta.stockCascara - planta.stockObjetivoCascara;
+        planta.getStock(TipoProducto.CASCARA) - planta.stockObjetivoCascara;
 
     transferirProductoADepositos(
         TipoProducto.CASCARA,
@@ -1770,10 +1774,10 @@ if (planta.stockCascara >= planta.nivelActivacionCascara) {
 
 
 // ACEITE
-if (planta.stockAceite >= planta.nivelActivacionAceite) {
+if (planta.getStock(TipoProducto.ACEITE) >= planta.nivelActivacionAceite) {
 
     double toneladas =
-        planta.stockAceite - planta.stockObjetivoAceite;
+        planta.getStock(TipoProducto.ACEITE) - planta.stockObjetivoAceite;
 
     transferirProductoADepositos(
         TipoProducto.ACEITE,
@@ -1819,15 +1823,8 @@ return total;]]></Body>
 					</Parameter>
 					<Body><![CDATA[double total = 0;
 
-for (LoteProducto lote : lotes) {
-
-    if (
-        lote.producto == producto
-        && lote.estado == EstadoLote.EN_DEPOSITO
-        && lote.depositoActual != null
-    ) {
-        total += lote.toneladasDisponibles;
-    }
+for (Deposito deposito : depositos) {
+    total += inventario.stock(deposito.idUbicacion, producto);
 }
 
 return total;]]></Body>
@@ -1982,94 +1979,6 @@ return mejorDeposito;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[LoteProducto]]></ReturnType>
-					<Id>1784398396983</Id>
-					<Name><![CDATA[crearLoteReservadoDesdeDivision]]></Name>
-					<X>50</X><Y>-640</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[loteOriginal]]></Name>
-						<Type><![CDATA[LoteProducto]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[toneladasReserva]]></Name>
-						<Type><![CDATA[double]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (
-    loteOriginal == null
-    || pedido == null
-    || toneladasReserva <= 0
-    || toneladasReserva >= loteOriginal.getToneladasLibres()
-) {
-    return null;
-}
-
-double toneladasAntes =
-    loteOriginal.toneladasDisponibles;
-
-double proporcion =
-    toneladasReserva / toneladasAntes;
-
-LoteProducto nuevoLote = add_lotes();
-
-nuevoLote.idLote = siguienteIdLote;
-siguienteIdLote++;
-
-nuevoLote.producto = loteOriginal.producto;
-nuevoLote.toneladasIniciales = toneladasReserva;
-nuevoLote.toneladasDisponibles = toneladasReserva;
-nuevoLote.toneladasReservadas = toneladasReserva;
-
-nuevoLote.diaProduccion =
-    loteOriginal.diaProduccion;
-
-nuevoLote.estado =
-    EstadoLote.RESERVADO;
-
-nuevoLote.ubicacionActual =
-    loteOriginal.ubicacionActual;
-
-nuevoLote.depositoActual =
-    loteOriginal.depositoActual;
-
-nuevoLote.diaIngresoDeposito =
-    loteOriginal.diaIngresoDeposito;
-
-nuevoLote.diaReserva = time();
-nuevoLote.pedidoAsignado = pedido;
-nuevoLote.loteOrigen = loteOriginal;
-
-
-// Distribuir proporcionalmente los costos históricos
-nuevoLote.costoAcumulado =
-    loteOriginal.costoAcumulado * proporcion;
-
-nuevoLote.costoAlmacenamientoLote =
-    loteOriginal.costoAlmacenamientoLote
-    * proporcion;
-
-
-// Reducir el lote original
-loteOriginal.toneladasIniciales -= toneladasReserva;
-loteOriginal.toneladasDisponibles -= toneladasReserva;
-
-loteOriginal.costoAcumulado -=
-    nuevoLote.costoAcumulado;
-
-loteOriginal.costoAlmacenamientoLote -=
-    nuevoLote.costoAlmacenamientoLote;
-
-return nuevoLote;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1784406859528</Id>
 					<Name><![CDATA[reservarLotesParaPedido]]></Name>
@@ -2094,100 +2003,26 @@ return nuevoLote;]]></Body>
     return false;
 }
 
-if (
-    !deposito.puedeReservar(
+// La reserva se anota sobre las capas del deposito, tomando primero las mas
+// antiguas (ADR-022). El lote no se parte en un segundo agente (ADR-024).
+double reservadas =
+    inventario.reservar(
+        deposito.idUbicacion,
         pedido.producto,
-        pedido.toneladasSolicitadas
-    )
-) {
-    return false;
-}
-
-// Registrar primero la reserva agregada
-boolean reservaRegistrada =
-    deposito.reservarProducto(
-        pedido.producto,
-        pedido.toneladasSolicitadas
+        pedido.toneladasSolicitadas,
+        pedido.codigoPedido,
+        time()
     );
 
-if (!reservaRegistrada) {
+if (reservadas + 0.0001 < pedido.toneladasSolicitadas) {
+
+    // Reserva completa o nada: se devuelve lo que se habia tomado.
+    inventario.liberarReserva(pedido.codigoPedido);
+
     return false;
 }
 
-double pendiente =
-    pedido.toneladasSolicitadas;
-
-while (pendiente > 0.0001) {
-
-    LoteProducto loteSeleccionado = null;
-    double diaMasAntiguo =
-        Double.POSITIVE_INFINITY;
-
-    for (LoteProducto lote : lotes) {
-
-        if (
-            lote.producto == pedido.producto
-            && lote.estado == EstadoLote.EN_DEPOSITO
-            && lote.depositoActual == deposito
-            && lote.getToneladasLibres() > 0
-            && lote.diaProduccion < diaMasAntiguo
-        ) {
-            loteSeleccionado = lote;
-            diaMasAntiguo = lote.diaProduccion;
-        }
-    }
-
-    if (loteSeleccionado == null) {
-
-        deposito.liberarReserva(
-            pedido.producto,
-            pedido.toneladasSolicitadas
-        );
-
-        return false;
-    }
-
-    double libre =
-        loteSeleccionado.getToneladasLibres();
-
-    if (libre <= pendiente + 0.0001) {
-
-        loteSeleccionado.toneladasReservadas =
-            libre;
-
-        loteSeleccionado.estado =
-            EstadoLote.RESERVADO;
-
-        loteSeleccionado.pedidoAsignado =
-            pedido;
-
-        loteSeleccionado.diaReserva =
-            time();
-
-        pendiente -= libre;
-
-    } else {
-
-        LoteProducto loteDividido =
-            crearLoteReservadoDesdeDivision(
-                loteSeleccionado,
-                pendiente,
-                pedido
-            );
-
-        if (loteDividido == null) {
-
-            deposito.liberarReserva(
-                pedido.producto,
-                pedido.toneladasSolicitadas
-            );
-
-            return false;
-        }
-
-        pendiente = 0;
-    }
-}
+marcarLotesReservados(pedido);
 
 return true;]]></Body>
 				</Function>
@@ -2329,20 +2164,7 @@ return total;]]></Body>
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[double total = 0;
-
-for (LoteProducto lote : lotes) {
-
-    if (
-        lote.producto == producto
-        && lote.estado == EstadoLote.RESERVADO
-        && lote.pedidoAsignado != null
-    ) {
-        total += lote.toneladasReservadas;
-    }
-}
-
-return total;]]></Body>
+					<Body><![CDATA[return inventario.reservadoProducto(producto);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -2523,64 +2345,36 @@ return true;]]></Body>
     return false;
 }
 
-Pedido pedido =
-    envio.pedido;
+Pedido pedido = envio.pedido;
 
-Deposito deposito =
-    envio.depositoOrigen;
+Deposito deposito = envio.depositoOrigen;
 
-double pendiente =
-    envio.toneladas;
-
-// Reducir cantidades en lotes reservados
-for (LoteProducto lote : lotes) {
-
-    if (pendiente <= 0.0001) {
-        break;
-    }
-
-    if (
-        lote.pedidoAsignado == pedido
-        && lote.depositoActual == deposito
-        && lote.estado == EstadoLote.RESERVADO
-        && lote.toneladasReservadas > 0
-    ) {
-        double retirar =
-            min(
-                pendiente,
-                lote.toneladasReservadas
-            );
-
-        lote.toneladasReservadas -= retirar;
-        lote.toneladasDisponibles -= retirar;
-
-        pendiente -= retirar;
-
-        if (
-            lote.toneladasDisponibles <= 0.0001
-            && lote.toneladasReservadas <= 0.0001
-        ) {
-            lote.toneladasDisponibles = 0;
-            lote.toneladasReservadas = 0;
-            lote.estado =
-                EstadoLote.EN_TRANSITO_PUERTO;
-        }
-    }
-}
-
-if (pendiente > 0.0001) {
-    return false;
-}
-
-boolean despachado =
-    deposito.despacharReservado(
+double reservado =
+    inventario.reservadoPedidoEn(
+        deposito.idUbicacion,
         envio.producto,
-        envio.toneladas
+        pedido.codigoPedido
     );
 
-if (!despachado) {
+if (reservado + 0.0001 < envio.toneladas) {
     return false;
 }
+
+// Sale exactamente lo que este pedido tenia reservado, de las capas mas
+// antiguas primero.
+double despachadas =
+    inventario.despachar(
+        deposito.idUbicacion,
+        envio.producto,
+        envio.toneladas,
+        pedido.codigoPedido
+    );
+
+if (despachadas + 0.0001 < envio.toneladas) {
+    return false;
+}
+
+actualizarEstadoLotesVacios();
 
 pedido.toneladasDespachadas +=
     envio.toneladas;
@@ -2986,27 +2780,30 @@ for (DatosEntrada.PedidoPlan plan : datos.pedidosDelDia(diaActual)) {
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[// Fuente unica del costo de almacenaje del dia (H-04).
-// Se imputa por lote y se agrega al deposito en el mismo recorrido, de modo
-// que el total del deposito sea por construccion la suma de sus lotes.
-for (LoteProducto lote : lotes) {
+					<Body><![CDATA[// Fuente unica del costo de almacenaje del dia (H-04). Se devenga por capa, que
+// es lo que tiene ubicacion y dia de ingreso propios, y se imputa al lote y al
+// deposito en el mismo recorrido, sin doble conteo.
+for (Capa capa : inventario.capas) {
 
-    Deposito deposito = lote.depositoActual;
+    Deposito deposito = buscarDeposito(capa.idUbicacion);
 
-    if (
-        deposito == null
-        || lote.toneladasDisponibles <= 0
-    ) {
+    if (deposito == null || capa.toneladas <= 0) {
         continue;
     }
 
     double costoDia =
-        lote.toneladasDisponibles
-        * deposito.getTarifaAlmacenamiento(lote.producto);
+        capa.toneladas
+        * deposito.getTarifaAlmacenamiento(capa.producto);
 
-    lote.costoAlmacenamientoLote += costoDia;
-    lote.costoAcumulado += costoDia;
+    capa.costoAlmacenamiento += costoDia;
     deposito.costoAlmacenamientoAcumulado += costoDia;
+
+    LoteProducto lote = buscarLote(capa.idLote);
+
+    if (lote != null) {
+        lote.costoAlmacenamientoLote += costoDia;
+        lote.costoAcumulado += costoDia;
+    }
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3034,6 +2831,144 @@ for (LoteProducto lote : lotes) {
         }
     }
 }]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Deposito]]></ReturnType>
+					<Id>1791000000101</Id>
+					<Name><![CDATA[buscarDeposito]]></Name>
+					<X>130</X><Y>1900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[for (Deposito deposito : depositos) {
+
+    if (deposito.idUbicacion.equals(idUbicacion)) {
+        return deposito;
+    }
+}
+
+return null;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[LoteProducto]]></ReturnType>
+					<Id>1791000000102</Id>
+					<Name><![CDATA[buscarLote]]></Name>
+					<X>330</X><Y>1900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idLote]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[for (LoteProducto lote : lotes) {
+
+    if (lote.idLote == idLote) {
+        return lote;
+    }
+}
+
+return null;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791000000103</Id>
+					<Name><![CDATA[marcarLotesReservados]]></Name>
+					<X>530</X><Y>1900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El lote sigue siendo uno solo: se marca como reservado cuando ya no le queda
+// saldo libre. La trazabilidad fina esta en las reservas de cada capa.
+for (LoteProducto lote : lotes) {
+
+    if (
+        inventario.reservadoDeLotePorPedido(
+            lote.idLote,
+            pedido.codigoPedido
+        ) <= 0
+    ) {
+        continue;
+    }
+
+    lote.pedidoAsignado = pedido;
+    lote.diaReserva = time();
+
+    if (lote.getToneladasLibres() <= 0.0001) {
+        lote.estado = EstadoLote.RESERVADO;
+    }
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791000000104</Id>
+					<Name><![CDATA[actualizarEstadoLotesVacios]]></Name>
+					<X>730</X><Y>1900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[for (LoteProducto lote : lotes) {
+
+    if (
+        lote.getToneladasDisponibles() > 0.0001
+        || (
+            lote.estado != EstadoLote.EN_DEPOSITO
+            && lote.estado != EstadoLote.RESERVADO
+        )
+    ) {
+        continue;
+    }
+
+    lote.estado = EstadoLote.EN_TRANSITO_PUERTO;
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791000000105</Id>
+					<Name><![CDATA[validarInventario]]></Name>
+					<X>930</X><Y>1900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<String> errores = inventario.validar();
+
+if (errores.isEmpty()) {
+    return;
+}
+
+String detalle = "";
+
+for (String e : errores) {
+    detalle += "\n  - " + e;
+}
+
+error(
+    "Inventario inconsistente el dia "
+    + (int) floor(time())
+    + " ("
+    + errores.size()
+    + "):"
+    + detalle
+);]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -3163,9 +3098,6 @@ for (LoteProducto lote : lotes) {
 							<Name><![CDATA[toneladasIniciales]]></Name>
 						</Parameter>
 						<Parameter>
-							<Name><![CDATA[toneladasDisponibles]]></Name>
-						</Parameter>
-						<Parameter>
 							<Name><![CDATA[diaProduccion]]></Name>
 						</Parameter>
 						<Parameter>
@@ -3188,12 +3120,6 @@ for (LoteProducto lote : lotes) {
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[costoAlmacenamientoLote]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[loteOrigen]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[toneladasReservadas]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[diaReserva]]></Name>
@@ -5655,7 +5581,7 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Stock jugo: " + round(planta.stockJugo) + " tn"]]></TextCode>
+					<TextCode><![CDATA["Stock jugo: " + round(planta.getStock(TipoProducto.JUGO)) + " tn"]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -5677,7 +5603,7 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Stock cáscara: " + round(planta.stockCascara) + " tn"]]></TextCode>
+					<TextCode><![CDATA["Stock cáscara: " + round(planta.getStock(TipoProducto.CASCARA)) + " tn"]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -5699,7 +5625,7 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Stock aceite: " + round(planta.stockAceite) + " tn"]]></TextCode>
+					<TextCode><![CDATA["Stock aceite: " + round(planta.getStock(TipoProducto.ACEITE)) + " tn"]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -5789,7 +5715,7 @@ if (!retirado) {
 					<Id>1784247084742</Id>
 					<Expression><![CDATA[dataset]]></Expression>
 					<Color>-10496</Color>
-					<Expression2><![CDATA[planta.stockJugo]]></Expression2>
+					<Expression2><![CDATA[planta.getStock(TipoProducto.JUGO)]]></Expression2>
 					<Expression2Flag>true</Expression2Flag>
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
@@ -5799,7 +5725,7 @@ if (!retirado) {
 					<Id>1784247340866</Id>
 					<Expression><![CDATA[dataset1]]></Expression>
 					<Color>-6632142</Color>
-					<Expression2><![CDATA[planta.stockCascara]]></Expression2>
+					<Expression2><![CDATA[planta.getStock(TipoProducto.CASCARA)]]></Expression2>
 					<Expression2Flag>true</Expression2Flag>
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
@@ -5809,7 +5735,7 @@ if (!retirado) {
 					<Id>1784247390179</Id>
 					<Expression><![CDATA[dataset2]]></Expression>
 					<Color>-14774017</Color>
-					<Expression2><![CDATA[planta.stockAceite]]></Expression2>
+					<Expression2><![CDATA[planta.getStock(TipoProducto.ACEITE)]]></Expression2>
 					<Expression2Flag>true</Expression2Flag>
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
@@ -5857,7 +5783,7 @@ if (!retirado) {
 					<Text><![CDATA[text]]></Text>
 					<TextCode><![CDATA["Balance lotes jugo: "
 + round(
-    planta.stockJugo
+    planta.getStock(TipoProducto.JUGO)
     - toneladasLotesEnPlanta(TipoProducto.JUGO)
 )]]></TextCode>
 					<Font>
@@ -5927,7 +5853,7 @@ if (!retirado) {
 					<Text><![CDATA[text]]></Text>
 					<TextCode><![CDATA["Balance lotes cáscara: "
 + round(
-    planta.stockCascara
+    planta.getStock(TipoProducto.CASCARA)
     - toneladasLotesEnPlanta(TipoProducto.CASCARA)
 )]]></TextCode>
 					<Font>
@@ -5953,7 +5879,7 @@ if (!retirado) {
 					<Text><![CDATA[text]]></Text>
 					<TextCode><![CDATA["Balance lotes aceite: "
 + round(
-    planta.stockAceite
+    planta.getStock(TipoProducto.ACEITE)
     - toneladasLotesEnPlanta(TipoProducto.ACEITE)
 )]]></TextCode>
 					<Font>
@@ -6369,31 +6295,31 @@ if (!retirado) {
 					<ShowLegend>true</ShowLegend>
 					<DataItem>
 					<Id>1784388762399</Id>
-					<Expression><![CDATA[depFrinoa.stockJugo]]></Expression>
+					<Expression><![CDATA[depFrinoa.getStock(TipoProducto.JUGO)]]></Expression>
 					<Color>-9807155</Color>
 						<Title><![CDATA[Frinoa]]></Title>
 					</DataItem>
 					<DataItem>
 					<Id>1784388812835</Id>
-					<Expression><![CDATA[depNorry.stockJugo]]></Expression>
+					<Expression><![CDATA[depNorry.getStock(TipoProducto.JUGO)]]></Expression>
 					<Color>-2987746</Color>
 						<Title><![CDATA[Norry]]></Title>
 					</DataItem>
 					<DataItem>
 					<Id>1784388833092</Id>
-					<Expression><![CDATA[depBoreas.stockJugo]]></Expression>
+					<Expression><![CDATA[depBoreas.getStock(TipoProducto.JUGO)]]></Expression>
 					<Color>-2448096</Color>
 						<Title><![CDATA[Boreas]]></Title>
 					</DataItem>
 					<DataItem>
 					<Id>1784388849973</Id>
-					<Expression><![CDATA[depRuta9.stockJugo]]></Expression>
+					<Expression><![CDATA[depRuta9.getStock(TipoProducto.JUGO)]]></Expression>
 					<Color>-9728477</Color>
 						<Title><![CDATA[Ruta9]]></Title>
 					</DataItem>
 					<DataItem>
 					<Id>1784388872861</Id>
-					<Expression><![CDATA[depDodero.stockJugo]]></Expression>
+					<Expression><![CDATA[depDodero.getStock(TipoProducto.JUGO)]]></Expression>
 					<Color>-16728065</Color>
 						<Title><![CDATA[Dodero]]></Title>
 					</DataItem>
@@ -7102,51 +7028,6 @@ if (!retirado) {
 			<ConnectionsId>1784232067564</ConnectionsId>
 			<Variables>
 				<Variable Class="PlainVariable">
-					<Id>1784243185859</Id>
-					<Name><![CDATA[stockJugo]]></Name>
-					<X>320</X><Y>-570</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1784243213161</Id>
-					<Name><![CDATA[stockCascara]]></Name>
-					<X>320</X><Y>-500</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1784243234054</Id>
-					<Name><![CDATA[stockAceite]]></Name>
-					<X>320</X><Y>-430</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
 					<Id>1784243297301</Id>
 					<Name><![CDATA[produccionAcumuladaJugo]]></Name>
 					<X>520</X><Y>-580</Y>
@@ -7457,58 +7338,6 @@ if (!retirado) {
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1784243961908</Id>
-					<Name><![CDATA[agregarStock]]></Name>
-					<X>230</X><Y>-350</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[producto]]></Name>
-						<Type><![CDATA[TipoProducto]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[toneladas]]></Name>
-						<Type><![CDATA[double]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (toneladas <= 0) {
-    return;
-}
-
-switch (producto) {
-
-    case JUGO:
-        double espacioJugo = capacidadJugo - stockJugo;
-        double ingresadoJugo = min(toneladas, espacioJugo);
-        double sobranteJugo = toneladas - ingresadoJugo;
-
-        stockJugo += ingresadoJugo;
-        excedenteJugo += sobranteJugo;
-        break;
-
-    case CASCARA:
-        double espacioCascara = capacidadCascara - stockCascara;
-        double ingresadoCascara = min(toneladas, espacioCascara);
-        double sobranteCascara = toneladas - ingresadoCascara;
-
-        stockCascara += ingresadoCascara;
-        excedenteCascara += sobranteCascara;
-        break;
-
-    case ACEITE:
-        double espacioAceite = capacidadAceite - stockAceite;
-        double ingresadoAceite = min(toneladas, espacioAceite);
-        double sobranteAceite = toneladas - ingresadoAceite;
-
-        stockAceite += ingresadoAceite;
-        excedenteAceite += sobranteAceite;
-        break;
-}]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784244258499</Id>
 					<Name><![CDATA[producir]]></Name>
 					<X>230</X><Y>-310</Y>
@@ -7537,25 +7366,22 @@ produccionAcumuladaCascara += produccionCascara;
 produccionAcumuladaAceite += produccionAceite;
 
 
-// Guardar stock anterior
-double stockAnteriorJugo = stockJugo;
-double stockAnteriorCascara = stockCascara;
-double stockAnteriorAceite = stockAceite;
+// Entra lo que quepa; lo que no entra es excedente y no se produce fisicamente
+double ingresoJugo =
+    min(produccionJugo, getEspacioDisponible(TipoProducto.JUGO));
+
+double ingresoCascara =
+    min(produccionCascara, getEspacioDisponible(TipoProducto.CASCARA));
+
+double ingresoAceite =
+    min(produccionAceite, getEspacioDisponible(TipoProducto.ACEITE));
+
+excedenteJugo += produccionJugo - ingresoJugo;
+excedenteCascara += produccionCascara - ingresoCascara;
+excedenteAceite += produccionAceite - ingresoAceite;
 
 
-// Intentar almacenar la produccion
-agregarStock(TipoProducto.JUGO, produccionJugo);
-agregarStock(TipoProducto.CASCARA, produccionCascara);
-agregarStock(TipoProducto.ACEITE, produccionAceite);
-
-
-// Calcular cuanto ingreso realmente
-double ingresoJugo = stockJugo - stockAnteriorJugo;
-double ingresoCascara = stockCascara - stockAnteriorCascara;
-double ingresoAceite = stockAceite - stockAnteriorAceite;
-
-
-// Crear lotes solamente por las toneladas almacenadas
+// Cada ingreso crea el lote y su capa en planta
 if (ingresoJugo > 0) {
     modelo.crearLoteEnPlanta(
         TipoProducto.JUGO,
@@ -7594,19 +7420,11 @@ if (ingresoAceite > 0) {
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[switch (producto) {
-    case JUGO:
-        return stockJugo;
+					<Body><![CDATA[// El stock de la planta se deriva de sus capas (ADR-023): no hay un saldo propio
+// que pueda quedar desalineado con los lotes.
+Main modelo = (Main) getRootAgent();
 
-    case CASCARA:
-        return stockCascara;
-
-    case ACEITE:
-        return stockAceite;
-
-    default:
-        return 0;
-}]]></Body>
+return modelo.inventario.stock("PLANTA", producto);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -7651,55 +7469,6 @@ if (ingresoAceite > 0) {
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
 					<Body><![CDATA[return max(0, getCapacidad(producto) - getStock(producto));]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1784245554865</Id>
-					<Name><![CDATA[retirarStock]]></Name>
-					<X>230</X><Y>-150</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[producto]]></Name>
-						<Type><![CDATA[TipoProducto]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[toneladas]]></Name>
-						<Type><![CDATA[double]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (toneladas <= 0) {
-    return false;
-}
-
-switch (producto) {
-
-    case JUGO:
-        if (stockJugo >= toneladas) {
-            stockJugo -= toneladas;
-            return true;
-        }
-        return false;
-
-    case CASCARA:
-        if (stockCascara >= toneladas) {
-            stockCascara -= toneladas;
-            return true;
-        }
-        return false;
-
-    case ACEITE:
-        if (stockAceite >= toneladas) {
-            stockAceite -= toneladas;
-            return true;
-        }
-        return false;
-
-    default:
-        return false;
-}]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -7859,51 +7628,6 @@ switch (producto) {
 			<ConnectionsId>1784232122621</ConnectionsId>
 			<Variables>
 				<Variable Class="PlainVariable">
-					<Id>1784376331143</Id>
-					<Name><![CDATA[stockJugo]]></Name>
-					<X>190</X><Y>380</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1784376349405</Id>
-					<Name><![CDATA[stockCascara]]></Name>
-					<X>380</X><Y>380</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1784376370204</Id>
-					<Name><![CDATA[stockAceite]]></Name>
-					<X>580</X><Y>380</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
 					<Id>1784376404585</Id>
 					<Name><![CDATA[costoAlmacenamientoAcumulado]]></Name>
 					<X>400</X><Y>160</Y>
@@ -7937,51 +7661,6 @@ switch (producto) {
 					<Id>1784376443396</Id>
 					<Name><![CDATA[cantidadRecepciones]]></Name>
 					<X>770</X><Y>110</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1784395747069</Id>
-					<Name><![CDATA[reservadoJugo]]></Name>
-					<X>190</X><Y>430</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1784395785385</Id>
-					<Name><![CDATA[reservadoCascara]]></Name>
-					<X>380</X><Y>430</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1784395789026</Id>
-					<Name><![CDATA[reservadoAceite]]></Name>
-					<X>580</X><Y>430</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8270,20 +7949,10 @@ switch (producto) {
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[switch (producto) {
+					<Body><![CDATA[// El stock del deposito se deriva de sus capas (ADR-023).
+Main modelo = (Main) getRootAgent();
 
-    case JUGO:
-        return stockJugo;
-
-    case CASCARA:
-        return stockCascara;
-
-    case ACEITE:
-        return stockAceite;
-
-    default:
-        return 0;
-}]]></Body>
+return modelo.inventario.stock(idUbicacion, producto);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -8392,97 +8061,6 @@ return getEspacioDisponible(producto) >= toneladas;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1784376905423</Id>
-					<Name><![CDATA[recibirProducto]]></Name>
-					<X>370</X><Y>570</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[producto]]></Name>
-						<Type><![CDATA[TipoProducto]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[toneladas]]></Name>
-						<Type><![CDATA[double]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (!puedeRecibir(producto, toneladas)) {
-    return false;
-}
-
-switch (producto) {
-
-    case JUGO:
-        stockJugo += toneladas;
-        break;
-
-    case CASCARA:
-        stockCascara += toneladas;
-        break;
-
-    case ACEITE:
-        stockAceite += toneladas;
-        break;
-}
-
-toneladasRecibidasAcumuladas += toneladas;
-cantidadRecepciones++;
-
-return true;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1784376995887</Id>
-					<Name><![CDATA[retirarProducto]]></Name>
-					<X>430</X><Y>640</Y>
-					<Label><X>0</X><Y>10</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[producto]]></Name>
-						<Type><![CDATA[TipoProducto]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[toneladas]]></Name>
-						<Type><![CDATA[double]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (toneladas <= 0) {
-    return false;
-}
-
-switch (producto) {
-
-    case JUGO:
-        if (stockJugo >= toneladas) {
-            stockJugo -= toneladas;
-            return true;
-        }
-        return false;
-
-    case CASCARA:
-        if (stockCascara >= toneladas) {
-            stockCascara -= toneladas;
-            return true;
-        }
-        return false;
-
-    case ACEITE:
-        if (stockAceite >= toneladas) {
-            stockAceite -= toneladas;
-            return true;
-        }
-        return false;
-
-    default:
-        return false;
-}]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784395664486</Id>
 					<Name><![CDATA[getCostoFletePuerto]]></Name>
@@ -8525,20 +8103,10 @@ return modelo.datos.fleteUsdTn(
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[switch (producto) {
+					<Body><![CDATA[// Lo reservado es la suma de las reservas anotadas en las capas (ADR-024).
+Main modelo = (Main) getRootAgent();
 
-    case JUGO:
-        return reservadoJugo;
-
-    case CASCARA:
-        return reservadoCascara;
-
-    case ACEITE:
-        return reservadoAceite;
-
-    default:
-        return 0;
-}]]></Body>
+return modelo.inventario.reservado(idUbicacion, producto);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -8586,157 +8154,6 @@ if (toneladas <= 0) {
 }
 
 return getDisponible(producto) >= toneladas;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1784396176929</Id>
-					<Name><![CDATA[reservarProducto]]></Name>
-					<X>1260</X><Y>580</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[producto]]></Name>
-						<Type><![CDATA[TipoProducto]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[toneladas]]></Name>
-						<Type><![CDATA[double]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (!puedeReservar(producto, toneladas)) {
-    traceln(
-        nombreDeposito
-        + " no puede reservar "
-        + toneladas
-        + " tn de "
-        + producto
-        + " | disponible="
-        + getDisponible(producto)
-    );
-
-    return false;
-}
-
-switch (producto) {
-
-    case JUGO:
-        reservadoJugo += toneladas;
-        break;
-
-    case CASCARA:
-        reservadoCascara += toneladas;
-        break;
-
-    case ACEITE:
-        reservadoAceite += toneladas;
-        break;
-
-    default:
-        return false;
-}
-
-traceln(
-    nombreDeposito
-    + " reservó "
-    + toneladas
-    + " tn de "
-    + producto
-    + " | reservado total="
-    + getReservado(producto)
-);
-
-return true;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1784396261216</Id>
-					<Name><![CDATA[liberarReserva]]></Name>
-					<X>1260</X><Y>620</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[producto]]></Name>
-						<Type><![CDATA[TipoProducto]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[toneladas]]></Name>
-						<Type><![CDATA[double]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (toneladas <= 0) {
-    return false;
-}
-
-switch (producto) {
-    case JUGO:
-        if (reservadoJugo < toneladas) {
-            return false;
-        }
-        reservadoJugo -= toneladas;
-        return true;
-
-    case CASCARA:
-        if (reservadoCascara < toneladas) {
-            return false;
-        }
-        reservadoCascara -= toneladas;
-        return true;
-
-    case ACEITE:
-        if (reservadoAceite < toneladas) {
-            return false;
-        }
-        reservadoAceite -= toneladas;
-        return true;
-
-    default:
-        return false;
-}]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1784396306291</Id>
-					<Name><![CDATA[despacharReservado]]></Name>
-					<X>1260</X><Y>670</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[producto]]></Name>
-						<Type><![CDATA[TipoProducto]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[toneladas]]></Name>
-						<Type><![CDATA[double]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (toneladas <= 0) {
-    return false;
-}
-
-if (getReservado(producto) < toneladas) {
-    return false;
-}
-
-if (getStock(producto) < toneladas) {
-    return false;
-}
-
-if (!retirarProducto(producto, toneladas)) {
-    return false;
-}
-
-if (!liberarReserva(producto, toneladas)) {
-    recibirProducto(producto, toneladas);
-    return false;
-}
-
-return true;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -10576,30 +9993,6 @@ return (int) Math.ceil(
 					</Properties>                 
 				</Variable>
 				<Variable Class="Parameter">
-					<Id>1784253156646</Id>
-					<Name><![CDATA[toneladasDisponibles]]></Name>
-					<X>130</X><Y>320</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784253156644</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
 					<Id>1784253189440</Id>
 					<Name><![CDATA[diaProduccion]]></Name>
 					<X>370</X><Y>140</Y>
@@ -10793,54 +10186,6 @@ return (int) Math.ceil(
 					</Properties>                 
 				</Variable>
 				<Variable Class="Parameter">
-					<Id>1784378942731</Id>
-					<Name><![CDATA[loteOrigen]]></Name>
-					<X>610</X><Y>410</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[LoteProducto]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[null]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784378942729</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784396416418</Id>
-					<Name><![CDATA[toneladasReservadas]]></Name>
-					<X>130</X><Y>390</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784396416416</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
 					<Id>1784396433354</Id>
 					<Name><![CDATA[diaReserva]]></Name>
 					<X>130</X><Y>470</Y>
@@ -10878,8 +10223,39 @@ return (int) Math.ceil(
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[return max(
     0,
-    toneladasDisponibles - toneladasReservadas
+    getToneladasDisponibles() - getToneladasReservadas()
 );]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791000000201</Id>
+					<Name><![CDATA[getToneladasDisponibles]]></Name>
+					<X>330</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// El saldo fisico del lote es la suma de sus capas (ADR-023): el lote es la
+// identidad productiva, la capa es la existencia fisica.
+Main modelo = (Main) getRootAgent();
+
+return modelo.inventario.stockLote(idLote);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791000000202</Id>
+					<Name><![CDATA[getToneladasReservadas]]></Name>
+					<X>530</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[Main modelo = (Main) getRootAgent();
+
+return modelo.inventario.reservadoLote(idLote);]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -14544,6 +13920,462 @@ public class ImportadorExcel implements java.io.Serializable {
 				return TipoProducto.JUGO;
 			}
 		}
+	}
+}]]></Text>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
+			<Id>1791000000004</Id>
+			<Name><![CDATA[Capa]]></Name>
+			<Text><![CDATA[/**
+ * Unidad fisica del inventario (ADR-021): un lote en una ubicacion con su propio
+ * dia de ingreso. Un lote puede tener varias capas si se mueve por partes.
+ *
+ * No es un tipo de agente: PLE admite 10 y el modelo ya los usa (ADR-030).
+ */
+public class Capa implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	public static final double EPS = 0.0001;
+
+	/** Reserva trazable: que pedido comprometio cuantas toneladas de esta capa. */
+	public static class Reserva implements java.io.Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		public final String codigoPedido;
+		public final double diaReserva;
+		public double toneladas;
+
+		public Reserva(String codigoPedido, double toneladas, double diaReserva) {
+			this.codigoPedido = codigoPedido;
+			this.toneladas = toneladas;
+			this.diaReserva = diaReserva;
+		}
+	}
+
+	public final int idLote;
+	public final TipoProducto producto;
+	public final double diaProduccion;
+
+	public String idUbicacion;
+	public double diaIngreso;
+	public double toneladas;
+	public double costoAlmacenamiento;
+
+	public final java.util.List<Reserva> reservas = new java.util.ArrayList<Reserva>();
+
+	public Capa(int idLote, TipoProducto producto, String idUbicacion,
+			double toneladas, double diaIngreso, double diaProduccion) {
+		this.idLote = idLote;
+		this.producto = producto;
+		this.idUbicacion = idUbicacion;
+		this.toneladas = toneladas;
+		this.diaIngreso = diaIngreso;
+		this.diaProduccion = diaProduccion;
+	}
+
+	/** El reservado es la suma de las reservas: no hay un segundo saldo que sincronizar. */
+	public double reservadas() {
+		double total = 0;
+		for (Reserva r : reservas) {
+			total += r.toneladas;
+		}
+		return total;
+	}
+
+	public double reservadasDe(String codigoPedido) {
+		double total = 0;
+		for (Reserva r : reservas) {
+			if (r.codigoPedido.equals(codigoPedido)) {
+				total += r.toneladas;
+			}
+		}
+		return total;
+	}
+
+	public double libres() {
+		return Math.max(0, toneladas - reservadas());
+	}
+
+	public void reservar(String codigoPedido, double toneladas, double dia) {
+		for (Reserva r : reservas) {
+			if (r.codigoPedido.equals(codigoPedido)) {
+				r.toneladas += toneladas;
+				return;
+			}
+		}
+		reservas.add(new Reserva(codigoPedido, toneladas, dia));
+	}
+
+	/** Quita toneladas reservadas por un pedido; devuelve lo efectivamente quitado. */
+	public double quitarReserva(String codigoPedido, double toneladas) {
+		double pendiente = toneladas;
+		java.util.Iterator<Reserva> it = reservas.iterator();
+		while (it.hasNext() && pendiente > EPS) {
+			Reserva r = it.next();
+			if (!r.codigoPedido.equals(codigoPedido)) {
+				continue;
+			}
+			double quita = Math.min(pendiente, r.toneladas);
+			r.toneladas -= quita;
+			pendiente -= quita;
+			if (r.toneladas <= EPS) {
+				it.remove();
+			}
+		}
+		return toneladas - pendiente;
+	}
+
+	public boolean vacia() {
+		return toneladas <= EPS && reservas.isEmpty();
+	}
+
+	public String toString() {
+		return "Capa[lote=" + idLote + " " + producto + " " + idUbicacion
+				+ " dia=" + diaIngreso + " tn=" + toneladas
+				+ " reservadas=" + reservadas() + "]";
+	}
+}]]></Text>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
+			<Id>1791000000005</Id>
+			<Name><![CDATA[Inventario]]></Name>
+			<Text><![CDATA[/**
+ * Inventario fisico del modelo. La lista de capas es la unica fuente del stock
+ * (ADR-023): ni la planta ni los depositos guardan saldos propios, los consultan
+ * aca. Asi el stock no puede quedar desalineado con los lotes, porque es el
+ * mismo dato leido de dos maneras.
+ *
+ * El consumo es FIFO por dia de ingreso (ADR-022) y la reserva se anota sobre la
+ * capa, sin partir el lote en dos agentes (ADR-024).
+ */
+public class Inventario implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	public static final double EPS = 0.0001;
+
+	public final java.util.List<Capa> capas = new java.util.ArrayList<Capa>();
+
+	/** Orden FIFO: primero la capa que ingreso antes; los empates se rompen igual siempre. */
+	private static class PorAntiguedad
+			implements java.util.Comparator<Capa>, java.io.Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		public int compare(Capa a, Capa b) {
+			int r = Double.compare(a.diaIngreso, b.diaIngreso);
+			if (r != 0) {
+				return r;
+			}
+			r = Double.compare(a.diaProduccion, b.diaProduccion);
+			if (r != 0) {
+				return r;
+			}
+			return a.idLote - b.idLote;
+		}
+	}
+
+	private static final PorAntiguedad FIFO = new PorAntiguedad();
+
+	public Capa ingresar(int idLote, TipoProducto producto, String idUbicacion,
+			double toneladas, double dia, double diaProduccion) {
+		if (toneladas <= EPS) {
+			return null;
+		}
+		Capa capa = new Capa(idLote, producto, idUbicacion, toneladas, dia, diaProduccion);
+		capas.add(capa);
+		return capa;
+	}
+
+	// ---------------------------------------------------------------- consultas
+
+	public double stock(String idUbicacion, TipoProducto producto) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto && c.idUbicacion.equals(idUbicacion)) {
+				total += c.toneladas;
+			}
+		}
+		return total;
+	}
+
+	public double reservado(String idUbicacion, TipoProducto producto) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto && c.idUbicacion.equals(idUbicacion)) {
+				total += c.reservadas();
+			}
+		}
+		return total;
+	}
+
+	public double libre(String idUbicacion, TipoProducto producto) {
+		return Math.max(0, stock(idUbicacion, producto) - reservado(idUbicacion, producto));
+	}
+
+	public double stockProducto(TipoProducto producto) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto) {
+				total += c.toneladas;
+			}
+		}
+		return total;
+	}
+
+	public double reservadoProducto(TipoProducto producto) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto) {
+				total += c.reservadas();
+			}
+		}
+		return total;
+	}
+
+	public double stockLote(int idLote) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.idLote == idLote) {
+				total += c.toneladas;
+			}
+		}
+		return total;
+	}
+
+	public double reservadoLote(int idLote) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.idLote == idLote) {
+				total += c.reservadas();
+			}
+		}
+		return total;
+	}
+
+	public double reservadoDeLotePorPedido(int idLote, String codigoPedido) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.idLote == idLote) {
+				total += c.reservadasDe(codigoPedido);
+			}
+		}
+		return total;
+	}
+
+	public double reservadoPedido(String codigoPedido) {
+		double total = 0;
+		for (Capa c : capas) {
+			total += c.reservadasDe(codigoPedido);
+		}
+		return total;
+	}
+
+	public double reservadoPedidoEn(String idUbicacion, TipoProducto producto,
+			String codigoPedido) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto && c.idUbicacion.equals(idUbicacion)) {
+				total += c.reservadasDe(codigoPedido);
+			}
+		}
+		return total;
+	}
+
+	public int cantidadLotes(String idUbicacion, TipoProducto producto) {
+		java.util.Set<Integer> ids = new java.util.HashSet<Integer>();
+		for (Capa c : capas) {
+			if (c.producto == producto && c.idUbicacion.equals(idUbicacion) && c.toneladas > EPS) {
+				ids.add(Integer.valueOf(c.idLote));
+			}
+		}
+		return ids.size();
+	}
+
+	/** Capas de una ubicacion y producto, de la mas antigua a la mas nueva. */
+	public java.util.List<Capa> fifo(String idUbicacion, TipoProducto producto) {
+		java.util.List<Capa> sel = new java.util.ArrayList<Capa>();
+		for (Capa c : capas) {
+			if (c.producto == producto && c.idUbicacion.equals(idUbicacion)) {
+				sel.add(c);
+			}
+		}
+		java.util.Collections.sort(sel, FIFO);
+		return sel;
+	}
+
+	public java.util.List<Capa> fifoDeLote(int idLote, String idUbicacion) {
+		java.util.List<Capa> sel = new java.util.ArrayList<Capa>();
+		for (Capa c : capas) {
+			if (c.idLote == idLote && c.idUbicacion.equals(idUbicacion)) {
+				sel.add(c);
+			}
+		}
+		java.util.Collections.sort(sel, FIFO);
+		return sel;
+	}
+
+	// ---------------------------------------------------- movimientos (FIFO)
+
+	/** Retira saldo libre consumiendo primero lo mas antiguo. Devuelve lo retirado. */
+	public double retirarLibre(String idUbicacion, TipoProducto producto, double toneladas) {
+		double pendiente = toneladas;
+		for (Capa c : fifo(idUbicacion, producto)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, c.libres());
+			if (toma <= EPS) {
+				continue;
+			}
+			c.toneladas -= toma;
+			pendiente -= toma;
+		}
+		limpiar();
+		return toneladas - pendiente;
+	}
+
+	/** Mueve saldo libre entre ubicaciones, FIFO. La capa destino arranca su propia antiguedad. */
+	public double mover(String origen, String destino, TipoProducto producto,
+			double toneladas, double dia) {
+		double pendiente = toneladas;
+		java.util.List<Capa> nuevas = new java.util.ArrayList<Capa>();
+		for (Capa c : fifo(origen, producto)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, c.libres());
+			if (toma <= EPS) {
+				continue;
+			}
+			c.toneladas -= toma;
+			nuevas.add(new Capa(c.idLote, c.producto, destino, toma, dia, c.diaProduccion));
+			pendiente -= toma;
+		}
+		capas.addAll(nuevas);
+		limpiar();
+		return toneladas - pendiente;
+	}
+
+	/** Igual que mover(), pero limitado a las capas de un lote. */
+	public double moverLote(int idLote, String origen, String destino,
+			double toneladas, double dia) {
+		double pendiente = toneladas;
+		java.util.List<Capa> nuevas = new java.util.ArrayList<Capa>();
+		for (Capa c : fifoDeLote(idLote, origen)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, c.libres());
+			if (toma <= EPS) {
+				continue;
+			}
+			c.toneladas -= toma;
+			nuevas.add(new Capa(c.idLote, c.producto, destino, toma, dia, c.diaProduccion));
+			pendiente -= toma;
+		}
+		capas.addAll(nuevas);
+		limpiar();
+		return toneladas - pendiente;
+	}
+
+	// ---------------------------------------------------------------- reservas
+
+	/** Reserva para un pedido, FIFO. Devuelve lo reservado, que puede ser menos. */
+	public double reservar(String idUbicacion, TipoProducto producto, double toneladas,
+			String codigoPedido, double dia) {
+		double pendiente = toneladas;
+		for (Capa c : fifo(idUbicacion, producto)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, c.libres());
+			if (toma <= EPS) {
+				continue;
+			}
+			c.reservar(codigoPedido, toma, dia);
+			pendiente -= toma;
+		}
+		return toneladas - pendiente;
+	}
+
+	public double liberarReserva(String codigoPedido) {
+		double total = 0;
+		for (Capa c : capas) {
+			total += c.quitarReserva(codigoPedido, c.reservadasDe(codigoPedido));
+		}
+		return total;
+	}
+
+	public double liberarReserva(String codigoPedido, double toneladas) {
+		double pendiente = toneladas;
+		for (Capa c : capas) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			pendiente -= c.quitarReserva(codigoPedido, pendiente);
+		}
+		return toneladas - pendiente;
+	}
+
+	/** Saca fisicamente toneladas ya reservadas por un pedido, FIFO. Devuelve lo despachado. */
+	public double despachar(String idUbicacion, TipoProducto producto, double toneladas,
+			String codigoPedido) {
+		double pendiente = toneladas;
+		for (Capa c : fifo(idUbicacion, producto)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, Math.min(c.reservadasDe(codigoPedido), c.toneladas));
+			if (toma <= EPS) {
+				continue;
+			}
+			c.quitarReserva(codigoPedido, toma);
+			c.toneladas -= toma;
+			pendiente -= toma;
+		}
+		limpiar();
+		return toneladas - pendiente;
+	}
+
+	// -------------------------------------------------------------- integridad
+
+	private void limpiar() {
+		java.util.Iterator<Capa> it = capas.iterator();
+		while (it.hasNext()) {
+			if (it.next().vacia()) {
+				it.remove();
+			}
+		}
+	}
+
+	/** Invariantes del inventario. Una capa incoherente es un error del modelo, no un dato. */
+	public java.util.List<String> validar() {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		for (Capa c : capas) {
+			if (c.toneladas < -EPS) {
+				errores.add("Toneladas negativas en " + c + ".");
+			}
+			if (c.reservadas() > c.toneladas + EPS) {
+				errores.add("Reservado mayor que el saldo fisico en " + c + ".");
+			}
+			if (c.idUbicacion == null || c.idUbicacion.length() == 0) {
+				errores.add("Capa sin ubicacion en el lote " + c.idLote + ".");
+			}
+			for (Capa.Reserva r : c.reservas) {
+				if (r.toneladas < -EPS) {
+					errores.add("Reserva negativa de " + r.codigoPedido + " en " + c + ".");
+				}
+				if (r.codigoPedido == null || r.codigoPedido.length() == 0) {
+					errores.add("Reserva sin pedido en " + c + ".");
+				}
+			}
+		}
+		return errores;
 	}
 }]]></Text>
 		</JavaClass>
