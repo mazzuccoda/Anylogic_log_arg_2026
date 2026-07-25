@@ -53,6 +53,15 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.pedidosPorCampania = f.entero("pedidos_por_campania");
 			e.toneladasMediasPedido = f.numero("toneladas_medias_pedido");
 			e.plazoPedidoDias = f.entero("plazo_pedido_dias");
+			e.camionesProducto = f.entero("camiones_producto");
+			e.factorProduccion = f.numero("factor_produccion");
+			e.factorCapacidadPlanta = f.numero("factor_capacidad_planta");
+			e.factorCapacidadDeposito = f.numero("factor_capacidad_deposito");
+			e.factorStorage = f.numero("factor_storage");
+			e.ventanaDemanda = f.numero("ventana_demanda");
+			e.habilitaCrossDock = f.texto("habilita_cross_dock").equalsIgnoreCase("true");
+			e.deterministico = f.texto("deterministico").equalsIgnoreCase("true");
+			e.estrategiaConsolidacion = f.texto("estrategia_consolidacion");
 			datos.escenario = e;
 		}
 

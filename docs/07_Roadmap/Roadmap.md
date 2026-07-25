@@ -14,7 +14,7 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 
 | Fase | Estado | Avance |
 |---|---|---:|
-| 0. Respaldo y documentación inicial | Modelo versionado; falta `versionModelo` en salidas | 90% |
+| 0. Respaldo y documentación inicial | Modelo versionado y `version_modelo` en las salidas del barrido | 100% |
 | 1. Normalización del dominio | En curso | 75% |
 | 2. Lote comercial acumulativo | Diseño validado | 15% |
 | 3. Existencias físicas múltiples | Capas de inventario implementadas y verificadas en PLE | 90% |
@@ -27,7 +27,7 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 | 10. Registro de costos | Parcial; tarifas ya vienen de tablas | 35% |
 | 11. Planificador | Parcial | 25% |
 | 12. Reemplazo de Envio | Pendiente | 0% |
-| 13. KPIs y experimentos | Pendiente | 15% |
+| 13. KPIs y experimentos | Barrido de 12 escenarios × 30 réplicas verificado en PLE; el barrido de flota no discrimina hasta que la flota se consuma | 75% |
 | 14. Optimización avanzada | Futuro | 0% |
 
 ## 3. Fase 0 — Respaldo
@@ -41,9 +41,9 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 - [x] Versionar el código exportado por agente en `model_src/` (`tools/exportar_modelo.py`, ADR-035).
 - [x] Inventariar el modelo real: [Inventario del modelo](../03_Logica/Inventario_del_Modelo.md).
 - [x] Crear `CHANGELOG.md`.
-- [ ] Agregar el parámetro `versionModelo` y volcarlo en todas las salidas.
+- [x] Volcar la versión del modelo en las salidas: `resultados/kpis_por_corrida.csv` lleva `version_modelo` en cada fila.
 
-La fase había sido declarada completada al 100% sin que el modelo estuviera versionado. Ya lo está; queda pendiente sólo la trazabilidad de versión en las salidas.
+La fase había sido declarada completada al 100% sin que el modelo estuviera versionado. Ya lo está, y las salidas del barrido dicen con qué versión se produjeron.
 
 ## 4. Fase 1 — Dominio
 
@@ -146,6 +146,19 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [ ] Cross dock parcial: requiere reserva parcial (fase 5), hoy el pedido se cruza entero o no se cruza.
 - [ ] Cross dock en terminal (`CROSS_DOCK_TERMINAL`).
 - [ ] Validar V-013.
+
+## 11b. Fase 13 — Escenarios, réplicas y KPIs
+
+- [x] Escenario como fila: `GeneradorSintetico.escenario(id, semilla)` y la hoja `Escenario` del Excel gobiernan las 12 corridas; el experimento no conoce ningún escenario en particular.
+- [x] Experimento `Escenarios` (Parameter Variation freeform) con dos dimensiones: `idEscenario` y `replica`.
+- [x] Réplicas reproducibles: `semilla = semillaBase + replica`, calculada dentro del modelo.
+- [x] KPIs de cierre de corrida como funciones de `Main`.
+- [x] `resultados/kpis_por_corrida.csv` con `version_modelo`, `id_escenario`, `replica` y `semilla`.
+- [x] Media, desvío, mínimo, máximo y P95 por escenario, con delta absoluto y porcentual contra E-00.
+- [x] E-09 determinístico verificado: desvío exactamente 0 en 30 réplicas.
+- [ ] Barrido de flota útil: E-01 y E-02 dan el mismo resultado que E-00 porque la transferencia planta→depósito no consume camiones. Requiere modelar la flota como capacidad diaria (viajes por camión y día), igual que las posiciones de consolidación.
+- [ ] Solapamiento de intervalos en la comparación contra E-00.
+- [ ] Escenario de capacidad de planta y de política de prioridad (la política es hoy única).
 
 ## 12. Fase 9 — Terminal
 

@@ -6,7 +6,7 @@ el propio `GeneradorSintetico` del modelo, de modo que el ejemplo y la fase
 sintetica sean el mismo escenario. Sirve como plantilla para cargar datos
 reales: alcanza con reemplazar los valores respetando hojas y encabezados.
 
-Uso: python3 tools/generar_excel_ejemplo.py [id_escenario] [dias] [semilla]
+Uso: python3 tools/generar_excel_ejemplo.py [id_escenario] [semilla]
 """
 
 import shutil
@@ -29,7 +29,7 @@ ENUMS = {
 }
 
 
-def volcar(id_escenario: str, dias: str, semilla: str) -> str:
+def volcar(id_escenario: str, semilla: str) -> str:
     with tempfile.TemporaryDirectory() as tmp:
         trabajo = Path(tmp)
         for fuente in ("DatosEntrada.java", "GeneradorSintetico.java"):
@@ -44,7 +44,7 @@ def volcar(id_escenario: str, dias: str, semilla: str) -> str:
             check=True,
         )
         return subprocess.run(
-            ["java", "-cp", str(trabajo / "out"), "VolcarDatos", id_escenario, dias, semilla],
+            ["java", "-cp", str(trabajo / "out"), "VolcarDatos", id_escenario, semilla],
             check=True,
             capture_output=True,
             text=True,
@@ -83,10 +83,9 @@ def convertir(celda: str):
 
 def main() -> None:
     id_escenario = sys.argv[1] if len(sys.argv) > 1 else "E-00"
-    dias = sys.argv[2] if len(sys.argv) > 2 else "183"
-    semilla = sys.argv[3] if len(sys.argv) > 3 else "1"
+    semilla = sys.argv[2] if len(sys.argv) > 2 else "1"
 
-    filas = escribir(volcar(id_escenario, dias, semilla))
+    filas = escribir(volcar(id_escenario, semilla))
     print(f"{SALIDA} escrito ({filas} filas, encabezados incluidos)")
 
 

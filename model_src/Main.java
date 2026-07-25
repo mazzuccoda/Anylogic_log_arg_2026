@@ -8,19 +8,12 @@ class Main extends Agent {
     OrigenDatos origenDatos = OrigenDatos.SINTETICO;
     String rutaExcel = "datos/entrada_ejemplo.xlsx";
     String idEscenario = "E-00";
-    int duracionCampaniaDias = 183;
     long semillaBase = 1;
-    double variabilidadProduccion = 0.15;
-    double variabilidadDemanda = 0.20;
-    int pedidosPorCampania = 40;
-    double toneladasMediasPedido = 400;
-    int plazoPedidoDias = 15;
     double costoFijoViajePD = 150;
     double costoKmPD = 1.2;
     double costoTnPD = 2.0;
     double diasEstimadosAlmacenamiento = 30;
-    EstrategiaLogistica estrategiaConsolidacion = EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
-    boolean habilitaCrossDock = false;
+    int replica = 0;
 
     // ----- Variables -----
     DatosEntrada datos = null;
@@ -51,6 +44,11 @@ class Main extends Agent {
     double costoCrossDockReal = 0;
     int crossDockReprogramados = 0;
     int crossDockDegradados = 0;
+    int duracionCampaniaDias = 183;
+    EstrategiaLogistica estrategiaConsolidacion = EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
+    boolean habilitaCrossDock = false;
+    double camionDiaOcupado = 0;
+    double camionDiaOfrecido = 0;
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -721,15 +719,10 @@ class Main extends Agent {
 
         } else {
 
+            // La replica solo mueve la semilla (ADR-042): mismo escenario, otro sorteo.
             datos = GeneradorSintetico.generar(
                 idEscenario,
-                duracionCampaniaDias,
-                semillaBase,
-                variabilidadProduccion,
-                variabilidadDemanda,
-                pedidosPorCampania,
-                toneladasMediasPedido,
-                plazoPedidoDias
+                semillaBase + replica
             );
         }
 
@@ -751,6 +744,7 @@ class Main extends Agent {
             );
         }
 
+        aplicarEscenario();
         aplicarDatosAAgentes();
     }
 
@@ -1755,6 +1749,115 @@ class Main extends Agent {
             && (pedido.esCrossDock || consolidaEnDeposito());
     }
 
+    void aplicarEscenario() {
+        // La fila del escenario describe la corrida entera (ADR-032): lo que el
+        // barrido enumera es el id, no cada palanca por separado.
+        DatosEntrada.Escenario escenario = datos.escenario;
+
+        duracionCampaniaDias = escenario.duracionCampaniaDias;
+        habilitaCrossDock = escenario.habilitaCrossDock;
+
+        estrategiaConsolidacion =
+            escenario.estrategiaConsolidacion.equals("CONSOLIDACION_TERMINAL")
+            ? EstrategiaLogistica.CONSOLIDACION_TERMINAL
+            : EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
+
+        flotaCamiones.set_capacity(escenario.camionesProducto);
+    }
+
+    void registrarUsoFlota() {
+        // Camion-dia: con paso diario la utilizacion es cuantos camiones estan
+        // ocupados al cierre de cada dia sobre los que hay.
+        camionDiaOcupado += flotaCamiones.busy();
+        camionDiaOfrecido += flotaCamiones.size();
+    }
+
+    double costoTotalCampania() {
+        return costoFletePlantaDeposito
+            + costoFleteDepositoPuertoReal
+            + costoConsolidacionReal
+            + costoCrossDockReal
+            + getCostoAlmacenamientoTotal();
+    }
+
+    double toneladasExportadas() {
+        double total = 0;
+
+        for (TipoProducto producto : TipoProducto.values()) {
+            total += toneladasEntregadas(producto);
+        }
+
+        return total;
+    }
+
+    double costoPorToneladaExportada() {
+        double toneladas = toneladasExportadas();
+
+        return toneladas <= 0
+            ? 0
+            : costoTotalCampania() / toneladas;
+    }
+
+    double nivelServicio() {
+        // Pedido servido: entregado y no despues de su fecha limite.
+        int servidos = 0;
+
+        for (Pedido pedido : pedidos) {
+
+            if (
+                pedido.estado == EstadoPedido.ENTREGADO
+                && pedido.diasAtraso <= 0
+            ) {
+                servidos++;
+            }
+        }
+
+        return pedidosRecibidos <= 0
+            ? 0
+            : (double) servidos / pedidosRecibidos;
+    }
+
+    double atrasoPromedioDias() {
+        // Incluye los pedidos sin entregar, que son los que mas atraso acumulan.
+        double total = 0;
+
+        for (Pedido pedido : pedidos) {
+            total += pedido.diasAtraso;
+        }
+
+        return pedidosRecibidos <= 0
+            ? 0
+            : total / pedidosRecibidos;
+    }
+
+    double utilizacionFlota() {
+        return camionDiaOfrecido <= 0
+            ? 0
+            : camionDiaOcupado / camionDiaOfrecido;
+    }
+
+    double excedenteFinalTn() {
+        // Producto que la campania no logro exportar: se quedo en planta o en deposito.
+        double total = 0;
+
+        for (TipoProducto producto : TipoProducto.values()) {
+
+            total += inventario.stock("PLANTA", producto);
+
+            for (Deposito deposito : depositos) {
+                total += inventario.stock(deposito.idUbicacion, producto);
+            }
+        }
+
+        return total;
+    }
+
+    double usoPosicionesConsolidacion() {
+        return capacidadConsolidacionOfrecida <= 0
+            ? 0
+            : consolidacionesRealizadas / capacidadConsolidacionOfrecida;
+    }
+
     // ----- Eventos -----
 
     // evento pasoDiario [timeout cyclic] cada 1 day
@@ -1772,6 +1875,7 @@ class Main extends Agent {
         despacharContenedoresPendientes();       // 9. consolidar y despachar lo que entra
         devengarAlmacenamientoDiario();          // 10. devengar almacenaje
         registrarAtrasos();                      // 11. registrar indicadores del dia
+        registrarUsoFlota();                     // utilizacion de la flota del dia
         validarInventario();              // invariantes de las capas (ADR-023)
     }
 }

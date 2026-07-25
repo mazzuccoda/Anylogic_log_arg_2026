@@ -204,6 +204,20 @@ Fase 5 de la secuencia diaria, antes de las transferencias normales. Recorre los
 
 Resuelven quién cobra la estiba y dónde se arma el contenedor: la tarifa `CROSS_DOCK` del depósito si el pedido se cruzó, la de `CONSOLIDACION` del depósito si la estrategia consolida ahí, y la de la terminal en el caso contrario. Se usan tanto para el costo estimado del contenedor como para el costo real del envío, de modo que no puedan divergir.
 
+### KPIs de cierre de corrida
+
+**Estado:** implementadas (fase 13).
+
+`costoTotalCampania()`, `toneladasExportadas()`, `costoPorToneladaExportada()`, `nivelServicio()`, `atrasoPromedioDias()`, `utilizacionFlota()`, `excedenteFinalTn()` y `usoPosicionesConsolidacion()`. Son funciones puras sobre el estado final: el experimento `Escenarios` las lee al terminar cada corrida y las escribe en `resultados/kpis_por_corrida.csv`. Que sean funciones y no acumuladores del experimento es lo que permite mirarlas también en una corrida suelta.
+
+`registrarUsoFlota()` corre todos los días y acumula `camionDiaOcupado` y `camionDiaOfrecido`, que es lo que después divide `utilizacionFlota()`. Hoy da casi siempre 0 porque la transferencia planta→depósito no toma camiones del pool (ver la limitación en [Escenarios y experimentos](../09_Definicion/Escenarios_y_Experimentos.md)).
+
+### `aplicarEscenario()`
+
+**Estado:** implementada (fase 13).
+
+Traduce la fila del escenario a estado del modelo: duración de campaña, cantidad de camiones de la flota, cross dock y estrategia de consolidación. Corre una sola vez, después de cargar y validar las tablas y antes del día 1. Todo lo demás que el escenario cambia (producción, capacidades, tarifas, ventana de demanda) ya viene aplicado en las tablas, no acá.
+
 ### Funciones objetivo de planificación
 
 - `localizarExistenciasPedido(Pedido pedido)`;

@@ -157,6 +157,53 @@ def exportar_embebidos(agente: ET.Element) -> list[str]:
     return lineas
 
 
+# Código Java de un experimento, en el orden en que se ejecuta.
+ACCIONES_EXPERIMENTO = (
+    ("AdditionalClassCode", "código de clase adicional"),
+    ("InitialSetupCode", "al preparar el experimento"),
+    ("BeforeEachExperimentRunCode", "antes de cada corrida del experimento"),
+    ("BeforeSimulationRunCode", "antes de la corrida"),
+    ("AfterSimulationRunCode", "después de la corrida"),
+    ("AfterIterationCode", "después de la iteración"),
+    ("AfterExperimentCode", "al terminar el experimento"),
+)
+
+
+def exportar_experimentos(modelo: ET.Element, destino: Path) -> int:
+    """El barrido tiene lógica propia (KPIs, estadísticos, salida) que no vive en ningún agente."""
+    contenedor = modelo.find("Experiments")
+    if contenedor is None or not len(contenedor):
+        return 0
+
+    lineas = [CABECERA, "// Experimentos del modelo"]
+
+    for experimento in contenedor:
+        lineas.append(f"\nclass {texto(experimento, 'Name')} extends {experimento.tag} {{")
+
+        corridas = texto(experimento, "NumberOfRuns")
+        if corridas:
+            lineas.append(f"    // corridas: {corridas}")
+
+        for valor in experimento.findall("FreeformParamValue"):
+            codigo = texto(valor.find("Expression"), "Code")
+            if codigo:
+                lineas.append(f"    // parámetro #{texto(valor, 'Id')} = {codigo}")
+
+        for etiqueta, descripcion in ACCIONES_EXPERIMENTO:
+            cuerpo = experimento.findtext(etiqueta) or ""
+            if not cuerpo.strip():
+                continue
+            lineas.append(f"\n    // {descripcion}")
+            lineas.append(f"    void {etiqueta[0].lower() + etiqueta[1:]}() {{")
+            lineas.append(indentar(cuerpo))
+            lineas.append("    }")
+
+        lineas.append("}")
+
+    (destino / "Experimentos.java").write_text("\n".join(lineas) + "\n", encoding="utf-8")
+    return 1
+
+
 def exportar(ruta_alp: Path, destino: Path) -> int:
     raiz = ET.parse(ruta_alp).getroot()
     modelo = raiz.find("Model")
@@ -200,6 +247,8 @@ def exportar(ruta_alp: Path, destino: Path) -> int:
         cuerpo.append("}")
         (destino / f"{nombre}.java").write_text("\n".join(cuerpo) + "\n", encoding="utf-8")
         generados += 1
+
+    generados += exportar_experimentos(modelo, destino)
 
     escribir_manifiesto(ruta_alp, destino, raiz, nombres)
     return generados + 1
