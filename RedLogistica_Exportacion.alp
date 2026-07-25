@@ -280,6 +280,10 @@
 			<Id>1784747959810</Id>
 			<Name><![CDATA[EstadoPlanLogistico]]></Name>
 			<Option>
+				<Id>1790000000100</Id>
+				<Name><![CDATA[BORRADOR]]></Name>
+			</Option>
+			<Option>
 				<Id>1784747959811</Id>
 				<Name><![CDATA[FACTIBLE]]></Name>
 			</Option>
