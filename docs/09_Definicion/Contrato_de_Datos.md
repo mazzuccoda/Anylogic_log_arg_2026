@@ -228,7 +228,7 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 |---|---|
 | `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias` |
 | `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn` |
-| `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn` |
+| `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `posiciones_consolidacion`, `contenedores_por_posicion_dia` |
 | `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |
 | `Distancia` | `origen`, `destino`, `distancia_km` |
 | `TarifaAlmacenamiento` | `id_ubicacion`, `producto`, `storage_usd_tn_dia` |
@@ -242,13 +242,13 @@ Las columnas se buscan por nombre, no por posición: se pueden reordenar o agreg
 | Tabla | Implementada | Diferencias con este documento |
 |---|---|---|
 | `Producto` | sí | — |
-| `Ubicacion` | sí | sin `habilita_consolidacion`, `habilita_cross_dock` ni posiciones: el modelo todavía no consume posiciones. Agrega las velocidades operativas que hoy son parámetros de los agentes |
+| `Ubicacion` | sí | sin `habilita_consolidacion`, `habilita_cross_dock` ni `posiciones_cross_dock`. Las posiciones de consolidación sí se consumen (fase 7): la capacidad diaria del sitio es `posiciones_consolidacion × contenedores_por_posicion_dia`, y la habilitación para consolidar se deriva de que esa capacidad sea mayor que cero. Agrega las velocidades operativas que hoy son parámetros de los agentes |
 | `CapacidadUbicacion` | sí | — |
 | `Distancia` | sí | sin tránsito min/moda/max: el tránsito todavía se deriva de la distancia y la velocidad del camión |
 | `TiemposOperativos` | no | los tiempos siguen calculándose como toneladas ÷ velocidad |
 | `TarifaFleteProducto` | sí, depósito → terminal | sólo `USD_TN`. El flete planta → depósito sigue siendo la fórmula `costoFijoViajePD + km × costoKmPD + tn × costoTnPD`, con los km leídos de `Distancia` |
 | `TarifaAlmacenamiento` | sí | sólo `storage_usd_tn_dia`; IN/OUT y período mínimo requieren capas (paso 3) |
-| `TarifaServicioCarga` | sí | tarifa en `USD_TN`, no en `USD_CONTENEDOR`: el modelo consolida por toneladas hasta que los contenedores individuales entren en la ejecución |
+| `TarifaServicioCarga` | sí | tarifa en `USD_TN`, no en `USD_CONTENEDOR`, y sin `tipo_servicio`: la fila es la tarifa de consolidación del sitio. Desde la fase 7 hace falta una fila por cada depósito y producto, además de las de terminal, porque el contenedor se puede estibar en cualquiera de los dos |
 | `TarifaCicloContenedor`, `TarifaTerminal`, `TarifaTHC`, `TarifaDespachante` | no | ninguna está consumida por el modelo todavía |
 | `Escenario` | sí, parcial | implementa `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion` y `variabilidad_demanda`, y agrega `pedidos_por_campania`, `toneladas_medias_pedido` y `plazo_pedido_dias`, que son los que gobiernan la demanda sintética |
 | `ProduccionPlan` | sí | serie diaria completa por producto |

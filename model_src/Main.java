@@ -19,6 +19,7 @@ class Main extends Agent {
     double costoKmPD = 1.2;
     double costoTnPD = 2.0;
     double diasEstimadosAlmacenamiento = 30;
+    EstrategiaLogistica estrategiaConsolidacion = EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
 
     // ----- Variables -----
     DatosEntrada datos = null;
@@ -37,6 +38,11 @@ class Main extends Agent {
     double costoFleteDepositoPuertoReal = 0;
     double costoConsolidacionReal = 0;
     Inventario inventario = new Inventario();
+    java.util.HashMap<String, Integer> consolidacionesDelDia = new java.util.HashMap<String, Integer>();
+    int contenedoresEnEspera = 0;
+    double esperaConsolidacionContenedorDia = 0;
+    int consolidacionesRealizadas = 0;
+    double capacidadConsolidacionOfrecida = 0;
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -361,8 +367,12 @@ class Main extends Agent {
 
             double costoConsolidado =
                 pedido.toneladasSolicitadas
-                * pedido.puertoSalida
-                    .getCostoConsolidado(pedido.producto);
+                * (
+                    consolidaEnDeposito()
+                    ? deposito.getCostoConsolidado(pedido.producto)
+                    : pedido.puertoSalida
+                        .getCostoConsolidado(pedido.producto)
+                );
 
             double costoTotal =
                 costoFlete + costoConsolidado;
@@ -454,8 +464,12 @@ class Main extends Agent {
 
         pedido.costoConsolidadoEstimado =
             pedido.toneladasSolicitadas
-            * pedido.puertoSalida
-                .getCostoConsolidado(pedido.producto);
+            * (
+                consolidaEnDeposito()
+                ? deposito.getCostoConsolidado(pedido.producto)
+                : pedido.puertoSalida
+                    .getCostoConsolidado(pedido.producto)
+            );
 
         pedido.costoTotalEstimado =
             pedido.costoFleteEstimado
@@ -548,10 +562,16 @@ class Main extends Agent {
 
         double velocidadCamion = 70;
 
+        // Fase 7: si el contenedor se estiba en el deposito, la carga es la
+        // consolidacion y en la terminal solo queda el ingreso.
         envio.tiempoCargaHoras =
-            toneladas
-            / envio.depositoOrigen
-                .velocidadCargaTnHora;
+            consolidaEnDeposito()
+            ? toneladas
+                / envio.depositoOrigen
+                    .velocidadConsolidacionTnHora
+            : toneladas
+                / envio.depositoOrigen
+                    .velocidadCargaTnHora;
 
         envio.tiempoViajeIdaHoras =
             distancia / velocidadCamion;
@@ -562,9 +582,11 @@ class Main extends Agent {
                 .velocidadDescargaTnHora;
 
         envio.tiempoConsolidacionHoras =
-            toneladas
-            / envio.terminalDestino
-                .velocidadConsolidacionTnHora;
+            consolidaEnDeposito()
+            ? 0
+            : toneladas
+                / envio.terminalDestino
+                    .velocidadConsolidacionTnHora;
 
         envio.tiempoRetornoHoras =
             distancia / velocidadCamion;
@@ -574,11 +596,17 @@ class Main extends Agent {
             + distancia * 2 * 1.20;
 
         envio.costoConsolidacionReal =
-            toneladas
-            * envio.terminalDestino
-                .getCostoConsolidado(
-                    envio.producto
-                );
+            consolidaEnDeposito()
+            ? toneladas
+                * envio.depositoOrigen
+                    .getCostoConsolidado(
+                        envio.producto
+                    )
+            : toneladas
+                * envio.terminalDestino
+                    .getCostoConsolidado(
+                        envio.producto
+                    );
 
         envio.costoTotalReal =
             envio.costoFleteReal
@@ -589,51 +617,6 @@ class Main extends Agent {
         entradaEnvios.take(envio);
 
         return envio;
-    }
-
-    boolean generarEnviosParaPedido(Pedido pedido) {
-        if (
-            pedido == null
-            || pedido.estado != EstadoPedido.RESERVADO
-            || pedido.toneladasReservadas <= 0
-            || pedido.enviosGenerados
-        ) {
-            return false;
-        }
-
-        // Fase 6: la carga se divide en contenedores y cada envio mueve uno. La capacidad ya
-        // no es un camion generico de 25 tn: es la del tipo de contenedor del producto.
-        int cantidad = crearContenedoresParaPedido(pedido);
-
-        if (cantidad <= 0) {
-            return false;
-        }
-
-        for (
-            ContenedorExportacion contenedor
-            : pedido.contenedores
-        ) {
-
-            Envio envio =
-                crearEnvio(
-                    pedido,
-                    contenedor.cantidadAsignadaTon
-                );
-
-            if (envio == null) {
-                return false;
-            }
-
-            envio.contenedor = contenedor;
-
-            contenedor.estado =
-                EstadoContenedor.ESPERANDO_CARGA;
-        }
-
-        pedido.estado =
-            EstadoPedido.EN_PREPARACION;
-
-        return true;
     }
 
     boolean retirarReservaParaEnvio(Envio envio) {
@@ -818,6 +801,7 @@ class Main extends Agent {
 
             deposito.habilitado = ubicacion.habilitada;
             deposito.velocidadCargaTnHora = ubicacion.velocidadCargaTnHora;
+            deposito.velocidadConsolidacionTnHora = ubicacion.velocidadConsolidacionTnHora;
 
             deposito.capacidadJugo =
                 datos.capacidadTn(deposito.idUbicacion, TipoProducto.JUGO);
@@ -920,9 +904,13 @@ class Main extends Agent {
 
             if (
                 pedido.estado == EstadoPedido.RESERVADO
-                && !pedido.enviosGenerados
+                && pedido.contenedores.isEmpty()
             ) {
-                generarEnviosParaPedido(pedido);
+
+                if (crearContenedoresParaPedido(pedido) > 0) {
+                    pedido.estado =
+                        EstadoPedido.EN_PREPARACION;
+                }
             }
         }
     }
@@ -1215,15 +1203,23 @@ class Main extends Agent {
             contenedor.capacidadTon = pedido.capacidadContenedorTon;
             contenedor.cantidadAsignadaTon = carga;
             contenedor.terminalDestino = pedido.puertoSalida;
-            contenedor.lugarConsolidacion = deposito;
+
+            contenedor.lugarConsolidacion =
+                consolidaEnDeposito()
+                ? (Agent) deposito
+                : (Agent) pedido.puertoSalida;
             contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
 
             contenedor.costoEstimado =
                 150
                 + distancia * 2 * 1.20
                 + carga
-                * pedido.puertoSalida.getCostoConsolidado(
-                    pedido.producto
+                * (
+                    consolidaEnDeposito()
+                    ? deposito.getCostoConsolidado(pedido.producto)
+                    : pedido.puertoSalida.getCostoConsolidado(
+                        pedido.producto
+                    )
                 );
 
             double resto = carga;
@@ -1281,19 +1277,188 @@ class Main extends Agent {
         return cantidad;
     }
 
+    boolean consolidaEnDeposito() {
+        return estrategiaConsolidacion
+            == EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
+    }
+
+    String sitioConsolidacion(ContenedorExportacion contenedor) {
+        // Donde se estiba el contenedor: el deposito que lo tiene reservado o la
+        // terminal de salida.
+        if (contenedor == null) {
+            return "";
+        }
+
+        if (
+            consolidaEnDeposito()
+            && contenedor.Pedido != null
+            && contenedor.Pedido.depositoAsignado != null
+        ) {
+            return contenedor.Pedido
+                .depositoAsignado.idUbicacion;
+        }
+
+        return contenedor.terminalDestino.idUbicacion;
+    }
+
+    void abrirPosicionesConsolidacionDelDia() {
+        // Las posiciones son un recurso de conteo diario (definicion, seccion 3): cada
+        // dia se abre la capacidad del sitio y lo que no entra espera al dia siguiente.
+        consolidacionesDelDia.clear();
+
+        if (consolidaEnDeposito()) {
+
+            for (Deposito deposito : depositos) {
+                capacidadConsolidacionOfrecida +=
+                    datos.capacidadConsolidacionDia(
+                        deposito.idUbicacion
+                    );
+            }
+
+        } else {
+
+            for (Terminal terminal : terminales) {
+                capacidadConsolidacionOfrecida +=
+                    datos.capacidadConsolidacionDia(
+                        terminal.idUbicacion
+                    );
+            }
+        }
+    }
+
+    boolean tomarPosicionConsolidacion(String idUbicacion) {
+        int usadas =
+            consolidacionesDelDia.containsKey(idUbicacion)
+            ? consolidacionesDelDia.get(idUbicacion)
+            : 0;
+
+        if (
+            usadas + 1
+            > datos.capacidadConsolidacionDia(idUbicacion)
+        ) {
+            return false;
+        }
+
+        consolidacionesDelDia.put(
+            idUbicacion,
+            usadas + 1
+        );
+
+        consolidacionesRealizadas++;
+
+        return true;
+    }
+
+    void despacharContenedoresPendientes() {
+        // Fase 7: sale lo que la capacidad de consolidacion del dia permite. Prioridad
+        // por fecha limite del pedido; lo que no entra espera y suma espera por recurso,
+        // que es justamente el sintoma que el modelo tiene que medir.
+        java.util.List<ContenedorExportacion> pendientes =
+            new java.util.ArrayList<ContenedorExportacion>();
+
+        for (
+            ContenedorExportacion contenedor
+            : contenedoresExportacion
+        ) {
+
+            if (
+                contenedor.estado
+                == EstadoContenedor.ESPERANDO_PROGRAMACION
+            ) {
+                pendientes.add(contenedor);
+            }
+        }
+
+        java.util.Collections.sort(
+            pendientes,
+            new java.util.Comparator<ContenedorExportacion>() {
+                public int compare(
+                    ContenedorExportacion a,
+                    ContenedorExportacion b
+                ) {
+                    return Double.compare(
+                        a.Pedido.diaLimite,
+                        b.Pedido.diaLimite
+                    );
+                }
+            }
+        );
+
+        contenedoresEnEspera = 0;
+
+        for (
+            ContenedorExportacion contenedor
+            : pendientes
+        ) {
+
+            if (
+                !tomarPosicionConsolidacion(
+                    sitioConsolidacion(contenedor)
+                )
+            ) {
+                contenedor.diasEsperaPosicion++;
+                esperaConsolidacionContenedorDia++;
+                contenedoresEnEspera++;
+                continue;
+            }
+
+            Pedido pedido = contenedor.Pedido;
+
+            Envio envio =
+                crearEnvio(
+                    pedido,
+                    contenedor.cantidadAsignadaTon
+                );
+
+            if (envio == null) {
+                error(
+                    "No se pudo crear el envio del contenedor "
+                    + contenedor.idContenedor
+                );
+            }
+
+            envio.contenedor = contenedor;
+
+            contenedor.estado =
+                EstadoContenedor.ESPERANDO_CARGA;
+
+            pedido.enviosGenerados =
+                pedidoTotalmenteDespachado(pedido);
+        }
+    }
+
+    boolean pedidoTotalmenteDespachado(Pedido pedido) {
+        for (
+            ContenedorExportacion contenedor
+            : pedido.contenedores
+        ) {
+
+            if (
+                contenedor.estado
+                == EstadoContenedor.ESPERANDO_PROGRAMACION
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     // ----- Eventos -----
 
     // evento pasoDiario [timeout cyclic] cada 1 day
     void pasoDiario_accion() {
         // Secuencia diaria del modelo (ADR-034). El orden es parte de la
         // definicion: cambiarlo cambia el costo y el servicio del dia.
-        producirEnPlantas();              // 1. producir
-        revisarTransferenciasPlanta();    // 2. recibir e ingresar
-        registrarPedidosDelDia();         // 3. planificar y comprometer
-        revisarPedidosPendientes();       // 4. reservar
-        prepararPedidosReservados();      // 5. ejecutar movimientos
-        devengarAlmacenamientoDiario();   // 6. devengar almacenaje
-        registrarAtrasos();               // 7. registrar indicadores del dia
+        producirEnPlantas();                     // 1. producir
+        revisarTransferenciasPlanta();           // 2. recibir e ingresar
+        registrarPedidosDelDia();                // 3. planificar y comprometer
+        revisarPedidosPendientes();              // 4. reservar
+        abrirPosicionesConsolidacionDelDia();    // 5. abrir la capacidad de estiba del dia
+        prepararPedidosReservados();             // 6. armar los contenedores del pedido
+        despacharContenedoresPendientes();       // 7. consolidar y despachar lo que entra
+        devengarAlmacenamientoDiario();          // 8. devengar almacenaje
+        registrarAtrasos();                      // 9. registrar indicadores del dia
         validarInventario();              // invariantes de las capas (ADR-023)
     }
 }

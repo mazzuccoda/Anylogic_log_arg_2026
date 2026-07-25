@@ -265,7 +265,7 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 
 **Alternativas:** prioridades por evento (funciona, pero deja la secuencia implícita y dispersa).  
 **Consecuencias:** el resultado deja de depender del orden interno de creación de los eventos; el devengo de almacenaje queda definido sobre el saldo de cierre del día; cualquier operación nueva debe declarar en qué fase entra.  
-**Implementación:** `Main.pasoDiario` es el único evento del modelo. Cada fase es una función de `Main`: `producirEnPlantas`, `revisarTransferenciasPlanta`, `registrarPedidosDelDia`, `revisarPedidosPendientes`, `prepararPedidosReservados`, `devengarAlmacenamientoDiario` y `registrarAtrasos`. La fase 7 hoy sólo registra atrasos; los demás KPIs se agregan ahí.
+**Implementación:** `Main.pasoDiario` es el único evento del modelo. Cada fase es una función de `Main`: `producirEnPlantas`, `revisarTransferenciasPlanta`, `registrarPedidosDelDia`, `revisarPedidosPendientes`, `abrirPosicionesConsolidacionDelDia`, `prepararPedidosReservados`, `despacharContenedoresPendientes`, `devengarAlmacenamientoDiario` y `registrarAtrasos`. Desde la fase 7 la fase 5 del esquema se desdobla: primero se abre la capacidad de estiba del día, después se arman los contenedores del pedido y por último se despacha lo que entra en esa capacidad (ADR-039). La última fase hoy sólo registra atrasos; los demás KPIs se agregan ahí.
 
 ## ADR-035 — El modelo se versiona junto a su espejo legible
 
@@ -297,6 +297,22 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 **Decisión:** `ImportadorExcel` usa `com.anylogic.engine.connectivity.ExcelFile`, que ya viene con el motor (Apache POI por debajo), lee la primera fila como encabezados y busca cada columna por nombre. Las hojas y columnas faltantes se informan todas juntas antes de validar; las filas vacías se saltan; los números tipeados como texto se aceptan y los que no son números indican hoja, fila y columna. Las hojas con `id_escenario` se filtran por el parámetro `idEscenario`, de modo que un libro puede contener varios escenarios.  
 **Alternativas:** Apache POI directo (misma dependencia, sin la garantía de que el motor la exponga en el futuro); la base de datos interna de AnyLogic (obliga a mantener el esquema en dos lugares y a importar a mano en cada cambio del libro); leer por posición de columna (rompe con cualquier edición del archivo).  
 **Consecuencias:** el libro de entrada tolera edición humana y los errores de carga se corrigen de una sola vez. `datos/entrada_ejemplo.xlsx` no se escribe a mano: `tools/generar_excel_ejemplo.py` lo genera corriendo el propio `GeneradorSintetico`, así que la plantilla y la fase sintética no pueden divergir, y ambos orígenes producen el mismo resultado sobre el mismo escenario.
+
+## ADR-039 — La posición de consolidación es un recurso contado por día, no un bloque de la biblioteca
+
+**Estado:** aceptada.  
+**Contexto:** la fase 7 necesita que consolidar tenga capacidad finita para poder dimensionar posiciones, pero el modelo avanza en pasos de un día (ADR-034) y el `Envio` recién entra al flujo cuando el contenedor está despachado. Un `ResourcePool` con `Seize`/`Release` mediría ocupación en tiempo continuo dentro de un día que el modelo no representa, y obligaría a meter en el diagrama la espera previa a la creación del envío.  
+**Decisión:** cada sitio publica `posiciones_consolidacion × contenedores_por_posicion_dia` contenedores por día y `Main.despacharContenedoresPendientes()` consume ese cupo una vez por día, en orden de fecha límite del pedido. El contenedor que no consigue posición queda en `ESPERANDO_PROGRAMACION`, suma un día en `diasEsperaPosicion` y compite de nuevo al día siguiente.  
+**Alternativas:** `ResourcePool` por sitio (precisión intradiaria que el resto del modelo no tiene, y un tipo de recurso por sitio); capacidad del bloque `Delay` (limita simultaneidad, no contenedores por día, y no distingue sitios).  
+**Consecuencias:** la utilización se mide como contenedores consolidados sobre capacidad ofrecida, y la escasez aparece como espera y como almacenaje adicional, que es lo que el dimensionamiento tiene que ver. Un sitio con capacidad cero detiene el despacho para siempre, así que `DatosEntrada.validar()` lo rechaza como error de datos.
+
+## ADR-040 — El lugar de consolidación es una estrategia del escenario, no un dato del pedido
+
+**Estado:** aceptada.  
+**Contexto:** el contenedor se puede estibar en el depósito (y llegar consolidado a la terminal) o llevarse el producto a granel y consolidar en la terminal. Las dos opciones cambian costos, tiempos y qué sitio necesita posiciones, y el proyecto existe para compararlas.  
+**Decisión:** el parámetro `Main.estrategiaConsolidacion` fija la estrategia de la corrida. Con `CONSOLIDACION_DEPOSITO` la carga en el depósito **es** la consolidación (tiempo por `velocidad_consolidacion_tn_hora` del depósito, tarifa de `TarifaServicioCarga` del depósito) y el bloque `consolidarCarga` queda de paso; con `CONSOLIDACION_TERMINAL` rige el comportamiento anterior. La tarifa y la velocidad salen siempre de las tablas del sitio, nunca de una constante por tipo de agente.  
+**Alternativas:** decidir por pedido según costo (mezcla la política con la comparación de escenarios y hace irreproducible el dimensionamiento); dos diagramas de proceso paralelos (duplica el flujo y consume bloques sin agregar información).  
+**Consecuencias:** la estrategia es una entrada del barrido, como la cantidad de camiones o la capacidad de depósito. También cambia la elección de depósito, porque el costo estimado del pedido incluye la tarifa de estiba del depósito candidato.
 
 ## Plantilla para nuevas decisiones
 

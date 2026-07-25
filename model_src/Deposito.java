@@ -16,11 +16,15 @@ class Deposito extends Agent {
     double costoCascaraTnDia = 0;
     double costoAceiteTnDia;
     double velocidadCargaTnHora = 50;
+    double velocidadConsolidacionTnHora = 30;
 
     // ----- Variables -----
     double costoAlmacenamientoAcumulado = 0;
     double toneladasRecibidasAcumuladas = 0;
     double cantidadRecepciones = 0;
+    double toneladasConsolidadas = 0;
+    int contenedoresConsolidados = 0;
+    double costoConsolidacionAcumulado = 0;
 
     // ----- Funciones -----
 
@@ -134,6 +138,16 @@ class Deposito extends Agent {
         return modelo.datos.distanciaKm(
             idUbicacion,
             terminal.idUbicacion
+        );
+    }
+
+    double getCostoConsolidado(TipoProducto producto) {
+        // La tarifa de estiba vive en la tabla, no en el agente (ADR-036).
+        Main modelo = (Main) getRootAgent();
+
+        return modelo.datos.servicioCargaUsdTn(
+            idUbicacion,
+            producto
         );
     }
 }

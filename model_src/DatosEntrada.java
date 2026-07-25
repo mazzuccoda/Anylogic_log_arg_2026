@@ -35,10 +35,13 @@ public class DatosEntrada implements java.io.Serializable {
 		public double velocidadDescargaTnHora;
 		public double velocidadConsolidacionTnHora;
 		public double capacidadDiariaTn;
+		public double posicionesConsolidacion;       // posiciones de estiba del sitio
+		public double contenedoresPorPosicionDia;    // contenedores por posicion y dia
 
 		public Ubicacion(String idUbicacion, String tipo, boolean habilitada,
 				double velocidadCargaTnHora, double velocidadDescargaTnHora,
-				double velocidadConsolidacionTnHora, double capacidadDiariaTn) {
+				double velocidadConsolidacionTnHora, double capacidadDiariaTn,
+				double posicionesConsolidacion, double contenedoresPorPosicionDia) {
 			this.idUbicacion = idUbicacion;
 			this.tipo = tipo;
 			this.habilitada = habilitada;
@@ -46,6 +49,8 @@ public class DatosEntrada implements java.io.Serializable {
 			this.velocidadDescargaTnHora = velocidadDescargaTnHora;
 			this.velocidadConsolidacionTnHora = velocidadConsolidacionTnHora;
 			this.capacidadDiariaTn = capacidadDiariaTn;
+			this.posicionesConsolidacion = posicionesConsolidacion;
+			this.contenedoresPorPosicionDia = contenedoresPorPosicionDia;
 		}
 	}
 
@@ -231,6 +236,15 @@ public class DatosEntrada implements java.io.Serializable {
 		throw new RuntimeException("Falta la distancia " + origen + " -> " + destino + " en la tabla Distancia.");
 	}
 
+	/**
+	 * Capacidad de consolidacion del sitio en contenedores por dia. El recurso se
+	 * cuenta por dia, no por hora (definicion, seccion 3).
+	 */
+	public double capacidadConsolidacionDia(String idUbicacion) {
+		Ubicacion u = ubicacion(idUbicacion);
+		return u.posicionesConsolidacion * u.contenedoresPorPosicionDia;
+	}
+
 	public double storageUsdTnDia(String idUbicacion, TipoProducto producto) {
 		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
 			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
@@ -357,6 +371,12 @@ public class DatosEntrada implements java.io.Serializable {
 		for (Ubicacion deposito : ubicacionesDeTipo("DEPOSITO")) {
 			for (TipoProducto producto : TipoProducto.values()) {
 				errores.addAll(faltante(deposito.idUbicacion, producto));
+				// Consolidar en el deposito necesita su propia tarifa de estiba.
+				try {
+					servicioCargaUsdTn(deposito.idUbicacion, producto);
+				} catch (RuntimeException e) {
+					errores.add(e.getMessage());
+				}
 				for (Ubicacion terminal : ubicacionesDeTipo("TERMINAL")) {
 					try {
 						fleteUsdTn(deposito.idUbicacion, terminal.idUbicacion, producto);
@@ -366,6 +386,25 @@ public class DatosEntrada implements java.io.Serializable {
 						errores.add(e.getMessage());
 					}
 				}
+			}
+		}
+
+		// Un sitio de consolidacion sin capacidad no retrasa el despacho: lo detiene
+		// para siempre. Es un error de datos, no un escenario.
+		for (Ubicacion u : ubicaciones) {
+			if (u.tipo.equals("PLANTA")) {
+				continue;
+			}
+			if (u.posicionesConsolidacion < 0 || u.contenedoresPorPosicionDia < 0) {
+				errores.add("posiciones_consolidacion y contenedores_por_posicion_dia no pueden ser"
+						+ " negativos en " + u.idUbicacion + ".");
+			}
+			if (capacidadConsolidacionDia(u.idUbicacion) <= 0) {
+				errores.add("La capacidad de consolidacion de " + u.idUbicacion
+						+ " es cero: ningun contenedor podria salir de ahi.");
+			}
+			if (u.velocidadConsolidacionTnHora <= 0) {
+				errores.add("velocidad_consolidacion_tn_hora debe ser > 0 en " + u.idUbicacion + ".");
 			}
 		}
 

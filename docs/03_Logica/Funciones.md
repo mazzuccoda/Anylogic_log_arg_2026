@@ -166,6 +166,26 @@ Retorna la capacidad de la tabla `Producto`; una capacidad faltante aborta el ar
 
 Cuenta contenedores por estado, para los indicadores de pantalla.
 
+### `consolidaEnDeposito()` y `sitioConsolidacion(ContenedorExportacion contenedor)`
+
+**Estado:** implementadas (fase 7).
+
+La estrategia de la corrida la fija el parámetro `Main.estrategiaConsolidacion` (ADR-040): con `CONSOLIDACION_DEPOSITO` el contenedor se estiba en el depósito que tiene la reserva y llega consolidado a la terminal; con `CONSOLIDACION_TERMINAL` el producto viaja a granel y se consolida en la terminal. `sitioConsolidacion()` devuelve la ubicación que corresponde, y es la que paga la tarifa y consume la posición.
+
+### `abrirPosicionesConsolidacionDelDia()` y `tomarPosicionConsolidacion(String idUbicacion)`
+
+**Estado:** implementadas (fase 7).
+
+La posición de consolidación es un recurso contado por día (ADR-039): cada sitio ofrece `posiciones_consolidacion × contenedores_por_posicion_dia` contenedores por día. La primera función abre el cupo del día y acumula la capacidad ofrecida; la segunda lo consume y devuelve `false` cuando el sitio ya no tiene lugar.
+
+### `despacharContenedoresPendientes()`
+
+**Estado:** implementada (fase 7).
+
+Fase 7 de la secuencia diaria. Recorre los contenedores en `ESPERANDO_PROGRAMACION`, ordenados por fecha límite del pedido, y por cada uno que consigue posición crea el `Envio` que lo mueve y lo pasa a `ESPERANDO_CARGA`. El que no consigue posición suma un día en `diasEsperaPosicion` y vuelve a competir al día siguiente; mientras espera, su producto sigue reservado y sigue devengando almacenaje, que es el costo que hace visible la falta de posiciones.
+
+Reemplaza a `generarEnviosParaPedido()`, que creaba de una vez todos los envíos del pedido: con capacidad finita, un pedido puede despachar sus contenedores a lo largo de varios días.
+
 ### Funciones objetivo de planificación
 
 - `localizarExistenciasPedido(Pedido pedido)`;
@@ -183,7 +203,8 @@ Cuenta contenedores por estado, para los indicadores de pantalla.
 ### Implementadas o conocidas
 
 - `getStock(producto)`, `getReservado(producto)`, `getDisponible(producto)`: derivadas de las capas del depósito (ADR-023);
-- `getCapacidad(producto)`, `getEspacioDisponible(producto)`, `puedeRecibir(producto, toneladas)`, `puedeReservar(producto, toneladas)`.
+- `getCapacidad(producto)`, `getEspacioDisponible(producto)`, `puedeRecibir(producto, toneladas)`, `puedeReservar(producto, toneladas)`;
+- `getCostoConsolidado(producto)`: tarifa de estiba del depósito, leída de `TarifaServicioCarga`. Desde la fase 7 es la que se cobra cuando se consolida en depósito. Las posiciones no viven en el depósito: las resuelven `Main.tomarPosicionConsolidacion()` y `DatosEntrada.capacidadConsolidacionDia()` (ADR-039).
 
 Las mutadoras `recibirProducto`, `retirarProducto`, `reservarProducto`, `liberarReserva` y `despacharReservado` se eliminaron: el depósito no tiene saldo propio, y el movimiento lo hace `Main.inventario`.
 
@@ -192,9 +213,7 @@ Las mutadoras `recibirProducto`, `retirarProducto`, `reservarProducto`, `liberar
 - `calcularCostoIn(...)`;
 - `calcularCostoStorage(...)`;
 - `calcularCostoOut(...)`;
-- `puedeConsolidar(...)`;
 - `puedeOperarCrossDock(...)`;
-- `solicitarPosicionConsolidacion(...)`;
 - `solicitarPosicionCrossDock(...)`.
 
 ## 6. Funciones de Pedido
