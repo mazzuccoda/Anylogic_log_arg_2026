@@ -17,6 +17,9 @@ resultados/
 datos/entrada_*.xlsx
 !datos/entrada_ejemplo.xlsx
 
+# Herramientas
+__pycache__/
+
 # Sistema operativo y editores
 .DS_Store
 Thumbs.db
