@@ -1551,27 +1551,35 @@ return costoFijoViajePD
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
 					<Body><![CDATA[Deposito mejorDeposito = null;
-double menorCosto = Double.POSITIVE_INFINITY;
+double menorCostoPorTonelada = Double.POSITIVE_INFINITY;
 
 for (Deposito deposito : depositos) {
 
-    if (!deposito.puedeRecibir(producto, toneladas)) {
+    if (!deposito.habilitado) {
         continue;
     }
 
-    double costoFlete =
-        calcularCostoPlantaDeposito(deposito, toneladas);
+    // Ya no hace falta que entre todo: alcanza con que entre una parte, y se compara
+    // por costo unitario para que el criterio no dependa de cuanto entra en cada uno.
+    double posible = min(
+        toneladas,
+        deposito.getEspacioDisponible(producto)
+    );
 
-    double costoAlmacenamientoEstimado =
-        toneladas
+    if (posible <= 0.0001) {
+        continue;
+    }
+
+    double costoEstimado =
+        calcularCostoPlantaDeposito(deposito, posible)
+        + posible
         * deposito.getTarifaAlmacenamiento(producto)
         * diasEstimadosAlmacenamiento;
 
-    double costoEstimado =
-        costoFlete + costoAlmacenamientoEstimado;
+    double costoPorTonelada = costoEstimado / posible;
 
-    if (costoEstimado < menorCosto) {
-        menorCosto = costoEstimado;
+    if (costoPorTonelada < menorCostoPorTonelada) {
+        menorCostoPorTonelada = costoPorTonelada;
         mejorDeposito = deposito;
     }
 }
@@ -1597,11 +1605,11 @@ double menorDia = Double.POSITIVE_INFINITY;
 
 for (LoteProducto lote : lotes) {
 
+    // El criterio es el saldo real en planta: un lote transferido a medias sigue
+    // teniendo capas ahi y tiene que poder terminar de salir.
     if (
         lote.producto == producto
-        && lote.estado == EstadoLote.EN_PLANTA
-        && lote.ubicacionActual == planta
-        && lote.getToneladasLibres() > 0
+        && inventario.libreDeLoteEn(lote.idLote, "PLANTA") > 0.0001
     ) {
         if (lote.diaProduccion < menorDia) {
             menorDia = lote.diaProduccion;
@@ -1611,78 +1619,6 @@ for (LoteProducto lote : lotes) {
 }
 
 return seleccionado;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1784385407299</Id>
-					<Name><![CDATA[transferirLoteCompleto]]></Name>
-					<X>360</X><Y>-590</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[lote]]></Name>
-						<Type><![CDATA[LoteProducto]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[destino]]></Name>
-						<Type><![CDATA[Deposito]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (lote == null || destino == null) {
-    return false;
-}
-
-if (
-    lote.estado != EstadoLote.EN_PLANTA
-    || lote.ubicacionActual != planta
-) {
-    return false;
-}
-
-double toneladas = lote.getToneladasLibres();
-
-if (toneladas <= 0) {
-    return false;
-}
-
-if (!destino.puedeRecibir(lote.producto, toneladas)) {
-    return false;
-}
-
-// Mover es mover capas: el stock de la planta y el del deposito salen de las
-// mismas capas, asi que no hay dos saldos que puedan quedar desalineados.
-double movidas = inventario.moverLote(
-    lote.idLote,
-    "PLANTA",
-    destino.idUbicacion,
-    toneladas,
-    time()
-);
-
-if (movidas <= 0) {
-    return false;
-}
-
-lote.estado = EstadoLote.EN_DEPOSITO;
-lote.ubicacionActual = destino;
-lote.depositoActual = destino;
-lote.diaIngresoDeposito = time();
-
-double costoViaje =
-    calcularCostoPlantaDeposito(destino, movidas);
-
-lote.costoAcumulado += costoViaje;
-costoFletePlantaDeposito += costoViaje;
-
-destino.toneladasRecibidasAcumuladas += movidas;
-destino.cantidadRecepciones++;
-
-toneladasTransferidasDepositos += movidas;
-cantidadTransferenciasDepositos++;
-
-return true;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1713,28 +1649,28 @@ while (pendiente > 0.0001) {
         break;
     }
 
-    // En esta primera version se transfieren lotes completos
-    double toneladasLote = lote.getToneladasLibres();
-
-    if (toneladasLote > pendiente) {
-        break;
-    }
+    double aMover = min(
+        inventario.libreDeLoteEn(lote.idLote, "PLANTA"),
+        pendiente
+    );
 
     Deposito destino =
-        seleccionarDeposito(producto, toneladasLote);
+        seleccionarDeposito(producto, aMover);
 
     if (destino == null) {
         break;
     }
 
-    boolean transferido =
-        transferirLoteCompleto(lote, destino);
+    // Si en el deposito elegido no entra todo, se manda lo que entra y el resto sale
+    // en la vuelta siguiente, posiblemente a otro deposito.
+    double movidas =
+        transferirToneladasLote(lote, destino, aMover);
 
-    if (!transferido) {
+    if (movidas <= 0.0001) {
         break;
     }
 
-    pendiente -= toneladasLote;
+    pendiente -= movidas;
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -2969,6 +2905,130 @@ error(
     + "):"
     + detalle
 );]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>9401</Id>
+					<Name><![CDATA[transferirToneladasLote]]></Name>
+					<X>130</X><Y>1100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[lote]]></Name>
+						<Type><![CDATA[LoteProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[destino]]></Name>
+						<Type><![CDATA[Deposito]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Fase 4: el lote deja de viajar entero. Se mueve lo que se pide, acotado por lo que
+// el lote tiene libre en planta y por el lugar que queda en el deposito.
+// El movimiento no necesita reversion: al acotar antes, mover() retira e ingresa
+// exactamente lo mismo dentro de la misma estructura (ADR-021).
+if (lote == null || destino == null || toneladas <= 0.0001) {
+    return 0;
+}
+
+if (!destino.habilitado) {
+    return 0;
+}
+
+double aMover = min(
+    min(toneladas, inventario.libreDeLoteEn(lote.idLote, "PLANTA")),
+    destino.getEspacioDisponible(lote.producto)
+);
+
+if (aMover <= 0.0001) {
+    return 0;
+}
+
+double movidas = inventario.moverLote(
+    lote.idLote,
+    "PLANTA",
+    destino.idUbicacion,
+    aMover,
+    time()
+);
+
+if (movidas <= 0.0001) {
+    return 0;
+}
+
+lote.depositoActual = destino;
+lote.diaIngresoDeposito = time();
+
+actualizarUbicacionLote(lote);
+
+double costoViaje =
+    calcularCostoPlantaDeposito(destino, movidas);
+
+lote.costoAcumulado += costoViaje;
+costoFletePlantaDeposito += costoViaje;
+
+destino.toneladasRecibidasAcumuladas += movidas;
+destino.cantidadRecepciones++;
+
+toneladasTransferidasDepositos += movidas;
+cantidadTransferenciasDepositos++;
+
+return movidas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>9402</Id>
+					<Name><![CDATA[actualizarUbicacionLote]]></Name>
+					<X>130</X><Y>1160</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[lote]]></Name>
+						<Type><![CDATA[LoteProducto]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Un lote transferido a medias esta en dos lugares a la vez, asi que ubicacionActual
+// pasa a ser donde tiene mas saldo. El saldo real siempre se consulta al inventario.
+if (lote == null) {
+    return;
+}
+
+String idUbicacion =
+    inventario.ubicacionPrincipalDeLote(lote.idLote);
+
+if (idUbicacion == null) {
+    return;
+}
+
+if (idUbicacion.equals("PLANTA")) {
+    lote.ubicacionActual = planta;
+
+    if (lote.estado == EstadoLote.EN_DEPOSITO) {
+        lote.estado = EstadoLote.EN_PLANTA;
+    }
+
+    return;
+}
+
+Deposito deposito = buscarDeposito(idUbicacion);
+
+if (deposito == null) {
+    return;
+}
+
+lote.ubicacionActual = deposito;
+
+if (lote.estado == EstadoLote.EN_PLANTA) {
+    lote.estado = EstadoLote.EN_DEPOSITO;
+}]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -14217,6 +14277,54 @@ public class Inventario implements java.io.Serializable {
 		}
 		java.util.Collections.sort(sel, FIFO);
 		return sel;
+	}
+
+	public double stockLoteEn(int idLote, String idUbicacion) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.idLote == idLote && c.idUbicacion.equals(idUbicacion)) {
+				total += c.toneladas;
+			}
+		}
+		return total;
+	}
+
+	public double libreDeLoteEn(int idLote, String idUbicacion) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.idLote == idLote && c.idUbicacion.equals(idUbicacion)) {
+				total += c.libres();
+			}
+		}
+		return total;
+	}
+
+	/** Ubicaciones donde el lote tiene saldo. Con transferencia parcial pueden ser varias. */
+	public java.util.List<String> ubicacionesDeLote(int idLote) {
+		java.util.List<String> sel = new java.util.ArrayList<String>();
+		for (Capa c : capas) {
+			if (c.idLote == idLote && c.toneladas > EPS && !sel.contains(c.idUbicacion)) {
+				sel.add(c.idUbicacion);
+			}
+		}
+		return sel;
+	}
+
+	/**
+	 * Ubicacion donde el lote tiene mas saldo, o null si ya no tiene. Es lo unico que
+	 * puede significar "donde esta el lote" cuando el lote esta en varias partes.
+	 */
+	public String ubicacionPrincipalDeLote(int idLote) {
+		String mejor = null;
+		double mayor = 0;
+		for (String u : ubicacionesDeLote(idLote)) {
+			double tn = stockLoteEn(idLote, u);
+			if (tn > mayor + EPS) {
+				mayor = tn;
+				mejor = u;
+			}
+		}
+		return mejor;
 	}
 
 	// ---------------------------------------------------- movimientos (FIFO)

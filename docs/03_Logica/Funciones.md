@@ -86,60 +86,41 @@ Todas devuelven las toneladas efectivamente movidas, reservadas o despachadas, d
 
 **Objetivo:** encontrar el lote comercial abierto correspondiente y registrar producción incremental.
 
-### `transferirLoteCompleto(LoteProducto lote, Deposito destino)`
+### `transferirToneladasLote(LoteProducto lote, Deposito destino, double toneladas)`
 
-**Estado:** restaurada y funcional.
+**Estado:** implementada (fase 4). Reemplaza a `transferirLoteCompleto()`, que se eliminó.
 
-**Comportamiento:** mueve todo el saldo libre del lote con `Inventario.moverLote(...)`, que retira las capas de la planta e ingresa las mismas toneladas en el depósito, cambia la ubicación comercial del lote y carga el flete sobre lo efectivamente movido.
+**Retorno:** `double`, las toneladas efectivamente movidas. Puede ser menos que las pedidas, y quien llama debe usar ese valor —no el pedido— para descontar su pendiente.
 
-**Problemas:**
+**Comportamiento:** acota el movimiento a lo que el lote tiene libre en `PLANTA` y a lo que entra en el depósito, mueve las capas con `Inventario.moverLote(...)`, imputa el flete sobre lo movido y actualiza la ubicación del lote.
 
-- no permite transferencia parcial (el motor de capas sí la soporta; falta usarla desde la lógica);
-- cambia la ubicación comercial del lote como si fuera única;
-- mezcla movimiento físico y estado comercial.
+**Contrato transaccional:** no hay reversión porque no hay estado intermedio. El movimiento se acota *antes* de tocar el inventario, y `moverLote` retira e ingresa exactamente la misma cantidad dentro de la misma lista de capas. El esquema anterior —retirar de un saldo, agregar a otro y reponer si el segundo falla— sólo era necesario cuando había dos saldos independientes.
 
-**Reemplazo:** `transferirToneladasLote(...)`.
+**Precondiciones:** lote y destino no nulos; toneladas positivas; depósito habilitado. Un depósito lleno o un lote sin saldo libre no son errores: devuelven 0.
 
-### Firma objetivo
+### `actualizarUbicacionLote(LoteProducto lote)`
 
-```java
-boolean transferirToneladasLote(
-    LoteProducto lote,
-    Agent origen,
-    Agent destino,
-    double toneladas,
-    TipoMovimiento movimiento
-)
-```
+**Estado:** implementada (fase 4).
 
-### Precondiciones objetivo
-
-- lote no nulo;
-- origen y destino válidos;
-- toneladas positivas;
-- saldo libre suficiente;
-- destino compatible;
-- capacidad suficiente;
-- tarifa definida.
-
-### Transacción objetivo
-
-1. validar;
-2. reservar temporalmente capacidad destino;
-3. retirar saldo origen;
-4. actualizar stock local;
-5. agregar saldo destino;
-6. aplicar costos;
-7. registrar movimiento;
-8. revertir completamente ante error.
+**Regla:** `ubicacionActual` pasa a ser la ubicación donde el lote tiene más saldo (`Inventario.ubicacionPrincipalDeLote`), porque con transferencia parcial el lote está en varios lugares a la vez. `estado` acompaña: `EN_PLANTA` mientras el grueso siga en planta, `EN_DEPOSITO` cuando ya no. Ninguno de los dos es un saldo: el saldo se le pregunta siempre al inventario.
 
 ### `transferirProductoADepositos(TipoProducto producto, double toneladasObjetivo)`
 
-**Estado:** implementada.
+**Estado:** implementada; transfiere por toneladas (fase 4).
 
-**Problema:** solo mueve lotes completos menores que el pendiente; si el lote excede el objetivo, detiene el ciclo.
+**Regla:** toma el lote más antiguo **con saldo libre en planta** —no el más antiguo "en estado EN_PLANTA", para que un lote transferido a medias pueda terminar de salir— y le manda `min(saldo libre, pendiente)`. Si en el depósito elegido no entra todo, se manda lo que entra y el resto sale en la vuelta siguiente, posiblemente a otro depósito.
 
-**Objetivo:** permitir transferencias parciales y distribuir según reglas de capacidad.
+**Problema resuelto:** antes, un lote más grande que el pendiente cortaba el ciclo (`if (toneladasLote > pendiente) break;`), así que la planta se sobrellenaba y generaba excedente con depósitos vacíos.
+
+### `seleccionarDeposito(TipoProducto producto, double toneladas)`
+
+**Estado:** implementada; criterio por costo unitario (fase 4).
+
+**Regla:** entre los depósitos habilitados con espacio, elige el de menor costo estimado **por tonelada** de `min(toneladas, espacio disponible)`. Antes descartaba todo depósito donde no entrara la carga completa, lo que dejaba producto en planta con capacidad libre repartida.
+
+### Antes: `transferirLoteCompleto(LoteProducto lote, Deposito destino)`
+
+Eliminada en la fase 4. Movía todo el saldo libre del lote y fijaba `ubicacionActual` como si el lote estuviera entero en un solo lugar.
 
 ### `revisarTransferencias()`
 

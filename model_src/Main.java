@@ -121,27 +121,35 @@ class Main extends Agent {
 
     Deposito seleccionarDeposito(TipoProducto producto, double toneladas) {
         Deposito mejorDeposito = null;
-        double menorCosto = Double.POSITIVE_INFINITY;
+        double menorCostoPorTonelada = Double.POSITIVE_INFINITY;
 
         for (Deposito deposito : depositos) {
 
-            if (!deposito.puedeRecibir(producto, toneladas)) {
+            if (!deposito.habilitado) {
                 continue;
             }
 
-            double costoFlete =
-                calcularCostoPlantaDeposito(deposito, toneladas);
+            // Ya no hace falta que entre todo: alcanza con que entre una parte, y se compara
+            // por costo unitario para que el criterio no dependa de cuanto entra en cada uno.
+            double posible = min(
+                toneladas,
+                deposito.getEspacioDisponible(producto)
+            );
 
-            double costoAlmacenamientoEstimado =
-                toneladas
+            if (posible <= 0.0001) {
+                continue;
+            }
+
+            double costoEstimado =
+                calcularCostoPlantaDeposito(deposito, posible)
+                + posible
                 * deposito.getTarifaAlmacenamiento(producto)
                 * diasEstimadosAlmacenamiento;
 
-            double costoEstimado =
-                costoFlete + costoAlmacenamientoEstimado;
+            double costoPorTonelada = costoEstimado / posible;
 
-            if (costoEstimado < menorCosto) {
-                menorCosto = costoEstimado;
+            if (costoPorTonelada < menorCostoPorTonelada) {
+                menorCostoPorTonelada = costoPorTonelada;
                 mejorDeposito = deposito;
             }
         }
@@ -155,11 +163,11 @@ class Main extends Agent {
 
         for (LoteProducto lote : lotes) {
 
+            // El criterio es el saldo real en planta: un lote transferido a medias sigue
+            // teniendo capas ahi y tiene que poder terminar de salir.
             if (
                 lote.producto == producto
-                && lote.estado == EstadoLote.EN_PLANTA
-                && lote.ubicacionActual == planta
-                && lote.getToneladasLibres() > 0
+                && inventario.libreDeLoteEn(lote.idLote, "PLANTA") > 0.0001
             ) {
                 if (lote.diaProduccion < menorDia) {
                     menorDia = lote.diaProduccion;
@@ -169,62 +177,6 @@ class Main extends Agent {
         }
 
         return seleccionado;
-    }
-
-    boolean transferirLoteCompleto(LoteProducto lote, Deposito destino) {
-        if (lote == null || destino == null) {
-            return false;
-        }
-
-        if (
-            lote.estado != EstadoLote.EN_PLANTA
-            || lote.ubicacionActual != planta
-        ) {
-            return false;
-        }
-
-        double toneladas = lote.getToneladasLibres();
-
-        if (toneladas <= 0) {
-            return false;
-        }
-
-        if (!destino.puedeRecibir(lote.producto, toneladas)) {
-            return false;
-        }
-
-        // Mover es mover capas: el stock de la planta y el del deposito salen de las
-        // mismas capas, asi que no hay dos saldos que puedan quedar desalineados.
-        double movidas = inventario.moverLote(
-            lote.idLote,
-            "PLANTA",
-            destino.idUbicacion,
-            toneladas,
-            time()
-        );
-
-        if (movidas <= 0) {
-            return false;
-        }
-
-        lote.estado = EstadoLote.EN_DEPOSITO;
-        lote.ubicacionActual = destino;
-        lote.depositoActual = destino;
-        lote.diaIngresoDeposito = time();
-
-        double costoViaje =
-            calcularCostoPlantaDeposito(destino, movidas);
-
-        lote.costoAcumulado += costoViaje;
-        costoFletePlantaDeposito += costoViaje;
-
-        destino.toneladasRecibidasAcumuladas += movidas;
-        destino.cantidadRecepciones++;
-
-        toneladasTransferidasDepositos += movidas;
-        cantidadTransferenciasDepositos++;
-
-        return true;
     }
 
     void transferirProductoADepositos(TipoProducto producto, double toneladasObjetivo) {
@@ -239,28 +191,28 @@ class Main extends Agent {
                 break;
             }
 
-            // En esta primera version se transfieren lotes completos
-            double toneladasLote = lote.getToneladasLibres();
-
-            if (toneladasLote > pendiente) {
-                break;
-            }
+            double aMover = min(
+                inventario.libreDeLoteEn(lote.idLote, "PLANTA"),
+                pendiente
+            );
 
             Deposito destino =
-                seleccionarDeposito(producto, toneladasLote);
+                seleccionarDeposito(producto, aMover);
 
             if (destino == null) {
                 break;
             }
 
-            boolean transferido =
-                transferirLoteCompleto(lote, destino);
+            // Si en el deposito elegido no entra todo, se manda lo que entra y el resto sale
+            // en la vuelta siguiente, posiblemente a otro deposito.
+            double movidas =
+                transferirToneladasLote(lote, destino, aMover);
 
-            if (!transferido) {
+            if (movidas <= 0.0001) {
                 break;
             }
 
-            pendiente -= toneladasLote;
+            pendiente -= movidas;
         }
     }
 
@@ -1114,6 +1066,97 @@ class Main extends Agent {
             + "):"
             + detalle
         );
+    }
+
+    double transferirToneladasLote(LoteProducto lote, Deposito destino, double toneladas) {
+        // Fase 4: el lote deja de viajar entero. Se mueve lo que se pide, acotado por lo que
+        // el lote tiene libre en planta y por el lugar que queda en el deposito.
+        // El movimiento no necesita reversion: al acotar antes, mover() retira e ingresa
+        // exactamente lo mismo dentro de la misma estructura (ADR-021).
+        if (lote == null || destino == null || toneladas <= 0.0001) {
+            return 0;
+        }
+
+        if (!destino.habilitado) {
+            return 0;
+        }
+
+        double aMover = min(
+            min(toneladas, inventario.libreDeLoteEn(lote.idLote, "PLANTA")),
+            destino.getEspacioDisponible(lote.producto)
+        );
+
+        if (aMover <= 0.0001) {
+            return 0;
+        }
+
+        double movidas = inventario.moverLote(
+            lote.idLote,
+            "PLANTA",
+            destino.idUbicacion,
+            aMover,
+            time()
+        );
+
+        if (movidas <= 0.0001) {
+            return 0;
+        }
+
+        lote.depositoActual = destino;
+        lote.diaIngresoDeposito = time();
+
+        actualizarUbicacionLote(lote);
+
+        double costoViaje =
+            calcularCostoPlantaDeposito(destino, movidas);
+
+        lote.costoAcumulado += costoViaje;
+        costoFletePlantaDeposito += costoViaje;
+
+        destino.toneladasRecibidasAcumuladas += movidas;
+        destino.cantidadRecepciones++;
+
+        toneladasTransferidasDepositos += movidas;
+        cantidadTransferenciasDepositos++;
+
+        return movidas;
+    }
+
+    void actualizarUbicacionLote(LoteProducto lote) {
+        // Un lote transferido a medias esta en dos lugares a la vez, asi que ubicacionActual
+        // pasa a ser donde tiene mas saldo. El saldo real siempre se consulta al inventario.
+        if (lote == null) {
+            return;
+        }
+
+        String idUbicacion =
+            inventario.ubicacionPrincipalDeLote(lote.idLote);
+
+        if (idUbicacion == null) {
+            return;
+        }
+
+        if (idUbicacion.equals("PLANTA")) {
+            lote.ubicacionActual = planta;
+
+            if (lote.estado == EstadoLote.EN_DEPOSITO) {
+                lote.estado = EstadoLote.EN_PLANTA;
+            }
+
+            return;
+        }
+
+        Deposito deposito = buscarDeposito(idUbicacion);
+
+        if (deposito == null) {
+            return;
+        }
+
+        lote.ubicacionActual = deposito;
+
+        if (lote.estado == EstadoLote.EN_PLANTA) {
+            lote.estado = EstadoLote.EN_DEPOSITO;
+        }
     }
 
     // ----- Eventos -----
