@@ -12,23 +12,38 @@ public class VolcarDatos {
 
 	public static void main(String[] args) {
 		String idEscenario = args.length > 0 ? args[0] : "E-00";
-		int duracion = args.length > 1 ? Integer.parseInt(args[1]) : 183;
-		long semilla = args.length > 2 ? Long.parseLong(args[2]) : 1L;
+		long semilla = args.length > 1 ? Long.parseLong(args[1]) : 1L;
 
-		DatosEntrada d = GeneradorSintetico.generar(
-				idEscenario, duracion, semilla, 0.15, 0.20, 40, 400, 15);
+		DatosEntrada d = GeneradorSintetico.generar(idEscenario, semilla);
 
+		// El libro trae la fila de todos los escenarios del barrido, para que sirva
+		// de plantilla completa; el resto de las hojas es el maestro de E-00.
 		hoja("Escenario", "id_escenario\tduracion_campania_dias\tsemilla_base"
 				+ "\tvariabilidad_produccion\tvariabilidad_demanda\tpedidos_por_campania"
-				+ "\ttoneladas_medias_pedido\tplazo_pedido_dias");
-		System.out.println(d.escenario.idEscenario
-				+ "\t" + d.escenario.duracionCampaniaDias
-				+ "\t" + d.escenario.semilla
-				+ "\t" + d.escenario.variabilidadProduccion
-				+ "\t" + d.escenario.variabilidadDemanda
-				+ "\t" + d.escenario.pedidosPorCampania
-				+ "\t" + d.escenario.toneladasMediasPedido
-				+ "\t" + d.escenario.plazoPedidoDias);
+				+ "\ttoneladas_medias_pedido\tplazo_pedido_dias\tcamiones_producto"
+				+ "\tfactor_produccion\tfactor_capacidad_planta\tfactor_capacidad_deposito"
+				+ "\tfactor_storage\tventana_demanda\thabilita_cross_dock\tdeterministico"
+				+ "\testrategia_consolidacion");
+		for (String id : GeneradorSintetico.ESCENARIOS) {
+			DatosEntrada.Escenario e = GeneradorSintetico.escenario(id, semilla);
+			System.out.println(e.idEscenario
+					+ "\t" + e.duracionCampaniaDias
+					+ "\t" + e.semilla
+					+ "\t" + e.variabilidadProduccion
+					+ "\t" + e.variabilidadDemanda
+					+ "\t" + e.pedidosPorCampania
+					+ "\t" + e.toneladasMediasPedido
+					+ "\t" + e.plazoPedidoDias
+					+ "\t" + e.camionesProducto
+					+ "\t" + e.factorProduccion
+					+ "\t" + e.factorCapacidadPlanta
+					+ "\t" + e.factorCapacidadDeposito
+					+ "\t" + e.factorStorage
+					+ "\t" + e.ventanaDemanda
+					+ "\t" + e.habilitaCrossDock
+					+ "\t" + e.deterministico
+					+ "\t" + e.estrategiaConsolidacion);
+		}
 
 		hoja("Producto", "producto\ttipo_contenedor\tcapacidad_contenedor_tn");
 		for (DatosEntrada.Producto p : d.productos) {

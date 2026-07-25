@@ -24,6 +24,18 @@ public class DatosEntrada implements java.io.Serializable {
 		public int pedidosPorCampania;
 		public double toneladasMediasPedido;
 		public int plazoPedidoDias;
+
+		// Palancas del barrido (ADR-032): la fila del escenario define la corrida
+		// entera, asi que agregar un escenario es agregar una fila.
+		public int camionesProducto;
+		public double factorProduccion;
+		public double factorCapacidadPlanta;
+		public double factorCapacidadDeposito;
+		public double factorStorage;
+		public double ventanaDemanda;              // fraccion del horizonte con pedidos
+		public boolean habilitaCrossDock;
+		public boolean deterministico;             // sin sorteos: la replica no cambia nada
+		public String estrategiaConsolidacion;     // CONSOLIDACION_DEPOSITO | CONSOLIDACION_TERMINAL
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -329,6 +341,24 @@ public class DatosEntrada implements java.io.Serializable {
 
 		if (escenario.duracionCampaniaDias <= 0) {
 			errores.add("duracion_campania_dias debe ser > 0.");
+		}
+
+		if (escenario.camionesProducto <= 0) {
+			errores.add("camiones_producto debe ser > 0.");
+		}
+
+		if (escenario.factorProduccion <= 0 || escenario.factorCapacidadPlanta <= 0
+				|| escenario.factorCapacidadDeposito <= 0 || escenario.factorStorage <= 0) {
+			errores.add("Los factores del escenario deben ser > 0.");
+		}
+
+		if (escenario.ventanaDemanda <= 0 || escenario.ventanaDemanda > 1) {
+			errores.add("ventana_demanda debe estar en (0, 1].");
+		}
+
+		if (!"CONSOLIDACION_DEPOSITO".equals(escenario.estrategiaConsolidacion)
+				&& !"CONSOLIDACION_TERMINAL".equals(escenario.estrategiaConsolidacion)) {
+			errores.add("estrategia_consolidacion invalida: " + escenario.estrategiaConsolidacion);
 		}
 
 		for (Producto p : productos) {

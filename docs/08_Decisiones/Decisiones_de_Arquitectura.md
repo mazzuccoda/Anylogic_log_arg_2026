@@ -322,6 +322,22 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 **Alternativas:** un sitio de cross dock fuera del inventario (rompe la fuente física única y la validación de capas); un `ResourcePool` por sitio (misma objeción que ADR-039); cobrar el almacenaje del día del cruce (contradice ADR-010 por un artefacto del paso diario).  
 **Consecuencias:** el cross docking es una opción del escenario (`habilitaCrossDock`) que se compara contra la misma corrida sin cross dock, y su beneficio aparece como menos consolidación, menos espera de posición y menos almacenaje. Como la reserva sigue siendo todo-o-nada (ADR-016 pendiente de reserva parcial), un pedido se cruza entero o no se cruza: los pedidos más grandes que el cupo diario del sitio nunca usan cross dock y se cuentan en `crossDockReprogramados`.
 
+## ADR-042 — El barrido tiene dos dimensiones y la semilla se calcula dentro del modelo
+
+**Estado:** aceptada.  
+**Contexto:** PLE no ofrece Custom Experiment, así que no se puede escribir un experimento que recorra una tabla de escenarios. Un escenario cambia varias palancas a la vez (flota, capacidad, tarifas, estrategia), y un Parameter Variation que enumere cada palanca genera el producto cartesiano de combinaciones que nadie pidió. Además el dimensionamiento necesita réplicas reproducibles: hay que poder volver a correr exactamente la réplica 17 de E-05.  
+**Decisión:** el experimento `Escenarios` varía **`idEscenario` y `replica`, y nada más**. En modo freeform, `idEscenario = ESCENARIOS[(getCurrentIteration() - 1) / REPLICAS]` y `replica = (getCurrentIteration() - 1) % REPLICAS`. La semilla no se configura en la sección de aleatoriedad del experimento: se calcula dentro del modelo como `semillaBase + replica` y se pasa al generador, de modo que una réplica se reproduce corriendo el experimento `Simulation` con ese par de valores. Las corridas se evalúan en serie porque con evaluación paralela el agente raíz no está disponible al cerrar la corrida y los KPIs no se pueden leer.  
+**Alternativas:** enumerar cada palanca como dimensión (producto cartesiano y escenarios que no existen); semilla aleatoria por corrida (no reproducible); una corrida por escenario lanzada a mano (no escala a 360).  
+**Consecuencias:** agregar un escenario es agregar una fila y ampliar el rango; el experimento no se toca nunca. El precio es que la cantidad de réplicas vive en el experimento (`REPLICAS`) y tiene que coincidir con la cantidad de corridas.
+
+## ADR-043 — Un escenario determinístico no puede tener sorteos, aunque tenga variabilidad cero
+
+**Estado:** aceptada.  
+**Contexto:** E-09 existe para verificar el modelo: si las variabilidades son cero, las 30 réplicas deberían dar el mismo resultado y la réplica no debería aportar nada. No pasaba: con variabilidad cero el desvío del costo total seguía siendo del 4%, porque el día de llegada del pedido, el plazo, el producto y la terminal se sorteaban igual y sólo la magnitud dejaba de tener ruido.  
+**Decisión:** el escenario lleva un campo propio `deterministico`. Cuando está activo, el plan de pedidos se construye sin ningún sorteo: llegadas repartidas parejo en la ventana, plazo fijo, terminal por rotación y producto por posición dentro de la mezcla acumulada (que conserva la proporción de la producción media). La variabilidad cero sigue siendo un dato aparte, porque son dos cosas distintas: cuánto ruido tiene una magnitud y si la estructura del plan se sortea.  
+**Alternativas:** tratar variabilidad cero como determinístico implícito (acopla dos conceptos y esconde los sorteos que quedan); correr E-09 con una sola réplica (no verifica nada, sólo evita mirar el desvío).  
+**Consecuencias:** E-09 da desvío exactamente 0 en 30 réplicas y sirve como prueba de regresión del barrido. Sus resultados no son comparables con E-00 corrida a corrida, porque el plan de pedidos es otro; lo comparable es el comportamiento agregado.
+
 ## Plantilla para nuevas decisiones
 
 ```markdown

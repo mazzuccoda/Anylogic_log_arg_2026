@@ -60,6 +60,19 @@ python3 tools/exportar_modelo.py
 
 Sin eso, un pull request muestra un diff de XML de una sola línea en lugar del cambio de lógica.
 
+## Cómo correr
+
+El modelo trae dos experimentos:
+
+- **`Simulation`**: una corrida. Los parámetros `idEscenario` y `replica` eligen qué corrida; con `origenDatos = EXCEL` y `rutaExcel` los datos salen de un libro en vez del generador sintético.
+- **`Escenarios`**: el barrido de dimensionamiento. 12 escenarios × 30 réplicas, alrededor de un minuto. Al terminar escribe `resultados/kpis_por_corrida.csv` (una fila por corrida, con `version_modelo`, `id_escenario`, `replica` y `semilla`) e imprime en la consola la media, el desvío, el mínimo, el máximo y el P95 de cada KPI por escenario, con el delta contra el caso base. Ver [Escenarios y experimentos](docs/09_Definicion/Escenarios_y_Experimentos.md).
+
+Para regenerar la plantilla del libro de entrada con los datos del generador:
+
+```bash
+python3 tools/generar_excel_ejemplo.py [id_escenario] [semilla]
+```
+
 ## Productos y equipos
 
 | Producto | Contenedor |

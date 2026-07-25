@@ -114,21 +114,75 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 	private static final double[] CAPACIDAD_CONTENEDOR = { 25, 25, 20 };
 
-	public static DatosEntrada generar(String idEscenario, int duracionCampaniaDias, long semilla,
-			double variabilidadProduccion, double variabilidadDemanda,
-			int pedidosPorCampania, double toneladasMediasPedido, int plazoPedidoDias) {
+	/** Escenarios del barrido. Agregar uno es agregar un caso aca, no tocar el experimento. */
+	public static final String[] ESCENARIOS = {
+		"E-00", "E-01", "E-02", "E-03", "E-04", "E-05",
+		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11"
+	};
+
+	/**
+	 * Caso base con la palanca del escenario aplicada encima. Todo lo que un
+	 * escenario cambia esta aca, de modo que la corrida queda descripta por una fila.
+	 */
+	public static DatosEntrada.Escenario escenario(String idEscenario, long semilla) {
+
+		DatosEntrada.Escenario e = new DatosEntrada.Escenario();
+		e.idEscenario = idEscenario;
+		e.semilla = semilla;
+		e.duracionCampaniaDias = 183;
+		e.variabilidadProduccion = 0.15;
+		e.variabilidadDemanda = 0.20;
+		e.pedidosPorCampania = 40;
+		e.toneladasMediasPedido = 400;
+		e.plazoPedidoDias = 15;
+		e.camionesProducto = 8;
+		e.factorProduccion = 1;
+		e.factorCapacidadPlanta = 1;
+		e.factorCapacidadDeposito = 1;
+		e.factorStorage = 1;
+		e.ventanaDemanda = 1;
+		e.habilitaCrossDock = false;
+		e.deterministico = false;
+		e.estrategiaConsolidacion = "CONSOLIDACION_DEPOSITO";
+
+		if (idEscenario.equals("E-00")) {
+			return e;                                    // caso base
+		} else if (idEscenario.equals("E-01")) {
+			e.camionesProducto = 4;                      // flota reducida
+		} else if (idEscenario.equals("E-02")) {
+			e.camionesProducto = 12;                     // flota ampliada
+		} else if (idEscenario.equals("E-03")) {
+			e.factorCapacidadDeposito = 0.5;             // depositos a la mitad
+		} else if (idEscenario.equals("E-04")) {
+			e.factorCapacidadDeposito = 2;               // depositos al doble
+		} else if (idEscenario.equals("E-05")) {
+			e.habilitaCrossDock = true;                  // cross dock
+		} else if (idEscenario.equals("E-06")) {
+			e.factorProduccion = 1.3;                    // campania alta
+		} else if (idEscenario.equals("E-07")) {
+			e.factorProduccion = 0.7;                    // campania baja
+		} else if (idEscenario.equals("E-08")) {
+			e.ventanaDemanda = 0.5;                      // demanda concentrada
+		} else if (idEscenario.equals("E-09")) {
+			e.variabilidadProduccion = 0;                // deterministico
+			e.variabilidadDemanda = 0;
+			e.deterministico = true;
+		} else if (idEscenario.equals("E-10")) {
+			e.factorStorage = 2;                         // almacenaje caro
+		} else if (idEscenario.equals("E-11")) {
+			e.estrategiaConsolidacion = "CONSOLIDACION_TERMINAL";
+		} else {
+			throw new RuntimeException("Escenario no definido: " + idEscenario);
+		}
+
+		return e;
+	}
+
+	public static DatosEntrada generar(String idEscenario, long semilla) {
 
 		DatosEntrada datos = new DatosEntrada();
 
-		DatosEntrada.Escenario escenario = new DatosEntrada.Escenario();
-		escenario.idEscenario = idEscenario;
-		escenario.duracionCampaniaDias = duracionCampaniaDias;
-		escenario.semilla = semilla;
-		escenario.variabilidadProduccion = variabilidadProduccion;
-		escenario.variabilidadDemanda = variabilidadDemanda;
-		escenario.pedidosPorCampania = pedidosPorCampania;
-		escenario.toneladasMediasPedido = toneladasMediasPedido;
-		escenario.plazoPedidoDias = plazoPedidoDias;
+		DatosEntrada.Escenario escenario = escenario(idEscenario, semilla);
 		datos.escenario = escenario;
 
 		cargarMaestros(datos);
@@ -142,11 +196,14 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 	private static void cargarMaestros(DatosEntrada datos) {
 
+		DatosEntrada.Escenario escenario = datos.escenario;
+
 		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0, 0));
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
 			datos.productos.add(new DatosEntrada.Producto(PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i]));
-			datos.capacidades.add(new DatosEntrada.Capacidad(PLANTA, PRODUCTOS[i], CAPACIDAD_PLANTA[i]));
+			datos.capacidades.add(new DatosEntrada.Capacidad(
+				PLANTA, PRODUCTOS[i], CAPACIDAD_PLANTA[i] * escenario.factorCapacidadPlanta));
 		}
 
 		for (int d = 0; d < DEPOSITOS.length; d++) {
@@ -158,10 +215,10 @@ public class GeneradorSintetico implements java.io.Serializable {
 			datos.distancias.add(new DatosEntrada.Distancia(PLANTA, DEPOSITOS[d], DISTANCIA[d][0]));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
-				datos.capacidades.add(
-					new DatosEntrada.Capacidad(DEPOSITOS[d], PRODUCTOS[p], CAPACIDAD[d][p]));
-				datos.tarifasAlmacenamiento.add(
-					new DatosEntrada.TarifaAlmacenamiento(DEPOSITOS[d], PRODUCTOS[p], STORAGE[d][p]));
+				datos.capacidades.add(new DatosEntrada.Capacidad(
+					DEPOSITOS[d], PRODUCTOS[p], CAPACIDAD[d][p] * escenario.factorCapacidadDeposito));
+				datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
+					DEPOSITOS[d], PRODUCTOS[p], STORAGE[d][p] * escenario.factorStorage));
 				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
 					DEPOSITOS[d], PRODUCTOS[p], "CONSOLIDACION", ESTIBA_DEPOSITO[d][p]));
 				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
@@ -203,8 +260,9 @@ public class GeneradorSintetico implements java.io.Serializable {
 		for (int dia = 0; dia <= datos.escenario.duracionCampaniaDias; dia++) {
 			for (int p = 0; p < PRODUCTOS.length; p++) {
 
-				double media = PRODUCCION_MEDIA[p];
-				double toneladas = media * (1 + variabilidad * rnd.nextGaussian());
+				double media = PRODUCCION_MEDIA[p] * datos.escenario.factorProduccion;
+				double ruido = datos.escenario.deterministico ? 0 : rnd.nextGaussian();
+				double toneladas = media * (1 + variabilidad * ruido);
 
 				datos.produccionPlan.add(
 					new DatosEntrada.ProduccionPlan(dia, PRODUCTOS[p], Math.max(0, toneladas)));
@@ -219,18 +277,34 @@ public class GeneradorSintetico implements java.io.Serializable {
 		int primerDia = 30;
 		int ultimoDia = Math.max(primerDia, escenario.duracionCampaniaDias - escenario.plazoPedidoDias);
 
-		for (int i = 1; i <= escenario.pedidosPorCampania; i++) {
+		// Demanda concentrada: los mismos pedidos llegan en una fraccion del horizonte.
+		ultimoDia = primerDia + (int) Math.round((ultimoDia - primerDia) * escenario.ventanaDemanda);
 
-			int diaLlegada = primerDia + rnd.nextInt(Math.max(1, ultimoDia - primerDia + 1));
-			int plazo = escenario.plazoPedidoDias + rnd.nextInt(escenario.plazoPedidoDias + 1);
+		int cantidad = escenario.pedidosPorCampania;
+		boolean fijo = escenario.deterministico;
 
-			TipoProducto producto = PRODUCTOS[elegirProducto(rnd)];
+		for (int i = 1; i <= cantidad; i++) {
+
+			// En el caso deterministico los pedidos se reparten parejos en la ventana
+			// y la mezcla sigue la misma proporcion, pero sin sortearla.
+			double posicion = (i - 0.5) / cantidad;
+
+			int diaLlegada = fijo
+					? primerDia + (int) Math.round(posicion * (ultimoDia - primerDia))
+					: primerDia + rnd.nextInt(Math.max(1, ultimoDia - primerDia + 1));
+
+			int plazo = fijo
+					? escenario.plazoPedidoDias + escenario.plazoPedidoDias / 2
+					: escenario.plazoPedidoDias + rnd.nextInt(escenario.plazoPedidoDias + 1);
+
+			TipoProducto producto = PRODUCTOS[elegirProducto(fijo ? posicion : rnd.nextDouble())];
 
 			double proporcion = PRODUCCION_MEDIA[indice(producto)] / PRODUCCION_MEDIA[0];
 			double toneladas = escenario.toneladasMediasPedido * proporcion
-					* (1 + escenario.variabilidadDemanda * rnd.nextGaussian());
+					* (1 + escenario.variabilidadDemanda * (fijo ? 0 : rnd.nextGaussian()));
 
-			String terminal = TERMINALES[rnd.nextInt(TERMINALES.length)];
+			String terminal = TERMINALES[fijo ? (i - 1) % TERMINALES.length
+					: rnd.nextInt(TERMINALES.length)];
 
 			datos.pedidoPlan.add(new DatosEntrada.PedidoPlan(
 				String.format("P%03d", i),
@@ -243,14 +317,14 @@ public class GeneradorSintetico implements java.io.Serializable {
 	}
 
 	/** Elige producto en proporcion a la produccion media, no uniformemente. */
-	private static int elegirProducto(java.util.Random rnd) {
+	private static int elegirProducto(double posicion) {
 
 		double total = 0;
 		for (int p = 0; p < PRODUCTOS.length; p++) {
 			total += PRODUCCION_MEDIA[p];
 		}
 
-		double corte = rnd.nextDouble() * total;
+		double corte = posicion * total;
 		double acumulado = 0;
 
 		for (int p = 0; p < PRODUCTOS.length; p++) {
