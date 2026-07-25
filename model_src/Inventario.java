@@ -177,6 +177,54 @@ public class Inventario implements java.io.Serializable {
 		return sel;
 	}
 
+	public double stockLoteEn(int idLote, String idUbicacion) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.idLote == idLote && c.idUbicacion.equals(idUbicacion)) {
+				total += c.toneladas;
+			}
+		}
+		return total;
+	}
+
+	public double libreDeLoteEn(int idLote, String idUbicacion) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.idLote == idLote && c.idUbicacion.equals(idUbicacion)) {
+				total += c.libres();
+			}
+		}
+		return total;
+	}
+
+	/** Ubicaciones donde el lote tiene saldo. Con transferencia parcial pueden ser varias. */
+	public java.util.List<String> ubicacionesDeLote(int idLote) {
+		java.util.List<String> sel = new java.util.ArrayList<String>();
+		for (Capa c : capas) {
+			if (c.idLote == idLote && c.toneladas > EPS && !sel.contains(c.idUbicacion)) {
+				sel.add(c.idUbicacion);
+			}
+		}
+		return sel;
+	}
+
+	/**
+	 * Ubicacion donde el lote tiene mas saldo, o null si ya no tiene. Es lo unico que
+	 * puede significar "donde esta el lote" cuando el lote esta en varias partes.
+	 */
+	public String ubicacionPrincipalDeLote(int idLote) {
+		String mejor = null;
+		double mayor = 0;
+		for (String u : ubicacionesDeLote(idLote)) {
+			double tn = stockLoteEn(idLote, u);
+			if (tn > mayor + EPS) {
+				mayor = tn;
+				mejor = u;
+			}
+		}
+		return mejor;
+	}
+
 	// ---------------------------------------------------- movimientos (FIFO)
 
 	/** Retira saldo libre consumiendo primero lo mas antiguo. Devuelve lo retirado. */

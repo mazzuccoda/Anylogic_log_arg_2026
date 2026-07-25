@@ -82,7 +82,7 @@ Invariantes, verificados cada día por `Inventario.validar()`: no puede haber do
 - `depositoActual`.
 - `diaIngresoDeposito`.
 
-Se mantienen como referencia comercial y de presentación; no son saldos y no deben utilizarse en nuevas reglas definitivas. Con transferencias parciales un lote tendrá capas en varias ubicaciones a la vez y `ubicacionActual` dejará de ser suficiente.
+Se mantienen como referencia comercial y de presentación; no son saldos y no deben utilizarse en nuevas reglas definitivas. Desde la fase 4 un lote transferido parcialmente tiene capas en varias ubicaciones a la vez, así que `ubicacionActual` es únicamente la ubicación de mayor saldo (`Inventario.ubicacionPrincipalDeLote`); la lista completa es `Inventario.ubicacionesDeLote(idLote)`.
 
 ## 4. ContenedorExportacion
 

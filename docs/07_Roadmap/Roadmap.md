@@ -18,7 +18,7 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 | 1. Normalización del dominio | En curso | 75% |
 | 2. Lote comercial acumulativo | Diseño validado | 15% |
 | 3. Existencias físicas múltiples | Capas de inventario implementadas y verificadas en PLE | 90% |
-| 4. Transferencias parciales | Pendiente | 5% |
+| 4. Transferencias parciales | Planta → depósito parcial, verificada en PLE; falta depósito → depósito | 80% |
 | 5. Reserva profesional | Reservas trazables por capa y pedido; falta compromiso y reserva parcial | 60% |
 | 6. Contenedores individuales | Parcial | 25% |
 | 7. Consolidación directa | Pendiente | 10% |
@@ -90,14 +90,15 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 
 ## 7. Fase 4 — Transferencia parcial
 
-- [ ] Diseñar contrato transaccional.
-- [ ] Crear `transferirToneladasLote()`.
-- [ ] Aplicar retiro parcial en planta.
-- [ ] Aplicar recepción parcial en depósito.
-- [ ] Registrar flete e IN.
-- [ ] Revertir ante fallo.
-- [ ] Reemplazar uso de `transferirLoteCompleto()`.
+- [x] Diseñar contrato transaccional: el movimiento se acota antes de tocar el inventario, así que no hay estado intermedio que revertir.
+- [x] Crear `transferirToneladasLote(lote, destino, toneladas)`, que devuelve las toneladas efectivamente movidas.
+- [x] Aplicar retiro parcial en planta (FIFO sobre las capas del lote en `PLANTA`).
+- [x] Aplicar recepción parcial en depósito, acotada por `getEspacioDisponible()`.
+- [x] Registrar flete sobre lo movido, no sobre lo pedido.
+- [x] Revertir ante fallo: innecesario, ver contrato.
+- [x] Reemplazar uso de `transferirLoteCompleto()`, que se eliminó.
 - [ ] Validar V-006 y V-007.
+- [ ] Falta el movimiento entre depósitos: hoy sólo se transfiere planta → depósito.
 
 ## 8. Fase 5 — Reserva
 
