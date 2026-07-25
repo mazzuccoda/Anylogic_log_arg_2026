@@ -1,5 +1,6 @@
 # AnyLogic
 *.alp.bak*
+*.alp.autosave
 *.alp~
 Objects/
 bin/
