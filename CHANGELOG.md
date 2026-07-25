@@ -16,6 +16,10 @@ Formato: una entrada por cambio relevante del modelo o de las definiciones. Las 
 - Parámetros de escenario en `Main`: `idEscenario`, `duracionCampaniaDias`, `semillaBase`, `variabilidadProduccion`, `variabilidadDemanda`, `pedidosPorCampania`, `toneladasMediasPedido` y `plazoPedidoDias`.
 - ADR-036 y ADR-037.
 - `tools/exportar_modelo.py` exporta también las clases Java del modelo a `model_src/`.
+- Clase Java `ImportadorExcel` (ADR-038): carga las tablas de `DatosEntrada` desde un libro `.xlsx` con una hoja por tabla, buscando las columnas por nombre. Informa juntas las hojas y columnas faltantes, saltea filas vacías y filtra por `id_escenario` las hojas que lo tienen, de modo que un libro puede contener varios escenarios.
+- Parámetros `origenDatos` (`SINTETICO` o `EXCEL`) y `rutaExcel` en `Main`, y lista de opciones `OrigenDatos`: el origen de los datos se cambia sin tocar código.
+- `datos/entrada_ejemplo.xlsx` y `tools/generar_excel_ejemplo.py`: plantilla del libro de entrada, generada corriendo el propio `GeneradorSintetico` del modelo para que la plantilla y la fase sintética no puedan divergir. Verificado en PLE: el mismo escenario cargado desde Excel y generado sintéticamente produce los mismos 494 envíos, 40 pedidos entregados y los mismos costos.
+- El [contrato de datos](docs/09_Definicion/Contrato_de_Datos.md) documenta las hojas y encabezados que lee el importador, y las tablas del esquema objetivo que todavía no consume el modelo (`TiemposOperativos`, tarifas por contenedor, `LoteInicial` y los campos completos de `Ubicacion`, `Distancia` y `PedidoPlan`).
 
 ### Cambiado
 

@@ -13,9 +13,20 @@ Definir las tablas de entrada del modelo antes de implementar, para que la fase 
 | Fase | Origen | Mecanismo |
 |---|---|---|
 | 1 | Generador sintético | `GeneradorSintetico.generar(...)` puebla las mismas tablas internas |
-| 2 | Excel | Archivo `datos/entrada_<escenario>.xlsx`, una hoja por tabla, importado a la base de datos interna de AnyLogic |
+| 2 | Excel | Archivo `.xlsx`, una hoja por tabla, leído por `ImportadorExcel` a las mismas tablas internas |
 
 Regla: si la fase 2 requiere cambiar alguna función de lógica de negocio, el contrato estaba mal definido.
+
+El origen se elige con dos parámetros de `Main`, sin tocar código:
+
+| Parámetro | Valores | Significado |
+|---|---|---|
+| `origenDatos` | `OrigenDatos.SINTETICO` (default), `OrigenDatos.EXCEL` | de dónde salen las tablas |
+| `rutaExcel` | ruta absoluta o relativa al directorio del modelo | libro a leer cuando el origen es Excel |
+
+Con `EXCEL`, los parámetros del generador (`semillaBase`, `variabilidadProduccion`, `pedidosPorCampania`, ...) se ignoran: el escenario sale de las hojas `Escenario`, `ProduccionPlan` y `PedidoPlan`, filtradas por `idEscenario`, así que un mismo libro puede contener varios escenarios.
+
+`datos/entrada_ejemplo.xlsx` es la plantilla: la genera `tools/generar_excel_ejemplo.py` corriendo el propio `GeneradorSintetico` del modelo, de modo que ambos orígenes producen el mismo escenario y la corrida es comparable. Para cargar datos reales alcanza con reemplazar los valores respetando hojas y encabezados. Los libros con tarifas reales no se versionan (`.gitignore`).
 
 ## 3. Convenciones
 
@@ -209,7 +220,24 @@ Los errores se listan **todos juntos** en un CSV (`errores_entrada.csv`) en luga
 
 ## 7.bis Estado de implementación
 
-El paso 2 del [roadmap](../07_Roadmap/Roadmap.md) implementa la primera mitad del contrato. Las tablas viven en la clase Java `DatosEntrada` (ADR-030: no consumen tipos de agente) y las llena `GeneradorSintetico`; el importador de Excel de la fase 2 llenará las mismas listas y **no toca la lógica de negocio**.
+El paso 2 del [roadmap](../07_Roadmap/Roadmap.md) implementa la primera mitad del contrato. Las tablas viven en la clase Java `DatosEntrada` (ADR-030: no consumen tipos de agente) y las llenan indistintamente `GeneradorSintetico` e `ImportadorExcel`, que **no tocan la lógica de negocio**.
+
+Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tablas todavía no implementadas):
+
+| Hoja | Columnas |
+|---|---|
+| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias` |
+| `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn` |
+| `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn` |
+| `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |
+| `Distancia` | `origen`, `destino`, `distancia_km` |
+| `TarifaAlmacenamiento` | `id_ubicacion`, `producto`, `storage_usd_tn_dia` |
+| `TarifaFleteProducto` | `origen`, `destino`, `producto`, `tarifa_usd_tn` |
+| `TarifaServicioCarga` | `id_ubicacion`, `producto`, `tarifa_usd_tn` |
+| `ProduccionPlan` | `id_escenario`, `dia`, `producto`, `produccion_tn` |
+| `PedidoPlan` | `id_escenario`, `codigo_pedido`, `dia_llegada`, `dia_limite`, `producto`, `toneladas_solicitadas`, `terminal` |
+
+Las columnas se buscan por nombre, no por posición: se pueden reordenar o agregar columnas propias. Una hoja o una columna faltante se informa junto con todas las demás antes de validar; un número tipeado como texto se acepta, y un texto que no sea número indica hoja, fila y columna.
 
 | Tabla | Implementada | Diferencias con este documento |
 |---|---|---|
@@ -227,7 +255,7 @@ El paso 2 del [roadmap](../07_Roadmap/Roadmap.md) implementa la primera mitad de
 | `PedidoPlan` | sí | sin cliente, calidad, lote solicitado, naviera ni incoterm: el modelo aún no los usa |
 | `LoteInicial` | no | — |
 
-La validación existe y corre en el arranque: `Main.cargarDatosEntrada()` genera las tablas, ejecuta `DatosEntrada.validar()` y aborta con la lista completa de errores. Todavía no escribe `errores_entrada.csv`. Cubre los puntos 2, 3, 4 y 6 de la sección anterior; los puntos 1, 5, 7 y 8 corresponden a columnas o tablas no implementadas.
+La validación existe y corre en el arranque: `Main.cargarDatosEntrada()` obtiene las tablas del origen elegido, ejecuta `DatosEntrada.validar()` y aborta con la lista completa de errores. Todavía no escribe `errores_entrada.csv`. Cubre los puntos 2, 3, 4 y 6 de la sección anterior; los puntos 1, 5, 7 y 8 corresponden a columnas o tablas no implementadas.
 
 ## 8. Salidas
 

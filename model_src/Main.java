@@ -5,6 +5,8 @@
 class Main extends Agent {
 
     // ----- Parámetros -----
+    OrigenDatos origenDatos = OrigenDatos.SINTETICO;
+    String rutaExcel = "datos/entrada_ejemplo.xlsx";
     String idEscenario = "E-00";
     int duracionCampaniaDias = 183;
     long semillaBase = 1;
@@ -1012,18 +1014,29 @@ class Main extends Agent {
     }
 
     void cargarDatosEntrada() {
-        // Fase 1 del contrato de datos: las tablas se generan; la fase 2 las va a
-        // importar desde Excel. Nada mas cambia: la logica lee siempre 'datos'.
-        datos = GeneradorSintetico.generar(
-            idEscenario,
-            duracionCampaniaDias,
-            semillaBase,
-            variabilidadProduccion,
-            variabilidadDemanda,
-            pedidosPorCampania,
-            toneladasMediasPedido,
-            plazoPedidoDias
-        );
+        // El origen de los datos no cambia la logica: ambas ramas llenan las mismas
+        // tablas y todo el modelo lee 'datos'.
+        if (origenDatos == OrigenDatos.EXCEL) {
+
+            datos = ImportadorExcel.importar(
+                this,
+                rutaExcel,
+                idEscenario
+            );
+
+        } else {
+
+            datos = GeneradorSintetico.generar(
+                idEscenario,
+                duracionCampaniaDias,
+                semillaBase,
+                variabilidadProduccion,
+                variabilidadDemanda,
+                pedidosPorCampania,
+                toneladasMediasPedido,
+                plazoPedidoDias
+            );
+        }
 
         List<String> errores = datos.validar();
 
