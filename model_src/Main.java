@@ -36,6 +36,7 @@ class Main extends Agent {
     boolean enviosGenerados = false;
     double costoFleteDepositoPuertoReal = 0;
     double costoConsolidacionReal = 0;
+    Inventario inventario = new Inventario();
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -80,48 +81,32 @@ class Main extends Agent {
 
         lote.producto = producto;
         lote.toneladasIniciales = toneladas;
-        lote.toneladasDisponibles = toneladas;
         lote.diaProduccion = time();
         lote.estado = EstadoLote.EN_PLANTA;
         lote.ubicacionActual = origen;
         lote.costoAcumulado = 0;
         lote.pedidoAsignado = null;
 
+        // El saldo fisico vive en la capa, no en el lote (ADR-023). 'toneladasIniciales'
+        // queda como lo producido, que ya no se toca nunca mas.
+        inventario.ingresar(
+            lote.idLote,
+            producto,
+            "PLANTA",
+            toneladas,
+            time(),
+            time()
+        );
+
         return lote;
     }
 
     double toneladasLotesEnPlanta(TipoProducto producto) {
-        double total = 0;
-
-        for (LoteProducto lote : lotes) {
-
-            if (
-                lote.producto == producto
-                && lote.estado == EstadoLote.EN_PLANTA
-                && lote.ubicacionActual == planta
-            ) {
-                total += lote.toneladasDisponibles;
-            }
-        }
-
-        return total;
+        return inventario.stock("PLANTA", producto);
     }
 
     int cantidadLotesEnPlanta(TipoProducto producto) {
-        int cantidad = 0;
-
-        for (LoteProducto lote : lotes) {
-
-            if (
-                lote.producto == producto
-                && lote.estado == EstadoLote.EN_PLANTA
-                && lote.ubicacionActual == planta
-            ) {
-                cantidad++;
-            }
-        }
-
-        return cantidad;
+        return inventario.cantidadLotes("PLANTA", producto);
     }
 
     double calcularCostoPlantaDeposito(Deposito deposito, double toneladas) {
@@ -174,7 +159,7 @@ class Main extends Agent {
                 lote.producto == producto
                 && lote.estado == EstadoLote.EN_PLANTA
                 && lote.ubicacionActual == planta
-                && lote.toneladasDisponibles > 0
+                && lote.getToneladasLibres() > 0
             ) {
                 if (lote.diaProduccion < menorDia) {
                     menorDia = lote.diaProduccion;
@@ -194,30 +179,31 @@ class Main extends Agent {
         if (
             lote.estado != EstadoLote.EN_PLANTA
             || lote.ubicacionActual != planta
-            || lote.toneladasDisponibles <= 0
         ) {
             return false;
         }
 
-        double toneladas = lote.toneladasDisponibles;
+        double toneladas = lote.getToneladasLibres();
+
+        if (toneladas <= 0) {
+            return false;
+        }
 
         if (!destino.puedeRecibir(lote.producto, toneladas)) {
             return false;
         }
 
-        boolean retirado =
-            planta.retirarStock(lote.producto, toneladas);
+        // Mover es mover capas: el stock de la planta y el del deposito salen de las
+        // mismas capas, asi que no hay dos saldos que puedan quedar desalineados.
+        double movidas = inventario.moverLote(
+            lote.idLote,
+            "PLANTA",
+            destino.idUbicacion,
+            toneladas,
+            time()
+        );
 
-        if (!retirado) {
-            return false;
-        }
-
-        boolean recibido =
-            destino.recibirProducto(lote.producto, toneladas);
-
-        if (!recibido) {
-            // Reponer stock en planta si la recepción falla
-            planta.agregarStock(lote.producto, toneladas);
+        if (movidas <= 0) {
             return false;
         }
 
@@ -227,12 +213,15 @@ class Main extends Agent {
         lote.diaIngresoDeposito = time();
 
         double costoViaje =
-            calcularCostoPlantaDeposito(destino, toneladas);
+            calcularCostoPlantaDeposito(destino, movidas);
 
         lote.costoAcumulado += costoViaje;
         costoFletePlantaDeposito += costoViaje;
 
-        toneladasTransferidasDepositos += toneladas;
+        destino.toneladasRecibidasAcumuladas += movidas;
+        destino.cantidadRecepciones++;
+
+        toneladasTransferidasDepositos += movidas;
         cantidadTransferenciasDepositos++;
 
         return true;
@@ -250,8 +239,8 @@ class Main extends Agent {
                 break;
             }
 
-            // En esta primera versión se transfieren lotes completos
-            double toneladasLote = lote.toneladasDisponibles;
+            // En esta primera version se transfieren lotes completos
+            double toneladasLote = lote.getToneladasLibres();
 
             if (toneladasLote > pendiente) {
                 break;
@@ -277,10 +266,10 @@ class Main extends Agent {
 
     void revisarTransferenciasPlanta() {
         // JUGO
-        if (planta.stockJugo >= planta.nivelActivacionJugo) {
+        if (planta.getStock(TipoProducto.JUGO) >= planta.nivelActivacionJugo) {
 
             double toneladas =
-                planta.stockJugo - planta.stockObjetivoJugo;
+                planta.getStock(TipoProducto.JUGO) - planta.stockObjetivoJugo;
 
             transferirProductoADepositos(
                 TipoProducto.JUGO,
@@ -290,10 +279,10 @@ class Main extends Agent {
 
 
         // CASCARA
-        if (planta.stockCascara >= planta.nivelActivacionCascara) {
+        if (planta.getStock(TipoProducto.CASCARA) >= planta.nivelActivacionCascara) {
 
             double toneladas =
-                planta.stockCascara - planta.stockObjetivoCascara;
+                planta.getStock(TipoProducto.CASCARA) - planta.stockObjetivoCascara;
 
             transferirProductoADepositos(
                 TipoProducto.CASCARA,
@@ -303,10 +292,10 @@ class Main extends Agent {
 
 
         // ACEITE
-        if (planta.stockAceite >= planta.nivelActivacionAceite) {
+        if (planta.getStock(TipoProducto.ACEITE) >= planta.nivelActivacionAceite) {
 
             double toneladas =
-                planta.stockAceite - planta.stockObjetivoAceite;
+                planta.getStock(TipoProducto.ACEITE) - planta.stockObjetivoAceite;
 
             transferirProductoADepositos(
                 TipoProducto.ACEITE,
@@ -328,15 +317,8 @@ class Main extends Agent {
     double toneladasLotesEnDepositos(TipoProducto producto) {
         double total = 0;
 
-        for (LoteProducto lote : lotes) {
-
-            if (
-                lote.producto == producto
-                && lote.estado == EstadoLote.EN_DEPOSITO
-                && lote.depositoActual != null
-            ) {
-                total += lote.toneladasDisponibles;
-            }
+        for (Deposito deposito : depositos) {
+            total += inventario.stock(deposito.idUbicacion, producto);
         }
 
         return total;
@@ -442,74 +424,6 @@ class Main extends Agent {
         return mejorDeposito;
     }
 
-    LoteProducto crearLoteReservadoDesdeDivision(LoteProducto loteOriginal, double toneladasReserva, Pedido pedido) {
-        if (
-            loteOriginal == null
-            || pedido == null
-            || toneladasReserva <= 0
-            || toneladasReserva >= loteOriginal.getToneladasLibres()
-        ) {
-            return null;
-        }
-
-        double toneladasAntes =
-            loteOriginal.toneladasDisponibles;
-
-        double proporcion =
-            toneladasReserva / toneladasAntes;
-
-        LoteProducto nuevoLote = add_lotes();
-
-        nuevoLote.idLote = siguienteIdLote;
-        siguienteIdLote++;
-
-        nuevoLote.producto = loteOriginal.producto;
-        nuevoLote.toneladasIniciales = toneladasReserva;
-        nuevoLote.toneladasDisponibles = toneladasReserva;
-        nuevoLote.toneladasReservadas = toneladasReserva;
-
-        nuevoLote.diaProduccion =
-            loteOriginal.diaProduccion;
-
-        nuevoLote.estado =
-            EstadoLote.RESERVADO;
-
-        nuevoLote.ubicacionActual =
-            loteOriginal.ubicacionActual;
-
-        nuevoLote.depositoActual =
-            loteOriginal.depositoActual;
-
-        nuevoLote.diaIngresoDeposito =
-            loteOriginal.diaIngresoDeposito;
-
-        nuevoLote.diaReserva = time();
-        nuevoLote.pedidoAsignado = pedido;
-        nuevoLote.loteOrigen = loteOriginal;
-
-
-        // Distribuir proporcionalmente los costos históricos
-        nuevoLote.costoAcumulado =
-            loteOriginal.costoAcumulado * proporcion;
-
-        nuevoLote.costoAlmacenamientoLote =
-            loteOriginal.costoAlmacenamientoLote
-            * proporcion;
-
-
-        // Reducir el lote original
-        loteOriginal.toneladasIniciales -= toneladasReserva;
-        loteOriginal.toneladasDisponibles -= toneladasReserva;
-
-        loteOriginal.costoAcumulado -=
-            nuevoLote.costoAcumulado;
-
-        loteOriginal.costoAlmacenamientoLote -=
-            nuevoLote.costoAlmacenamientoLote;
-
-        return nuevoLote;
-    }
-
     boolean reservarLotesParaPedido(Pedido pedido, Deposito deposito) {
         if (
             pedido == null
@@ -519,100 +433,26 @@ class Main extends Agent {
             return false;
         }
 
-        if (
-            !deposito.puedeReservar(
+        // La reserva se anota sobre las capas del deposito, tomando primero las mas
+        // antiguas (ADR-022). El lote no se parte en un segundo agente (ADR-024).
+        double reservadas =
+            inventario.reservar(
+                deposito.idUbicacion,
                 pedido.producto,
-                pedido.toneladasSolicitadas
-            )
-        ) {
-            return false;
-        }
-
-        // Registrar primero la reserva agregada
-        boolean reservaRegistrada =
-            deposito.reservarProducto(
-                pedido.producto,
-                pedido.toneladasSolicitadas
+                pedido.toneladasSolicitadas,
+                pedido.codigoPedido,
+                time()
             );
 
-        if (!reservaRegistrada) {
+        if (reservadas + 0.0001 < pedido.toneladasSolicitadas) {
+
+            // Reserva completa o nada: se devuelve lo que se habia tomado.
+            inventario.liberarReserva(pedido.codigoPedido);
+
             return false;
         }
 
-        double pendiente =
-            pedido.toneladasSolicitadas;
-
-        while (pendiente > 0.0001) {
-
-            LoteProducto loteSeleccionado = null;
-            double diaMasAntiguo =
-                Double.POSITIVE_INFINITY;
-
-            for (LoteProducto lote : lotes) {
-
-                if (
-                    lote.producto == pedido.producto
-                    && lote.estado == EstadoLote.EN_DEPOSITO
-                    && lote.depositoActual == deposito
-                    && lote.getToneladasLibres() > 0
-                    && lote.diaProduccion < diaMasAntiguo
-                ) {
-                    loteSeleccionado = lote;
-                    diaMasAntiguo = lote.diaProduccion;
-                }
-            }
-
-            if (loteSeleccionado == null) {
-
-                deposito.liberarReserva(
-                    pedido.producto,
-                    pedido.toneladasSolicitadas
-                );
-
-                return false;
-            }
-
-            double libre =
-                loteSeleccionado.getToneladasLibres();
-
-            if (libre <= pendiente + 0.0001) {
-
-                loteSeleccionado.toneladasReservadas =
-                    libre;
-
-                loteSeleccionado.estado =
-                    EstadoLote.RESERVADO;
-
-                loteSeleccionado.pedidoAsignado =
-                    pedido;
-
-                loteSeleccionado.diaReserva =
-                    time();
-
-                pendiente -= libre;
-
-            } else {
-
-                LoteProducto loteDividido =
-                    crearLoteReservadoDesdeDivision(
-                        loteSeleccionado,
-                        pendiente,
-                        pedido
-                    );
-
-                if (loteDividido == null) {
-
-                    deposito.liberarReserva(
-                        pedido.producto,
-                        pedido.toneladasSolicitadas
-                    );
-
-                    return false;
-                }
-
-                pendiente = 0;
-            }
-        }
+        marcarLotesReservados(pedido);
 
         return true;
     }
@@ -706,20 +546,7 @@ class Main extends Agent {
     }
 
     double toneladasReservadasEnLotes(TipoProducto producto) {
-        double total = 0;
-
-        for (LoteProducto lote : lotes) {
-
-            if (
-                lote.producto == producto
-                && lote.estado == EstadoLote.RESERVADO
-                && lote.pedidoAsignado != null
-            ) {
-                total += lote.toneladasReservadas;
-            }
-        }
-
-        return total;
+        return inventario.reservadoProducto(producto);
     }
 
     Envio crearEnvio(Pedido pedido, double toneladas) {
@@ -860,64 +687,36 @@ class Main extends Agent {
             return false;
         }
 
-        Pedido pedido =
-            envio.pedido;
+        Pedido pedido = envio.pedido;
 
-        Deposito deposito =
-            envio.depositoOrigen;
+        Deposito deposito = envio.depositoOrigen;
 
-        double pendiente =
-            envio.toneladas;
-
-        // Reducir cantidades en lotes reservados
-        for (LoteProducto lote : lotes) {
-
-            if (pendiente <= 0.0001) {
-                break;
-            }
-
-            if (
-                lote.pedidoAsignado == pedido
-                && lote.depositoActual == deposito
-                && lote.estado == EstadoLote.RESERVADO
-                && lote.toneladasReservadas > 0
-            ) {
-                double retirar =
-                    min(
-                        pendiente,
-                        lote.toneladasReservadas
-                    );
-
-                lote.toneladasReservadas -= retirar;
-                lote.toneladasDisponibles -= retirar;
-
-                pendiente -= retirar;
-
-                if (
-                    lote.toneladasDisponibles <= 0.0001
-                    && lote.toneladasReservadas <= 0.0001
-                ) {
-                    lote.toneladasDisponibles = 0;
-                    lote.toneladasReservadas = 0;
-                    lote.estado =
-                        EstadoLote.EN_TRANSITO_PUERTO;
-                }
-            }
-        }
-
-        if (pendiente > 0.0001) {
-            return false;
-        }
-
-        boolean despachado =
-            deposito.despacharReservado(
+        double reservado =
+            inventario.reservadoPedidoEn(
+                deposito.idUbicacion,
                 envio.producto,
-                envio.toneladas
+                pedido.codigoPedido
             );
 
-        if (!despachado) {
+        if (reservado + 0.0001 < envio.toneladas) {
             return false;
         }
+
+        // Sale exactamente lo que este pedido tenia reservado, de las capas mas
+        // antiguas primero.
+        double despachadas =
+            inventario.despachar(
+                deposito.idUbicacion,
+                envio.producto,
+                envio.toneladas,
+                pedido.codigoPedido
+            );
+
+        if (despachadas + 0.0001 < envio.toneladas) {
+            return false;
+        }
+
+        actualizarEstadoLotesVacios();
 
         pedido.toneladasDespachadas +=
             envio.toneladas;
@@ -1187,27 +986,30 @@ class Main extends Agent {
     }
 
     void devengarAlmacenamientoDiario() {
-        // Fuente unica del costo de almacenaje del dia (H-04).
-        // Se imputa por lote y se agrega al deposito en el mismo recorrido, de modo
-        // que el total del deposito sea por construccion la suma de sus lotes.
-        for (LoteProducto lote : lotes) {
+        // Fuente unica del costo de almacenaje del dia (H-04). Se devenga por capa, que
+        // es lo que tiene ubicacion y dia de ingreso propios, y se imputa al lote y al
+        // deposito en el mismo recorrido, sin doble conteo.
+        for (Capa capa : inventario.capas) {
 
-            Deposito deposito = lote.depositoActual;
+            Deposito deposito = buscarDeposito(capa.idUbicacion);
 
-            if (
-                deposito == null
-                || lote.toneladasDisponibles <= 0
-            ) {
+            if (deposito == null || capa.toneladas <= 0) {
                 continue;
             }
 
             double costoDia =
-                lote.toneladasDisponibles
-                * deposito.getTarifaAlmacenamiento(lote.producto);
+                capa.toneladas
+                * deposito.getTarifaAlmacenamiento(capa.producto);
 
-            lote.costoAlmacenamientoLote += costoDia;
-            lote.costoAcumulado += costoDia;
+            capa.costoAlmacenamiento += costoDia;
             deposito.costoAlmacenamientoAcumulado += costoDia;
+
+            LoteProducto lote = buscarLote(capa.idLote);
+
+            if (lote != null) {
+                lote.costoAlmacenamientoLote += costoDia;
+                lote.costoAcumulado += costoDia;
+            }
         }
     }
 
@@ -1229,6 +1031,91 @@ class Main extends Agent {
         }
     }
 
+    Deposito buscarDeposito(String idUbicacion) {
+        for (Deposito deposito : depositos) {
+
+            if (deposito.idUbicacion.equals(idUbicacion)) {
+                return deposito;
+            }
+        }
+
+        return null;
+    }
+
+    LoteProducto buscarLote(int idLote) {
+        for (LoteProducto lote : lotes) {
+
+            if (lote.idLote == idLote) {
+                return lote;
+            }
+        }
+
+        return null;
+    }
+
+    void marcarLotesReservados(Pedido pedido) {
+        // El lote sigue siendo uno solo: se marca como reservado cuando ya no le queda
+        // saldo libre. La trazabilidad fina esta en las reservas de cada capa.
+        for (LoteProducto lote : lotes) {
+
+            if (
+                inventario.reservadoDeLotePorPedido(
+                    lote.idLote,
+                    pedido.codigoPedido
+                ) <= 0
+            ) {
+                continue;
+            }
+
+            lote.pedidoAsignado = pedido;
+            lote.diaReserva = time();
+
+            if (lote.getToneladasLibres() <= 0.0001) {
+                lote.estado = EstadoLote.RESERVADO;
+            }
+        }
+    }
+
+    void actualizarEstadoLotesVacios() {
+        for (LoteProducto lote : lotes) {
+
+            if (
+                lote.getToneladasDisponibles() > 0.0001
+                || (
+                    lote.estado != EstadoLote.EN_DEPOSITO
+                    && lote.estado != EstadoLote.RESERVADO
+                )
+            ) {
+                continue;
+            }
+
+            lote.estado = EstadoLote.EN_TRANSITO_PUERTO;
+        }
+    }
+
+    void validarInventario() {
+        List<String> errores = inventario.validar();
+
+        if (errores.isEmpty()) {
+            return;
+        }
+
+        String detalle = "";
+
+        for (String e : errores) {
+            detalle += "\n  - " + e;
+        }
+
+        error(
+            "Inventario inconsistente el dia "
+            + (int) floor(time())
+            + " ("
+            + errores.size()
+            + "):"
+            + detalle
+        );
+    }
+
     // ----- Eventos -----
 
     // evento pasoDiario [timeout cyclic] cada 1 day
@@ -1242,5 +1129,6 @@ class Main extends Agent {
         prepararPedidosReservados();      // 5. ejecutar movimientos
         devengarAlmacenamientoDiario();   // 6. devengar almacenaje
         registrarAtrasos();               // 7. registrar indicadores del dia
+        validarInventario();              // invariantes de las capas (ADR-023)
     }
 }

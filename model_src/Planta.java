@@ -16,9 +16,6 @@ class Planta extends Agent {
     double stockObjetivoAceite = 700;
 
     // ----- Variables -----
-    double stockJugo = 0;
-    double stockCascara = 0;
-    double stockAceite = 0;
     double produccionAcumuladaJugo = 0;
     double produccionAcumuladaCascara = 0;
     double produccionAcumuladaAceite = 0;
@@ -27,42 +24,6 @@ class Planta extends Agent {
     double excedenteAceite = 0;
 
     // ----- Funciones -----
-
-    void agregarStock(TipoProducto producto, double toneladas) {
-        if (toneladas <= 0) {
-            return;
-        }
-
-        switch (producto) {
-
-            case JUGO:
-                double espacioJugo = capacidadJugo - stockJugo;
-                double ingresadoJugo = min(toneladas, espacioJugo);
-                double sobranteJugo = toneladas - ingresadoJugo;
-
-                stockJugo += ingresadoJugo;
-                excedenteJugo += sobranteJugo;
-                break;
-
-            case CASCARA:
-                double espacioCascara = capacidadCascara - stockCascara;
-                double ingresadoCascara = min(toneladas, espacioCascara);
-                double sobranteCascara = toneladas - ingresadoCascara;
-
-                stockCascara += ingresadoCascara;
-                excedenteCascara += sobranteCascara;
-                break;
-
-            case ACEITE:
-                double espacioAceite = capacidadAceite - stockAceite;
-                double ingresadoAceite = min(toneladas, espacioAceite);
-                double sobranteAceite = toneladas - ingresadoAceite;
-
-                stockAceite += ingresadoAceite;
-                excedenteAceite += sobranteAceite;
-                break;
-        }
-    }
 
     void producir() {
         // La produccion del dia es un dato de entrada (tabla ProduccionPlan).
@@ -86,25 +47,22 @@ class Planta extends Agent {
         produccionAcumuladaAceite += produccionAceite;
 
 
-        // Guardar stock anterior
-        double stockAnteriorJugo = stockJugo;
-        double stockAnteriorCascara = stockCascara;
-        double stockAnteriorAceite = stockAceite;
+        // Entra lo que quepa; lo que no entra es excedente y no se produce fisicamente
+        double ingresoJugo =
+            min(produccionJugo, getEspacioDisponible(TipoProducto.JUGO));
+
+        double ingresoCascara =
+            min(produccionCascara, getEspacioDisponible(TipoProducto.CASCARA));
+
+        double ingresoAceite =
+            min(produccionAceite, getEspacioDisponible(TipoProducto.ACEITE));
+
+        excedenteJugo += produccionJugo - ingresoJugo;
+        excedenteCascara += produccionCascara - ingresoCascara;
+        excedenteAceite += produccionAceite - ingresoAceite;
 
 
-        // Intentar almacenar la produccion
-        agregarStock(TipoProducto.JUGO, produccionJugo);
-        agregarStock(TipoProducto.CASCARA, produccionCascara);
-        agregarStock(TipoProducto.ACEITE, produccionAceite);
-
-
-        // Calcular cuanto ingreso realmente
-        double ingresoJugo = stockJugo - stockAnteriorJugo;
-        double ingresoCascara = stockCascara - stockAnteriorCascara;
-        double ingresoAceite = stockAceite - stockAnteriorAceite;
-
-
-        // Crear lotes solamente por las toneladas almacenadas
+        // Cada ingreso crea el lote y su capa en planta
         if (ingresoJugo > 0) {
             modelo.crearLoteEnPlanta(
                 TipoProducto.JUGO,
@@ -131,19 +89,11 @@ class Planta extends Agent {
     }
 
     double getStock(TipoProducto producto) {
-        switch (producto) {
-            case JUGO:
-                return stockJugo;
+        // El stock de la planta se deriva de sus capas (ADR-023): no hay un saldo propio
+        // que pueda quedar desalineado con los lotes.
+        Main modelo = (Main) getRootAgent();
 
-            case CASCARA:
-                return stockCascara;
-
-            case ACEITE:
-                return stockAceite;
-
-            default:
-                return 0;
-        }
+        return modelo.inventario.stock("PLANTA", producto);
     }
 
     double getCapacidad(TipoProducto producto) {
@@ -164,38 +114,5 @@ class Planta extends Agent {
 
     double getEspacioDisponible(TipoProducto producto) {
         return max(0, getCapacidad(producto) - getStock(producto));
-    }
-
-    boolean retirarStock(TipoProducto producto, double toneladas) {
-        if (toneladas <= 0) {
-            return false;
-        }
-
-        switch (producto) {
-
-            case JUGO:
-                if (stockJugo >= toneladas) {
-                    stockJugo -= toneladas;
-                    return true;
-                }
-                return false;
-
-            case CASCARA:
-                if (stockCascara >= toneladas) {
-                    stockCascara -= toneladas;
-                    return true;
-                }
-                return false;
-
-            case ACEITE:
-                if (stockAceite >= toneladas) {
-                    stockAceite -= toneladas;
-                    return true;
-                }
-                return false;
-
-            default:
-                return false;
-        }
     }
 }

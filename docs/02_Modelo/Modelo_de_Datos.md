@@ -46,9 +46,9 @@ Definir variables, relaciones, unidades y reglas de integridad. Los nombres se b
 | `cliente` | String/Agent | — | Objetivo |
 | `calidad` | String/OptionList | — | Objetivo |
 | `toneladasObjetivo` | double | tn | Objetivo |
-| `toneladasIniciales` | double | tn | Actual, será producido acumulado |
-| `toneladasDisponibles` | double | tn | Actual, en transición |
-| `toneladasReservadas` | double | tn | Actual |
+| `toneladasIniciales` | double | tn | Actual, producido; ya no se reescribe |
+| `getToneladasDisponibles()` | double | tn | Actual, derivado de las capas |
+| `getToneladasReservadas()` | double | tn | Actual, derivado de las reservas de las capas |
 | `toneladasDespachadas` | double | tn | Objetivo |
 | `diaProduccion` | double | día | Actual |
 | `diaApertura` | double | día | Objetivo |
@@ -59,18 +59,22 @@ Definir variables, relaciones, unidades y reglas de integridad. Los nombres se b
 
 ### Ubicación física: capas
 
-Estado real: no implementado. Las listas paralelas que este documento describía nunca existieron en el modelo (hallazgo H-03) y quedan reemplazadas por capas (ADR-021), implementadas como clase Java (ADR-030).
+Implementado como capas (ADR-021) en las clases Java `Capa` e `Inventario` (ADR-030). Las listas paralelas que este documento describía nunca existieron en el modelo (hallazgo H-03).
 
-`LoteProducto.capas : List<Capa>`
+La colección es única y vive en `Main.inventario`, no en cada lote: `Inventario.capas : List<Capa>`. Las capas de un lote se obtienen por `idLote`.
 
 | Campo de `Capa` | Tipo | Regla |
 |---|---|---|
-| `ubicacion` | Agent | planta o depósito; no nulo |
-| `diaIngreso` | double | día simulado del ingreso; define el orden FIFO |
+| `idLote` | int | lote de origen; inmutable |
+| `producto` | TipoProducto | inmutable |
+| `diaProduccion` | double | del lote; desempata el FIFO |
+| `idUbicacion` | String | `"PLANTA"` o `idUbicacion` del depósito; no vacío |
+| `diaIngreso` | double | día simulado del ingreso a esa ubicación; define el orden FIFO |
 | `toneladas` | double | > 0; la capa se elimina al llegar a 0 |
-| `toneladasReservadas` | double | 0..`toneladas`; derivado de las reservas activas |
+| `reservas` | List\<Reserva\> | `(codigoPedido, toneladas, diaReserva)`; su suma no puede superar `toneladas` |
+| `costoAlmacenamiento` | double | almacenaje devengado por esa capa |
 
-Invariante: no puede haber dos capas del mismo lote con la misma `ubicacion` y el mismo `diaIngreso`; se acumulan en una sola.
+Invariantes, verificados cada día por `Inventario.validar()`: no puede haber dos capas del mismo lote con la misma ubicación y el mismo `diaIngreso` (se acumulan en una sola); `toneladas` nunca es negativa; lo reservado nunca supera el saldo físico.
 
 ### Campos heredados
 
@@ -78,7 +82,7 @@ Invariante: no puede haber dos capas del mismo lote con la misma `ubicacion` y e
 - `depositoActual`.
 - `diaIngresoDeposito`.
 
-Se mantienen temporalmente para compatibilidad y no deben utilizarse en nuevas reglas definitivas.
+Se mantienen como referencia comercial y de presentación; no son saldos y no deben utilizarse en nuevas reglas definitivas. Con transferencias parciales un lote tendrá capas en varias ubicaciones a la vez y `ubicacionActual` dejará de ser suficiente.
 
 ## 4. ContenedorExportacion
 

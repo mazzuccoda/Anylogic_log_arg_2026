@@ -81,7 +81,11 @@ Los parámetros son la **interfaz de entrada** del agente: son lo que un experim
 
 Regla: **entrada → parámetro; estado → variable; resultado → variable o dataset.**
 
-### H-03 — Las listas por ubicación documentadas no existen
+### H-03 — Las listas por ubicación documentadas no existen — **resuelto**
+
+Resuelto por las capas (ADR-021): la clase Java `Capa` es `(idLote, producto, idUbicacion, diaIngreso, toneladas, reservas)` y `Inventario` mantiene la colección. Un lote puede tener capas en varias ubicaciones a la vez; `LoteProducto.ubicacionActual` queda como referencia comercial, no como saldo.
+
+Diagnóstico original:
 
 `ubicacionesFisicas` y `toneladasPorUbicacion` aparecen en la especificación y en ADR-007, pero tienen **cero ocurrencias** en el `.alp`. La fase 3 figuraba con ítems tildados y 30% de avance; su avance real es 0%.
 
@@ -89,7 +93,7 @@ Un lote sigue teniendo una única `ubicacionActual` y un único `diaIngresoDepos
 
 ### H-04 — El almacenaje diario se contabiliza dos veces con criterios distintos — **resuelto**
 
-Corregido: `devengarAlmacenamientoDiario()` es la única fuente del costo de almacenaje. Recorre los lotes con depósito y toneladas disponibles, imputa el costo al lote y **en el mismo recorrido** lo agrega al depósito, de modo que el total del depósito es por construcción la suma de sus lotes. Desaparece el filtro por `EN_DEPOSITO`, así que los lotes reservados —que siguen ocupando el depósito— también devengan.
+Corregido: `devengarAlmacenamientoDiario()` es la única fuente del costo de almacenaje. Recorre las capas alojadas en un depósito, imputa el costo a la capa y al lote y **en el mismo recorrido** lo agrega al depósito, de modo que el total del depósito es por construcción la suma de sus lotes. Desaparece el filtro por `EN_DEPOSITO`, así que los lotes reservados —que siguen ocupando el depósito— también devengan.
 
 Diagnóstico original:
 
@@ -106,7 +110,11 @@ lote.costoAcumulado          += ...;
 
 Dos fuentes de verdad del mismo costo. Y no son equivalentes: (b) excluye los lotes en estado `RESERVADO`, que (a) sí cuenta porque siguen en el stock del depósito. Apenas existe una reserva, los totales divergen, y cualquier KPI que sume ambos duplica el almacenaje.
 
-### H-05 — Reservar parte un lote en dos agentes y reescribe lo producido
+### H-05 — Reservar parte un lote en dos agentes y reescribe lo producido — **resuelto**
+
+Resuelto: `crearLoteReservadoDesdeDivision` se eliminó. Reservar es anotar `(codigoPedido, toneladas, diaReserva)` en las capas más antiguas del depósito (ADR-022, ADR-025); el lote no se parte y `toneladasIniciales` deja de reescribirse, así que vuelve a significar lo producido.
+
+Diagnóstico original:
 
 `model_src/Main.java:433-499`. `crearLoteReservadoDesdeDivision` crea un `LoteProducto` nuevo con las toneladas reservadas y **resta esas toneladas a `toneladasIniciales` del original**.
 
@@ -189,9 +197,9 @@ Ni `ContenedorExportacion` ni `Terminal` tienen lógica; `Terminal` sólo calcul
 | Prioridad | Hallazgos | Motivo |
 |---|---|---|
 | Bloquea el uso definido | ~~H-02~~, H-08 (parcial), ~~H-09~~, ~~H-10~~, H-13 | sin esto no se puede barrer ni un solo escenario |
-| Corrompe resultados | ~~H-04~~, H-05, ~~H-11~~ | producen números que parecen válidos y no lo son |
+| Corrompe resultados | ~~H-04~~, ~~H-05~~, ~~H-11~~ | producen números que parecen válidos y no lo son |
 | Corrompe la semántica temporal | ~~H-06~~, ~~H-07~~ | el reloj diario no es consistente |
-| Deuda estructural | H-01, H-03, H-12, H-14 | condicionan el diseño de todo lo que sigue |
+| Deuda estructural | H-01, ~~H-03~~, H-12, H-14 | condicionan el diseño de todo lo que sigue |
 
 Tachados: resueltos en el `.alp`.
 

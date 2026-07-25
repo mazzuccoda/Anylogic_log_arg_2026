@@ -8,7 +8,6 @@ class LoteProducto extends Agent {
     int idLote = 0;
     TipoProducto producto = TipoProducto.JUGO;
     double toneladasIniciales = 0;
-    double toneladasDisponibles = 0;
     double diaProduccion = 0;
     EstadoLote estado = EstadoLote.EN_PLANTA;
     Agent ubicacionActual = null;
@@ -17,8 +16,6 @@ class LoteProducto extends Agent {
     Deposito depositoActual = null;
     double diaIngresoDeposito = -1;
     double costoAlmacenamientoLote = 0;
-    LoteProducto loteOrigen = null;
-    double toneladasReservadas = 0;
     double diaReserva = -1;
 
     // ----- Funciones -----
@@ -26,7 +23,21 @@ class LoteProducto extends Agent {
     double getToneladasLibres() {
         return max(
             0,
-            toneladasDisponibles - toneladasReservadas
+            getToneladasDisponibles() - getToneladasReservadas()
         );
+    }
+
+    double getToneladasDisponibles() {
+        // El saldo fisico del lote es la suma de sus capas (ADR-023): el lote es la
+        // identidad productiva, la capa es la existencia fisica.
+        Main modelo = (Main) getRootAgent();
+
+        return modelo.inventario.stockLote(idLote);
+    }
+
+    double getToneladasReservadas() {
+        Main modelo = (Main) getRootAgent();
+
+        return modelo.inventario.reservadoLote(idLote);
     }
 }

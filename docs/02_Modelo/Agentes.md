@@ -55,9 +55,7 @@ Implementada para producción y stock. Pendiente consolidación DES completa.
 
 | Variable | Tipo | Unidad | Descripción |
 |---|---|---|---|
-| `stockJugo` | double | tn | Stock actual de jugo |
-| `stockCascara` | double | tn | Stock actual de cáscara |
-| `stockAceite` | double | tn | Stock actual de aceite |
+| `getStock(producto)` | double | tn | Stock actual, derivado de las capas de la planta (ADR-023) |
 | `capacidadJugo` | double | tn | Capacidad máxima |
 | `capacidadCascara` | double | tn | Capacidad máxima |
 | `capacidadAceite` | double | tn | Capacidad máxima |

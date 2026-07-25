@@ -147,7 +147,7 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 
 ## ADR-021 — Capas de inventario como unidad atómica
 
-**Estado:** aceptada.  
+**Estado:** implementada en el modelo (clases Java `Capa` e `Inventario`, variable `Main.inventario`).  
 **Reemplaza:** ADR-007.  
 **Contexto:** el inventario debe soportar un lote distribuido en varias ubicaciones, con ingresos en fechas distintas y retiros parciales. La estructura documentada de cuatro listas paralelas nunca llegó a existir en el modelo (hallazgo H-03).  
 **Decisión:** la unidad atómica del inventario físico es la capa `(lote, ubicacion, diaIngreso, toneladas, toneladasReservadas)`. Un lote tiene N capas.  
@@ -156,30 +156,30 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 
 ## ADR-022 — Consumo FIFO por día de ingreso
 
-**Estado:** aceptada.  
+**Estado:** implementada. `Inventario` ordena las capas por `diaIngreso`, desempatando por `diaProduccion` y `idLote` para que el consumo no dependa del orden de inserción.  
 **Decisión:** transferencias, reservas y despachos consumen capas en orden FIFO por `diaIngreso`. La imputación de costos de almacenaje sigue la misma regla.  
 **Alternativas:** LIFO, costo promedio.  
 **Consecuencias:** el costo de almacenaje deja de depender del orden de ejecución del código; permite reproducir el criterio contable habitual del depósito.
 
 ## ADR-023 — Stock de ubicación derivado de las capas
 
-**Estado:** aceptada.  
 **Contexto:** hoy coexisten `Planta.stock*` y `Deposito.stock*` con los saldos por ubicación del lote, lo que el propio documento identifica como riesgo de doble contabilidad.  
 **Decisión:** el stock de una ubicación es una función derivada de la suma de sus capas. Las variables de stock se conservan sólo como series para gráficos, nunca como fuente de verdad.  
-**Consecuencias:** el riesgo de doble contabilidad se elimina por diseño en lugar de vigilarse; la reconciliación de inventario se vuelve trivial.
+**Estado:** implementada. `Planta.stock*` y `Deposito.stock*`/`reservado*` se eliminaron; `getStock()` y `getReservado()` consultan `Main.inventario`. Desaparecen también las funciones mutadoras que mantenían esos saldos (`agregarStock`, `retirarStock`, `recibirProducto`, `retirarProducto`, `reservarProducto`, `liberarReserva`, `despacharReservado`): mover stock es mover capas.  
+**Consecuencias:** el riesgo de doble contabilidad se elimina por diseño en lugar de vigilarse; la reconciliación de inventario se vuelve trivial. `Inventario.validar()` corre cada día y aborta la corrida si una capa tiene toneladas negativas o más reservado que saldo físico.
 
 ## ADR-024 — Compromiso y reserva incremental
 
-**Estado:** aceptada.  
+**Estado:** implementada parcialmente. La reserva bloquea toneladas físicas sobre las capas y el despacho las consume, pero sigue siendo todo o nada por pedido: si no hay saldo libre suficiente se libera lo tomado y el pedido espera. Falta el compromiso sobre producción futura y el disparo por contenedor completo.  
 **Reemplaza:** ADR-016.  
 **Decisión:** se distinguen tres conceptos. *Compromiso*: asociación del pedido a un lote y su producción futura, sin bloquear stock. *Reserva*: bloqueo incremental de toneladas físicas existentes. *Despacho*: consumo de la reserva al cargar el contenedor. Un pedido pasa a ejecutable cuando su reserva alcanza al menos un contenedor completo.  
 **Consecuencias:** compatible con lote acumulativo y con despacho parcial; exige una regla de prioridad entre pedidos (ADR-026) y trazabilidad de reservas (ADR-025).
 
 ## ADR-025 — Reserva como entidad trazable
 
-**Estado:** aceptada.  
 **Contexto:** con las reservas representadas como escalares no se puede saber qué pedido reservó qué toneladas, ni liberar la reserva correcta al cancelar, ni asociar reserva a contenedor.  
 **Decisión:** la reserva es un registro `(idReserva, pedido, contenedor, lote, capa, toneladas, estado)`. Las toneladas reservadas de la capa se derivan de las reservas activas.  
+**Estado:** implementada parcialmente. Cada `Capa` guarda su lista de `Capa.Reserva` `(codigoPedido, toneladas, diaReserva)`, y `capa.reservadas()` es la suma de esas reservas, no un escalar aparte. Todavía no hay `idReserva` ni contenedor asociado: la clave es el `codigoPedido`, que basta para reservar, liberar y despachar por pedido. El contenedor se agrega en la fase 6.  
 **Consecuencias:** trazabilidad completa y liberación correcta; un registro más a mantener.
 
 ## ADR-026 — Prioridad entre pedidos
