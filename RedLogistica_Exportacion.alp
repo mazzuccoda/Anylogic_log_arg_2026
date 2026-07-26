@@ -15312,13 +15312,14 @@ estado = factible
 			<Name><![CDATA[Escenarios]]></Name>
 			<AdditionalClassCode><![CDATA[// Version del modelo con la que se corrio el barrido: sin esto un csv de
 // resultados no se puede volver a atar al codigo que lo produjo.
-static final String VERSION_MODELO = "fase-15";
+static final String VERSION_MODELO = "fase-16";
 
 static final int REPLICAS = 30;
 
 /** Una corrida del barrido: su identidad y sus KPIs de cierre. */
 static class Corrida {
 	String idEscenario;
+	String config;
 	int replica;
 	long semilla;
 	double[] kpis;
@@ -15375,7 +15376,235 @@ double[] muestra(String idEscenario, int kpi) {
 		x[i] = valores.get(i);
 	}
 	return x;
-}]]></AdditionalClassCode>
+}
+
+// ------------------------------------------------------------- tablero
+
+/** Cuantas corridas terminadas tiene un escenario. */
+int corridasDe(String idEscenario) {
+	int n = 0;
+	for (Corrida c : corridas) {
+		if (c.idEscenario.equals(idEscenario)) {
+			n++;
+		}
+	}
+	return n;
+}
+
+/** Configuracion con la que corrio el escenario, tomada de su primera corrida. */
+String configDe(String idEscenario) {
+	for (Corrida c : corridas) {
+		if (c.idEscenario.equals(idEscenario)) {
+			return c.config;
+		}
+	}
+	return "";
+}
+
+/** Media de un KPI en un escenario; NaN si todavia no hay corridas. */
+double mediaKpi(String idEscenario, int kpi) {
+	double[] x = muestra(idEscenario, kpi);
+	return x.length == 0 ? Double.NaN : estadisticos(x)[0];
+}
+
+/** Desvio muestral de un KPI en un escenario. */
+double desvioKpi(String idEscenario, int kpi) {
+	double[] x = muestra(idEscenario, kpi);
+	return x.length == 0 ? Double.NaN : estadisticos(x)[1];
+}
+
+/** Escenarios que ya tienen al menos una corrida, en el orden de la tabla. */
+java.util.List<String> escenariosConDatos() {
+	java.util.List<String> ids = new java.util.ArrayList<String>();
+	for (String id : GeneradorSintetico.ESCENARIOS) {
+		if (corridasDe(id) > 0) {
+			ids.add(id);
+		}
+	}
+	return ids;
+}
+
+/** Barra de bloques para comparar magnitudes sin depender de un grafico. */
+String barra(double fraccion, int ancho) {
+	if (Double.isNaN(fraccion)) {
+		return repetir('.', ancho);
+	}
+	int llenos = (int) Math.round(Math.max(0, Math.min(1, fraccion)) * ancho);
+	return repetir('#', llenos) + repetir('.', ancho - llenos);
+}
+
+String repetir(char c, int n) {
+	StringBuilder s = new StringBuilder();
+	for (int i = 0; i < n; i++) {
+		s.append(c);
+	}
+	return s.toString();
+}
+
+/** Avance del barrido: iteracion en curso sobre el total planificado. */
+double fraccionCompletada() {
+	int total = REPLICAS * GeneradorSintetico.ESCENARIOS.length;
+	return total == 0 ? 0 : Math.min(1.0, (double) corridas.size() / total);
+}
+
+String escenarioEnCurso() {
+	int i = (getCurrentIteration() - 1) / REPLICAS;
+	if (i < 0 || i >= GeneradorSintetico.ESCENARIOS.length) {
+		return "-";
+	}
+	return GeneradorSintetico.ESCENARIOS[i];
+}
+
+/** Tabla comparativa: una fila por escenario, con el delta contra E-00. */
+String tablaEscenarios() {
+	StringBuilder s = new StringBuilder();
+
+	s.append(String.format(java.util.Locale.US,
+		"%-5s %3s %-24s %12s %9s %8s %7s %7s %7s %7s %9s %8s\n",
+		"esc", "n", "cam  dep   prod  xd cons", "costo USD", "+-costo",
+		"USD/tn", "serv", "atraso", "utFlo", "utPor", "exced tn", "vs E-00"));
+
+	double costoBase = mediaKpi("E-00", 0);
+
+	for (String id : escenariosConDatos()) {
+
+		double costo = mediaKpi(id, 0);
+		double delta = Double.isNaN(costoBase) || costoBase == 0
+			? Double.NaN
+			: 100 * (costo - costoBase) / costoBase;
+
+		s.append(String.format(java.util.Locale.US,
+			"%-5s %3d %-24s %12.0f %9.0f %8.1f %6.1f%% %7.2f %6.0f%% %6.0f%% %9.0f %7s\n",
+			id,
+			corridasDe(id),
+			configDe(id),
+			costo,
+			desvioKpi(id, 0),
+			mediaKpi(id, 1),
+			100 * mediaKpi(id, 2),
+			mediaKpi(id, 3),
+			100 * mediaKpi(id, 4),
+			100 * mediaKpi(id, 5),
+			mediaKpi(id, 9),
+			Double.isNaN(delta) ? "-" : String.format(java.util.Locale.US, "%+.1f%%", delta)));
+	}
+
+	if (corridas.isEmpty()) {
+		s.append("sin corridas terminadas todavia");
+	}
+	return s.toString();
+}
+
+/**
+ * Frente de decision: escenario por escenario, barra de nivel de servicio y de
+ * costo por tonelada, y si alguna otra configuracion lo domina (mejor servicio
+ * y menor costo por tonelada a la vez).
+ */
+String frenteDecision() {
+	java.util.List<String> ids = escenariosConDatos();
+
+	if (ids.isEmpty()) {
+		return "sin corridas terminadas todavia";
+	}
+
+	double servMin = Double.MAX_VALUE, servMax = -Double.MAX_VALUE;
+	double costoMin = Double.MAX_VALUE, costoMax = -Double.MAX_VALUE;
+
+	for (String id : ids) {
+		servMin = Math.min(servMin, mediaKpi(id, 2));
+		servMax = Math.max(servMax, mediaKpi(id, 2));
+		costoMin = Math.min(costoMin, mediaKpi(id, 1));
+		costoMax = Math.max(costoMax, mediaKpi(id, 1));
+	}
+
+	StringBuilder s = new StringBuilder();
+	s.append(String.format("%-5s %-14s %-14s %s\n",
+		"esc", "servicio", "costo por tn", "estado"));
+
+	for (String id : ids) {
+
+		double serv = mediaKpi(id, 2);
+		double costoTn = mediaKpi(id, 1);
+
+		String dominador = "";
+		for (String otro : ids) {
+			if (otro.equals(id)) {
+				continue;
+			}
+			boolean mejorServicio = mediaKpi(otro, 2) >= serv;
+			boolean mejorCosto = mediaKpi(otro, 1) <= costoTn;
+			boolean estricto = mediaKpi(otro, 2) > serv || mediaKpi(otro, 1) < costoTn;
+
+			if (mejorServicio && mejorCosto && estricto) {
+				dominador = otro;
+				break;
+			}
+		}
+
+		s.append(String.format(java.util.Locale.US, "%-5s %-14s %-14s %s\n",
+			id,
+			barra(escalar(serv, servMin, servMax), 12),
+			barra(escalar(costoMax + costoMin - costoTn, costoMin, costoMax), 12),
+			dominador.isEmpty() ? "eficiente" : "dominado por " + dominador));
+	}
+
+	return s.toString();
+}
+
+/** Posicion de un valor dentro del rango observado en el barrido. */
+double escalar(double valor, double minimo, double maximo) {
+	if (Double.isNaN(valor) || maximo <= minimo) {
+		return 1;
+	}
+	return (valor - minimo) / (maximo - minimo);
+}
+
+/** Lectura corta: quien gana en servicio, en costo y con la restriccion de servicio. */
+String recomendaciones() {
+	java.util.List<String> ids = escenariosConDatos();
+
+	if (ids.isEmpty()) {
+		return "";
+	}
+
+	String mejorServicio = null;
+	String menorCostoTn = null;
+	String menorCostoConServicio = null;
+
+	for (String id : ids) {
+
+		if (mejorServicio == null || mediaKpi(id, 2) > mediaKpi(mejorServicio, 2)) {
+			mejorServicio = id;
+		}
+		if (menorCostoTn == null || mediaKpi(id, 1) < mediaKpi(menorCostoTn, 1)) {
+			menorCostoTn = id;
+		}
+		if (mediaKpi(id, 2) >= 0.95
+			&& (menorCostoConServicio == null
+				|| mediaKpi(id, 1) < mediaKpi(menorCostoConServicio, 1))) {
+			menorCostoConServicio = id;
+		}
+	}
+
+	StringBuilder s = new StringBuilder();
+
+	s.append(String.format(java.util.Locale.US, "Mejor nivel de servicio: %s (%.1f%%, atraso %.2f dias)\n",
+		mejorServicio, 100 * mediaKpi(mejorServicio, 2), mediaKpi(mejorServicio, 3)));
+
+	s.append(String.format(java.util.Locale.US, "Menor costo por tonelada: %s (%.1f USD/tn, servicio %.1f%%)\n",
+		menorCostoTn, mediaKpi(menorCostoTn, 1), 100 * mediaKpi(menorCostoTn, 2)));
+
+	if (menorCostoConServicio == null) {
+		s.append("Ningun escenario alcanza 95% de nivel de servicio");
+	} else {
+		s.append(String.format(java.util.Locale.US,
+			"Mas barato con servicio >= 95%%: %s (%.1f USD/tn)",
+			menorCostoConServicio, mediaKpi(menorCostoConServicio, 1)));
+	}
+
+	return s.toString();
+}
+]]></AdditionalClassCode>
 			<CommandLineArguments><![CDATA[]]></CommandLineArguments>
 			<InitialSetupCode><![CDATA[corridas.clear();]]></InitialSetupCode>
 			<MaximumMemory>512</MaximumMemory>
@@ -15385,6 +15614,14 @@ double[] muestra(String idEscenario, int kpi) {
 Corrida c = new Corrida();
 
 c.idEscenario = root.idEscenario;
+c.config = String.format(java.util.Locale.US, "%d/%d  x%.2f  x%.2f  %-3s %s",
+	root.datos.escenario.camionesProducto,
+	root.datos.escenario.camionesPortacontenedor,
+	root.datos.escenario.factorCapacidadDeposito,
+	root.datos.escenario.factorProduccion,
+	root.datos.escenario.habilitaCrossDock ? "si" : "no",
+	"CONSOLIDACION_TERMINAL".equals(root.datos.escenario.estrategiaConsolidacion)
+		? "term" : "dep");
 c.replica = root.replica;
 c.semilla = root.semillaBase + root.replica;
 
@@ -15408,6 +15645,381 @@ corridas.add(c);]]></AfterSimulationRunCode>
 			<SelectionModeForSimultaneousEvents>LIFO</SelectionModeForSimultaneousEvents>
 			<VmArgs><![CDATA[]]></VmArgs>
 			<LoadRootFromSnapshot>false</LoadRootFromSnapshot>
+
+			<Presentation>
+				<Text>
+					<Id>1792000000001</Id>
+					<Name><![CDATA[tituloBarrido]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Barrido de escenarios · comparación y frente de decisión"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>18</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792000000002</Id>
+					<Name><![CDATA[subtituloBarrido]]></Name>
+					<X>0</X><Y>24</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-13421773</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Medias de las réplicas terminadas · el detalle por corrida queda en resultados/kpis_por_corrida.csv"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1792000000003</Id>
+					<Name><![CDATA[panelAvance]]></Name>
+					<X>0</X><Y>45</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>430</Width>
+					<Height>150</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1792000000004</Id>
+					<Name><![CDATA[panelAvanceTitulo]]></Name>
+					<X>14</X><Y>55</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Avance del barrido"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792000000005</Id>
+					<Name><![CDATA[avanceLineas]]></Name>
+					<X>14</X><Y>83</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Corrida " + corridas.size() + " de "
++ (REPLICAS * GeneradorSintetico.ESCENARIOS.length)
++ "  (" + round(100 * fraccionCompletada()) + "%)"
++ "\n" + barra(fraccionCompletada(), 34)
++ "\nEscenario en curso: " + escenarioEnCurso()
++ " · réplica " + ((getCurrentIteration() - 1) % REPLICAS)
++ "\nEscenarios con datos: " + escenariosConDatos().size()
++ " de " + GeneradorSintetico.ESCENARIOS.length
++ "\nRéplicas por escenario: " + REPLICAS + " · versión " + VERSION_MODELO]]></TextCode>
+					<Font>
+						<Name>Monospaced</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1792000000006</Id>
+					<Name><![CDATA[panelLectura]]></Name>
+					<X>450</X><Y>45</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>830</Width>
+					<Height>150</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1792000000007</Id>
+					<Name><![CDATA[panelLecturaTitulo]]></Name>
+					<X>464</X><Y>55</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Lectura del barrido"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792000000008</Id>
+					<Name><![CDATA[lecturaLineas]]></Name>
+					<X>464</X><Y>83</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA[recomendaciones()]]></TextCode>
+					<Font>
+						<Name>Monospaced</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792000000009</Id>
+					<Name><![CDATA[lecturaNota]]></Name>
+					<X>464</X><Y>160</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-13421773</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["El costo total no ordena las decisiones por sí solo: la planta no cobra\n"
++ "almacenaje, así que dejar producto varado parece más barato.\n"
++ "Leer primero servicio y atraso, después costo."]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1792000000010</Id>
+					<Name><![CDATA[panelTabla]]></Name>
+					<X>0</X><Y>210</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>880</Width>
+					<Height>300</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1792000000011</Id>
+					<Name><![CDATA[panelTablaTitulo]]></Name>
+					<X>14</X><Y>220</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Medias por escenario"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792000000012</Id>
+					<Name><![CDATA[tablaLineas]]></Name>
+					<X>14</X><Y>248</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA[tablaEscenarios()]]></TextCode>
+					<Font>
+						<Name>Monospaced</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1792000000013</Id>
+					<Name><![CDATA[panelFrente]]></Name>
+					<X>900</X><Y>210</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>390</Width>
+					<Height>300</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1792000000014</Id>
+					<Name><![CDATA[panelFrenteTitulo]]></Name>
+					<X>914</X><Y>220</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Frente de decisión: servicio contra costo por tonelada"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792000000015</Id>
+					<Name><![CDATA[frenteLineas]]></Name>
+					<X>914</X><Y>248</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA[frenteDecision()]]></TextCode>
+					<Font>
+						<Name>Monospaced</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792000000016</Id>
+					<Name><![CDATA[frenteNota]]></Name>
+					<X>914</X><Y>430</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-13421773</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Barras relativas al rango del barrido:\n"
++ "más llena es mejor en las dos columnas.\n"
++ "Dominado: otro escenario da a la vez mejor\n"
++ "servicio y menor costo por tonelada.\n"
++ "Sólo son comparables escenarios con la\n"
++ "misma producción y demanda (E-06 y E-07 no)."]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+			</Presentation>
+
 
 
 			<AfterExperimentCode><![CDATA[// Detalle por corrida: es la evidencia, y sin escenario, replica, semilla y

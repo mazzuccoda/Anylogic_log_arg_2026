@@ -359,6 +359,15 @@ El costo del flete planta→depósito pasa a cobrarse **por viaje** (fijo y kilo
 **Alternativas:** dejar los textos sueltos (ilegible y con riesgo de divergencia); armar el tablero en un agente aparte (gasta uno de los diez tipos de agente que PLE permite, ADR-031); publicar los KPIs sólo por CSV (pierde el diagnóstico temporal: cuándo se satura la flota, cuándo empiezan los atrasos).  
 **Consecuencias:** el tablero es una lectura **de una corrida**, no un resultado: salvo E-09 los números cambian entre réplicas, y la comparación entre escenarios se sigue haciendo sobre `resultados/kpis_por_corrida.csv`. El diagrama de flujo y las poblaciones quedan debajo del tablero en el mismo lienzo. Agregar un KPI ahora obliga a agregar primero la función en `Main`, que es lo que mantiene alineados tablero y barrido.
 
+## ADR-046 — El tablero del barrido se calcula sobre la misma colección de corridas que el CSV
+
+**Estado:** aceptada.  
+**Fecha:** 2026-07-26  
+**Contexto:** el experimento `Escenarios` no tenía pantalla: las 360 corridas avanzaban sin mostrar nada y la comparación entre escenarios sólo aparecía al final, en la consola y en el CSV. Para dimensionar hace falta ver antes qué configuración conviene, y el riesgo evidente era resolverlo con un tablero que recalculara sus propias medias y terminara diciendo algo distinto del CSV.  
+**Decisión:** la pantalla del experimento lee `corridas`, la misma colección que `After simulation run` llena y que `After experiment` escribe en `resultados/kpis_por_corrida.csv`, a través de `mediaKpi`, `desvioKpi` y `muestra`, que ya existían para el resumen de consola. Cada corrida guarda además su configuración (`Corrida.config`, tomada de `root.datos.escenario`), así que la tabla describe el escenario con lo que el modelo efectivamente corrió y no con una leyenda escrita en el tablero. La comparación se publica como frente de decisión —dominado si otro escenario da a la vez mejor nivel de servicio y menor costo por tonelada— con barras relativas al rango del barrido, y no como un ranking por costo.  
+**Alternativas:** gráficos de barras de AnyLogic en la pantalla del experimento (no hay tiempo de modelo que dispare su actualización, y las series por escenario habría que llenarlas a mano igual); un agente de tablero (gasta uno de los diez tipos que PLE permite, ADR-031); dejar la comparación sólo en el CSV (obliga a esperar el final del barrido y a salir del modelo para decidir).  
+**Consecuencias:** agregar un KPI al tablero del barrido es agregarlo a `KPIS` y al arreglo de `Corrida.kpis`, con lo que pantalla, consola y CSV se mueven juntos. El frente de decisión sólo es válido entre escenarios con la misma producción y demanda: E-06 y E-07 cambian la escala del problema y aparecen como eficientes por eso; el panel lo advierte en pantalla, pero el modelo no lo impide. La dominancia usa costo por tonelada, que hereda la limitación de ADR-044 (la planta no cobra almacenaje).
+
 ## Plantilla para nuevas decisiones
 
 ```markdown
