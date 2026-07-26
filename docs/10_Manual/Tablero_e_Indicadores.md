@@ -145,3 +145,54 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 - No hay costo de almacenaje en planta, así que el excedente en planta no aparece en ningún costo.
 - La carga y la descarga no consumen jornada de camión (faltan velocidades operativas en las tablas), así que la utilización de la flota de producto está subestimada.
 - La terminal todavía no tiene cola propia ni THC, así que no hay panel de terminal.
+
+---
+
+## 7. Tablero del barrido (experimento `Escenarios`)
+
+El tablero de `Main` responde "qué pasó en esta corrida". El del barrido responde "qué configuración conviene", que es la pregunta del proyecto. Se ve al correr `Escenarios` y se actualiza mientras las 360 corridas avanzan.
+
+![Tablero del barrido al terminar las 360 corridas](img/tablero_barrido.png)
+
+```
+  Avance del barrido            Lectura del barrido
+
+  Medias por escenario                        Frente de decisión
+```
+
+### Avance del barrido
+
+Corridas terminadas sobre las planificadas (escenarios × `REPLICAS`), barra de progreso, escenario y réplica en curso, escenarios con datos y versión del modelo. Sirve para saber si el barrido está a mitad de camino y de qué escenario son todavía los números en pantalla.
+
+### Lectura del barrido
+
+Tres líneas calculadas sobre las medias: mejor nivel de servicio, menor costo por tonelada y **el más barato entre los que alcanzan 95 % de nivel de servicio**, que es la forma de leer el barrido que evita elegir por costo una configuración que no sirve.
+
+### Medias por escenario
+
+Una fila por escenario con la configuración que lo define y las medias de sus réplicas:
+
+| Columna | Qué es |
+|---|---|
+| `n` | Réplicas terminadas del escenario |
+| `cam` | Camiones de producto / portacontenedores |
+| `dep`, `prod` | Factores de capacidad de depósito y de producción |
+| `xd`, `cons` | Cross dock habilitado; sitio de consolidación (`dep` o `term`) |
+| `costo USD`, `+-costo` | Media y desvío muestral del costo total de campaña |
+| `USD/tn`, `serv`, `atraso` | Costo por tonelada exportada, nivel de servicio y atraso medio |
+| `utFlo`, `utPor` | Utilización de la flota de producto y del pool de portacontenedores |
+| `exced tn` | Excedente final |
+| `vs E-00` | Diferencia porcentual de costo total contra el caso base |
+
+El desvío está al lado de la media a propósito: **una diferencia de costo menor que el desvío entre réplicas no es una diferencia**. En E-09 (determinístico) el desvío es exactamente 0, lo que hace de ese escenario la prueba de regresión del barrido.
+
+### Frente de decisión
+
+Para cada escenario, dos barras relativas al rango observado en el barrido —más llena es mejor en las dos columnas— y el veredicto: un escenario está **dominado** si otro da a la vez mejor nivel de servicio y menor costo por tonelada, y es **eficiente** si nadie lo domina. Las barras son relativas y no absolutas porque con escala 0–100 % todas las configuraciones se ven iguales.
+
+Dos advertencias que el panel repite en pantalla:
+
+- sólo son comparables escenarios con la misma producción y la misma demanda; E-06 (+30 %) y E-07 (−30 %) cambian la escala del problema y aparecen como eficientes por eso, no por ser mejores decisiones;
+- el costo por tonelada hereda la limitación del contrato de datos: la planta no cobra almacenaje.
+
+Todos los números del tablero salen de las mismas corridas que el CSV: son medias de `corridas`, la misma colección que se escribe en `resultados/kpis_por_corrida.csv` (ADR-046).

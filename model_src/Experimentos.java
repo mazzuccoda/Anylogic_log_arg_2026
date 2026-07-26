@@ -15,13 +15,14 @@ class Escenarios extends ParamVariationExperiment {
     void additionalClassCode() {
         // Version del modelo con la que se corrio el barrido: sin esto un csv de
         // resultados no se puede volver a atar al codigo que lo produjo.
-        static final String VERSION_MODELO = "fase-15";
+        static final String VERSION_MODELO = "fase-16";
 
         static final int REPLICAS = 30;
 
         /** Una corrida del barrido: su identidad y sus KPIs de cierre. */
         static class Corrida {
         	String idEscenario;
+        	String config;
         	int replica;
         	long semilla;
         	double[] kpis;
@@ -79,6 +80,233 @@ class Escenarios extends ParamVariationExperiment {
         	}
         	return x;
         }
+
+        // ------------------------------------------------------------- tablero
+
+        /** Cuantas corridas terminadas tiene un escenario. */
+        int corridasDe(String idEscenario) {
+        	int n = 0;
+        	for (Corrida c : corridas) {
+        		if (c.idEscenario.equals(idEscenario)) {
+        			n++;
+        		}
+        	}
+        	return n;
+        }
+
+        /** Configuracion con la que corrio el escenario, tomada de su primera corrida. */
+        String configDe(String idEscenario) {
+        	for (Corrida c : corridas) {
+        		if (c.idEscenario.equals(idEscenario)) {
+        			return c.config;
+        		}
+        	}
+        	return "";
+        }
+
+        /** Media de un KPI en un escenario; NaN si todavia no hay corridas. */
+        double mediaKpi(String idEscenario, int kpi) {
+        	double[] x = muestra(idEscenario, kpi);
+        	return x.length == 0 ? Double.NaN : estadisticos(x)[0];
+        }
+
+        /** Desvio muestral de un KPI en un escenario. */
+        double desvioKpi(String idEscenario, int kpi) {
+        	double[] x = muestra(idEscenario, kpi);
+        	return x.length == 0 ? Double.NaN : estadisticos(x)[1];
+        }
+
+        /** Escenarios que ya tienen al menos una corrida, en el orden de la tabla. */
+        java.util.List<String> escenariosConDatos() {
+        	java.util.List<String> ids = new java.util.ArrayList<String>();
+        	for (String id : GeneradorSintetico.ESCENARIOS) {
+        		if (corridasDe(id) > 0) {
+        			ids.add(id);
+        		}
+        	}
+        	return ids;
+        }
+
+        /** Barra de bloques para comparar magnitudes sin depender de un grafico. */
+        String barra(double fraccion, int ancho) {
+        	if (Double.isNaN(fraccion)) {
+        		return repetir('.', ancho);
+        	}
+        	int llenos = (int) Math.round(Math.max(0, Math.min(1, fraccion)) * ancho);
+        	return repetir('#', llenos) + repetir('.', ancho - llenos);
+        }
+
+        String repetir(char c, int n) {
+        	StringBuilder s = new StringBuilder();
+        	for (int i = 0; i < n; i++) {
+        		s.append(c);
+        	}
+        	return s.toString();
+        }
+
+        /** Avance del barrido: iteracion en curso sobre el total planificado. */
+        double fraccionCompletada() {
+        	int total = REPLICAS * GeneradorSintetico.ESCENARIOS.length;
+        	return total == 0 ? 0 : Math.min(1.0, (double) corridas.size() / total);
+        }
+
+        String escenarioEnCurso() {
+        	int i = (getCurrentIteration() - 1) / REPLICAS;
+        	if (i < 0 || i >= GeneradorSintetico.ESCENARIOS.length) {
+        		return "-";
+        	}
+        	return GeneradorSintetico.ESCENARIOS[i];
+        }
+
+        /** Tabla comparativa: una fila por escenario, con el delta contra E-00. */
+        String tablaEscenarios() {
+        	StringBuilder s = new StringBuilder();
+
+        	s.append(String.format(java.util.Locale.US,
+        		"%-5s %3s %-24s %12s %9s %8s %7s %7s %7s %7s %9s %8s\n",
+        		"esc", "n", "cam  dep   prod  xd cons", "costo USD", "+-costo",
+        		"USD/tn", "serv", "atraso", "utFlo", "utPor", "exced tn", "vs E-00"));
+
+        	double costoBase = mediaKpi("E-00", 0);
+
+        	for (String id : escenariosConDatos()) {
+
+        		double costo = mediaKpi(id, 0);
+        		double delta = Double.isNaN(costoBase) || costoBase == 0
+        			? Double.NaN
+        			: 100 * (costo - costoBase) / costoBase;
+
+        		s.append(String.format(java.util.Locale.US,
+        			"%-5s %3d %-24s %12.0f %9.0f %8.1f %6.1f%% %7.2f %6.0f%% %6.0f%% %9.0f %7s\n",
+        			id,
+        			corridasDe(id),
+        			configDe(id),
+        			costo,
+        			desvioKpi(id, 0),
+        			mediaKpi(id, 1),
+        			100 * mediaKpi(id, 2),
+        			mediaKpi(id, 3),
+        			100 * mediaKpi(id, 4),
+        			100 * mediaKpi(id, 5),
+        			mediaKpi(id, 9),
+        			Double.isNaN(delta) ? "-" : String.format(java.util.Locale.US, "%+.1f%%", delta)));
+        	}
+
+        	if (corridas.isEmpty()) {
+        		s.append("sin corridas terminadas todavia");
+        	}
+        	return s.toString();
+        }
+
+        /**
+         * Frente de decision: escenario por escenario, barra de nivel de servicio y de
+         * costo por tonelada, y si alguna otra configuracion lo domina (mejor servicio
+         * y menor costo por tonelada a la vez).
+         */
+        String frenteDecision() {
+        	java.util.List<String> ids = escenariosConDatos();
+
+        	if (ids.isEmpty()) {
+        		return "sin corridas terminadas todavia";
+        	}
+
+        	double servMin = Double.MAX_VALUE, servMax = -Double.MAX_VALUE;
+        	double costoMin = Double.MAX_VALUE, costoMax = -Double.MAX_VALUE;
+
+        	for (String id : ids) {
+        		servMin = Math.min(servMin, mediaKpi(id, 2));
+        		servMax = Math.max(servMax, mediaKpi(id, 2));
+        		costoMin = Math.min(costoMin, mediaKpi(id, 1));
+        		costoMax = Math.max(costoMax, mediaKpi(id, 1));
+        	}
+
+        	StringBuilder s = new StringBuilder();
+        	s.append(String.format("%-5s %-14s %-14s %s\n",
+        		"esc", "servicio", "costo por tn", "estado"));
+
+        	for (String id : ids) {
+
+        		double serv = mediaKpi(id, 2);
+        		double costoTn = mediaKpi(id, 1);
+
+        		String dominador = "";
+        		for (String otro : ids) {
+        			if (otro.equals(id)) {
+        				continue;
+        			}
+        			boolean mejorServicio = mediaKpi(otro, 2) >= serv;
+        			boolean mejorCosto = mediaKpi(otro, 1) <= costoTn;
+        			boolean estricto = mediaKpi(otro, 2) > serv || mediaKpi(otro, 1) < costoTn;
+
+        			if (mejorServicio && mejorCosto && estricto) {
+        				dominador = otro;
+        				break;
+        			}
+        		}
+
+        		s.append(String.format(java.util.Locale.US, "%-5s %-14s %-14s %s\n",
+        			id,
+        			barra(escalar(serv, servMin, servMax), 12),
+        			barra(escalar(costoMax + costoMin - costoTn, costoMin, costoMax), 12),
+        			dominador.isEmpty() ? "eficiente" : "dominado por " + dominador));
+        	}
+
+        	return s.toString();
+        }
+
+        /** Posicion de un valor dentro del rango observado en el barrido. */
+        double escalar(double valor, double minimo, double maximo) {
+        	if (Double.isNaN(valor) || maximo <= minimo) {
+        		return 1;
+        	}
+        	return (valor - minimo) / (maximo - minimo);
+        }
+
+        /** Lectura corta: quien gana en servicio, en costo y con la restriccion de servicio. */
+        String recomendaciones() {
+        	java.util.List<String> ids = escenariosConDatos();
+
+        	if (ids.isEmpty()) {
+        		return "";
+        	}
+
+        	String mejorServicio = null;
+        	String menorCostoTn = null;
+        	String menorCostoConServicio = null;
+
+        	for (String id : ids) {
+
+        		if (mejorServicio == null || mediaKpi(id, 2) > mediaKpi(mejorServicio, 2)) {
+        			mejorServicio = id;
+        		}
+        		if (menorCostoTn == null || mediaKpi(id, 1) < mediaKpi(menorCostoTn, 1)) {
+        			menorCostoTn = id;
+        		}
+        		if (mediaKpi(id, 2) >= 0.95
+        			&& (menorCostoConServicio == null
+        				|| mediaKpi(id, 1) < mediaKpi(menorCostoConServicio, 1))) {
+        			menorCostoConServicio = id;
+        		}
+        	}
+
+        	StringBuilder s = new StringBuilder();
+
+        	s.append(String.format(java.util.Locale.US, "Mejor nivel de servicio: %s (%.1f%%, atraso %.2f dias)\n",
+        		mejorServicio, 100 * mediaKpi(mejorServicio, 2), mediaKpi(mejorServicio, 3)));
+
+        	s.append(String.format(java.util.Locale.US, "Menor costo por tonelada: %s (%.1f USD/tn, servicio %.1f%%)\n",
+        		menorCostoTn, mediaKpi(menorCostoTn, 1), 100 * mediaKpi(menorCostoTn, 2)));
+
+        	if (menorCostoConServicio == null) {
+        		s.append("Ningun escenario alcanza 95% de nivel de servicio");
+        	} else {
+        		s.append(String.format(java.util.Locale.US,
+        			"Mas barato con servicio >= 95%%: %s (%.1f USD/tn)",
+        			menorCostoConServicio, mediaKpi(menorCostoConServicio, 1)));
+        	}
+
+        	return s.toString();
+        }
     }
 
     // al preparar el experimento
@@ -92,6 +320,14 @@ class Escenarios extends ParamVariationExperiment {
         Corrida c = new Corrida();
 
         c.idEscenario = root.idEscenario;
+        c.config = String.format(java.util.Locale.US, "%d/%d  x%.2f  x%.2f  %-3s %s",
+        	root.datos.escenario.camionesProducto,
+        	root.datos.escenario.camionesPortacontenedor,
+        	root.datos.escenario.factorCapacidadDeposito,
+        	root.datos.escenario.factorProduccion,
+        	root.datos.escenario.habilitaCrossDock ? "si" : "no",
+        	"CONSOLIDACION_TERMINAL".equals(root.datos.escenario.estrategiaConsolidacion)
+        		? "term" : "dep");
         c.replica = root.replica;
         c.semilla = root.semillaBase + root.replica;
 

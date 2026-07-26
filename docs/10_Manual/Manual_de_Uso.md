@@ -98,10 +98,12 @@ Para correr un escenario suelto alcanza con poner su `id_escenario` en `Simulati
 
 Es lo que responde las preguntas de dimensionamiento, porque corre cada escenario muchas veces y muestra la variabilidad.
 
-1. Seleccionar `Escenarios: Main` en el árbol y correrlo con `F5`.
-2. Corre **12 escenarios × 30 réplicas = 360 corridas** sin animación; tarda alrededor de un minuto. El estado final tiene que decir `Finished`.
-3. Al terminar imprime en la consola, por escenario y por KPI: media, desvío, mínimo, máximo, P95 y el delta contra E-00 (absoluto y porcentual).
-4. Escribe `resultados/kpis_por_corrida.csv`, una fila por corrida.
+1. Seleccionar `Escenarios: Main` en el árbol, botón derecho → `Run` (con `F5` corre el último experimento usado, que suele ser `Simulation`).
+2. Se abre el **tablero del barrido**; apretar `Run` (▶) para arrancar las corridas.
+3. Corre **12 escenarios × 30 réplicas = 360 corridas** sin animación; tarda alrededor de un minuto. El estado final tiene que decir `Finished`.
+4. El tablero se actualiza mientras corre: avance, medias por escenario y frente de decisión ([cómo se lee](Tablero_e_Indicadores.md#7-tablero-del-barrido-experimento-escenarios)).
+5. Al terminar imprime en la consola, por escenario y por KPI: media, desvío, mínimo, máximo, P95 y el delta contra E-00 (absoluto y porcentual).
+6. Escribe `resultados/kpis_por_corrida.csv`, una fila por corrida.
 
 Notas importantes:
 
@@ -117,7 +119,11 @@ Notas importantes:
 
 El tablero de `Main` durante la corrida (paso 3). Sirve para entender **cómo** se llegó al resultado: cuándo se llena el depósito, cuándo se satura la flota, cuándo empiezan los atrasos.
 
-### 7.2 El CSV del barrido
+### 7.2 En el tablero del barrido
+
+La pantalla del experimento `Escenarios` muestra las medias de las réplicas ya terminadas: la tabla por escenario con la configuración que le corresponde (camiones, factor de capacidad de depósito, factor de producción, cross dock, sitio de consolidación) y el frente de decisión, que marca qué escenarios están dominados. Es la lectura rápida; la evidencia sigue siendo el CSV.
+
+### 7.3 El CSV del barrido
 
 `resultados/kpis_por_corrida.csv`, una fila por corrida:
 

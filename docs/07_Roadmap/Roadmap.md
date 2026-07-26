@@ -172,6 +172,17 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [ ] Intervalos de confianza y comparación entre escenarios en pantalla: hoy sólo están en la salida del barrido.
 - [ ] Panel de terminal: la terminal todavía no tiene cola ni costo propio (fase 9).
 
+## 11d. Fase 16 — Tablero del barrido
+
+- [x] Pantalla propia del experimento `Escenarios` (antes estaba vacía): avance de las corridas, lectura del barrido, medias por escenario y frente de decisión (ADR-046).
+- [x] La tabla muestra la configuración de cada escenario (camiones, factor de depósito, factor de producción, cross dock, sitio de consolidación) tomada de la corrida, no de una lista escrita a mano en el tablero.
+- [x] Media y desvío del costo lado a lado, para que no se lea como diferencia lo que no supera la variabilidad entre réplicas.
+- [x] Frente de decisión: barras relativas al rango del barrido y marca de escenario dominado (otro da a la vez mejor servicio y menor costo por tonelada).
+- [x] Recomendación con restricción de servicio: el más barato entre los que alcanzan 95%.
+- [x] Verificado en PLE: 360 corridas `Finished`, medias sin cambios respecto de la fase 15 y CSV etiquetado `fase-16`.
+- [ ] Intervalos de confianza y prueba estadística contra E-00 en el tablero (hoy media, desvío y delta).
+- [ ] Marcar automáticamente los escenarios no comparables (E-06 y E-07 cambian producción); hoy es una advertencia escrita en el panel.
+
 ## 12. Fase 9 — Terminal
 
 - [ ] Entrega de vacíos.
