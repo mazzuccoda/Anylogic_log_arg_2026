@@ -35,7 +35,7 @@ Cada escenario es **una fila**: `GeneradorSintetico.escenario(id, semilla)` part
 | E-00 | Caso base | — | Referencia |
 | E-01 | Flota reducida | `camiones_producto` 3 → 1, `camiones_portacontenedor` 4 → 1 | P2, P6: flota mínima sin degradar servicio |
 | E-02 | Flota ampliada | `camiones_producto` 3 → 6, `camiones_portacontenedor` 4 → 8 | P2, P6: rendimientos decrecientes |
-| E-03 | Depósitos chicos | `factor_capacidad_deposito` 0,5× | P1, P8: capacidad mínima sin excedente |
+| E-03 | Depósitos chicos | `factor_capacidad_deposito` 0,5× | P1, P8: capacidad mínima sin sobrecargar la planta |
 | E-04 | Depósitos grandes | `factor_capacidad_deposito` 2× | P1, P8: saturación |
 | E-05 | Cross docking | `habilita_cross_dock` | P5: ahorro real del cross docking |
 | E-06 | Campaña alta | `factor_produccion` +30% | P7: robustez |
@@ -44,14 +44,15 @@ Cada escenario es **una fila**: `GeneradorSintetico.escenario(id, semilla)` part
 | E-09 | Determinístico | Variabilidades en 0 y plan de pedidos regular | Verificación: la réplica no puede cambiar nada |
 | E-10 | Almacenaje caro | `factor_storage` ×2 | Cuándo conviene mover producto vs guardarlo |
 | E-11 | Consolidación en terminal | `estrategia_consolidacion` | Dónde conviene estibar |
+| E-12 | Frío propio reactivo | `politica_frio_propio` `FLEXIBLE` → `REACTIVA` | ADR-048: cuánto compra retener en frío propio |
 
-Dos escenarios de la propuesta original no están en la tabla:
+Un escenario de la propuesta original sigue sin estar en la tabla:
 
-- **Capacidad de planta a la mitad**: la palanca existe (`factor_capacidad_planta`) pero no tiene escenario asignado, porque el excedente de la campaña se acumula en planta y el escenario sólo mediría el descarte.
 - **Política de prioridad**: la regla de asignación es hoy única (fecha límite). El escenario se agrega cuando existan las tres políticas.
 
 ## 4. Diseño de experimento
 
+- **Corridas:** 13 escenarios × 30 réplicas = 390.
 - **Réplicas:** 30 por escenario (`REPLICAS` en el experimento), semilla `semilla_base + replica`.
 - **Estadísticos reportados:** media, desvío, mínimo, máximo y P95 de cada KPI, impresos por escenario al terminar el barrido.
 - **Comparación:** cada escenario se reporta como delta absoluto y porcentual contra E-00.
@@ -70,15 +71,23 @@ KPIs de cierre de corrida (funciones de `Main`):
 | `viajes_planta_deposito` | `viajesPlantaDeposito` — viajes de camión efectivamente hechos en la campaña |
 | `uso_posiciones_consolidacion` | `usoPosicionesConsolidacion()` |
 | `toneladas_exportadas` | `toneladasExportadas()` |
-| `excedente_final_tn` | `excedenteFinalTn()` |
+| `excedente_final_tn` | `excedenteFinalTn()` — stock que queda en la red al cierre, **no** producto perdido (ADR-048) |
 | `toneladas_cross_dock` | `toneladasCrossDock` |
 | `contenedores_exportados` | `contarContenedores(EXPORTADO)` |
+| `costo_oportunidad_frio_usd` | `costoOportunidadFrio` — frío propio devengado, fuera de caja (ADR-049) |
+| `costo_total_economico_usd` | `costoTotalEconomico()` — caja + oportunidad + penalidad de sobrecarga |
+| `costo_economico_usd_tn` | `costoEconomicoPorTonelada()` |
+| `ton_dia_sobre_nominal` | `tonDiaSobreNominalPlanta` — tonelada-día por encima del nivel nominal de planta |
+| `dias_sobrecarga` | `diasSobrecargaPlanta` |
+| `pico_ocupacion_planta_pct` | `picoOcupacionPlantaPct` |
+
+Los tres últimos son la respuesta a "cuánto frío falta": desde la fase 19 la planta no descarta producto, así que el faltante de capacidad se lee ahí y no en el excedente.
 
 ## 5. Cómo se implementa el barrido en PLE
 
 PLE incluye Parameter Variation, así que el barrido con réplicas es viable sin licencia paga (ADR-020). Lo que PLE no ofrece es Custom Experiment, es decir, escribir código de experimento que recorra una tabla de escenarios. El experimento `Escenarios` lo resuelve así (ADR-032, ADR-042):
 
-- Modo **freeform** con `12 × REPLICAS` corridas y **dos dimensiones y sólo dos**:
+- Modo **freeform** con `13 × REPLICAS` corridas y **dos dimensiones y sólo dos**:
   - `idEscenario = GeneradorSintetico.ESCENARIOS[(getCurrentIteration() - 1) / REPLICAS]`
   - `replica = (getCurrentIteration() - 1) % REPLICAS`
 - Al arrancar, `Main.cargarDatosEntrada()` obtiene la fila del escenario y `aplicarEscenario()` fija duración, flota, cross dock y estrategia.

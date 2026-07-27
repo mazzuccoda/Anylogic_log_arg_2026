@@ -65,9 +65,8 @@ Reemplaza `obtenerTipoContenedor()` y `obtenerCapacidadContenedorTon()` hardcode
 | `tipo` | enum | `PLANTA`, `DEPOSITO`, `TERMINAL` |
 | `habilita_consolidacion` | bool | |
 | `habilita_cross_dock` | bool | |
-| `posiciones_consolidacion` | int | >= 0 |
+| `contenedores_por_dia` | double | >= 0. Capacidad de consolidación del sitio, en contenedores por día (ADR-048). Reemplaza a `posiciones_consolidacion × contenedores_por_posicion_dia` |
 | `posiciones_cross_dock` | int | >= 0 |
-| `contenedores_por_posicion_dia` | double | > 0 si consolida |
 
 Nota: hoy la habilitación se deriva de `capacidad > 0` (ADR-009). El contrato la separa porque un depósito puede almacenar sin poder consolidar. Si se confirma que en la práctica coinciden, se cargan iguales; el modelo no cambia.
 
@@ -124,6 +123,8 @@ Todas incluyen `vigencia_desde` y `vigencia_hasta` (fecha; `vigencia_hasta` vac�
 
 `id_deposito`, `producto`, `in_usd_tn`, `storage_usd_tn_dia`, `out_usd_tn`, `periodo_minimo_dias` (0 si no hay mínimo).
 
+Desde la fase 19 la tabla suma dos columnas que **no** son caja (ADR-049): `oportunidad_usd_tn_dia`, el costo de oportunidad del frío propio, que sólo se carga en la planta y sólo entra al costo económico; y `penalidad_sobrecarga_usd_tn_dia`, que castiga las toneladas por encima del nivel nominal. Ambas en 0 dejan el costo económico igual al de caja.
+
 `periodo_minimo_dias` se agrega porque los depósitos suelen cobrar por período mínimo (quincena o mes) y no por día exacto. Si la tarifa real es día a día, se carga 0.
 
 ### 5.4 `TarifaServicioCarga`
@@ -174,6 +175,11 @@ Todas incluyen `vigencia_desde` y `vigencia_hasta` (fecha; `vigencia_hasta` vac�
 | `estrategia_consolidacion` | enum | `CONSOLIDACION_DEPOSITO` o `CONSOLIDACION_TERMINAL` |
 | `cliente_default` | texto | No vacío. Cliente del lote comercial mientras haya un solo cliente (ADR-019, ADR-047) |
 | `calidad_default` | texto | No vacío. Calidad del lote comercial mientras haya una sola calidad |
+| `umbral_alerta_pct` | double | 0..200. Ocupación de planta a partir de la cual se avisa (default 85) |
+| `umbral_objetivo_pct` | double | 0..200. Nivel nominal de referencia (default 100) |
+| `umbral_sobrecarga_pct` | double | 0..200, ≥ `umbral_objetivo_pct`. Sobrecarga crítica (default 105) |
+| `dias_forecast` | int | >= 0. Horizonte del forecast de producción, default 7 (ADR-048) |
+| `politica_frio_propio` | texto | `FLEXIBLE` o `REACTIVA` (ADR-048) |
 | `habilita_cross_dock` | bool | |
 | `politica_prioridad` | enum | `FECHA_LIMITE`, `FIFO`, `MAYOR_VOLUMEN` |
 | `tipo_cambio_ars_usd` | double | Para tarifas en ARS |
@@ -241,12 +247,12 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 
 | Hoja | Columnas |
 |---|---|
-| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default` |
+| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default`, `umbral_alerta_pct`, `umbral_sobrecarga_pct`, `umbral_objetivo_pct`, `dias_forecast`, `politica_frio_propio` |
 | `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn`, `toneladas_objetivo_lote_tn` |
-| `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `posiciones_consolidacion`, `contenedores_por_posicion_dia`, `posiciones_cross_dock` |
+| `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `contenedores_por_dia`, `posiciones_cross_dock` |
 | `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |
 | `Distancia` | `origen`, `destino`, `distancia_km` |
-| `TarifaAlmacenamiento` | `id_ubicacion`, `producto`, `storage_usd_tn_dia` |
+| `TarifaAlmacenamiento` | `id_ubicacion`, `producto`, `storage_usd_tn_dia`, `oportunidad_usd_tn_dia`, `penalidad_sobrecarga_usd_tn_dia` |
 | `TarifaFleteProducto` | `origen`, `destino`, `producto`, `tarifa_usd_tn` |
 | `TarifaServicioCarga` | `id_ubicacion`, `producto`, `tipo_servicio`, `tarifa_usd_tn` |
 | `ProduccionPlan` | `id_escenario`, `dia`, `producto`, `produccion_tn` |
@@ -257,12 +263,12 @@ Las columnas se buscan por nombre, no por posición: se pueden reordenar o agreg
 | Tabla | Implementada | Diferencias con este documento |
 |---|---|---|
 | `Producto` | sí | — |
-| `Ubicacion` | sí | sin `habilita_consolidacion` ni `habilita_cross_dock`: la habilitación se deriva de la capacidad. La capacidad diaria de consolidación es `posiciones_consolidacion × contenedores_por_posicion_dia` (fase 7) y la de cross dock es `posiciones_cross_dock`, en operaciones por día (fase 8). Agrega las velocidades operativas que hoy son parámetros de los agentes |
+| `Ubicacion` | sí | sin `habilita_consolidacion` ni `habilita_cross_dock`: la habilitación se deriva de la capacidad. La capacidad diaria de consolidación es `contenedores_por_dia` (fase 19, ADR-048) y la de cross dock es `posiciones_cross_dock`, en operaciones por día (fase 8). Agrega las velocidades operativas que hoy son parámetros de los agentes |
 | `CapacidadUbicacion` | sí | — |
 | `Distancia` | sí | sin tránsito min/moda/max: el tránsito todavía se deriva de la distancia y la velocidad del camión |
 | `TiemposOperativos` | no | los tiempos siguen calculándose como toneladas ÷ velocidad |
 | `TarifaFleteProducto` | sí, depósito → terminal | sólo `USD_TN`. El flete planta → depósito sigue siendo la fórmula `costoFijoViajePD + km × costoKmPD + tn × costoTnPD`, con los km leídos de `Distancia` |
-| `TarifaAlmacenamiento` | sí | sólo `storage_usd_tn_dia`; IN/OUT y período mínimo requieren capas (paso 3) |
+| `TarifaAlmacenamiento` | sí | `storage_usd_tn_dia` de caja, más `oportunidad_usd_tn_dia` y `penalidad_sobrecarga_usd_tn_dia`, que sólo afectan el costo económico (ADR-049); IN/OUT y período mínimo siguen sin consumirse |
 | `TarifaServicioCarga` | sí | tarifa en `USD_TN`, no en `USD_CONTENEDOR`. Desde la fase 7 hace falta una fila `CONSOLIDACION` por cada depósito y producto, además de las de terminal, porque el contenedor se puede estibar en cualquiera de los dos; desde la fase 8, una fila `CROSS_DOCK` por depósito y producto |
 | `TarifaCicloContenedor`, `TarifaTerminal`, `TarifaTHC`, `TarifaDespachante` | no | ninguna está consumida por el modelo todavía |
 | `Escenario` | sí, parcial | implementa `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion` y `variabilidad_demanda`, y agrega `pedidos_por_campania`, `toneladas_medias_pedido` y `plazo_pedido_dias`, que son los que gobiernan la demanda sintética |

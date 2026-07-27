@@ -25,7 +25,9 @@ public class VolcarDatos {
 				+ "\thoras_operativas_dia"
 				+ "\tfactor_produccion\tfactor_capacidad_planta\tfactor_capacidad_deposito"
 				+ "\tfactor_storage\tventana_demanda\thabilita_cross_dock\tdeterministico"
-				+ "\testrategia_consolidacion\tcliente_default\tcalidad_default");
+				+ "\testrategia_consolidacion\tcliente_default\tcalidad_default"
+				+ "\tumbral_alerta_pct\tumbral_sobrecarga_pct\tumbral_objetivo_pct\tdias_forecast"
+				+ "\tpolitica_frio_propio");
 		for (String id : GeneradorSintetico.ESCENARIOS) {
 			DatosEntrada.Escenario e = GeneradorSintetico.escenario(id, semilla);
 			System.out.println(e.idEscenario
@@ -50,7 +52,12 @@ public class VolcarDatos {
 					+ "\t" + e.deterministico
 					+ "\t" + e.estrategiaConsolidacion
 					+ "\t" + e.clienteDefault
-					+ "\t" + e.calidadDefault);
+					+ "\t" + e.calidadDefault
+					+ "\t" + e.umbralAlertaPct
+					+ "\t" + e.umbralSobrecargaPct
+					+ "\t" + e.umbralObjetivoPct
+					+ "\t" + e.diasForecast
+					+ "\t" + e.politicaFrioPropio);
 		}
 
 		hoja("Producto", "producto\ttipo_contenedor\tcapacidad_contenedor_tn\ttoneladas_objetivo_lote_tn");
@@ -61,13 +68,12 @@ public class VolcarDatos {
 
 		hoja("Ubicacion", "id_ubicacion\ttipo\thabilitada\tvelocidad_carga_tn_hora"
 				+ "\tvelocidad_descarga_tn_hora\tvelocidad_consolidacion_tn_hora\tcapacidad_diaria_tn"
-				+ "\tposiciones_consolidacion\tcontenedores_por_posicion_dia\tposiciones_cross_dock");
+				+ "\tcontenedores_por_dia\tposiciones_cross_dock");
 		for (DatosEntrada.Ubicacion u : d.ubicaciones) {
 			System.out.println(u.idUbicacion + "\t" + u.tipo + "\t" + u.habilitada
 					+ "\t" + u.velocidadCargaTnHora + "\t" + u.velocidadDescargaTnHora
 					+ "\t" + u.velocidadConsolidacionTnHora + "\t" + u.capacidadDiariaTn
-					+ "\t" + u.posicionesConsolidacion + "\t" + u.contenedoresPorPosicionDia
-					+ "\t" + u.posicionesCrossDock);
+					+ "\t" + u.contenedoresPorDia + "\t" + u.posicionesCrossDock);
 		}
 
 		hoja("CapacidadUbicacion", "id_ubicacion\tproducto\tcapacidad_tn");
@@ -80,9 +86,11 @@ public class VolcarDatos {
 			System.out.println(x.origen + "\t" + x.destino + "\t" + x.distanciaKm);
 		}
 
-		hoja("TarifaAlmacenamiento", "id_ubicacion\tproducto\tstorage_usd_tn_dia");
+		hoja("TarifaAlmacenamiento", "id_ubicacion\tproducto\tstorage_usd_tn_dia"
+				+ "\toportunidad_usd_tn_dia\tpenalidad_sobrecarga_usd_tn_dia");
 		for (DatosEntrada.TarifaAlmacenamiento t : d.tarifasAlmacenamiento) {
-			System.out.println(t.idUbicacion + "\t" + t.producto + "\t" + t.storageUsdTnDia);
+			System.out.println(t.idUbicacion + "\t" + t.producto + "\t" + t.storageUsdTnDia
+					+ "\t" + t.oportunidadUsdTnDia + "\t" + t.penalidadSobrecargaUsdTnDia);
 		}
 
 		hoja("TarifaFleteProducto", "origen\tdestino\tproducto\ttarifa_usd_tn");

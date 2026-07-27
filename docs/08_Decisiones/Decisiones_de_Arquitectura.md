@@ -302,7 +302,7 @@ Este archivo registra decisiones que afectan el diseño del modelo. Cada decisi�
 
 **Estado:** aceptada.  
 **Contexto:** la fase 7 necesita que consolidar tenga capacidad finita para poder dimensionar posiciones, pero el modelo avanza en pasos de un día (ADR-034) y el `Envio` recién entra al flujo cuando el contenedor está despachado. Un `ResourcePool` con `Seize`/`Release` mediría ocupación en tiempo continuo dentro de un día que el modelo no representa, y obligaría a meter en el diagrama la espera previa a la creación del envío.  
-**Decisión:** cada sitio publica `posiciones_consolidacion × contenedores_por_posicion_dia` contenedores por día y `Main.despacharContenedoresPendientes()` consume ese cupo una vez por día, en orden de fecha límite del pedido. El contenedor que no consigue posición queda en `ESPERANDO_PROGRAMACION`, suma un día en `diasEsperaPosicion` y compite de nuevo al día siguiente.  
+**Decisión:** cada sitio publica su capacidad de consolidación diaria (`posiciones_consolidacion × contenedores_por_posicion_dia`, hoy una sola columna `contenedores_por_dia`, ADR-048) y `Main.despacharContenedoresPendientes()` consume ese cupo una vez por día, en orden de fecha límite del pedido. El contenedor que no consigue posición queda en `ESPERANDO_PROGRAMACION`, suma un día en `diasEsperaPosicion` y compite de nuevo al día siguiente.  
 **Alternativas:** `ResourcePool` por sitio (precisión intradiaria que el resto del modelo no tiene, y un tipo de recurso por sitio); capacidad del bloque `Delay` (limita simultaneidad, no contenedores por día, y no distingue sitios).  
 **Consecuencias:** la utilización se mide como contenedores consolidados sobre capacidad ofrecida, y la escasez aparece como espera y como almacenaje adicional, que es lo que el dimensionamiento tiene que ver. Un sitio con capacidad cero detiene el despacho para siempre, así que `DatosEntrada.validar()` lo rechaza como error de datos.
 
@@ -393,6 +393,44 @@ El costo del flete planta→depósito pasa a cobrarse **por viaje** (fijo y kilo
 El consumo de stock **no** cambia: los pedidos siguen reservando por producto contra las capas del depósito en FIFO, no contra un lote comercial (la reserva por lote es fase 5 y sigue pendiente). Pero el barrido **sí** se mueve, y conviene entender por qué antes de leerlo como una mejora del negocio:
 
 `transferirToneladasLote()` cobra y consume flota por viajes, y los viajes son `ceil(toneladas / capacidad_camion_tn)` **por llamada** (ADR-044). Con un lote por día, cada llamada movía como máximo la producción de un día, así que el redondeo del último camión parcial se pagaba **una vez por día y por producto**: con camión de 25 tn, la cáscara (60 tn/día) gastaba 3 viajes donde necesitaba 2,4 y el aceite (8 tn/día) gastaba 1 viaje entero para 0,32. Al acumular, el redondeo ocurre una vez por tanda de transferencia y no una vez por día de producción, que es el cálculo correcto. El efecto medido sobre 30 réplicas es consistente en los doce escenarios: **12% a 16% menos viajes planta–depósito**, 0,3% a 2,6% menos costo total, y toneladas y contenedores exportados prácticamente iguales (+0,05%). Donde más se nota es en los escenarios con flota escasa, porque eran los que más pagaban el desperdicio: E-01 baja el atraso medio de 3,17 a 2,20 días. La respuesta de dimensionamiento no cambia (E-01 sigue siendo el peor en servicio y atraso, y E-02 sigue sin comprar nada sobre E-00), pero las series anteriores a `fase-17` no son comparables con las nuevas.
+
+## ADR-048 — La capacidad de la planta es un umbral, no un tope: el producto no se descarta
+
+**Estado:** aceptada.  
+**Fecha:** 2026-07-27  
+**Contexto:** `Planta.producir()` comparaba la producción del día contra la capacidad nominal y lo que no entraba se acumulaba en `excedenteJugo`/`excedenteCascara`/`excedenteAceite`, es decir **se descartaba**. Con producto ya cosechado eso no existe en la operación real: la fruta se procesa y el subproducto ocupa lugar, aunque el frío esté lleno. Además el descarte **ocultaba el faltante de frío** justamente en el escenario que debía mostrarlo: E-06 (producción +30 %) tiraba el excedente y terminaba pareciéndose al caso base. Del otro lado, la transferencia planta→depósito se disparaba con `nivelActivacion*` y `stockObjetivo*` en toneladas absolutas por planta, así que la planta se vaciaba apenas superaba el nivel y no había forma de expresar "aprovechar el frío propio primero".
+
+**Decisión:** la capacidad nominal de la planta pasa a ser un **nivel de referencia** y no un bloqueo.
+
+- **Sin pérdida.** `producir()` ingresa la producción completa del plan. `excedente*` desaparece de `Planta`.
+- **Umbrales en porcentaje, en el escenario:** `umbral_alerta_pct` (85), `umbral_objetivo_pct` (100) y `umbral_sobrecarga_pct` (105). Ninguno bloquea: son niveles de lectura, y reemplazan a `nivelActivacion*`/`stockObjetivo*`, que eran toneladas cableadas por agente.
+- **Se mide lo que antes se tiraba:** `tonDiaSobreNominalPlanta`, `tonDiaSobreCriticoPlanta`, `diasSobrecargaPlanta` y `picoOcupacionPlantaPct`, registrados una vez por día en `registrarOcupacionPlanta()`.
+- **Forecast perfecto** de `dias_forecast` días (default 7): `forecastProduccion()` lee el plan de producción futuro. Para dimensionar, la cota optimista es la lectura honesta; un forecast con error es un dato de entrada más y se agrega después sin tocar la política.
+- **Dos políticas de frío propio** (`politica_frio_propio`): `FLEXIBLE` retiene en planta y transfiere sólo lo necesario para no pasar el nivel objetivo dentro del horizonte y para cubrir las obligaciones pendientes; `REACTIVA` conserva el comportamiento anterior, con los umbrales derivados de los porcentajes en lugar de las toneladas cableadas.
+- **La capacidad de consolidación se expresa en `contenedores_por_dia`** por sitio, una sola columna en lugar de `posiciones_consolidacion × contenedores_por_posicion_dia`. Es el indicador que se usa en la operación y da el mismo número.
+
+La regla de "no perder producto" aplica **sólo a la planta**. Los depósitos de terceros conservan capacidad dura, porque se contratan y se facturan: si no hay lugar afuera, el producto se queda en planta por encima del 100 %. Así el desborde de planta mide el faltante de frío de **toda la red**, que es la pregunta de dimensionamiento.
+
+**Alternativas:** mantener el descarte (mide mal el faltante y no representa la operación); bloquear la producción al llegar al 105 % (equivale a parar la planta, que es una decisión de negocio que el modelo no debe tomar solo); modelar el turno como unidad de tiempo (`turnos_por_dia × contenedores_por_turno`) en vez de `contenedores_por_dia` (más parámetros, mismo resultado); forecast con error desde el principio (agrega un parámetro de ruido sin cambiar la conclusión de dimensionamiento).
+
+**Consecuencias:** el barrido se mueve por diseño y las series anteriores a `fase-19` no son comparables. Sobre 30 réplicas, con el frío propio flexible el producto sale más tarde de la planta y paga menos almacenaje de terceros: el costo de caja baja entre 6,9 % y 14,3 % según el escenario, y el nivel de servicio sube (E-00 de 0,941 a 0,987, E-07 de 0,606 a 0,972) porque el stock queda cerca del origen y disponible. La sobrecarga aparece donde tiene que aparecer: E-01 (flota mínima) acumula 452 tn-día sobre el nivel nominal con un pico de 104,3 % de ocupación, y el resto de los escenarios queda en 100 %. `excedente_final_tn` sigue en el CSV pero **cambia de significado**: es el stock que queda en la red al cierre, no producto perdido; el faltante de frío se lee en `ton_dia_sobre_nominal`, `dias_sobrecarga` y `pico_ocupacion_planta_pct`. Se agrega el escenario E-12 para comparar `REACTIVA` contra el default `FLEXIBLE`.
+
+## ADR-049 — El costo de oportunidad del frío propio se reporta separado del costo de caja
+
+**Estado:** aceptada.  
+**Fecha:** 2026-07-27  
+**Contexto:** la planta no tiene tarifa de almacenaje, así que guardar en frío propio cuesta cero en el modelo. Eso produce el efecto contraintuitivo de ADR-044 (más camiones cuestan más, porque sacar el producto de la planta lo hace pagar depósito) y deja al evaluador sin nada que comparar: siempre le conviene la planta. La corrección obvia es ponerle una tarifa interna, pero si esa tarifa entra al costo total, `costo_usd_tn` deja de ser comparable contra la cotización de un tercero y el frente de decisión del tablero se ordena por un número que no es plata.
+
+**Decisión:** dos cifras en paralelo, nunca una sola.
+
+- `costo_total_caja` (`costoTotalCampania()`): lo que efectivamente se paga. Es la serie comparable con las corridas anteriores y con una cotización real.
+- `costo_total_economico` (`costoTotalEconomico()`): caja **más** el costo de oportunidad del frío propio (`oportunidad_usd_tn_dia`, devengado por `devengarOportunidadFrioPropio()`) **más** la penalidad por tonelada-día sobre el nivel nominal (`penalidad_sobrecarga_usd_tn_dia`).
+
+Las decisiones de política se toman con el económico; los KPIs reportan los dos, con `costo_economico_usd_tn` al lado de `costo_usd_tn`. Con las dos tarifas nuevas en 0 el económico es idéntico al de caja, así que el default no cambia ningún resultado.
+
+**Alternativas:** sumar la oportunidad al costo total (rompe la comparabilidad y contamina el KPI que se lleva a una negociación); dejar la planta en cero (el evaluador no discrimina); cobrar la oportunidad como si fuera una tarifa de depósito más (mismo problema, además de mezclar caja con economía en la misma cuenta).
+
+**Consecuencias:** en el barrido actual el económico corre por encima del de caja de forma consistente (E-00: USD 1,57 M de caja contra USD 2,20 M económico), y esa brecha **es** el valor del frío propio que hoy no se ve en la contabilidad. Al leer el tablero hay que decir cuál de los dos se está mirando: son dos ordenamientos distintos y el de caja sigue favoreciendo retener en planta.
 
 ## Plantilla para nuevas decisiones
 

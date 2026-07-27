@@ -33,16 +33,30 @@ Cada fase debe superar cuatro niveles:
 
 - producido acumulado correcto;
 - stock igual a producido;
-- excedente cero;
+- ocupación por debajo del nivel nominal y sobrecarga cero;
 - saldo físico reconciliado.
 
-### V-002 Producción con capacidad insuficiente
+### V-002 Producción por encima de la capacidad nominal (ADR-048)
 
 **Esperado:**
 
-- stock limitado a capacidad;
-- excedente igual a producción no ingresada;
-- lote registra solo toneladas efectivamente almacenadas.
+- la producción del plan ingresa **completa**: no hay descarte ni merma por capacidad;
+- el stock puede superar el 100 % de la capacidad nominal;
+- se acumulan `tonDiaSobreNominalPlanta`, `diasSobrecargaPlanta` y el pico de ocupación;
+- por encima del umbral crítico se acumula además `tonDiaSobreCriticoPlanta`;
+- el lote registra toda la producción del día.
+
+**Ejecutado:** 2026-07-27, modelo `fase-19`, barrido de 390 corridas. **Resultado: cumple.** Ningún escenario pierde producto y E-01, el de flota mínima, acumula 452 tn-día sobre el nivel nominal con un pico de 104,3 % de ocupación; el resto queda en 100 %.
+
+### V-002b Costo de caja y costo económico (ADR-049)
+
+**Esperado:**
+
+- con `oportunidad_usd_tn_dia = 0` y `penalidad_sobrecarga_usd_tn_dia = 0`, el costo económico es exactamente igual al de caja;
+- con tarifas positivas, `costo_total_economico_usd >= costo_total_usd` en toda corrida;
+- el costo de caja no incluye ningún devengo de oportunidad.
+
+**Ejecutado:** 2026-07-27, modelo `fase-19`. **Resultado: cumple.** En E-00, caja USD 1,57 M contra económico USD 2,20 M, con la diferencia igual al devengo de frío propio reportado en `costo_oportunidad_frio_usd`.
 
 ### V-003 Lote comercial acumulativo
 
@@ -187,8 +201,10 @@ Costo pedido = suma de costos reales de sus contenedores y movimientos asociados
 ### V-018 Reconciliación de inventario
 
 ```text
-Producido = físico + reservado/despachado + excedente/merma según definición
+Producido = físico + reservado/despachado
 ```
+
+Desde ADR-048 no hay término de merma: la planta no descarta producto, así que todo lo producido tiene que estar en la red o exportado.
 
 ### V-019 Imputación de almacenaje por capas (ADR-021, ADR-022)
 
@@ -273,3 +289,16 @@ Después de cada cambio ejecutar al menos:
 - generación de plan;
 - creación de contenedor;
 - corrida corta sin excepciones.
+
+### Regresión de la fase 19
+
+**Ejecutado:** 2026-07-27 en AnyLogic PLE 8.9.9, modelo `fase-19`.
+
+| Comprobación | Resultado |
+|---|---|
+| Build | `Build completed successfully`, 0 errores |
+| Campaña completa sintética | 183 días sin excepciones, `Inventario.validar()` en verde todos los días |
+| Barrido | 390 corridas (13 escenarios × 30 réplicas) `Finished`, CSV etiquetado `fase-19` |
+| Excel vs. sintético | Las 743 filas de `datos/entrada_ejemplo.xlsx` coinciden celda por celda con el generador (0 diferencias numéricas) y E-00 da los mismos KPIs por los dos caminos |
+| Pérdida de producto | Cero en los 13 escenarios |
+| E-09 determinístico | Desvío 0 en las 30 réplicas |

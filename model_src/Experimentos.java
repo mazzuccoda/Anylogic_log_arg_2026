@@ -7,7 +7,7 @@ class Simulation extends SimulationExperiment {
 }
 
 class Escenarios extends ParamVariationExperiment {
-    // corridas: 360
+    // corridas: 390
     // parámetro #1786000001 = (getCurrentIteration() - 1) % REPLICAS
     // parámetro #1791000000003 = GeneradorSintetico.ESCENARIOS[(getCurrentIteration() - 1) / REPLICAS]
 
@@ -15,7 +15,7 @@ class Escenarios extends ParamVariationExperiment {
     void additionalClassCode() {
         // Version del modelo con la que se corrio el barrido: sin esto un csv de
         // resultados no se puede volver a atar al codigo que lo produjo.
-        static final String VERSION_MODELO = "fase-17";
+        static final String VERSION_MODELO = "fase-19";
 
         static final int REPLICAS = 30;
 
@@ -32,7 +32,9 @@ class Escenarios extends ParamVariationExperiment {
         	"costo_total_usd", "costo_usd_tn", "nivel_servicio", "atraso_promedio_dias",
         	"utilizacion_flota", "utilizacion_portacontenedor", "viajes_planta_deposito",
         	"uso_posiciones_consolidacion", "toneladas_exportadas",
-        	"excedente_final_tn", "toneladas_cross_dock", "contenedores_exportados"
+        	"excedente_final_tn", "toneladas_cross_dock", "contenedores_exportados",
+        	"costo_oportunidad_frio_usd", "costo_total_economico_usd", "costo_economico_usd_tn",
+        	"ton_dia_sobre_nominal", "dias_sobrecarga", "pico_ocupacion_planta_pct"
         };
 
         // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -343,7 +345,13 @@ class Escenarios extends ParamVariationExperiment {
         	root.toneladasExportadas(),
         	root.excedenteFinalTn(),
         	root.toneladasCrossDock,
-        	root.contarContenedores(EstadoContenedor.EXPORTADO)
+        	root.contarContenedores(EstadoContenedor.EXPORTADO),
+        	root.costoOportunidadFrio,
+        	root.costoTotalEconomico(),
+        	root.costoEconomicoPorTonelada(),
+        	root.tonDiaSobreNominalPlanta,
+        	root.diasSobrecargaPlanta,
+        	root.picoOcupacionPlantaPct
         };
 
         corridas.add(c);

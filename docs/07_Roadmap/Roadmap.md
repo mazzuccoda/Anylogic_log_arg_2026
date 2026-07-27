@@ -27,8 +27,10 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 | 10. Registro de costos | Parcial; tarifas ya vienen de tablas | 35% |
 | 11. Planificador | Parcial | 25% |
 | 12. Reemplazo de Envio | Pendiente | 0% |
-| 13. KPIs y experimentos | Barrido de 12 escenarios × 30 réplicas verificado en PLE, con las dos flotas consumiéndose de verdad (ADR-044) | 85% |
+| 13. KPIs y experimentos | Barrido de 13 escenarios × 30 réplicas verificado en PLE, con las dos flotas consumiéndose de verdad (ADR-044) | 85% |
 | 14. Optimización avanzada | Futuro | 0% |
+| 18. Contrato de datos del rediseño logístico | Umbrales porcentuales, forecast, política de frío propio, `contenedores_por_dia`, oportunidad y penalidad, en generador, importador y plantilla | 100% |
+| 19. Frío propio y sobrecarga sin pérdida | Planta sin descarte, métricas de sobrecarga, forecast perfecto, caja vs. económico, verificado en PLE (ADR-048, ADR-049) | 100% |
 
 ## 3. Fase 0 — Respaldo
 
@@ -129,7 +131,7 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 
 ## 10. Fase 7 — Consolidación
 
-- [x] Recursos en depósito: posiciones de consolidación con capacidad diaria (`posiciones_consolidacion × contenedores_por_posicion_dia`), leídas de la tabla `Ubicacion`.
+- [x] Recursos en depósito: capacidad de consolidación diaria por sitio (`contenedores_por_dia` desde la fase 19; antes `posiciones_consolidacion × contenedores_por_posicion_dia`), leída de la tabla `Ubicacion`.
 - [x] Tiempos y colas: `Main.despacharContenedoresPendientes()` despacha por día lo que la capacidad del sitio permite, con prioridad por fecha límite del pedido; el resto espera y acumula `diasEsperaPosicion`.
 - [x] Costos reales: el servicio de consolidación se cobra con la tarifa del sitio donde se estiba el contenedor, y se acumula en ese sitio.
 - [x] Cambios de estado del contenedor: `ESPERANDO_PROGRAMACION` mientras espera posición y `CONSOLIDANDO` cuando la toma.
@@ -153,7 +155,7 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 
 ## 11b. Fase 13 — Escenarios, réplicas y KPIs
 
-- [x] Escenario como fila: `GeneradorSintetico.escenario(id, semilla)` y la hoja `Escenario` del Excel gobiernan las 12 corridas; el experimento no conoce ningún escenario en particular.
+- [x] Escenario como fila: `GeneradorSintetico.escenario(id, semilla)` y la hoja `Escenario` del Excel gobiernan las 13 configuraciones; el experimento no conoce ningún escenario en particular.
 - [x] Experimento `Escenarios` (Parameter Variation freeform) con dos dimensiones: `idEscenario` y `replica`.
 - [x] Réplicas reproducibles: `semilla = semillaBase + replica`, calculada dentro del modelo.
 - [x] KPIs de cierre de corrida como funciones de `Main`.
@@ -162,7 +164,7 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [x] E-09 determinístico verificado: desvío exactamente 0 en 30 réplicas.
 - [x] Barrido de flota útil (ADR-044): la flota de producto se consume en camión-día y cada contenedor toma un portacontenedor del pool. E-01 (1/1) baja el nivel de servicio a 0,908 y sube el atraso a 3,17 días; E-02 (6/8) no mejora a E-00, que es la respuesta a P2 y P6.
 - [ ] Cargar y descargar no le consumen jornada al camión: la planta no tiene velocidades de carga en las tablas.
-- [ ] Almacenaje en planta: como la planta no tiene tarifa, el excedente que espera camión no cuesta nada y por eso achicar la flota baja el costo total.
+- [x] Almacenaje en planta: resuelto como costo de oportunidad separado del costo de caja (ADR-049); el de caja sigue sin tarifa de planta a propósito.
 - [ ] Solapamiento de intervalos en la comparación contra E-00.
 - [ ] Escenario de capacidad de planta y de política de prioridad (la política es hoy única).
 
@@ -186,6 +188,19 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [x] Verificado en PLE: 360 corridas `Finished`, medias sin cambios respecto de la fase 15 y CSV etiquetado `fase-16`.
 - [ ] Intervalos de confianza y prueba estadística contra E-00 en el tablero (hoy media, desvío y delta).
 - [ ] Marcar automáticamente los escenarios no comparables (E-06 y E-07 cambian producción); hoy es una advertencia escrita en el panel.
+
+## 11e. Fases 18 y 19 — Contrato del rediseño logístico y frío propio
+
+Implementado en el modelo y verificado en PLE (ADR-048, ADR-049).
+
+- [x] Contrato de datos: `umbral_alerta_pct`, `umbral_objetivo_pct`, `umbral_sobrecarga_pct`, `dias_forecast` y `politica_frio_propio` en `Escenario`; `contenedores_por_dia` en `Ubicacion` reemplazando a `posiciones_consolidacion × contenedores_por_posicion_dia`; `oportunidad_usd_tn_dia` y `penalidad_sobrecarga_usd_tn_dia` en `TarifaAlmacenamiento`. Generador sintético, validaciones, importador de Excel, `tools/VolcarDatos.java` y plantilla, todo por el mismo camino.
+- [x] La planta no descarta producto: `producir()` ingresa la producción completa del plan y `excedente*`, `nivelActivacion*` y `stockObjetivo*` desaparecen de `Planta`.
+- [x] Métricas de ocupación: `tonDiaSobreNominalPlanta`, `tonDiaSobreCriticoPlanta`, `diasSobrecargaPlanta` y `picoOcupacionPlantaPct`, registradas una vez por día.
+- [x] Forecast perfecto de `dias_forecast` días sobre el plan de producción, y demanda proyectada sobre las obligaciones pendientes.
+- [x] Políticas `FLEXIBLE` (retener en frío propio y transferir sólo lo necesario) y `REACTIVA` (vaciado anterior con umbrales en porcentaje), elegidas por escenario; E-12 compara las dos.
+- [x] Costo de caja y costo económico separados, con seis KPIs nuevos en el CSV etiquetado `fase-19`.
+- [x] Verificado en PLE: build limpio, campaña completa sin excepciones, 390 corridas `Finished`, corrida desde Excel idéntica a la sintética y cero pérdida de producto.
+- [ ] Pendiente: forecast con error, penalidad de sobrecarga calibrada con datos reales y capacidad de frío propio como variable de decisión del barrido.
 
 ## 12. Fase 9 — Terminal
 

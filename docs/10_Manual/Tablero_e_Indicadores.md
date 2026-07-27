@@ -39,11 +39,11 @@ Es la identidad de la corrida: sin esto, una captura del tablero no se puede rep
 
 ### Producción y stock (tn)
 
-Por producto, toneladas **en planta** y **en depósito**, más los lotes comerciales y el excedente.
+Por producto, toneladas **en planta** y **en depósito**, más los lotes comerciales y la sobrecarga de planta.
 
 - Stock: `planta.getStock(producto)` y `stockTotalDepositos(producto)`, ambos derivados de las capas de inventario (ADR-023). No son saldos que se mantengan aparte.
 - Lotes comerciales: `lotes.size()` en total y `lotesComercialesAbiertos()` abiertos. Un lote acumula la producción de varios días y se cierra al alcanzar su objetivo (ADR-047), así que el total crece de a poco: una identidad por cada objetivo completado, no una por día de producción. Si los abiertos son más que la cantidad de productos, hay lotes de distinto cliente o calidad conviviendo.
-- Excedente: producción que no encontró lugar (`Planta.excedente*`). Si crece, falta capacidad **o** falta transporte; el panel de flota dice cuál de las dos.
+- Sobrecarga: tonelada-día por encima del nivel nominal de planta, días en sobrecarga y pico de ocupación. Desde la fase 19 la planta **no descarta producto** (ADR-048): si la sobrecarga crece, falta capacidad de frío **o** falta transporte; el panel de flota dice cuál de las dos.
 
 ### Transporte y flota
 
@@ -91,7 +91,7 @@ Contenedores creados, esperando posición de consolidación, exportados; envíos
 
 ### Costos (USD)
 
-Almacenaje, flete planta–depósito, flete depósito–puerto, consolidación, cross dock, total de campaña y costo por tonelada exportada. El total es `costoTotalCampania()`, la misma función que alimenta el CSV del barrido: el tablero y el barrido no pueden discrepar.
+Almacenaje, flete planta–depósito, flete depósito–puerto, consolidación, cross dock, total de caja, costo por tonelada exportada y, aparte, el costo económico con el frío propio y la penalidad de sobrecarga (ADR-049). El total es `costoTotalCampania()`, la misma función que alimenta el CSV del barrido: el tablero y el barrido no pueden discrepar.
 
 ---
 
@@ -124,9 +124,15 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 | `viajes_planta_deposito` | Viajes de camión de producto | viajes | ≥ 0 |
 | `uso_posiciones_consolidacion` | Consolidaciones / posiciones ofrecidas | fracción | 0 a 1 |
 | `toneladas_exportadas` | Toneladas entregadas en terminal | tn | ≥ 0 |
-| `excedente_final_tn` | Producción que nunca encontró lugar | tn | ≥ 0 |
+| `excedente_final_tn` | Stock que queda en la red al cierre (no es producto perdido) | tn | ≥ 0 |
 | `toneladas_cross_dock` | Toneladas que cruzaron sin almacenarse | tn | ≥ 0 |
 | `contenedores_exportados` | Contenedores exportados | unidades | ≥ 0 |
+| `costo_oportunidad_frio_usd` | Frío propio devengado, fuera de caja | USD | ≥ 0 |
+| `costo_total_economico_usd` | Caja + oportunidad + penalidad de sobrecarga | USD | ≥ caja |
+| `costo_economico_usd_tn` | Costo económico sobre toneladas exportadas | USD/tn | ≥ `costo_usd_tn` |
+| `ton_dia_sobre_nominal` | Tonelada-día de planta por encima del nivel nominal | tn·día | ≥ 0 |
+| `dias_sobrecarga` | Días con la planta por encima del nivel nominal | días | ≥ 0 |
+| `pico_ocupacion_planta_pct` | Máxima ocupación de la planta en la campaña | % | ≥ 0 |
 
 ---
 
@@ -135,15 +141,16 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 1. **El costo no ordena las decisiones por sí solo.** Con el contrato de datos actual la planta no cobra almacenaje y el depósito sí, así que una configuración que deja producto varado en planta parece más barata. El criterio es servicio y atraso; el costo desempata entre configuraciones que sirven igual (ADR-044).
 2. **Una corrida no es un resultado.** Salvo E-09 (determinístico), dos réplicas del mismo escenario dan números distintos. Comparar escenarios exige el barrido.
 3. **Utilización baja no es una buena noticia.** Es capacidad ociosa; sólo importa junto con el nivel de servicio.
-4. **Excedente y espera de posición son diagnóstico, no costo.** Señalan dónde está el cuello de botella: excedente en planta apunta a transporte o depósito; espera de posición apunta a la estiba.
-5. **El día importa.** Nivel de servicio y atraso a mitad de campaña todavía no significan nada: hay pedidos con fecha límite por delante.
+4. **Sobrecarga y espera de posición son diagnóstico, no costo.** Señalan dónde está el cuello de botella: sobrecarga en planta apunta a frío, transporte o depósito; espera de posición apunta a la estiba.
+5. **Hay dos costos y no son intercambiables** (ADR-049). `costo_total_usd` es caja: lo que se paga, comparable contra una cotización. `costo_total_economico_usd` le suma el costo de oportunidad del frío propio y la penalidad de sobrecarga, y es el que compara retener contra tercerizar. Decir cuál de los dos se está mirando es parte del resultado.
+6. **El día importa.** Nivel de servicio y atraso a mitad de campaña todavía no significan nada: hay pedidos con fecha límite por delante.
 
 ---
 
 ## 6. Limitaciones vigentes del tablero
 
 - Los indicadores del panel son de la corrida en curso; no hay intervalos de confianza en pantalla (están en la salida del barrido).
-- No hay costo de almacenaje en planta, así que el excedente en planta no aparece en ningún costo.
+- La planta no tiene tarifa de almacenaje de caja: retener producto ahí sólo aparece en el costo económico (`oportunidad_usd_tn_dia`), que por default puede estar en 0.
 - La carga y la descarga no consumen jornada de camión (faltan velocidades operativas en las tablas), así que la utilización de la flota de producto está subestimada.
 - La terminal todavía no tiene cola propia ni THC, así que no hay panel de terminal.
 
@@ -151,9 +158,9 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 
 ## 7. Tablero del barrido (experimento `Escenarios`)
 
-El tablero de `Main` responde "qué pasó en esta corrida". El del barrido responde "qué configuración conviene", que es la pregunta del proyecto. Se ve al correr `Escenarios` y se actualiza mientras las 360 corridas avanzan.
+El tablero de `Main` responde "qué pasó en esta corrida". El del barrido responde "qué configuración conviene", que es la pregunta del proyecto. Se ve al correr `Escenarios` y se actualiza mientras las 390 corridas avanzan.
 
-![Tablero del barrido al terminar las 360 corridas](img/tablero_barrido.png)
+![Tablero del barrido al terminar el barrido](img/tablero_barrido.png)
 
 ```
   Avance del barrido            Lectura del barrido
