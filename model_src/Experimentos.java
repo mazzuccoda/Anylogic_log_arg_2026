@@ -15,7 +15,7 @@ class Escenarios extends ParamVariationExperiment {
     void additionalClassCode() {
         // Version del modelo con la que se corrio el barrido: sin esto un csv de
         // resultados no se puede volver a atar al codigo que lo produjo.
-        static final String VERSION_MODELO = "fase-16";
+        static final String VERSION_MODELO = "fase-17";
 
         static final int REPLICAS = 30;
 

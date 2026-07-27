@@ -17,6 +17,10 @@ class LoteProducto extends Agent {
     double diaIngresoDeposito = -1;
     double costoAlmacenamientoLote = 0;
     double diaReserva = -1;
+    String cliente = "";
+    String calidad = "";
+    double toneladasObjetivo = 0;
+    EstadoComercialLote estadoComercial = EstadoComercialLote.ABIERTO;
 
     // ----- Funciones -----
 

@@ -352,6 +352,18 @@
 				<Name><![CDATA[ONE]]></Name>
 			</Option>
 		</OptionList>
+		<OptionList>
+			<Id>1791200000000</Id>
+			<Name><![CDATA[EstadoComercialLote]]></Name>
+			<Option>
+				<Id>1791200000001</Id>
+				<Name><![CDATA[ABIERTO]]></Name>
+			</Option>
+			<Option>
+				<Id>1791200000002</Id>
+				<Name><![CDATA[CERRADO]]></Name>
+			</Option>
+		</OptionList>
 	</OptionLists>
 	<Folders>
 	</Folders>
@@ -1638,21 +1650,36 @@ validarInventario();              // invariantes de las capas (ADR-023)]]></Acti
     return null;
 }
 
-LoteProducto lote = add_lotes();
+// Lote comercial acumulativo (ADR-047): la produccion diaria entra como una capa
+// nueva del mismo lote abierto; solo se abre una identidad comercial nueva cuando
+// el lote compatible ya esta cerrado por haber alcanzado su objetivo.
+String cliente = datos.escenario.clienteDefault;
+String calidad = datos.escenario.calidadDefault;
 
-lote.idLote = siguienteIdLote;
-siguienteIdLote++;
+LoteProducto lote = buscarLoteComercialAbierto(producto, cliente, calidad);
 
-lote.producto = producto;
-lote.toneladasIniciales = toneladas;
-lote.diaProduccion = time();
-lote.estado = EstadoLote.EN_PLANTA;
-lote.ubicacionActual = origen;
-lote.costoAcumulado = 0;
-lote.pedidoAsignado = null;
+if (lote == null) {
+    lote = add_lotes();
 
-// El saldo fisico vive en la capa, no en el lote (ADR-023). 'toneladasIniciales'
-// queda como lo producido, que ya no se toca nunca mas.
+    lote.idLote = siguienteIdLote;
+    siguienteIdLote++;
+
+    lote.producto = producto;
+    lote.diaProduccion = time();
+    lote.estado = EstadoLote.EN_PLANTA;
+    lote.ubicacionActual = origen;
+    lote.costoAcumulado = 0;
+    lote.pedidoAsignado = null;
+
+    lote.cliente = cliente;
+    lote.calidad = calidad;
+    lote.toneladasObjetivo = datos.producto(producto).toneladasObjetivoLoteTn;
+    lote.estadoComercial = EstadoComercialLote.ABIERTO;
+    lote.toneladasIniciales = 0;
+}
+
+// La produccion del dia es una capa nueva con el mismo idLote. El saldo fisico vive
+// en las capas (ADR-023); la identidad comercial vive en el lote.
 inventario.ingresar(
     lote.idLote,
     producto,
@@ -1661,6 +1688,20 @@ inventario.ingresar(
     time(),
     time()
 );
+
+// 'toneladasIniciales' pasa a ser lo producido acumulado del lote comercial (no del
+// dia): es la base de la regla de cierre, no un saldo fisico.
+lote.toneladasIniciales += toneladas;
+
+// Regla de cierre (ADR-047): el lote se cierra al alcanzar sus toneladas objetivo.
+// El despacho parcial no lo cierra; la produccion posterior sigue sumando mientras
+// este abierto. Objetivo 0 = sin cierre por tamano (solo cierra al fin de campania).
+if (
+    lote.toneladasObjetivo > 0
+    && lote.toneladasIniciales >= lote.toneladasObjetivo - 0.0001
+) {
+    lote.estadoComercial = EstadoComercialLote.CERRADO;
+}
 
 return lote;]]></Body>
 				</Function>
@@ -4367,6 +4408,66 @@ return flotaProductoLibreHoy() + 0.0001
 					<Body><![CDATA[// El pool lleva la estadistica de ocupacion en tiempo continuo; muestrearlo una
 // vez por dia no veia los viajes que empiezan y terminan dentro del mismo dia.
 return flotaPortacontenedores.utilization();]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[LoteProducto]]></ReturnType>
+					<Id>1791220000001</Id>
+					<Name><![CDATA[buscarLoteComercialAbierto]]></Name>
+					<X>360</X><Y>-670</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cliente]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[calidad]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Lote comercial abierto compatible por producto, cliente y calidad (ADR-047).
+// Hay a lo sumo uno abierto por combinacion: al cerrarse, el siguiente ingreso
+// abre una identidad comercial nueva.
+for (LoteProducto lote : lotes) {
+    if (
+        lote.producto == producto
+        && lote.estadoComercial == EstadoComercialLote.ABIERTO
+        && lote.cliente.equals(cliente)
+        && lote.calidad.equals(calidad)
+    ) {
+        return lote;
+    }
+}
+
+return null;]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792000000101</Id>
+					<Name><![CDATA[lotesComercialesAbiertos]]></Name>
+					<X>130</X><Y>1360</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int abiertos = 0;
+
+for (LoteProducto lote : lotes) {
+    if (lote.estadoComercial == EstadoComercialLote.ABIERTO) {
+        abiertos++;
+    }
+}
+
+return abiertos;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -7496,7 +7597,8 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Lotes abiertos: " + lotes.size()]]></TextCode>
+					<TextCode><![CDATA["Lotes comerciales: " + lotes.size()
+    + " - abiertos: " + lotesComercialesAbiertos()]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -12507,6 +12609,103 @@ return (int) Math.ceil(
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+			
+				<Variable Class="Parameter">
+					<Id>1791210000010</Id>
+					<Name><![CDATA[cliente]]></Name>
+					<X>130</X><Y>530</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[String]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1791210000011</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1791210000020</Id>
+					<Name><![CDATA[calidad]]></Name>
+					<X>370</X><Y>530</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[String]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1791210000021</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1791210000030</Id>
+					<Name><![CDATA[toneladasObjetivo]]></Name>
+					<X>590</X><Y>530</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[double]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1791210000031</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1791210000040</Id>
+					<Name><![CDATA[estadoComercial]]></Name>
+					<X>590</X><Y>290</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[EstadoComercialLote]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[EstadoComercialLote.ABIERTO]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1791210000041</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -15312,7 +15511,7 @@ estado = factible
 			<Name><![CDATA[Escenarios]]></Name>
 			<AdditionalClassCode><![CDATA[// Version del modelo con la que se corrio el barrido: sin esto un csv de
 // resultados no se puede volver a atar al codigo que lo produjo.
-static final String VERSION_MODELO = "fase-16";
+static final String VERSION_MODELO = "fase-17";
 
 static final int REPLICAS = 30;
 
@@ -16238,6 +16437,8 @@ public class DatosEntrada implements java.io.Serializable {
 		public boolean habilitaCrossDock;
 		public boolean deterministico;             // sin sorteos: la replica no cambia nada
 		public String estrategiaConsolidacion;     // CONSOLIDACION_DEPOSITO | CONSOLIDACION_TERMINAL
+		public String clienteDefault;              // identidad comercial del lote (un solo valor por ahora)
+		public String calidadDefault;              // calidad comercial del lote acumulativo
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -16289,11 +16490,14 @@ public class DatosEntrada implements java.io.Serializable {
 		public TipoProducto producto;
 		public TipoContenedor tipoContenedor;
 		public double capacidadContenedorTn;
+		public double toneladasObjetivoLoteTn;       // tamano comercial del lote acumulativo (0 = sin objetivo)
 
-		public Producto(TipoProducto producto, TipoContenedor tipoContenedor, double capacidadContenedorTn) {
+		public Producto(TipoProducto producto, TipoContenedor tipoContenedor, double capacidadContenedorTn,
+				double toneladasObjetivoLoteTn) {
 			this.producto = producto;
 			this.tipoContenedor = tipoContenedor;
 			this.capacidadContenedorTn = capacidadContenedorTn;
+			this.toneladasObjetivoLoteTn = toneladasObjetivoLoteTn;
 		}
 	}
 
@@ -16579,9 +16783,20 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.add("estrategia_consolidacion invalida: " + escenario.estrategiaConsolidacion);
 		}
 
+		if (escenario.clienteDefault == null || escenario.clienteDefault.trim().isEmpty()) {
+			errores.add("cliente_default no puede estar vacio.");
+		}
+
+		if (escenario.calidadDefault == null || escenario.calidadDefault.trim().isEmpty()) {
+			errores.add("calidad_default no puede estar vacio.");
+		}
+
 		for (Producto p : productos) {
 			if (p.capacidadContenedorTn <= 0) {
 				errores.add("capacidad_contenedor_tn de " + p.producto + " debe ser > 0.");
+			}
+			if (p.toneladasObjetivoLoteTn < 0) {
+				errores.add("toneladas_objetivo_lote_tn de " + p.producto + " no puede ser negativa.");
 			}
 		}
 
@@ -16846,6 +17061,10 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 	private static final double[] CAPACIDAD_CONTENEDOR = { 25, 25, 20 };
 
+	// Tamano comercial del lote acumulativo por producto (tn): jugo, cascara, aceite.
+	// El lote acumula produccion diaria hasta el objetivo y ahi se cierra (ADR-047).
+	private static final double[] TON_OBJETIVO_LOTE = { 2000, 1200, 200 };
+
 	/** Escenarios del barrido. Agregar uno es agregar un caso aca, no tocar el experimento. */
 	public static final String[] ESCENARIOS = {
 		"E-00", "E-01", "E-02", "E-03", "E-04", "E-05",
@@ -16880,6 +17099,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 		e.habilitaCrossDock = false;
 		e.deterministico = false;
 		e.estrategiaConsolidacion = "CONSOLIDACION_DEPOSITO";
+		e.clienteDefault = "GENERICO";
+		e.calidadDefault = "ESTANDAR";
 
 		if (idEscenario.equals("E-00")) {
 			return e;                                    // caso base
@@ -16939,7 +17160,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0, 0));
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
-			datos.productos.add(new DatosEntrada.Producto(PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i]));
+			datos.productos.add(new DatosEntrada.Producto(
+				PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i], TON_OBJETIVO_LOTE[i]));
 			datos.capacidades.add(new DatosEntrada.Capacidad(
 				PLANTA, PRODUCTOS[i], CAPACIDAD_PLANTA[i] * escenario.factorCapacidadPlanta));
 		}
@@ -17154,6 +17376,8 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.habilitaCrossDock = f.texto("habilita_cross_dock").equalsIgnoreCase("true");
 			e.deterministico = f.texto("deterministico").equalsIgnoreCase("true");
 			e.estrategiaConsolidacion = f.texto("estrategia_consolidacion");
+			e.clienteDefault = f.texto("cliente_default");
+			e.calidadDefault = f.texto("calidad_default");
 			datos.escenario = e;
 		}
 
@@ -17165,7 +17389,8 @@ public class ImportadorExcel implements java.io.Serializable {
 			datos.productos.add(new DatosEntrada.Producto(
 					f.producto("producto"),
 					TipoContenedor.valueOf(f.texto("tipo_contenedor")),
-					f.numero("capacidad_contenedor_tn")));
+					f.numero("capacidad_contenedor_tn"),
+					f.numero("toneladas_objetivo_lote_tn")));
 		}
 
 		for (Fila f : filas("Ubicacion", null, null)) {

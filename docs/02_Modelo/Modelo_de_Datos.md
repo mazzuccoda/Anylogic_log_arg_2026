@@ -43,19 +43,22 @@ Definir variables, relaciones, unidades y reglas de integridad. Los nombres se b
 |---|---|---|---|
 | `idLote` | int/String | — | Actual |
 | `producto` | TipoProducto | — | Actual |
-| `cliente` | String/Agent | — | Objetivo |
-| `calidad` | String/OptionList | — | Objetivo |
-| `toneladasObjetivo` | double | tn | Objetivo |
-| `toneladasIniciales` | double | tn | Actual, producido; ya no se reescribe |
+| `cliente` | String | — | Actual, de `Escenario.cliente_default` (ADR-047) |
+| `calidad` | String | — | Actual, de `Escenario.calidad_default` |
+| `toneladasObjetivo` | double | tn | Actual, de `Producto.toneladas_objetivo_lote_tn`; 0 = sin cierre por tamaño |
+| `estadoComercial` | EstadoComercialLote | — | Actual, `ABIERTO` o `CERRADO` |
+| `toneladasIniciales` | double | tn | Actual, **producción acumulada del lote**; sólo crece |
 | `getToneladasDisponibles()` | double | tn | Actual, derivado de las capas |
 | `getToneladasReservadas()` | double | tn | Actual, derivado de las reservas de las capas |
 | `toneladasDespachadas` | double | tn | Objetivo |
-| `diaProduccion` | double | día | Actual |
-| `diaApertura` | double | día | Objetivo |
+| `diaProduccion` | double | día | Actual, primer día de producción del lote |
+| `diaApertura` | double | día | Objetivo (hoy lo cubre `diaProduccion`) |
 | `diaCierre` | double | día | Objetivo |
 | `estado` | EstadoLote | — | Actual |
 | `pedidoAsignado` | Pedido | — | Actual, demasiado restrictivo |
 | `costoAcumulado` | double | USD | Actual |
+
+Un lote acumula la producción de varios días: `crearLoteEnPlanta()` reutiliza el lote abierto compatible por producto, cliente y calidad, y cada día de producción agrega una capa nueva con el mismo `idLote` en lugar de una identidad nueva. El lote se cierra al alcanzar `toneladasObjetivo` en producción acumulada; el despacho y la transferencia parcial no lo cierran, porque descuentan capas y no producción histórica (ADR-047). De ahí que `toneladasIniciales` y el saldo físico puedan diferir: el primero responde "cuánto se produjo", las capas responden "cuánto queda y dónde".
 
 ### Ubicación física: capas
 

@@ -71,7 +71,7 @@ El modelo lee exactamente las mismas tablas, vengan del generador sintético o d
 3. En `Simulation → Properties`, poner `origenDatos = OrigenDatos.EXCEL` y `rutaExcel` con la ruta al libro (relativa a la carpeta del modelo o absoluta).
 4. Correr. Si falta algo, la corrida se detiene **antes del día 1** e informa todos los problemas juntos: hojas faltantes, columnas faltantes, celdas no numéricas con hoja/fila/columna, y después las validaciones de negocio (tarifa faltante, capacidad cero, etc.).
 
-Si cambiaste de versión del modelo y tu libro es viejo, la forma rápida de actualizarlo es regenerar la plantilla y volver a cargar tus valores:
+Un libro anterior a `fase-17` **no importa**: la hoja `Producto` pide ahora `toneladas_objetivo_lote_tn` y la hoja `Escenario` pide `cliente_default` y `calidad_default` (ADR-047). Si cambiaste de versión del modelo y tu libro es viejo, la forma rápida de actualizarlo es regenerar la plantilla y volver a cargar tus valores:
 
 ```bash
 python3 tools/generar_excel_ejemplo.py
@@ -88,7 +88,7 @@ Un escenario es **una fila**: cambiarlo no toca la lógica ni el experimento.
 - **Con datos sintéticos:** la fila vive en `GeneradorSintetico.ESCENARIOS` dentro del modelo (clase Java `GeneradorSintetico`). Los escenarios existentes son E-00 a E-11 y están descritos en [Escenarios y experimentos](../09_Definicion/Escenarios_y_Experimentos.md).
 - **Con Excel:** la fila vive en la hoja `Escenario` del libro. Agregar un escenario es agregar una fila con un `id_escenario` nuevo.
 
-Palancas disponibles en la fila: `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico` y `estrategia_consolidacion`. El significado de cada una está en el [contrato de datos](../09_Definicion/Contrato_de_Datos.md).
+Palancas disponibles en la fila: `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default` y `calidad_default`. El significado de cada una está en el [contrato de datos](../09_Definicion/Contrato_de_Datos.md). El tamaño del lote comercial no es una palanca del escenario: vive en `toneladas_objetivo_lote_tn` de la hoja `Producto`, porque describe al producto (ADR-047).
 
 Para correr un escenario suelto alcanza con poner su `id_escenario` en `Simulation`. Para compararlo con los demás, entra solo al barrido.
 

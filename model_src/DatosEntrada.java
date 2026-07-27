@@ -40,6 +40,8 @@ public class DatosEntrada implements java.io.Serializable {
 		public boolean habilitaCrossDock;
 		public boolean deterministico;             // sin sorteos: la replica no cambia nada
 		public String estrategiaConsolidacion;     // CONSOLIDACION_DEPOSITO | CONSOLIDACION_TERMINAL
+		public String clienteDefault;              // identidad comercial del lote (un solo valor por ahora)
+		public String calidadDefault;              // calidad comercial del lote acumulativo
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -91,11 +93,14 @@ public class DatosEntrada implements java.io.Serializable {
 		public TipoProducto producto;
 		public TipoContenedor tipoContenedor;
 		public double capacidadContenedorTn;
+		public double toneladasObjetivoLoteTn;       // tamano comercial del lote acumulativo (0 = sin objetivo)
 
-		public Producto(TipoProducto producto, TipoContenedor tipoContenedor, double capacidadContenedorTn) {
+		public Producto(TipoProducto producto, TipoContenedor tipoContenedor, double capacidadContenedorTn,
+				double toneladasObjetivoLoteTn) {
 			this.producto = producto;
 			this.tipoContenedor = tipoContenedor;
 			this.capacidadContenedorTn = capacidadContenedorTn;
+			this.toneladasObjetivoLoteTn = toneladasObjetivoLoteTn;
 		}
 	}
 
@@ -381,9 +386,20 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.add("estrategia_consolidacion invalida: " + escenario.estrategiaConsolidacion);
 		}
 
+		if (escenario.clienteDefault == null || escenario.clienteDefault.trim().isEmpty()) {
+			errores.add("cliente_default no puede estar vacio.");
+		}
+
+		if (escenario.calidadDefault == null || escenario.calidadDefault.trim().isEmpty()) {
+			errores.add("calidad_default no puede estar vacio.");
+		}
+
 		for (Producto p : productos) {
 			if (p.capacidadContenedorTn <= 0) {
 				errores.add("capacidad_contenedor_tn de " + p.producto + " debe ser > 0.");
+			}
+			if (p.toneladasObjetivoLoteTn < 0) {
+				errores.add("toneladas_objetivo_lote_tn de " + p.producto + " no puede ser negativa.");
 			}
 		}
 

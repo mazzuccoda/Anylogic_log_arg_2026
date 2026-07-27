@@ -54,6 +54,19 @@ Cada fase debe superar cuatro niveles:
 - un solo lote comercial;
 - cinco registros diarios no deben crear cinco identidades comerciales.
 
+**Ejecutado:** 2026-07-27, modelo `fase-17`, determinístico (una sola serie de ingresos, sin variabilidad). **Resultado: cumple.**
+
+| Comprobación | Esperado | Obtenido |
+|---|---|---|
+| identidades comerciales creadas | 1 | 1 |
+| producción acumulada (`toneladasIniciales`) | 500 tn | 500 tn |
+| saldo físico del lote (`Inventario.stockLote`) | 500 tn | 500 tn |
+| capas de inventario | 5 (una por día) | 5 |
+| estado comercial al día 5 | `CERRADO` | `CERRADO` |
+| `Inventario.validar()` | sin errores | sin errores |
+
+Las cinco capas comparten `idLote` y se diferencian por `diaIngreso`: la identidad comercial es una y los registros diarios son cinco, que es exactamente lo que el caso pide distinguir.
+
 ### V-004 Despacho parcial antes del cierre
 
 **Datos:** producido 150 tn, despacho 25 tn.
@@ -64,6 +77,24 @@ Cada fase debe superar cuatro niveles:
 - disponible 125;
 - lote continúa abierto;
 - producción posterior sigue sumando al mismo lote.
+
+**Ejecutado:** 2026-07-27, modelo `fase-17`, determinístico. **Resultado: cumple.**
+
+| Comprobación | Esperado | Obtenido |
+|---|---|---|
+| mismo lote tras dos días de producción | sí | sí (`idLote` 1 y 1) |
+| producción acumulada antes del despacho | 150 tn | 150 tn |
+| despachado | 25 tn | 25 tn |
+| disponible tras el despacho | 125 tn | 125 tn |
+| estado comercial tras el despacho | `ABIERTO` | `ABIERTO` |
+| producción posterior (100 tn) en el mismo lote | sí | sí (`idLote` 1) |
+| producción acumulada final | 250 tn | 250 tn |
+| disponible final | 225 tn | 225 tn |
+| `Inventario.validar()` | sin errores | sin errores |
+
+El despacho reduce las capas y no toca `toneladasIniciales`: por eso la producción acumulada llega a 250 tn mientras el saldo físico queda en 225 tn. Es la separación que hace que el despacho parcial no cierre el lote (ADR-047).
+
+**Cómo se ejecutan V-003 y V-004:** el cuerpo de `Main.crearLoteEnPlanta()` vive en un agente y no compila fuera de AnyLogic, así que los dos casos se corren sobre las clases reales `Inventario`, `Capa` y `DatosEntrada` del espejo `model_src/`, con una copia fiel de ese cuerpo y de `buscarLoteComercialAbierto()`. Es la única forma de fijar producción y despacho exactos sin depender del sorteo de pedidos de la campaña. Si el cuerpo de la función cambia, el caso hay que volver a correrlo.
 
 ### V-005 Múltiples ubicaciones
 
