@@ -114,6 +114,10 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 	private static final double[] CAPACIDAD_CONTENEDOR = { 25, 25, 20 };
 
+	// Tamano comercial del lote acumulativo por producto (tn): jugo, cascara, aceite.
+	// El lote acumula produccion diaria hasta el objetivo y ahi se cierra (ADR-047).
+	private static final double[] TON_OBJETIVO_LOTE = { 2000, 1200, 200 };
+
 	/** Escenarios del barrido. Agregar uno es agregar un caso aca, no tocar el experimento. */
 	public static final String[] ESCENARIOS = {
 		"E-00", "E-01", "E-02", "E-03", "E-04", "E-05",
@@ -148,6 +152,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 		e.habilitaCrossDock = false;
 		e.deterministico = false;
 		e.estrategiaConsolidacion = "CONSOLIDACION_DEPOSITO";
+		e.clienteDefault = "GENERICO";
+		e.calidadDefault = "ESTANDAR";
 
 		if (idEscenario.equals("E-00")) {
 			return e;                                    // caso base
@@ -207,7 +213,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0, 0));
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
-			datos.productos.add(new DatosEntrada.Producto(PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i]));
+			datos.productos.add(new DatosEntrada.Producto(
+				PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i], TON_OBJETIVO_LOTE[i]));
 			datos.capacidades.add(new DatosEntrada.Capacidad(
 				PLANTA, PRODUCTOS[i], CAPACIDAD_PLANTA[i] * escenario.factorCapacidadPlanta));
 		}

@@ -25,7 +25,7 @@ public class VolcarDatos {
 				+ "\thoras_operativas_dia"
 				+ "\tfactor_produccion\tfactor_capacidad_planta\tfactor_capacidad_deposito"
 				+ "\tfactor_storage\tventana_demanda\thabilita_cross_dock\tdeterministico"
-				+ "\testrategia_consolidacion");
+				+ "\testrategia_consolidacion\tcliente_default\tcalidad_default");
 		for (String id : GeneradorSintetico.ESCENARIOS) {
 			DatosEntrada.Escenario e = GeneradorSintetico.escenario(id, semilla);
 			System.out.println(e.idEscenario
@@ -48,12 +48,15 @@ public class VolcarDatos {
 					+ "\t" + e.ventanaDemanda
 					+ "\t" + e.habilitaCrossDock
 					+ "\t" + e.deterministico
-					+ "\t" + e.estrategiaConsolidacion);
+					+ "\t" + e.estrategiaConsolidacion
+					+ "\t" + e.clienteDefault
+					+ "\t" + e.calidadDefault);
 		}
 
-		hoja("Producto", "producto\ttipo_contenedor\tcapacidad_contenedor_tn");
+		hoja("Producto", "producto\ttipo_contenedor\tcapacidad_contenedor_tn\ttoneladas_objetivo_lote_tn");
 		for (DatosEntrada.Producto p : d.productos) {
-			System.out.println(p.producto + "\t" + p.tipoContenedor + "\t" + p.capacidadContenedorTn);
+			System.out.println(p.producto + "\t" + p.tipoContenedor + "\t" + p.capacidadContenedorTn
+					+ "\t" + p.toneladasObjetivoLoteTn);
 		}
 
 		hoja("Ubicacion", "id_ubicacion\ttipo\thabilitada\tvelocidad_carga_tn_hora"

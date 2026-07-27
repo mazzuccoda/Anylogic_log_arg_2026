@@ -63,16 +63,20 @@ La fase había sido declarada completada al 100% sin que el modelo estuviera ver
 
 ## 5. Fase 2 — Lote comercial
 
+Implementado en el modelo y verificado en PLE (ADR-047).
+
 - [x] Validar que el lote no es producción diaria.
 - [x] Validar producción durante varios días.
 - [x] Validar despacho antes del cierre.
-- [ ] Agregar cliente.
-- [ ] Agregar calidad.
-- [ ] Agregar toneladas objetivo.
-- [ ] Agregar estado comercial.
-- [ ] Implementar lote abierto.
-- [ ] Modificar `crearLoteEnPlanta()`.
-- [ ] Validar casos V-003 y V-004.
+- [x] Agregar cliente: `LoteProducto.cliente`, desde `Escenario.cliente_default`.
+- [x] Agregar calidad: `LoteProducto.calidad`, desde `Escenario.calidad_default`.
+- [x] Agregar toneladas objetivo: `LoteProducto.toneladasObjetivo`, desde `Producto.toneladas_objetivo_lote_tn`.
+- [x] Agregar estado comercial: `LoteProducto.estadoComercial` y la lista de opciones `EstadoComercialLote` (`ABIERTO`/`CERRADO`).
+- [x] Implementar lote abierto: `Main.buscarLoteComercialAbierto(producto, cliente, calidad)`, a lo sumo uno abierto por combinación.
+- [x] Modificar `crearLoteEnPlanta()`: la producción diaria entra como una capa nueva del mismo `idLote` y acumula `toneladasIniciales`; el lote se cierra al alcanzar el objetivo y sólo entonces la producción siguiente abre una identidad nueva.
+- [x] Validar casos V-003 y V-004: ambos cumplen, con la evidencia en el [plan de validación](../06_Validacion/Plan_de_Validacion.md).
+- [x] Verificado en PLE: build limpio, campaña completa sin excepciones, 360 corridas `Finished` y CSV etiquetado `fase-17`.
+- [ ] Pendiente: reserva y despacho **por lote comercial**. Hoy los pedidos siguen reservando por producto contra las capas del depósito en FIFO, así que cliente y calidad son trazabilidad y todavía no restringen a quién se le puede asignar un lote (fase 5).
 
 ## 6. Fase 3 — Existencias físicas
 

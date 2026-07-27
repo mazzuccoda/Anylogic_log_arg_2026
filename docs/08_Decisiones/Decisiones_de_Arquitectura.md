@@ -368,6 +368,32 @@ El costo del flete planta→depósito pasa a cobrarse **por viaje** (fijo y kilo
 **Alternativas:** gráficos de barras de AnyLogic en la pantalla del experimento (no hay tiempo de modelo que dispare su actualización, y las series por escenario habría que llenarlas a mano igual); un agente de tablero (gasta uno de los diez tipos que PLE permite, ADR-031); dejar la comparación sólo en el CSV (obliga a esperar el final del barrido y a salir del modelo para decidir).  
 **Consecuencias:** agregar un KPI al tablero del barrido es agregarlo a `KPIS` y al arreglo de `Corrida.kpis`, con lo que pantalla, consola y CSV se mueven juntos. El frente de decisión sólo es válido entre escenarios con la misma producción y demanda: E-06 y E-07 cambian la escala del problema y aparecen como eficientes por eso; el panel lo advierte en pantalla, pero el modelo no lo impide. La dominancia usa costo por tonelada, que hereda la limitación de ADR-044 (la planta no cobra almacenaje).
 
+## ADR-047 — El lote comercial acumula producción y las capas siguen siendo la existencia física
+
+**Estado:** aceptada.  
+**Fecha:** 2026-07-27  
+**Contexto:** `Main.crearLoteEnPlanta()` creaba un `LoteProducto` nuevo por cada ingreso, y el ciclo diario la llamaba una vez por producto y por día. En una campaña de 183 días eso son ~549 identidades de lote, una por día de producción, con `toneladasIniciales` igual a lo producido *ese día*. El lote comercial —la unidad que se le vende a un cliente, con una calidad y un tamaño objetivo— no existía: no había cliente, ni calidad, ni toneladas objetivo, ni estado comercial, y no había forma de decir "este lote de 2.000 tn se completó en veinte días".
+
+**Decisión:** se separan tres cosas que antes estaban colapsadas en el mismo objeto.
+
+- **Identidad comercial:** `LoteProducto` suma `cliente`, `calidad`, `toneladasObjetivo` y `estadoComercial` (`ABIERTO`/`CERRADO`, lista de opciones nueva `EstadoComercialLote`). No es un tipo de agente nuevo: PLE admite diez y el modelo ya los usa (ADR-031).
+- **Producción acumulada:** `toneladasIniciales` pasa a significar *lo producido acumulado del lote comercial*, no lo producido del día. Es la base de la regla de cierre y nunca se reduce.
+- **Existencia física:** sigue viviendo en las capas del `Inventario` (ADR-021, ADR-023). Cada día de producción agrega **una capa nueva con el mismo `idLote`**, no un lote nuevo.
+
+`crearLoteEnPlanta()` busca con `buscarLoteComercialAbierto(producto, cliente, calidad)` el lote abierto compatible; si lo encuentra acumula sobre él y conserva el `idLote`, y sólo crea una identidad nueva cuando el compatible ya está cerrado. Hay a lo sumo un lote abierto por combinación producto × cliente × calidad.
+
+**Regla de cierre:** el lote se cierra cuando la **producción acumulada** alcanza `toneladasObjetivo`. El despacho y la transferencia parcial **no** lo cierran: reducen capas, no producción histórica, y mientras el lote esté abierto la producción posterior compatible sigue sumándose a la misma identidad. `toneladasObjetivo = 0` significa sin cierre por tamaño. Al terminar la campaña no hay más producción, así que el lote abierto queda cerrado de hecho sin necesidad de una acción de cierre.
+
+**Fuente de los datos comerciales:** una sola, para no crear una segunda fuente de verdad. `toneladas_objetivo_lote_tn` es una columna nueva de la tabla `Producto` (el tamaño comercial es una característica del producto), y `cliente_default`/`calidad_default` son dos columnas nuevas de `Escenario` (hoy hay un solo cliente y una sola calidad, ADR-019). Las tres se generan sintéticamente y se leen del Excel por el mismo camino que el resto del contrato; nada queda cableado en código.
+
+**Alternativas:** una tabla `LoteComercial` propia (duplica el tamaño objetivo que ya describe al producto, y obliga a decidir a qué lote entra cada día de producción con datos que todavía no existen); un tipo de agente `LoteComercial` con los `LoteProducto` como hijos (gasta uno de los diez tipos de PLE); dejar `toneladasIniciales` como producción del día y agregar un segundo campo acumulado (dos números que significan casi lo mismo y se desincronizan); cerrar el lote al despachar (haría que un pedido chico partiera un lote de 2.000 tn en decenas de identidades, que es el problema que se quiere resolver).
+
+**Consecuencias:** hay una identidad comercial estable y trazable: `toneladasIniciales` responde "cuánto se produjo de este lote" y las capas responden "cuánto queda y dónde", que es lo que pedía ADR-023. La cantidad de agentes `LoteProducto` baja de ~549 a ~30 por campaña.
+
+El consumo de stock **no** cambia: los pedidos siguen reservando por producto contra las capas del depósito en FIFO, no contra un lote comercial (la reserva por lote es fase 5 y sigue pendiente). Pero el barrido **sí** se mueve, y conviene entender por qué antes de leerlo como una mejora del negocio:
+
+`transferirToneladasLote()` cobra y consume flota por viajes, y los viajes son `ceil(toneladas / capacidad_camion_tn)` **por llamada** (ADR-044). Con un lote por día, cada llamada movía como máximo la producción de un día, así que el redondeo del último camión parcial se pagaba **una vez por día y por producto**: con camión de 25 tn, la cáscara (60 tn/día) gastaba 3 viajes donde necesitaba 2,4 y el aceite (8 tn/día) gastaba 1 viaje entero para 0,32. Al acumular, el redondeo ocurre una vez por tanda de transferencia y no una vez por día de producción, que es el cálculo correcto. El efecto medido sobre 30 réplicas es consistente en los doce escenarios: **12% a 16% menos viajes planta–depósito**, 0,3% a 2,6% menos costo total, y toneladas y contenedores exportados prácticamente iguales (+0,05%). Donde más se nota es en los escenarios con flota escasa, porque eran los que más pagaban el desperdicio: E-01 baja el atraso medio de 3,17 a 2,20 días. La respuesta de dimensionamiento no cambia (E-01 sigue siendo el peor en servicio y atraso, y E-02 sigue sin comprar nada sobre E-00), pero las series anteriores a `fase-17` no son comparables con las nuevas.
+
 ## Plantilla para nuevas decisiones
 
 ```markdown

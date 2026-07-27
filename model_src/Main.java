@@ -89,21 +89,36 @@ class Main extends Agent {
             return null;
         }
 
-        LoteProducto lote = add_lotes();
+        // Lote comercial acumulativo (ADR-047): la produccion diaria entra como una capa
+        // nueva del mismo lote abierto; solo se abre una identidad comercial nueva cuando
+        // el lote compatible ya esta cerrado por haber alcanzado su objetivo.
+        String cliente = datos.escenario.clienteDefault;
+        String calidad = datos.escenario.calidadDefault;
 
-        lote.idLote = siguienteIdLote;
-        siguienteIdLote++;
+        LoteProducto lote = buscarLoteComercialAbierto(producto, cliente, calidad);
 
-        lote.producto = producto;
-        lote.toneladasIniciales = toneladas;
-        lote.diaProduccion = time();
-        lote.estado = EstadoLote.EN_PLANTA;
-        lote.ubicacionActual = origen;
-        lote.costoAcumulado = 0;
-        lote.pedidoAsignado = null;
+        if (lote == null) {
+            lote = add_lotes();
 
-        // El saldo fisico vive en la capa, no en el lote (ADR-023). 'toneladasIniciales'
-        // queda como lo producido, que ya no se toca nunca mas.
+            lote.idLote = siguienteIdLote;
+            siguienteIdLote++;
+
+            lote.producto = producto;
+            lote.diaProduccion = time();
+            lote.estado = EstadoLote.EN_PLANTA;
+            lote.ubicacionActual = origen;
+            lote.costoAcumulado = 0;
+            lote.pedidoAsignado = null;
+
+            lote.cliente = cliente;
+            lote.calidad = calidad;
+            lote.toneladasObjetivo = datos.producto(producto).toneladasObjetivoLoteTn;
+            lote.estadoComercial = EstadoComercialLote.ABIERTO;
+            lote.toneladasIniciales = 0;
+        }
+
+        // La produccion del dia es una capa nueva con el mismo idLote. El saldo fisico vive
+        // en las capas (ADR-023); la identidad comercial vive en el lote.
         inventario.ingresar(
             lote.idLote,
             producto,
@@ -112,6 +127,20 @@ class Main extends Agent {
             time(),
             time()
         );
+
+        // 'toneladasIniciales' pasa a ser lo producido acumulado del lote comercial (no del
+        // dia): es la base de la regla de cierre, no un saldo fisico.
+        lote.toneladasIniciales += toneladas;
+
+        // Regla de cierre (ADR-047): el lote se cierra al alcanzar sus toneladas objetivo.
+        // El despacho parcial no lo cierra; la produccion posterior sigue sumando mientras
+        // este abierto. Objetivo 0 = sin cierre por tamano (solo cierra al fin de campania).
+        if (
+            lote.toneladasObjetivo > 0
+            && lote.toneladasIniciales >= lote.toneladasObjetivo - 0.0001
+        ) {
+            lote.estadoComercial = EstadoComercialLote.CERRADO;
+        }
 
         return lote;
     }
@@ -1953,6 +1982,36 @@ class Main extends Agent {
         // El pool lleva la estadistica de ocupacion en tiempo continuo; muestrearlo una
         // vez por dia no veia los viajes que empiezan y terminan dentro del mismo dia.
         return flotaPortacontenedores.utilization();
+    }
+
+    LoteProducto buscarLoteComercialAbierto(TipoProducto producto, String cliente, String calidad) {
+        // Lote comercial abierto compatible por producto, cliente y calidad (ADR-047).
+        // Hay a lo sumo uno abierto por combinacion: al cerrarse, el siguiente ingreso
+        // abre una identidad comercial nueva.
+        for (LoteProducto lote : lotes) {
+            if (
+                lote.producto == producto
+                && lote.estadoComercial == EstadoComercialLote.ABIERTO
+                && lote.cliente.equals(cliente)
+                && lote.calidad.equals(calidad)
+            ) {
+                return lote;
+            }
+        }
+
+        return null;
+    }
+
+    int lotesComercialesAbiertos() {
+        int abiertos = 0;
+
+        for (LoteProducto lote : lotes) {
+            if (lote.estadoComercial == EstadoComercialLote.ABIERTO) {
+                abiertos++;
+            }
+        }
+
+        return abiertos;
     }
 
     // ----- Eventos -----

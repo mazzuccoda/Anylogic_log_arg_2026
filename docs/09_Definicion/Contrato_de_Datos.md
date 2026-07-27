@@ -49,9 +49,12 @@ Con `EXCEL`, los parámetros del generador (`semillaBase`, `variabilidadProducci
 | `producto` | enum | `JUGO`, `CASCARA`, `ACEITE` |
 | `tipo_contenedor` | enum | `REEFER_40`, `DRY_HC_40`, `IMO_DRY_20` |
 | `capacidad_contenedor_tn` | double | > 0 |
+| `toneladas_objetivo_lote_tn` | double | ≥ 0. Tamaño del lote comercial acumulativo. `0` = el lote no cierra por tamaño (ADR-047) |
 | `descripcion` | texto | Libre |
 
 Reemplaza `obtenerTipoContenedor()` y `obtenerCapacidadContenedorTon()` hardcodeados.
+
+`toneladas_objetivo_lote_tn` es la **única** fuente del tamaño objetivo del lote comercial: el lote acumula la producción diaria del producto y se cierra cuando la producción acumulada lo alcanza. Vive acá porque el tamaño comercial describe al producto; no hay una tabla `LoteComercial` que lo duplique (ADR-047).
 
 ### 4.2 `Ubicacion`
 
@@ -169,6 +172,8 @@ Todas incluyen `vigencia_desde` y `vigencia_hasta` (fecha; `vigencia_hasta` vac�
 | `factor_storage` | double | Multiplica las tarifas de almacenaje |
 | `ventana_demanda` | double | 0..1: fracción del horizonte en la que llegan los pedidos |
 | `estrategia_consolidacion` | enum | `CONSOLIDACION_DEPOSITO` o `CONSOLIDACION_TERMINAL` |
+| `cliente_default` | texto | No vacío. Cliente del lote comercial mientras haya un solo cliente (ADR-019, ADR-047) |
+| `calidad_default` | texto | No vacío. Calidad del lote comercial mientras haya una sola calidad |
 | `habilita_cross_dock` | bool | |
 | `politica_prioridad` | enum | `FECHA_LIMITE`, `FIFO`, `MAYOR_VOLUMEN` |
 | `tipo_cambio_ars_usd` | double | Para tarifas en ARS |
@@ -236,8 +241,8 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 
 | Hoja | Columnas |
 |---|---|
-| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion` |
-| `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn` |
+| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default` |
+| `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn`, `toneladas_objetivo_lote_tn` |
 | `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `posiciones_consolidacion`, `contenedores_por_posicion_dia`, `posiciones_cross_dock` |
 | `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |
 | `Distancia` | `origen`, `destino`, `distancia_km` |

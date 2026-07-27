@@ -66,6 +66,8 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.habilitaCrossDock = f.texto("habilita_cross_dock").equalsIgnoreCase("true");
 			e.deterministico = f.texto("deterministico").equalsIgnoreCase("true");
 			e.estrategiaConsolidacion = f.texto("estrategia_consolidacion");
+			e.clienteDefault = f.texto("cliente_default");
+			e.calidadDefault = f.texto("calidad_default");
 			datos.escenario = e;
 		}
 
@@ -77,7 +79,8 @@ public class ImportadorExcel implements java.io.Serializable {
 			datos.productos.add(new DatosEntrada.Producto(
 					f.producto("producto"),
 					TipoContenedor.valueOf(f.texto("tipo_contenedor")),
-					f.numero("capacidad_contenedor_tn")));
+					f.numero("capacidad_contenedor_tn"),
+					f.numero("toneladas_objetivo_lote_tn")));
 		}
 
 		for (Fila f : filas("Ubicacion", null, null)) {

@@ -39,9 +39,10 @@ Es la identidad de la corrida: sin esto, una captura del tablero no se puede rep
 
 ### Producción y stock (tn)
 
-Por producto, toneladas **en planta** y **en depósito**, más los lotes abiertos y el excedente.
+Por producto, toneladas **en planta** y **en depósito**, más los lotes comerciales y el excedente.
 
 - Stock: `planta.getStock(producto)` y `stockTotalDepositos(producto)`, ambos derivados de las capas de inventario (ADR-023). No son saldos que se mantengan aparte.
+- Lotes comerciales: `lotes.size()` en total y `lotesComercialesAbiertos()` abiertos. Un lote acumula la producción de varios días y se cierra al alcanzar su objetivo (ADR-047), así que el total crece de a poco: una identidad por cada objetivo completado, no una por día de producción. Si los abiertos son más que la cantidad de productos, hay lotes de distinto cliente o calidad conviviendo.
 - Excedente: producción que no encontró lugar (`Planta.excedente*`). Si crece, falta capacidad **o** falta transporte; el panel de flota dice cuál de las dos.
 
 ### Transporte y flota
