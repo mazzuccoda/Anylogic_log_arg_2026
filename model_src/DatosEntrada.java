@@ -42,6 +42,15 @@ public class DatosEntrada implements java.io.Serializable {
 		public String estrategiaConsolidacion;     // CONSOLIDACION_DEPOSITO | CONSOLIDACION_TERMINAL
 		public String clienteDefault;              // identidad comercial del lote (un solo valor por ahora)
 		public String calidadDefault;              // calidad comercial del lote acumulativo
+
+		// Politica de frio propio (ADR-048). La planta es el almacenamiento mas
+		// barato, asi que la regla es retenerla llena y sacar solo lo que la
+		// demanda pide o lo que el forecast dice que va a desbordar.
+		public double umbralAlertaPct;             // % de la capacidad nominal que enciende la alerta
+		public double umbralSobrecargaPct;         // % hasta el que la sobrecarga se considera aceptable
+		public double umbralObjetivoPct;           // % al que la politica REACTIVA vacia la planta
+		public int diasForecast;                   // horizonte de la transferencia preventiva
+		public String politicaFrioPropio;          // FLEXIBLE | REACTIVA
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -53,15 +62,13 @@ public class DatosEntrada implements java.io.Serializable {
 		public double velocidadDescargaTnHora;
 		public double velocidadConsolidacionTnHora;
 		public double capacidadDiariaTn;
-		public double posicionesConsolidacion;       // posiciones de estiba del sitio
-		public double contenedoresPorPosicionDia;    // contenedores por posicion y dia
+		public double contenedoresPorDia;            // capacidad de consolidacion del sitio (ADR-048)
 		public double posicionesCrossDock;           // operaciones de cross dock por dia
 
 		public Ubicacion(String idUbicacion, String tipo, boolean habilitada,
 				double velocidadCargaTnHora, double velocidadDescargaTnHora,
 				double velocidadConsolidacionTnHora, double capacidadDiariaTn,
-				double posicionesConsolidacion, double contenedoresPorPosicionDia,
-				double posicionesCrossDock) {
+				double contenedoresPorDia, double posicionesCrossDock) {
 			this.idUbicacion = idUbicacion;
 			this.tipo = tipo;
 			this.habilitada = habilitada;
@@ -69,8 +76,7 @@ public class DatosEntrada implements java.io.Serializable {
 			this.velocidadDescargaTnHora = velocidadDescargaTnHora;
 			this.velocidadConsolidacionTnHora = velocidadConsolidacionTnHora;
 			this.capacidadDiariaTn = capacidadDiariaTn;
-			this.posicionesConsolidacion = posicionesConsolidacion;
-			this.contenedoresPorPosicionDia = contenedoresPorPosicionDia;
+			this.contenedoresPorDia = contenedoresPorDia;
 			this.posicionesCrossDock = posicionesCrossDock;
 		}
 	}
@@ -121,12 +127,17 @@ public class DatosEntrada implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public String idUbicacion;
 		public TipoProducto producto;
-		public double storageUsdTnDia;
+		public double storageUsdTnDia;               // lo que se factura: entra al costo de caja
+		public double oportunidadUsdTnDia;           // costo de oportunidad del frio propio (ADR-049)
+		public double penalidadSobrecargaUsdTnDia;   // por tonelada y dia sobre la capacidad nominal
 
-		public TarifaAlmacenamiento(String idUbicacion, TipoProducto producto, double storageUsdTnDia) {
+		public TarifaAlmacenamiento(String idUbicacion, TipoProducto producto, double storageUsdTnDia,
+				double oportunidadUsdTnDia, double penalidadSobrecargaUsdTnDia) {
 			this.idUbicacion = idUbicacion;
 			this.producto = producto;
 			this.storageUsdTnDia = storageUsdTnDia;
+			this.oportunidadUsdTnDia = oportunidadUsdTnDia;
+			this.penalidadSobrecargaUsdTnDia = penalidadSobrecargaUsdTnDia;
 		}
 	}
 
@@ -268,14 +279,37 @@ public class DatosEntrada implements java.io.Serializable {
 	 * cuenta por dia, no por hora (definicion, seccion 3).
 	 */
 	public double capacidadConsolidacionDia(String idUbicacion) {
-		Ubicacion u = ubicacion(idUbicacion);
-		return u.posicionesConsolidacion * u.contenedoresPorPosicionDia;
+		return ubicacion(idUbicacion).contenedoresPorDia;
 	}
 
 	public double storageUsdTnDia(String idUbicacion, TipoProducto producto) {
 		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
 			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
 				return t.storageUsdTnDia;
+			}
+		}
+		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
+				+ " (tabla TarifaAlmacenamiento).");
+	}
+
+	/**
+	 * Costo de oportunidad del frio propio: no se factura, pero sin el la planta
+	 * es gratis y toda comparacion de estrategias la elige siempre (ADR-049).
+	 */
+	public double oportunidadUsdTnDia(String idUbicacion, TipoProducto producto) {
+		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
+			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
+				return t.oportunidadUsdTnDia;
+			}
+		}
+		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
+				+ " (tabla TarifaAlmacenamiento).");
+	}
+
+	public double penalidadSobrecargaUsdTnDia(String idUbicacion, TipoProducto producto) {
+		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
+			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
+				return t.penalidadSobrecargaUsdTnDia;
 			}
 		}
 		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
@@ -394,6 +428,27 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.add("calidad_default no puede estar vacio.");
 		}
 
+		if (escenario.umbralAlertaPct <= 0 || escenario.umbralAlertaPct > 100) {
+			errores.add("umbral_alerta_pct debe estar en (0, 100].");
+		}
+
+		if (escenario.umbralSobrecargaPct < 100) {
+			errores.add("umbral_sobrecarga_pct no puede ser menor que la capacidad nominal (100).");
+		}
+
+		if (escenario.umbralObjetivoPct < 0 || escenario.umbralObjetivoPct > escenario.umbralAlertaPct) {
+			errores.add("umbral_objetivo_pct debe estar en [0, umbral_alerta_pct].");
+		}
+
+		if (escenario.diasForecast < 0) {
+			errores.add("dias_forecast no puede ser negativo.");
+		}
+
+		if (!"FLEXIBLE".equals(escenario.politicaFrioPropio)
+				&& !"REACTIVA".equals(escenario.politicaFrioPropio)) {
+			errores.add("politica_frio_propio invalida: " + escenario.politicaFrioPropio);
+		}
+
 		for (Producto p : productos) {
 			if (p.capacidadContenedorTn <= 0) {
 				errores.add("capacidad_contenedor_tn de " + p.producto + " debe ser > 0.");
@@ -437,6 +492,13 @@ public class DatosEntrada implements java.io.Serializable {
 			}
 			if (t.storageUsdTnDia < 0) {
 				errores.add("storage_usd_tn_dia negativa en " + t.idUbicacion + " / " + t.producto + ".");
+			}
+			if (t.oportunidadUsdTnDia < 0) {
+				errores.add("oportunidad_usd_tn_dia negativa en " + t.idUbicacion + " / " + t.producto + ".");
+			}
+			if (t.penalidadSobrecargaUsdTnDia < 0) {
+				errores.add("penalidad_sobrecarga_usd_tn_dia negativa en "
+						+ t.idUbicacion + " / " + t.producto + ".");
 			}
 		}
 
@@ -484,6 +546,17 @@ public class DatosEntrada implements java.io.Serializable {
 
 		// Un sitio de consolidacion sin capacidad no retrasa el despacho: lo detiene
 		// para siempre. Es un error de datos, no un escenario.
+		for (TipoProducto producto : TipoProducto.values()) {
+			try {
+				capacidadTn("PLANTA", producto);
+				// La planta no factura almacenaje, pero su costo de oportunidad y su
+				// penalidad de sobrecarga son datos, no cero implicito (ADR-049).
+				storageUsdTnDia("PLANTA", producto);
+			} catch (RuntimeException e) {
+				errores.add(e.getMessage());
+			}
+		}
+
 		for (Ubicacion u : ubicaciones) {
 			if (u.tipo.equals("PLANTA")) {
 				continue;
@@ -492,9 +565,8 @@ public class DatosEntrada implements java.io.Serializable {
 				errores.add("posiciones_cross_dock no puede ser negativo en " + u.idUbicacion + ".");
 			}
 
-			if (u.posicionesConsolidacion < 0 || u.contenedoresPorPosicionDia < 0) {
-				errores.add("posiciones_consolidacion y contenedores_por_posicion_dia no pueden ser"
-						+ " negativos en " + u.idUbicacion + ".");
+			if (u.contenedoresPorDia < 0) {
+				errores.add("contenedores_por_dia no puede ser negativo en " + u.idUbicacion + ".");
 			}
 			if (capacidadConsolidacionDia(u.idUbicacion) <= 0) {
 				errores.add("La capacidad de consolidacion de " + u.idUbicacion

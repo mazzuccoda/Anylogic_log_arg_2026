@@ -25,7 +25,7 @@ No se construye (todavía) para decidir la operación de un pedido individual en
 | P5 | ¿Habilitar cross docking reduce el costo total y en cuánto? | Comparación de escenarios con y sin cross docking |
 | P6 | ¿Qué recurso es el cuello de botella de la campaña? | Ranking de utilización y de causas de atraso |
 | P7 | ¿Qué pasa en una campaña de producción alta o con menos capacidad de depósito? | Barrido de escenarios |
-| P8 | ¿Cuánto producto no se puede almacenar (excedente) y qué política lo evita? | Excedente acumulado por producto y escenario |
+| P8 | ¿Cuánto frío falta y qué política lo evita? | Tonelada-día de planta sobre el nivel nominal, días en sobrecarga y pico de ocupación por escenario (ADR-048) |
 
 ### 1.2 Preguntas explícitamente fuera del uso primario
 
@@ -63,7 +63,7 @@ Con paso diario no se modelan colas hora a hora. Cada recurso se representa como
 |---|---|---|
 | Camión de producto | camión-día | 1 camión-día por viaje planta→depósito o →cross dock (o `N` días si el tránsito dura `N`) |
 | Portacontenedor | camión-día | `duracionCicloContenedorDias` por contenedor (retiro vacío → carga → ingreso terminal) |
-| Posición de consolidación | posición-día por sitio | `contenedoresPorPosicionDia` contenedores por posición y día |
+| Consolidación | contenedores por día y sitio | `contenedores_por_dia` contenedores estibados por día (ADR-048) |
 | Posición de cross dock | posición-día por sitio | 1 operación de cross dock por posición y día |
 | Capacidad de depósito | toneladas | Stock instantáneo, no consumible |
 
@@ -99,7 +99,7 @@ Reglas:
 
 Se mantiene todo el alcance del borrador, con estas precisiones:
 
-- Producción diaria estocástica por producto, con capacidad de planta y excedente.
+- Producción diaria estocástica por producto; la capacidad de planta es un nivel de referencia y el producto nunca se descarta (ADR-048).
 - Lote comercial acumulativo con existencias distribuidas (ver §6).
 - Transferencia parcial planta→depósito con costo de flete e IN.
 - Pedidos de exportación con lote solicitado, terminal, naviera y plazo.
@@ -192,7 +192,7 @@ Se agregan a los KPIs ya definidos y son los que cierran las preguntas P1..P8. T
 
 - ocupación media y máxima por depósito y producto (tn y % de capacidad);
 - días con ocupación > 90%;
-- excedente de producción acumulado (tn) y días con excedente > 0.
+- tonelada-día de planta sobre el nivel nominal y días en sobrecarga.
 
 ### Flota y posiciones
 
@@ -269,7 +269,7 @@ Detalle y evidencia en el [Inventario del modelo](../03_Logica/Inventario_del_Mo
 El proyecto se considera cumplido cuando:
 
 1. corre una campaña completa de 183 días con 30 réplicas sin excepciones;
-2. reconcilia inventario (producido = físico + despachado + excedente) y costos (costo de pedido = suma de sus registros) en toda corrida;
+2. reconcilia inventario (producido = físico + despachado) y costos (costo de pedido = suma de sus registros) en toda corrida;
 3. los casos V-001..V-025 pasan en modo determinístico y quedan registrados en CSV;
 4. responde P1..P8 con evidencia de al menos 4 escenarios comparados;
 5. los datos de entrada provienen de Excel sin modificar la lógica;

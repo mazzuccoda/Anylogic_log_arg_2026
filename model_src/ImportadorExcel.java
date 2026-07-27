@@ -68,6 +68,11 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.estrategiaConsolidacion = f.texto("estrategia_consolidacion");
 			e.clienteDefault = f.texto("cliente_default");
 			e.calidadDefault = f.texto("calidad_default");
+			e.umbralAlertaPct = f.numero("umbral_alerta_pct");
+			e.umbralSobrecargaPct = f.numero("umbral_sobrecarga_pct");
+			e.umbralObjetivoPct = f.numero("umbral_objetivo_pct");
+			e.diasForecast = f.entero("dias_forecast");
+			e.politicaFrioPropio = f.texto("politica_frio_propio");
 			datos.escenario = e;
 		}
 
@@ -92,8 +97,7 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.numero("velocidad_descarga_tn_hora"),
 					f.numero("velocidad_consolidacion_tn_hora"),
 					f.numero("capacidad_diaria_tn"),
-					f.numero("posiciones_consolidacion"),
-					f.numero("contenedores_por_posicion_dia"),
+					f.numero("contenedores_por_dia"),
 					f.numero("posiciones_cross_dock")));
 		}
 
@@ -109,7 +113,8 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		for (Fila f : filas("TarifaAlmacenamiento", null, null)) {
 			datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
-					f.texto("id_ubicacion"), f.producto("producto"), f.numero("storage_usd_tn_dia")));
+					f.texto("id_ubicacion"), f.producto("producto"), f.numero("storage_usd_tn_dia"),
+					f.numero("oportunidad_usd_tn_dia"), f.numero("penalidad_sobrecarga_usd_tn_dia")));
 		}
 
 		for (Fila f : filas("TarifaFleteProducto", null, null)) {

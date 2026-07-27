@@ -22,15 +22,11 @@ Cada función debe registrar:
 
 ### `producir()`
 
-**Estado:** implementada; conceptualmente en transición.
+**Estado:** implementada.
 
-**Objetivo actual:** generar producción diaria, almacenar hasta capacidad y crear lotes por lo efectivamente ingresado.
+**Objetivo:** ingresar la producción del día del plan, **completa**: la capacidad de la planta es un umbral de lectura y no un tope, porque el producto ya está cosechado y no se descarta (ADR-048).
 
-**Modifica:** producción acumulada, excedentes y población `lotes`. El stock de la planta ya no es una variable: cada ingreso crea el lote y su capa (ADR-023).
-
-**Problema:** crea un lote nuevo por día y producto.
-
-**Objetivo futuro:** acumular la producción en un lote comercial abierto.
+**Modifica:** producción acumulada y población `lotes`. El stock de la planta ya no es una variable: cada ingreso agrega una capa al lote comercial abierto (ADR-023, ADR-047).
 
 ### `getStock(TipoProducto producto)`
 
@@ -80,11 +76,9 @@ Todas devuelven las toneladas efectivamente movidas, reservadas o despachadas, d
 
 ### `crearLoteEnPlanta(TipoProducto producto, double toneladas, Agent origen)`
 
-**Estado:** implementada; será reemplazada.
+**Estado:** implementada (fase 2 del rediseño comercial, ADR-047).
 
-**Problema:** crea un lote nuevo en cada llamada.
-
-**Objetivo:** encontrar el lote comercial abierto correspondiente y registrar producción incremental.
+**Regla:** busca el lote comercial abierto compatible con `buscarLoteComercialAbierto(producto, cliente, calidad)` y le agrega una capa nueva, acumulando en `toneladasIniciales`. Sólo crea una identidad nueva cuando el lote compatible ya está cerrado.
 
 ### `transferirToneladasLote(LoteProducto lote, Deposito destino, double toneladas)`
 
@@ -176,7 +170,7 @@ La estrategia de la corrida la fija el parámetro `Main.estrategiaConsolidacion`
 
 **Estado:** implementadas (fase 7).
 
-La posición de consolidación es un recurso contado por día (ADR-039): cada sitio ofrece `posiciones_consolidacion × contenedores_por_posicion_dia` contenedores por día. La primera función abre el cupo del día y acumula la capacidad ofrecida; la segunda lo consume y devuelve `false` cuando el sitio ya no tiene lugar.
+La posición de consolidación es un recurso contado por día (ADR-039): cada sitio ofrece `contenedores_por_dia` contenedores por día (ADR-048). La primera función abre el cupo del día y acumula la capacidad ofrecida; la segunda lo consume y devuelve `false` cuando el sitio ya no tiene lugar.
 
 ### `despacharContenedoresPendientes()`
 
@@ -208,9 +202,17 @@ Resuelven quién cobra la estiba y dónde se arma el contenedor: la tarifa `CROS
 
 **Estado:** implementadas (fase 13).
 
-`costoTotalCampania()`, `toneladasExportadas()`, `costoPorToneladaExportada()`, `nivelServicio()`, `atrasoPromedioDias()`, `utilizacionFlota()`, `excedenteFinalTn()` y `usoPosicionesConsolidacion()`. Son funciones puras sobre el estado final: el experimento `Escenarios` las lee al terminar cada corrida y las escribe en `resultados/kpis_por_corrida.csv`. Que sean funciones y no acumuladores del experimento es lo que permite mirarlas también en una corrida suelta.
+`costoTotalCampania()`, `toneladasExportadas()`, `costoPorToneladaExportada()`, `nivelServicio()`, `atrasoPromedioDias()`, `utilizacionFlota()`, `excedenteFinalTn()` y `usoPosicionesConsolidacion()`. Desde la fase 19 se suman `costoTotalEconomico()` y `costoEconomicoPorTonelada()`, que agregan el costo de oportunidad del frío propio y la penalidad de sobrecarga al costo de caja sin mezclarse con él (ADR-049), y las métricas de ocupación de planta `tonDiaSobreNominalPlanta`, `diasSobrecargaPlanta` y `picoOcupacionPlantaPct` (ADR-048). `excedenteFinalTn()` sigue existiendo pero ya no es producto perdido: es el stock que queda en la red al cierre. Son funciones puras sobre el estado final: el experimento `Escenarios` las lee al terminar cada corrida y las escribe en `resultados/kpis_por_corrida.csv`. Que sean funciones y no acumuladores del experimento es lo que permite mirarlas también en una corrida suelta.
 
 La utilización se informa por flota (ADR-044): `utilizacionFlota()` divide el camión-día de producto consumido por el ofrecido, y `utilizacionPortacontenedor()` devuelve la estadística de ocupación del pool `flotaPortacontenedores`. `viajesPlantaDeposito` cuenta los viajes efectivamente hechos y viaja al CSV como evidencia de que la flota se consumió.
+
+### Frío propio: `forecastProduccion()`, `demandaProyectada()`, `toneladasASacarDePlanta()`, `toneladasASacarReactiva()`, `registrarOcupacionPlanta()` y `devengarOportunidadFrioPropio()`
+
+**Estado:** implementadas (fase 19).
+
+`revisarTransferenciasPlanta()` ya no compara el stock contra toneladas cableadas del agente: pregunta a la política del escenario cuánto sacar por producto (ADR-048). Con `FLEXIBLE`, `toneladasASacarDePlanta()` retiene todo lo que quepa bajo el nivel objetivo considerando el forecast del horizonte (`forecastProduccion()`, perfecto sobre el plan de producción) y saca además lo que exijan las obligaciones pendientes (`demandaProyectada()`, que cuenta los pedidos `PENDIENTE` y `ATRASADO` sin reserva). Con `REACTIVA`, `toneladasASacarReactiva()` reproduce el vaciado anterior con los umbrales expresados en porcentaje.
+
+`registrarOcupacionPlanta()` corre una vez por día y acumula tonelada-día sobre el nivel nominal y sobre el crítico, los días en sobrecarga y el pico de ocupación. `devengarOportunidadFrioPropio()` devenga la tarifa interna del frío propio y la penalidad de sobrecarga, que sólo entran al costo económico.
 
 ### Flota de producto: `abrirFlotaDelDia()`, `camionDiaViaje()`, `viajesNecesariosCamion()`, `flotaProductoLibreHoy()`, `tomarFlotaProducto()` y `flotaProductoAlcanza()`
 

@@ -8,84 +8,36 @@ class Planta extends Agent {
     double capacidadJugo = 5000;
     double capacidadCascara = 1800;
     double capacidadAceite = 1500;
-    double nivelActivacionJugo = 4000;
-    double stockObjetivoJugo = 2500;
-    double nivelActivacionCascara = 1400;
-    double stockObjetivoCascara = 900;
-    double nivelActivacionAceite = 1200;
-    double stockObjetivoAceite = 700;
 
     // ----- Variables -----
     double produccionAcumuladaJugo = 0;
     double produccionAcumuladaCascara = 0;
     double produccionAcumuladaAceite = 0;
-    double excedenteJugo = 0;
-    double excedenteCascara = 0;
-    double excedenteAceite = 0;
 
     // ----- Funciones -----
 
     void producir() {
-        // La produccion del dia es un dato de entrada (tabla ProduccionPlan).
+        // La produccion del dia es un dato de entrada (tabla ProduccionPlan) y entra
+        // completa: la capacidad de la planta es un umbral, no un tope, porque el
+        // producto ya esta cosechado y no se puede descartar (ADR-048).
         Main modelo = (Main) getRootAgent();
 
         int dia = (int) floor(time());
 
-        double produccionJugo =
-            modelo.datos.produccionDelDia(dia, TipoProducto.JUGO);
+        ingresarProduccion(
+            TipoProducto.JUGO,
+            modelo.datos.produccionDelDia(dia, TipoProducto.JUGO)
+        );
 
-        double produccionCascara =
-            modelo.datos.produccionDelDia(dia, TipoProducto.CASCARA);
+        ingresarProduccion(
+            TipoProducto.CASCARA,
+            modelo.datos.produccionDelDia(dia, TipoProducto.CASCARA)
+        );
 
-        double produccionAceite =
-            modelo.datos.produccionDelDia(dia, TipoProducto.ACEITE);
-
-
-        // Registrar toda la produccion generada
-        produccionAcumuladaJugo += produccionJugo;
-        produccionAcumuladaCascara += produccionCascara;
-        produccionAcumuladaAceite += produccionAceite;
-
-
-        // Entra lo que quepa; lo que no entra es excedente y no se produce fisicamente
-        double ingresoJugo =
-            min(produccionJugo, getEspacioDisponible(TipoProducto.JUGO));
-
-        double ingresoCascara =
-            min(produccionCascara, getEspacioDisponible(TipoProducto.CASCARA));
-
-        double ingresoAceite =
-            min(produccionAceite, getEspacioDisponible(TipoProducto.ACEITE));
-
-        excedenteJugo += produccionJugo - ingresoJugo;
-        excedenteCascara += produccionCascara - ingresoCascara;
-        excedenteAceite += produccionAceite - ingresoAceite;
-
-
-        // Cada ingreso crea el lote y su capa en planta
-        if (ingresoJugo > 0) {
-            modelo.crearLoteEnPlanta(
-                TipoProducto.JUGO,
-                ingresoJugo,
-                this
-            );
-        }
-
-        if (ingresoCascara > 0) {
-            modelo.crearLoteEnPlanta(
-                TipoProducto.CASCARA,
-                ingresoCascara,
-                this
-            );
-        }
-
-        if (ingresoAceite > 0) {
-            modelo.crearLoteEnPlanta(
-                TipoProducto.ACEITE,
-                ingresoAceite,
-                this
-            );
-        }
+        ingresarProduccion(
+            TipoProducto.ACEITE,
+            modelo.datos.produccionDelDia(dia, TipoProducto.ACEITE)
+        );
     }
 
     double getStock(TipoProducto producto) {
@@ -113,6 +65,41 @@ class Planta extends Agent {
     }
 
     double getEspacioDisponible(TipoProducto producto) {
+        // Lo que falta para llegar a la capacidad nominal. Puede ser cero sin que la
+        // produccion se detenga: el excedente queda en sobrecarga (ADR-048).
         return max(0, getCapacidad(producto) - getStock(producto));
+    }
+
+    void ingresarProduccion(TipoProducto producto, double toneladas) {
+        if (toneladas <= 0) {
+            return;
+        }
+
+        switch (producto) {
+
+            case JUGO:
+                produccionAcumuladaJugo += toneladas;
+                break;
+
+            case CASCARA:
+                produccionAcumuladaCascara += toneladas;
+                break;
+
+            default:
+                produccionAcumuladaAceite += toneladas;
+                break;
+        }
+
+        Main modelo = (Main) getRootAgent();
+
+        modelo.crearLoteEnPlanta(producto, toneladas, this);
+    }
+
+    double getOcupacionPct(TipoProducto producto) {
+        double capacidad = getCapacidad(producto);
+
+        return capacidad <= 0
+            ? 0
+            : 100 * getStock(producto) / capacidad;
     }
 }

@@ -100,7 +100,7 @@ Es lo que responde las preguntas de dimensionamiento, porque corre cada escenari
 
 1. Seleccionar `Escenarios: Main` en el árbol, botón derecho → `Run` (con `F5` corre el último experimento usado, que suele ser `Simulation`).
 2. Se abre el **tablero del barrido**; apretar `Run` (▶) para arrancar las corridas.
-3. Corre **12 escenarios × 30 réplicas = 360 corridas** sin animación; tarda alrededor de un minuto. El estado final tiene que decir `Finished`.
+3. Corre **13 escenarios × 30 réplicas = 390 corridas** sin animación; tarda alrededor de un minuto. El estado final tiene que decir `Finished`.
 4. El tablero se actualiza mientras corre: avance, medias por escenario y frente de decisión ([cómo se lee](Tablero_e_Indicadores.md#7-tablero-del-barrido-experimento-escenarios)).
 5. Al terminar imprime en la consola, por escenario y por KPI: media, desvío, mínimo, máximo, P95 y el delta contra E-00 (absoluto y porcentual).
 6. Escribe `resultados/kpis_por_corrida.csv`, una fila por corrida.
@@ -140,9 +140,15 @@ La pantalla del experimento `Escenarios` muestra las medias de las réplicas ya 
 | `viajes_planta_deposito` | Viajes de camión de producto en la campaña |
 | `uso_posiciones_consolidacion` | Consolidaciones hechas sobre posiciones ofrecidas |
 | `toneladas_exportadas` | Toneladas entregadas en terminal |
-| `excedente_final_tn` | Producción que nunca encontró lugar |
+| `excedente_final_tn` | Stock que queda en la red al cierre; **no** es producto perdido (ADR-048) |
 | `toneladas_cross_dock` | Toneladas que cruzaron sin almacenarse |
 | `contenedores_exportados` | Contenedores exportados |
+| `costo_oportunidad_frio_usd` | Costo de oportunidad del frío propio devengado (fuera de caja) |
+| `costo_total_economico_usd` | Caja + oportunidad + penalidad de sobrecarga (ADR-049) |
+| `costo_economico_usd_tn` | Costo económico sobre toneladas exportadas |
+| `ton_dia_sobre_nominal` | Tonelada-día de planta por encima del nivel nominal |
+| `dias_sobrecarga` | Días con la planta por encima del nivel nominal |
+| `pico_ocupacion_planta_pct` | Pico de ocupación de la planta en la campaña |
 
 Análisis típico en una planilla o en Python: promediar por `id_escenario`, mirar el desvío entre réplicas y comparar contra E-00. Con 30 réplicas, una diferencia menor al desvío entre réplicas **no** es una diferencia.
 
@@ -157,12 +163,12 @@ Análisis típico en una planilla o en Python: promediar por `id_escenario`, mir
 3. Mirar **`nivel_servicio` y `atraso_promedio_dias`**, no el costo: el punto de quiebre es donde agregar camiones deja de mejorar el servicio.
 4. Cruzarlo con `utilizacion_flota`: una utilización que baja sin que mejore el servicio es flota de más.
 
-> Con los datos sintéticos actuales, más camiones **aumentan** el costo total: el producto llega antes al depósito y paga más almacenaje, mientras el excedente que espera camión en planta no paga nada porque la planta no tiene tarifa de almacenaje (ADR-044). Es una limitación conocida del contrato de datos, no un resultado del negocio.
+> Con los datos sintéticos actuales, más camiones **aumentan** el costo de caja: el producto llega antes al depósito y paga más almacenaje, mientras lo que espera camión en planta no paga tarifa de caja (ADR-044). Para comparar retener contra tercerizar hay que mirar `costo_total_economico_usd`, que sí le pone precio al frío propio (ADR-049).
 
 ### Dimensionar depósitos
 
 1. Usar `factor_capacidad_deposito` (E-03 = 0,5 y E-04 = 2,0) o cambiar `CapacidadUbicacion` en el Excel para dimensionar depósito por depósito.
-2. Mirar `excedente_final_tn` (producción sin lugar) y `nivel_servicio`.
+2. Mirar `ton_dia_sobre_nominal`, `dias_sobrecarga` y `pico_ocupacion_planta_pct`: como la planta ya no descarta producto (ADR-048), el faltante de capacidad de la red se lee ahí, junto con `nivel_servicio`.
 
 ### Evaluar el cross docking
 

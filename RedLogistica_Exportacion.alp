@@ -977,6 +977,156 @@ cargarDatosEntrada();]]></StartupCode>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1795300001</Id>
+					<Name><![CDATA[flotaProductoOfrecidaHoy]]></Name>
+					<X>-140</X><Y>1020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1795300003</Id>
+					<Name><![CDATA[flotaProductoUsadaHoy]]></Name>
+					<X>-140</X><Y>1040</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1795300005</Id>
+					<Name><![CDATA[viajesPlantaDeposito]]></Name>
+					<X>-140</X><Y>1060</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1794000001</Id>
+					<Name><![CDATA[tonDiaSobreNominalPlanta]]></Name>
+					<X>-140</X><Y>1520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1794000002</Id>
+					<Name><![CDATA[tonDiaSobreCriticoPlanta]]></Name>
+					<X>-140</X><Y>1560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1794000003</Id>
+					<Name><![CDATA[diasSobrecargaPlanta]]></Name>
+					<X>-140</X><Y>1600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1794000004</Id>
+					<Name><![CDATA[picoOcupacionPlantaPct]]></Name>
+					<X>-140</X><Y>1640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1794000005</Id>
+					<Name><![CDATA[costoOportunidadFrio]]></Name>
+					<X>-140</X><Y>1680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1794000006</Id>
+					<Name><![CDATA[costoPenalidadSobrecarga]]></Name>
+					<X>-140</X><Y>1720</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1794000007</Id>
+					<Name><![CDATA[toneladasTransferidasPreventivas]]></Name>
+					<X>-140</X><Y>1760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1791000000113</Id>
 					<Name><![CDATA[origenDatos]]></Name>
@@ -1228,52 +1378,6 @@ cargarDatosEntrada();]]></StartupCode>
 						</CollectionInitializer>
 					</Properties>
 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1795300001</Id>
-					<Name><![CDATA[flotaProductoOfrecidaHoy]]></Name>
-					<X>-140</X><Y>1020</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1795300003</Id>
-					<Name><![CDATA[flotaProductoUsadaHoy]]></Name>
-					<X>-140</X><Y>1040</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1795300005</Id>
-					<Name><![CDATA[viajesPlantaDeposito]]></Name>
-					<X>-140</X><Y>1060</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<Connectors>
@@ -1614,11 +1718,13 @@ registrarPedidosDelDia();                // 2. planificar y comprometer
 abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
 abrirPosicionesCrossDockDelDia();        // 4. abrir la capacidad de cross dock del dia
 programarCrossDockDelDia();              // 5. cruzar lo que no necesita guardarse
-revisarTransferenciasPlanta();           // 6. recibir e ingresar el excedente
+revisarTransferenciasPlanta();           // 6. sacar de planta solo lo necesario
 revisarPedidosPendientes();              // 7. reservar contra stock
 prepararPedidosReservados();             // 8. armar los contenedores del pedido
 despacharContenedoresPendientes();       // 9. consolidar y despachar lo que entra
 devengarAlmacenamientoDiario();          // 10. devengar almacenaje
+devengarOportunidadFrioPropio();         // 10b. devengar el uso del frio propio
+registrarOcupacionPlanta();              // 10c. medir la sobrecarga del dia
 registrarAtrasos();                      // 11. registrar indicadores del dia
 validarInventario();              // invariantes de las capas (ADR-023)]]></Action>
 				</Event>
@@ -1919,42 +2025,25 @@ while (pendiente > 0.0001) {
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[// JUGO
-if (planta.getStock(TipoProducto.JUGO) >= planta.nivelActivacionJugo) {
+					<Body><![CDATA[// Politica de frio propio (ADR-048). El frio de la planta es propio y no se
+// factura, asi que el default es retener: el producto sale solo si el forecast
+// proyecta pasar la capacidad nominal o si un pedido no se puede servir desde
+// deposito. La politica REACTIVA conserva la regla anterior (vaciar la planta
+// al llegar al umbral de alerta) y queda como escenario de comparacion.
+boolean flexible =
+    "FLEXIBLE".equals(datos.escenario.politicaFrioPropio);
 
-    double toneladas =
-        planta.getStock(TipoProducto.JUGO) - planta.stockObjetivoJugo;
+for (TipoProducto producto : TipoProducto.values()) {
 
-    transferirProductoADepositos(
-        TipoProducto.JUGO,
-        toneladas
-    );
-}
+    double toneladas = flexible
+        ? toneladasASacarDePlanta(producto)
+        : toneladasASacarReactiva(producto);
 
+    if (toneladas <= 0.0001) {
+        continue;
+    }
 
-// CASCARA
-if (planta.getStock(TipoProducto.CASCARA) >= planta.nivelActivacionCascara) {
-
-    double toneladas =
-        planta.getStock(TipoProducto.CASCARA) - planta.stockObjetivoCascara;
-
-    transferirProductoADepositos(
-        TipoProducto.CASCARA,
-        toneladas
-    );
-}
-
-
-// ACEITE
-if (planta.getStock(TipoProducto.ACEITE) >= planta.nivelActivacionAceite) {
-
-    double toneladas =
-        planta.getStock(TipoProducto.ACEITE) - planta.stockObjetivoAceite;
-
-    transferirProductoADepositos(
-        TipoProducto.ACEITE,
-        toneladas
-    );
+    transferirProductoADepositos(producto, toneladas);
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -4251,7 +4340,6 @@ return total;]]></Body>
     ? 0
     : consolidacionesRealizadas / capacidadConsolidacionOfrecida;]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
@@ -4409,7 +4497,6 @@ return flotaProductoLibreHoy() + 0.0001
 // vez por dia no veia los viajes que empiezan y terminan dentro del mismo dia.
 return flotaPortacontenedores.utilization();]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[LoteProducto]]></ReturnType>
@@ -4448,7 +4535,6 @@ for (LoteProducto lote : lotes) {
 
 return null;]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[int]]></ReturnType>
@@ -4468,6 +4554,268 @@ for (LoteProducto lote : lotes) {
 }
 
 return abiertos;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1794000101</Id>
+					<Name><![CDATA[forecastProduccion]]></Name>
+					<X>130</X><Y>1780</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[dias]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Forecast perfecto (ADR-048): se leen los proximos dias del plan de produccion,
+// que es un dato de entrada. Para dimensionar es la cota optimista, y deja el
+// error de pronostico como una extension explicita y no como un supuesto oculto.
+double total = 0;
+
+int hoy = (int) floor(time());
+
+for (int d = hoy + 1; d <= hoy + dias; d++) {
+    total += datos.produccionDelDia(d, producto);
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1794000102</Id>
+					<Name><![CDATA[demandaProyectada]]></Name>
+					<X>130</X><Y>1820</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Toneladas comprometidas y todavia no reservadas. Un pedido ya recibido es una
+// obligacion: se cuenta completo aunque su fecha limite caiga despues del
+// horizonte, porque sacarlo de planta toma dias de flota y esperar al ultimo
+// momento es lo que hace perder el pedido.
+double total = 0;
+
+for (Pedido pedido : pedidos) {
+
+    if (
+        pedido.producto == producto
+        && (
+            pedido.estado == EstadoPedido.PENDIENTE
+            || pedido.estado == EstadoPedido.ATRASADO
+        )
+    ) {
+        total += pedido.toneladasSolicitadas;
+    }
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1794000103</Id>
+					<Name><![CDATA[toneladasASacarDePlanta]]></Name>
+					<X>130</X><Y>1860</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Dos motivos, y solo dos, para gastar frio de terceros:
+//
+//   1. desborde proyectado: con la produccion de los proximos dias la planta
+//      pasa su capacidad nominal;
+//   2. servicio: los pedidos con fecha limite dentro del horizonte no se pueden
+//      cubrir con lo que ya esta libre en deposito.
+//
+// Si no se cumple ninguno, el producto se queda en el frio propio.
+int horizonte = datos.escenario.diasForecast;
+
+double stockPlanta =
+    inventario.libre("PLANTA", producto);
+
+if (stockPlanta <= 0.0001) {
+    return 0;
+}
+
+double proyectado =
+    planta.getStock(producto)
+    + forecastProduccion(producto, horizonte);
+
+double porDesborde =
+    max(0, proyectado - planta.getCapacidad(producto));
+
+double libreEnDepositos = 0;
+
+for (Deposito deposito : depositos) {
+    libreEnDepositos +=
+        inventario.libre(deposito.idUbicacion, producto);
+}
+
+double porServicio =
+    max(
+        0,
+        demandaProyectada(producto) - libreEnDepositos
+    );
+
+return min(stockPlanta, max(porDesborde, porServicio));]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1794000104</Id>
+					<Name><![CDATA[toneladasASacarReactiva]]></Name>
+					<X>130</X><Y>1900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Regla anterior a la politica de frio propio, expresada en porcentaje de la
+// capacidad: al tocar el umbral de alerta se vacia la planta hasta el objetivo.
+double capacidad = planta.getCapacidad(producto);
+
+if (capacidad <= 0) {
+    return 0;
+}
+
+double stock = planta.getStock(producto);
+
+if (100 * stock / capacidad < datos.escenario.umbralAlertaPct) {
+    return 0;
+}
+
+double objetivo =
+    capacidad * datos.escenario.umbralObjetivoPct / 100;
+
+return min(
+    inventario.libre("PLANTA", producto),
+    max(0, stock - objetivo)
+);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1794000105</Id>
+					<Name><![CDATA[registrarOcupacionPlanta]]></Name>
+					<X>130</X><Y>1940</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// La capacidad de la planta es un indicador, no un tope (ADR-048): lo que se
+// mide es cuanto y cuantos dias se estuvo por encima, que es la respuesta a
+// "cuanto frio propio falta".
+boolean diaEnSobrecarga = false;
+
+for (TipoProducto producto : TipoProducto.values()) {
+
+    double capacidad = planta.getCapacidad(producto);
+
+    if (capacidad <= 0) {
+        continue;
+    }
+
+    double stock = planta.getStock(producto);
+
+    double ocupacion = 100 * stock / capacidad;
+
+    picoOcupacionPlantaPct =
+        max(picoOcupacionPlantaPct, ocupacion);
+
+    double sobreNominal = max(0, stock - capacidad);
+
+    if (sobreNominal <= 0.0001) {
+        continue;
+    }
+
+    diaEnSobrecarga = true;
+
+    tonDiaSobreNominalPlanta += sobreNominal;
+
+    double critico =
+        capacidad * datos.escenario.umbralSobrecargaPct / 100;
+
+    tonDiaSobreCriticoPlanta += max(0, stock - critico);
+
+    costoPenalidadSobrecarga +=
+        sobreNominal
+        * datos.penalidadSobrecargaUsdTnDia("PLANTA", producto);
+}
+
+if (diaEnSobrecarga) {
+    diasSobrecargaPlanta++;
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1794000106</Id>
+					<Name><![CDATA[devengarOportunidadFrioPropio]]></Name>
+					<X>130</X><Y>1980</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// El frio propio no se factura, pero ocupa un recurso que tiene alternativa.
+// Se devenga aparte para que el costo de caja siga siendo comparable contra la
+// cotizacion de un tercero (ADR-049).
+for (TipoProducto producto : TipoProducto.values()) {
+
+    costoOportunidadFrio +=
+        inventario.stock("PLANTA", producto)
+        * datos.oportunidadUsdTnDia("PLANTA", producto);
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1794000107</Id>
+					<Name><![CDATA[costoTotalEconomico]]></Name>
+					<X>130</X><Y>2020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Costo de caja mas lo que cuesta ocupar el frio propio y la penalidad por
+// operar sobre la capacidad nominal (ADR-049). Con las tarifas en cero coincide
+// con el costo de caja.
+return costoTotalCampania()
+    + costoOportunidadFrio
+    + costoPenalidadSobrecarga;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1794000108</Id>
+					<Name><![CDATA[costoEconomicoPorTonelada]]></Name>
+					<X>130</X><Y>2060</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[double toneladas = toneladasExportadas();
+
+return toneladas <= 0
+    ? 0
+    : costoTotalEconomico() / toneladas;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -4521,24 +4869,6 @@ return abiertos;]]></Body>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[capacidadAceite]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[nivelActivacionJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[stockObjetivoJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[nivelActivacionCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[stockObjetivoCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[nivelActivacionAceite]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[stockObjetivoAceite]]></Name>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
@@ -4622,6 +4952,18 @@ return abiertos;]]></Body>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[diaReserva]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[cliente]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[calidad]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[toneladasObjetivo]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[estadoComercial]]></Name>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>true</ReplicationFlag>
@@ -7261,7 +7603,6 @@ if (!retirado) {
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
-
 				<Text>
 					<Id>1785000000001</Id>
 					<Name><![CDATA[tituloTablero]]></Name>
@@ -7620,12 +7961,9 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Excedente sin lugar: "
-+ round(
-    planta.excedenteJugo
-    + planta.excedenteCascara
-    + planta.excedenteAceite
-) + " tn"]]></TextCode>
+					<TextCode><![CDATA["Sobrecarga: " + round(tonDiaSobreNominalPlanta) + " tn-día · "
++ diasSobrecargaPlanta + " días · pico "
++ round(picoOcupacionPlantaPct) + "%"]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8630,7 +8968,8 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Total de campaña: " + round(costoTotalCampania())]]></TextCode>
+					<TextCode><![CDATA["Total de campaña (caja): " + round(costoTotalCampania())
++ " · económico: " + round(costoTotalEconomico())]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8653,7 +8992,8 @@ if (!retirado) {
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
 					<TextCode><![CDATA["Por tonelada exportada: "
-+ round(10 * costoPorToneladaExportada()) / 10.0]]></TextCode>
++ round(10 * costoPorToneladaExportada()) / 10.0
++ " · econ. " + round(10 * costoEconomicoPorTonelada()) / 10.0]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8661,8 +9001,6 @@ if (!retirado) {
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
-
-
 				<Level>
 					<Id>1784231466974</Id>
 					<Name><![CDATA[level]]></Name>
@@ -8862,7 +9200,7 @@ if (!retirado) {
 						<RelativeWidth>0.8</RelativeWidth>
 					</Bars>
     			</BarChart>
-							<TimePlot>
+    			<TimePlot>
 					<Id>1785100000100</Id>
 					<Name><![CDATA[graficoFlota]]></Name>
 					<X>870</X><Y>385</Y>
@@ -8917,7 +9255,7 @@ if (!retirado) {
 					<VerScaleType>AUTO</VerScaleType>
 					<DrawLine>true</DrawLine>
 					<Interpolation>LINEAR</Interpolation>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Flota de producto (%)]]></Title>
 					<Id>1785100000110</Id>
 					<Expression><![CDATA[dataset10]]></Expression>
@@ -8927,7 +9265,7 @@ if (!retirado) {
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
 					</DatasetExpression>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Portacontenedores (%)]]></Title>
 					<Id>1785100000111</Id>
 					<Expression><![CDATA[dataset11]]></Expression>
@@ -8937,7 +9275,7 @@ if (!retirado) {
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
 					</DatasetExpression>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Flota usada hoy (%)]]></Title>
 					<Id>1785100000112</Id>
 					<Expression><![CDATA[dataset12]]></Expression>
@@ -8954,7 +9292,7 @@ if (!retirado) {
 					<FillAreaUnderLine>false</FillAreaUnderLine>
 					<LabelFormat>MODEL_TIME_UNITS</LabelFormat>
     			</TimePlot>
-				<TimePlot>
+    			<TimePlot>
 					<Id>1785100000200</Id>
 					<Name><![CDATA[graficoCostos]]></Name>
 					<X>0</X><Y>685</Y>
@@ -9009,7 +9347,7 @@ if (!retirado) {
 					<VerScaleType>AUTO</VerScaleType>
 					<DrawLine>true</DrawLine>
 					<Interpolation>LINEAR</Interpolation>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Almacenaje]]></Title>
 					<Id>1785100000210</Id>
 					<Expression><![CDATA[dataset20]]></Expression>
@@ -9019,7 +9357,7 @@ if (!retirado) {
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
 					</DatasetExpression>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Flete planta-deposito]]></Title>
 					<Id>1785100000211</Id>
 					<Expression><![CDATA[dataset21]]></Expression>
@@ -9029,7 +9367,7 @@ if (!retirado) {
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
 					</DatasetExpression>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Flete deposito-puerto]]></Title>
 					<Id>1785100000212</Id>
 					<Expression><![CDATA[dataset22]]></Expression>
@@ -9039,7 +9377,7 @@ if (!retirado) {
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
 					</DatasetExpression>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Consolidacion]]></Title>
 					<Id>1785100000213</Id>
 					<Expression><![CDATA[dataset23]]></Expression>
@@ -9049,7 +9387,7 @@ if (!retirado) {
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
 					</DatasetExpression>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Cross dock]]></Title>
 					<Id>1785100000214</Id>
 					<Expression><![CDATA[dataset24]]></Expression>
@@ -9064,7 +9402,7 @@ if (!retirado) {
 					<FillAreaUnderLine>false</FillAreaUnderLine>
 					<LabelFormat>MODEL_TIME_UNITS</LabelFormat>
     			</TimePlot>
-				<TimePlot>
+    			<TimePlot>
 					<Id>1785100000300</Id>
 					<Name><![CDATA[graficoServicio]]></Name>
 					<X>450</X><Y>685</Y>
@@ -9119,7 +9457,7 @@ if (!retirado) {
 					<VerScaleType>AUTO</VerScaleType>
 					<DrawLine>true</DrawLine>
 					<Interpolation>LINEAR</Interpolation>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Entregados]]></Title>
 					<Id>1785100000310</Id>
 					<Expression><![CDATA[dataset30]]></Expression>
@@ -9129,7 +9467,7 @@ if (!retirado) {
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
 					</DatasetExpression>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Atrasados]]></Title>
 					<Id>1785100000311</Id>
 					<Expression><![CDATA[dataset31]]></Expression>
@@ -9139,7 +9477,7 @@ if (!retirado) {
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
 					</DatasetExpression>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Pendientes]]></Title>
 					<Id>1785100000312</Id>
 					<Expression><![CDATA[dataset32]]></Expression>
@@ -9149,7 +9487,7 @@ if (!retirado) {
 						<PointStyle>NONE</PointStyle>
 						<LineWidth>1.0</LineWidth>
 					</DatasetExpression>
-					<DatasetExpression>
+					<DatasetExpression>  
 						<Title><![CDATA[Reservados]]></Title>
 					<Id>1785100000313</Id>
 					<Expression><![CDATA[dataset33]]></Expression>
@@ -9164,7 +9502,7 @@ if (!retirado) {
 					<FillAreaUnderLine>false</FillAreaUnderLine>
 					<LabelFormat>MODEL_TIME_UNITS</LabelFormat>
     			</TimePlot>
-</Presentation>
+			</Presentation>
 
 				</Level>
 			</Presentation>
@@ -9315,51 +9653,6 @@ if (!retirado) {
 						</InitialValue>
 					</Properties>
 				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1784243442324</Id>
-					<Name><![CDATA[excedenteJugo]]></Name>
-					<X>860</X><Y>-580</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1784243446432</Id>
-					<Name><![CDATA[excedenteCascara]]></Name>
-					<X>860</X><Y>-500</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1784243449137</Id>
-					<Name><![CDATA[excedenteAceite]]></Name>
-					<X>860</X><Y>-430</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
 				<Variable Class="Parameter">
 					<Id>1784242444879</Id>
 					<Name><![CDATA[capacidadJugo]]></Name>
@@ -9432,150 +9725,6 @@ if (!retirado) {
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784379581917</Id>
-					<Name><![CDATA[nivelActivacionJugo]]></Name>
-					<X>1370</X><Y>-580</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[4000]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784379581915</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784379612006</Id>
-					<Name><![CDATA[stockObjetivoJugo]]></Name>
-					<X>1580</X><Y>-580</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[2500]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784379612004</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784379883281</Id>
-					<Name><![CDATA[nivelActivacionCascara]]></Name>
-					<X>1370</X><Y>-500</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[1400]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784379883279</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784379907491</Id>
-					<Name><![CDATA[stockObjetivoCascara]]></Name>
-					<X>1590</X><Y>-510</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[900]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784379907489</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784379932107</Id>
-					<Name><![CDATA[nivelActivacionAceite]]></Name>
-					<X>1370</X><Y>-450</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[1200]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784379932105</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784379943668</Id>
-					<Name><![CDATA[stockObjetivoAceite]]></Name>
-					<X>1590</X><Y>-460</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[700]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784379943666</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -9588,66 +9737,27 @@ if (!retirado) {
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[// La produccion del dia es un dato de entrada (tabla ProduccionPlan).
+					<Body><![CDATA[// La produccion del dia es un dato de entrada (tabla ProduccionPlan) y entra
+// completa: la capacidad de la planta es un umbral, no un tope, porque el
+// producto ya esta cosechado y no se puede descartar (ADR-048).
 Main modelo = (Main) getRootAgent();
 
 int dia = (int) floor(time());
 
-double produccionJugo =
-    modelo.datos.produccionDelDia(dia, TipoProducto.JUGO);
+ingresarProduccion(
+    TipoProducto.JUGO,
+    modelo.datos.produccionDelDia(dia, TipoProducto.JUGO)
+);
 
-double produccionCascara =
-    modelo.datos.produccionDelDia(dia, TipoProducto.CASCARA);
+ingresarProduccion(
+    TipoProducto.CASCARA,
+    modelo.datos.produccionDelDia(dia, TipoProducto.CASCARA)
+);
 
-double produccionAceite =
-    modelo.datos.produccionDelDia(dia, TipoProducto.ACEITE);
-
-
-// Registrar toda la produccion generada
-produccionAcumuladaJugo += produccionJugo;
-produccionAcumuladaCascara += produccionCascara;
-produccionAcumuladaAceite += produccionAceite;
-
-
-// Entra lo que quepa; lo que no entra es excedente y no se produce fisicamente
-double ingresoJugo =
-    min(produccionJugo, getEspacioDisponible(TipoProducto.JUGO));
-
-double ingresoCascara =
-    min(produccionCascara, getEspacioDisponible(TipoProducto.CASCARA));
-
-double ingresoAceite =
-    min(produccionAceite, getEspacioDisponible(TipoProducto.ACEITE));
-
-excedenteJugo += produccionJugo - ingresoJugo;
-excedenteCascara += produccionCascara - ingresoCascara;
-excedenteAceite += produccionAceite - ingresoAceite;
-
-
-// Cada ingreso crea el lote y su capa en planta
-if (ingresoJugo > 0) {
-    modelo.crearLoteEnPlanta(
-        TipoProducto.JUGO,
-        ingresoJugo,
-        this
-    );
-}
-
-if (ingresoCascara > 0) {
-    modelo.crearLoteEnPlanta(
-        TipoProducto.CASCARA,
-        ingresoCascara,
-        this
-    );
-}
-
-if (ingresoAceite > 0) {
-    modelo.crearLoteEnPlanta(
-        TipoProducto.ACEITE,
-        ingresoAceite,
-        this
-    );
-}]]></Body>
+ingresarProduccion(
+    TipoProducto.ACEITE,
+    modelo.datos.produccionDelDia(dia, TipoProducto.ACEITE)
+);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -9711,7 +9821,70 @@ return modelo.inventario.stock("PLANTA", producto);]]></Body>
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[return max(0, getCapacidad(producto) - getStock(producto));]]></Body>
+					<Body><![CDATA[// Lo que falta para llegar a la capacidad nominal. Puede ser cero sin que la
+// produccion se detenga: el excedente queda en sobrecarga (ADR-048).
+return max(0, getCapacidad(producto) - getStock(producto));]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1793000001</Id>
+					<Name><![CDATA[ingresarProduccion]]></Name>
+					<X>130</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[if (toneladas <= 0) {
+    return;
+}
+
+switch (producto) {
+
+    case JUGO:
+        produccionAcumuladaJugo += toneladas;
+        break;
+
+    case CASCARA:
+        produccionAcumuladaCascara += toneladas;
+        break;
+
+    default:
+        produccionAcumuladaAceite += toneladas;
+        break;
+}
+
+Main modelo = (Main) getRootAgent();
+
+modelo.crearLoteEnPlanta(producto, toneladas, this);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1793000003</Id>
+					<Name><![CDATA[getOcupacionPct]]></Name>
+					<X>130</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Body><![CDATA[double capacidad = getCapacidad(producto);
+
+return capacidad <= 0
+    ? 0
+    : 100 * getStock(producto) / capacidad;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -12609,7 +12782,6 @@ return (int) Math.ceil(
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
-			
 				<Variable Class="Parameter">
 					<Id>1791210000010</Id>
 					<Name><![CDATA[cliente]]></Name>
@@ -12632,7 +12804,7 @@ return (int) Math.ceil(
 							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
-					</Properties>
+					</Properties>                 
 				</Variable>
 				<Variable Class="Parameter">
 					<Id>1791210000020</Id>
@@ -12656,7 +12828,7 @@ return (int) Math.ceil(
 							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
-					</Properties>
+					</Properties>                 
 				</Variable>
 				<Variable Class="Parameter">
 					<Id>1791210000030</Id>
@@ -12680,7 +12852,7 @@ return (int) Math.ceil(
 							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
-					</Properties>
+					</Properties>                 
 				</Variable>
 				<Variable Class="Parameter">
 					<Id>1791210000040</Id>
@@ -12704,7 +12876,7 @@ return (int) Math.ceil(
 							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
-					</Properties>
+					</Properties>                 
 				</Variable>
 			</Variables>
 			<Functions>
@@ -15511,7 +15683,7 @@ estado = factible
 			<Name><![CDATA[Escenarios]]></Name>
 			<AdditionalClassCode><![CDATA[// Version del modelo con la que se corrio el barrido: sin esto un csv de
 // resultados no se puede volver a atar al codigo que lo produjo.
-static final String VERSION_MODELO = "fase-17";
+static final String VERSION_MODELO = "fase-19";
 
 static final int REPLICAS = 30;
 
@@ -15528,7 +15700,9 @@ static final String[] KPIS = {
 	"costo_total_usd", "costo_usd_tn", "nivel_servicio", "atraso_promedio_dias",
 	"utilizacion_flota", "utilizacion_portacontenedor", "viajes_planta_deposito",
 	"uso_posiciones_consolidacion", "toneladas_exportadas",
-	"excedente_final_tn", "toneladas_cross_dock", "contenedores_exportados"
+	"excedente_final_tn", "toneladas_cross_dock", "contenedores_exportados",
+	"costo_oportunidad_frio_usd", "costo_total_economico_usd", "costo_economico_usd_tn",
+	"ton_dia_sobre_nominal", "dias_sobrecarga", "pico_ocupacion_planta_pct"
 };
 
 // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -15836,7 +16010,13 @@ c.kpis = new double[] {
 	root.toneladasExportadas(),
 	root.excedenteFinalTn(),
 	root.toneladasCrossDock,
-	root.contarContenedores(EstadoContenedor.EXPORTADO)
+	root.contarContenedores(EstadoContenedor.EXPORTADO),
+	root.costoOportunidadFrio,
+	root.costoTotalEconomico(),
+	root.costoEconomicoPorTonelada(),
+	root.tonDiaSobreNominalPlanta,
+	root.diasSobrecargaPlanta,
+	root.picoOcupacionPlantaPct
 };
 
 corridas.add(c);]]></AfterSimulationRunCode>
@@ -16219,8 +16399,6 @@ corridas.add(c);]]></AfterSimulationRunCode>
 				</Text>
 			</Presentation>
 
-
-
 			<AfterExperimentCode><![CDATA[// Detalle por corrida: es la evidencia, y sin escenario, replica, semilla y
 // version no se puede volver a producir.
 try {
@@ -16298,7 +16476,7 @@ for (int k = 0; k < KPIS.length; k++) {
 }]]></AfterExperimentCode>
 			<AllowParallelEvaluations>false</AllowParallelEvaluations>
 			<UseFreeformParameters>true</UseFreeformParameters>
-			<NumberOfRuns>360</NumberOfRuns>
+			<NumberOfRuns>390</NumberOfRuns>
 			<FreeformParamValue>	
 				<Id>1786000001</Id>
 				<Expression Class="CodeValue">
@@ -16439,6 +16617,15 @@ public class DatosEntrada implements java.io.Serializable {
 		public String estrategiaConsolidacion;     // CONSOLIDACION_DEPOSITO | CONSOLIDACION_TERMINAL
 		public String clienteDefault;              // identidad comercial del lote (un solo valor por ahora)
 		public String calidadDefault;              // calidad comercial del lote acumulativo
+
+		// Politica de frio propio (ADR-048). La planta es el almacenamiento mas
+		// barato, asi que la regla es retenerla llena y sacar solo lo que la
+		// demanda pide o lo que el forecast dice que va a desbordar.
+		public double umbralAlertaPct;             // % de la capacidad nominal que enciende la alerta
+		public double umbralSobrecargaPct;         // % hasta el que la sobrecarga se considera aceptable
+		public double umbralObjetivoPct;           // % al que la politica REACTIVA vacia la planta
+		public int diasForecast;                   // horizonte de la transferencia preventiva
+		public String politicaFrioPropio;          // FLEXIBLE | REACTIVA
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -16450,15 +16637,13 @@ public class DatosEntrada implements java.io.Serializable {
 		public double velocidadDescargaTnHora;
 		public double velocidadConsolidacionTnHora;
 		public double capacidadDiariaTn;
-		public double posicionesConsolidacion;       // posiciones de estiba del sitio
-		public double contenedoresPorPosicionDia;    // contenedores por posicion y dia
+		public double contenedoresPorDia;            // capacidad de consolidacion del sitio (ADR-048)
 		public double posicionesCrossDock;           // operaciones de cross dock por dia
 
 		public Ubicacion(String idUbicacion, String tipo, boolean habilitada,
 				double velocidadCargaTnHora, double velocidadDescargaTnHora,
 				double velocidadConsolidacionTnHora, double capacidadDiariaTn,
-				double posicionesConsolidacion, double contenedoresPorPosicionDia,
-				double posicionesCrossDock) {
+				double contenedoresPorDia, double posicionesCrossDock) {
 			this.idUbicacion = idUbicacion;
 			this.tipo = tipo;
 			this.habilitada = habilitada;
@@ -16466,8 +16651,7 @@ public class DatosEntrada implements java.io.Serializable {
 			this.velocidadDescargaTnHora = velocidadDescargaTnHora;
 			this.velocidadConsolidacionTnHora = velocidadConsolidacionTnHora;
 			this.capacidadDiariaTn = capacidadDiariaTn;
-			this.posicionesConsolidacion = posicionesConsolidacion;
-			this.contenedoresPorPosicionDia = contenedoresPorPosicionDia;
+			this.contenedoresPorDia = contenedoresPorDia;
 			this.posicionesCrossDock = posicionesCrossDock;
 		}
 	}
@@ -16518,12 +16702,17 @@ public class DatosEntrada implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public String idUbicacion;
 		public TipoProducto producto;
-		public double storageUsdTnDia;
+		public double storageUsdTnDia;               // lo que se factura: entra al costo de caja
+		public double oportunidadUsdTnDia;           // costo de oportunidad del frio propio (ADR-049)
+		public double penalidadSobrecargaUsdTnDia;   // por tonelada y dia sobre la capacidad nominal
 
-		public TarifaAlmacenamiento(String idUbicacion, TipoProducto producto, double storageUsdTnDia) {
+		public TarifaAlmacenamiento(String idUbicacion, TipoProducto producto, double storageUsdTnDia,
+				double oportunidadUsdTnDia, double penalidadSobrecargaUsdTnDia) {
 			this.idUbicacion = idUbicacion;
 			this.producto = producto;
 			this.storageUsdTnDia = storageUsdTnDia;
+			this.oportunidadUsdTnDia = oportunidadUsdTnDia;
+			this.penalidadSobrecargaUsdTnDia = penalidadSobrecargaUsdTnDia;
 		}
 	}
 
@@ -16665,14 +16854,37 @@ public class DatosEntrada implements java.io.Serializable {
 	 * cuenta por dia, no por hora (definicion, seccion 3).
 	 */
 	public double capacidadConsolidacionDia(String idUbicacion) {
-		Ubicacion u = ubicacion(idUbicacion);
-		return u.posicionesConsolidacion * u.contenedoresPorPosicionDia;
+		return ubicacion(idUbicacion).contenedoresPorDia;
 	}
 
 	public double storageUsdTnDia(String idUbicacion, TipoProducto producto) {
 		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
 			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
 				return t.storageUsdTnDia;
+			}
+		}
+		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
+				+ " (tabla TarifaAlmacenamiento).");
+	}
+
+	/**
+	 * Costo de oportunidad del frio propio: no se factura, pero sin el la planta
+	 * es gratis y toda comparacion de estrategias la elige siempre (ADR-049).
+	 */
+	public double oportunidadUsdTnDia(String idUbicacion, TipoProducto producto) {
+		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
+			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
+				return t.oportunidadUsdTnDia;
+			}
+		}
+		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
+				+ " (tabla TarifaAlmacenamiento).");
+	}
+
+	public double penalidadSobrecargaUsdTnDia(String idUbicacion, TipoProducto producto) {
+		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
+			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
+				return t.penalidadSobrecargaUsdTnDia;
 			}
 		}
 		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
@@ -16791,6 +17003,27 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.add("calidad_default no puede estar vacio.");
 		}
 
+		if (escenario.umbralAlertaPct <= 0 || escenario.umbralAlertaPct > 100) {
+			errores.add("umbral_alerta_pct debe estar en (0, 100].");
+		}
+
+		if (escenario.umbralSobrecargaPct < 100) {
+			errores.add("umbral_sobrecarga_pct no puede ser menor que la capacidad nominal (100).");
+		}
+
+		if (escenario.umbralObjetivoPct < 0 || escenario.umbralObjetivoPct > escenario.umbralAlertaPct) {
+			errores.add("umbral_objetivo_pct debe estar en [0, umbral_alerta_pct].");
+		}
+
+		if (escenario.diasForecast < 0) {
+			errores.add("dias_forecast no puede ser negativo.");
+		}
+
+		if (!"FLEXIBLE".equals(escenario.politicaFrioPropio)
+				&& !"REACTIVA".equals(escenario.politicaFrioPropio)) {
+			errores.add("politica_frio_propio invalida: " + escenario.politicaFrioPropio);
+		}
+
 		for (Producto p : productos) {
 			if (p.capacidadContenedorTn <= 0) {
 				errores.add("capacidad_contenedor_tn de " + p.producto + " debe ser > 0.");
@@ -16834,6 +17067,13 @@ public class DatosEntrada implements java.io.Serializable {
 			}
 			if (t.storageUsdTnDia < 0) {
 				errores.add("storage_usd_tn_dia negativa en " + t.idUbicacion + " / " + t.producto + ".");
+			}
+			if (t.oportunidadUsdTnDia < 0) {
+				errores.add("oportunidad_usd_tn_dia negativa en " + t.idUbicacion + " / " + t.producto + ".");
+			}
+			if (t.penalidadSobrecargaUsdTnDia < 0) {
+				errores.add("penalidad_sobrecarga_usd_tn_dia negativa en "
+						+ t.idUbicacion + " / " + t.producto + ".");
 			}
 		}
 
@@ -16881,6 +17121,17 @@ public class DatosEntrada implements java.io.Serializable {
 
 		// Un sitio de consolidacion sin capacidad no retrasa el despacho: lo detiene
 		// para siempre. Es un error de datos, no un escenario.
+		for (TipoProducto producto : TipoProducto.values()) {
+			try {
+				capacidadTn("PLANTA", producto);
+				// La planta no factura almacenaje, pero su costo de oportunidad y su
+				// penalidad de sobrecarga son datos, no cero implicito (ADR-049).
+				storageUsdTnDia("PLANTA", producto);
+			} catch (RuntimeException e) {
+				errores.add(e.getMessage());
+			}
+		}
+
 		for (Ubicacion u : ubicaciones) {
 			if (u.tipo.equals("PLANTA")) {
 				continue;
@@ -16889,9 +17140,8 @@ public class DatosEntrada implements java.io.Serializable {
 				errores.add("posiciones_cross_dock no puede ser negativo en " + u.idUbicacion + ".");
 			}
 
-			if (u.posicionesConsolidacion < 0 || u.contenedoresPorPosicionDia < 0) {
-				errores.add("posiciones_consolidacion y contenedores_por_posicion_dia no pueden ser"
-						+ " negativos en " + u.idUbicacion + ".");
+			if (u.contenedoresPorDia < 0) {
+				errores.add("contenedores_por_dia no puede ser negativo en " + u.idUbicacion + ".");
 			}
 			if (capacidadConsolidacionDia(u.idUbicacion) <= 0) {
 				errores.add("La capacidad de consolidacion de " + u.idUbicacion
@@ -17007,14 +17257,14 @@ public class GeneradorSintetico implements java.io.Serializable {
 		{ 600, 70, 60 }
 	};
 
-	// Por deposito: velocidad de estiba tn/h, posiciones de consolidacion,
-	// contenedores por posicion y dia, y operaciones de cross dock por dia
+	// Por deposito: velocidad de estiba tn/h, contenedores consolidados por dia y
+	// operaciones de cross dock por dia
 	private static final double[][] CONSOLIDACION_DEPOSITO = {
-		{ 30, 1, 4, 12 },
-		{ 28, 1, 4, 10 },
-		{ 25, 1, 3, 0 },
-		{ 32, 2, 3, 16 },
-		{ 26, 1, 3, 8 }
+		{ 30, 4, 12 },
+		{ 28, 4, 10 },
+		{ 25, 3, 0 },
+		{ 32, 6, 16 },
+		{ 26, 3, 8 }
 	};
 
 	// Por deposito: usd/tn de cross dock de jugo, cascara, aceite. Es mas barato que
@@ -17037,11 +17287,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 		{ 9, 8, 14 }
 	};
 
-	// Por terminal: posiciones de consolidacion y contenedores por posicion y dia
-	private static final double[][] CONSOLIDACION_TERMINAL = {
-		{ 2, 8 },
-		{ 3, 8 }
-	};
+	// Por terminal: contenedores consolidados por dia
+	private static final double[] CONSOLIDACION_TERMINAL = { 16, 24 };
 
 	// Por terminal: usd/tn de consolidacion de jugo, cascara, aceite
 	private static final double[][] CONSOLIDACION = {
@@ -17052,6 +17299,15 @@ public class GeneradorSintetico implements java.io.Serializable {
 	// Capacidad de la planta y produccion diaria media por producto
 	private static final double[] CAPACIDAD_PLANTA = { 5000, 1800, 1500 };
 	private static final double[] PRODUCCION_MEDIA = { 100, 60, 8 };
+
+	// Costo de oportunidad del frio propio por producto (usd/tn/dia). No se
+	// factura, pero sin el la planta sale gratis y siempre gana la comparacion
+	// contra cualquier deposito (ADR-049). Debajo del deposito mas barato.
+	private static final double[] OPORTUNIDAD_PLANTA = { 0.25, 0.18, 0.35 };
+
+	// Penalidad por tonelada y dia sobre la capacidad nominal. Cero por defecto:
+	// la sobrecarga se mide en tn-dia y no se disfraza de plata (ADR-048).
+	private static final double PENALIDAD_SOBRECARGA = 0;
 
 	private static final TipoProducto[] PRODUCTOS = { TipoProducto.JUGO, TipoProducto.CASCARA, TipoProducto.ACEITE };
 
@@ -17068,7 +17324,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 	/** Escenarios del barrido. Agregar uno es agregar un caso aca, no tocar el experimento. */
 	public static final String[] ESCENARIOS = {
 		"E-00", "E-01", "E-02", "E-03", "E-04", "E-05",
-		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11"
+		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11", "E-12"
 	};
 
 	/**
@@ -17101,6 +17357,11 @@ public class GeneradorSintetico implements java.io.Serializable {
 		e.estrategiaConsolidacion = "CONSOLIDACION_DEPOSITO";
 		e.clienteDefault = "GENERICO";
 		e.calidadDefault = "ESTANDAR";
+		e.umbralAlertaPct = 85;
+		e.umbralSobrecargaPct = 105;
+		e.umbralObjetivoPct = 50;
+		e.diasForecast = 7;
+		e.politicaFrioPropio = "FLEXIBLE";
 
 		if (idEscenario.equals("E-00")) {
 			return e;                                    // caso base
@@ -17130,6 +17391,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 			e.factorStorage = 2;                         // almacenaje caro
 		} else if (idEscenario.equals("E-11")) {
 			e.estrategiaConsolidacion = "CONSOLIDACION_TERMINAL";
+		} else if (idEscenario.equals("E-12")) {
+			e.politicaFrioPropio = "REACTIVA";           // vaciar la planta apenas se activa
 		} else {
 			throw new RuntimeException("Escenario no definido: " + idEscenario);
 		}
@@ -17157,28 +17420,31 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 		DatosEntrada.Escenario escenario = datos.escenario;
 
-		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0, 0));
+		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0));
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
 			datos.productos.add(new DatosEntrada.Producto(
 				PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i], TON_OBJETIVO_LOTE[i]));
 			datos.capacidades.add(new DatosEntrada.Capacidad(
 				PLANTA, PRODUCTOS[i], CAPACIDAD_PLANTA[i] * escenario.factorCapacidadPlanta));
+			// El frio propio no se factura (storage 0) pero cuesta ocuparlo.
+			datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
+				PLANTA, PRODUCTOS[i], 0, OPORTUNIDAD_PLANTA[i], PENALIDAD_SOBRECARGA));
 		}
 
 		for (int d = 0; d < DEPOSITOS.length; d++) {
 
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 				DEPOSITOS[d], "DEPOSITO", true, 50, 0, CONSOLIDACION_DEPOSITO[d][0], 0,
-				CONSOLIDACION_DEPOSITO[d][1], CONSOLIDACION_DEPOSITO[d][2],
-				CONSOLIDACION_DEPOSITO[d][3]));
+				CONSOLIDACION_DEPOSITO[d][1], CONSOLIDACION_DEPOSITO[d][2]));
 			datos.distancias.add(new DatosEntrada.Distancia(PLANTA, DEPOSITOS[d], DISTANCIA[d][0]));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
 				datos.capacidades.add(new DatosEntrada.Capacidad(
 					DEPOSITOS[d], PRODUCTOS[p], CAPACIDAD[d][p] * escenario.factorCapacidadDeposito));
 				datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
-					DEPOSITOS[d], PRODUCTOS[p], STORAGE[d][p] * escenario.factorStorage));
+					DEPOSITOS[d], PRODUCTOS[p], STORAGE[d][p] * escenario.factorStorage,
+					0, PENALIDAD_SOBRECARGA));
 				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
 					DEPOSITOS[d], PRODUCTOS[p], "CONSOLIDACION", ESTIBA_DEPOSITO[d][p]));
 				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
@@ -17191,7 +17457,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 				TERMINALES[t], "TERMINAL", true, 0,
 				TERMINAL_OPERACION[t][1], TERMINAL_OPERACION[t][2], TERMINAL_OPERACION[t][0],
-				CONSOLIDACION_TERMINAL[t][0], CONSOLIDACION_TERMINAL[t][1], 0));
+				CONSOLIDACION_TERMINAL[t], 0));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
 				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
@@ -17225,7 +17491,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 				double toneladas = media * (1 + variabilidad * ruido);
 
 				datos.produccionPlan.add(
-					new DatosEntrada.ProduccionPlan(dia, PRODUCTOS[p], Math.max(0, toneladas)));
+					new DatosEntrada.ProduccionPlan(dia, PRODUCTOS[p], redondear(Math.max(0, toneladas))));
 			}
 		}
 	}
@@ -17271,9 +17537,18 @@ public class GeneradorSintetico implements java.io.Serializable {
 				diaLlegada,
 				diaLlegada + plazo,
 				producto,
-				Math.max(10, toneladas),
+				redondear(Math.max(10, toneladas)),
 				terminal));
 		}
+	}
+
+	/**
+	 * Redondea al gramo. El libro de Excel guarda 15-16 cifras significativas:
+	 * sin esto, la misma campania corrida desde Excel y desde el generador se
+	 * separa por el ultimo bit del double y deja de ser comparable.
+	 */
+	private static double redondear(double toneladas) {
+		return Math.round(toneladas * 1e6) / 1e6;
 	}
 
 	/** Elige producto en proporcion a la produccion media, no uniformemente. */
@@ -17378,6 +17653,11 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.estrategiaConsolidacion = f.texto("estrategia_consolidacion");
 			e.clienteDefault = f.texto("cliente_default");
 			e.calidadDefault = f.texto("calidad_default");
+			e.umbralAlertaPct = f.numero("umbral_alerta_pct");
+			e.umbralSobrecargaPct = f.numero("umbral_sobrecarga_pct");
+			e.umbralObjetivoPct = f.numero("umbral_objetivo_pct");
+			e.diasForecast = f.entero("dias_forecast");
+			e.politicaFrioPropio = f.texto("politica_frio_propio");
 			datos.escenario = e;
 		}
 
@@ -17402,8 +17682,7 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.numero("velocidad_descarga_tn_hora"),
 					f.numero("velocidad_consolidacion_tn_hora"),
 					f.numero("capacidad_diaria_tn"),
-					f.numero("posiciones_consolidacion"),
-					f.numero("contenedores_por_posicion_dia"),
+					f.numero("contenedores_por_dia"),
 					f.numero("posiciones_cross_dock")));
 		}
 
@@ -17419,7 +17698,8 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		for (Fila f : filas("TarifaAlmacenamiento", null, null)) {
 			datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
-					f.texto("id_ubicacion"), f.producto("producto"), f.numero("storage_usd_tn_dia")));
+					f.texto("id_ubicacion"), f.producto("producto"), f.numero("storage_usd_tn_dia"),
+					f.numero("oportunidad_usd_tn_dia"), f.numero("penalidad_sobrecarga_usd_tn_dia")));
 		}
 
 		for (Fila f : filas("TarifaFleteProducto", null, null)) {
