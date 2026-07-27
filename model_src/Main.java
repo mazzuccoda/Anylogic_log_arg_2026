@@ -52,6 +52,13 @@ class Main extends Agent {
     double flotaProductoOfrecidaHoy = 0;
     double flotaProductoUsadaHoy = 0;
     int viajesPlantaDeposito = 0;
+    double tonDiaSobreNominalPlanta = 0;
+    double tonDiaSobreCriticoPlanta = 0;
+    int diasSobrecargaPlanta = 0;
+    double picoOcupacionPlantaPct = 0;
+    double costoOportunidadFrio = 0;
+    double costoPenalidadSobrecarga = 0;
+    double toneladasTransferidasPreventivas = 0;
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -266,42 +273,25 @@ class Main extends Agent {
     }
 
     void revisarTransferenciasPlanta() {
-        // JUGO
-        if (planta.getStock(TipoProducto.JUGO) >= planta.nivelActivacionJugo) {
+        // Politica de frio propio (ADR-048). El frio de la planta es propio y no se
+        // factura, asi que el default es retener: el producto sale solo si el forecast
+        // proyecta pasar la capacidad nominal o si un pedido no se puede servir desde
+        // deposito. La politica REACTIVA conserva la regla anterior (vaciar la planta
+        // al llegar al umbral de alerta) y queda como escenario de comparacion.
+        boolean flexible =
+            "FLEXIBLE".equals(datos.escenario.politicaFrioPropio);
 
-            double toneladas =
-                planta.getStock(TipoProducto.JUGO) - planta.stockObjetivoJugo;
+        for (TipoProducto producto : TipoProducto.values()) {
 
-            transferirProductoADepositos(
-                TipoProducto.JUGO,
-                toneladas
-            );
-        }
+            double toneladas = flexible
+                ? toneladasASacarDePlanta(producto)
+                : toneladasASacarReactiva(producto);
 
+            if (toneladas <= 0.0001) {
+                continue;
+            }
 
-        // CASCARA
-        if (planta.getStock(TipoProducto.CASCARA) >= planta.nivelActivacionCascara) {
-
-            double toneladas =
-                planta.getStock(TipoProducto.CASCARA) - planta.stockObjetivoCascara;
-
-            transferirProductoADepositos(
-                TipoProducto.CASCARA,
-                toneladas
-            );
-        }
-
-
-        // ACEITE
-        if (planta.getStock(TipoProducto.ACEITE) >= planta.nivelActivacionAceite) {
-
-            double toneladas =
-                planta.getStock(TipoProducto.ACEITE) - planta.stockObjetivoAceite;
-
-            transferirProductoADepositos(
-                TipoProducto.ACEITE,
-                toneladas
-            );
+            transferirProductoADepositos(producto, toneladas);
         }
     }
 
@@ -2014,6 +2004,184 @@ class Main extends Agent {
         return abiertos;
     }
 
+    double forecastProduccion(TipoProducto producto, int dias) {
+        // Forecast perfecto (ADR-048): se leen los proximos dias del plan de produccion,
+        // que es un dato de entrada. Para dimensionar es la cota optimista, y deja el
+        // error de pronostico como una extension explicita y no como un supuesto oculto.
+        double total = 0;
+
+        int hoy = (int) floor(time());
+
+        for (int d = hoy + 1; d <= hoy + dias; d++) {
+            total += datos.produccionDelDia(d, producto);
+        }
+
+        return total;
+    }
+
+    double demandaProyectada(TipoProducto producto) {
+        // Toneladas comprometidas y todavia no reservadas. Un pedido ya recibido es una
+        // obligacion: se cuenta completo aunque su fecha limite caiga despues del
+        // horizonte, porque sacarlo de planta toma dias de flota y esperar al ultimo
+        // momento es lo que hace perder el pedido.
+        double total = 0;
+
+        for (Pedido pedido : pedidos) {
+
+            if (
+                pedido.producto == producto
+                && (
+                    pedido.estado == EstadoPedido.PENDIENTE
+                    || pedido.estado == EstadoPedido.ATRASADO
+                )
+            ) {
+                total += pedido.toneladasSolicitadas;
+            }
+        }
+
+        return total;
+    }
+
+    double toneladasASacarDePlanta(TipoProducto producto) {
+        // Dos motivos, y solo dos, para gastar frio de terceros:
+        //
+        //   1. desborde proyectado: con la produccion de los proximos dias la planta
+        //      pasa su capacidad nominal;
+        //   2. servicio: los pedidos con fecha limite dentro del horizonte no se pueden
+        //      cubrir con lo que ya esta libre en deposito.
+        //
+        // Si no se cumple ninguno, el producto se queda en el frio propio.
+        int horizonte = datos.escenario.diasForecast;
+
+        double stockPlanta =
+            inventario.libre("PLANTA", producto);
+
+        if (stockPlanta <= 0.0001) {
+            return 0;
+        }
+
+        double proyectado =
+            planta.getStock(producto)
+            + forecastProduccion(producto, horizonte);
+
+        double porDesborde =
+            max(0, proyectado - planta.getCapacidad(producto));
+
+        double libreEnDepositos = 0;
+
+        for (Deposito deposito : depositos) {
+            libreEnDepositos +=
+                inventario.libre(deposito.idUbicacion, producto);
+        }
+
+        double porServicio =
+            max(
+                0,
+                demandaProyectada(producto) - libreEnDepositos
+            );
+
+        return min(stockPlanta, max(porDesborde, porServicio));
+    }
+
+    double toneladasASacarReactiva(TipoProducto producto) {
+        // Regla anterior a la politica de frio propio, expresada en porcentaje de la
+        // capacidad: al tocar el umbral de alerta se vacia la planta hasta el objetivo.
+        double capacidad = planta.getCapacidad(producto);
+
+        if (capacidad <= 0) {
+            return 0;
+        }
+
+        double stock = planta.getStock(producto);
+
+        if (100 * stock / capacidad < datos.escenario.umbralAlertaPct) {
+            return 0;
+        }
+
+        double objetivo =
+            capacidad * datos.escenario.umbralObjetivoPct / 100;
+
+        return min(
+            inventario.libre("PLANTA", producto),
+            max(0, stock - objetivo)
+        );
+    }
+
+    void registrarOcupacionPlanta() {
+        // La capacidad de la planta es un indicador, no un tope (ADR-048): lo que se
+        // mide es cuanto y cuantos dias se estuvo por encima, que es la respuesta a
+        // "cuanto frio propio falta".
+        boolean diaEnSobrecarga = false;
+
+        for (TipoProducto producto : TipoProducto.values()) {
+
+            double capacidad = planta.getCapacidad(producto);
+
+            if (capacidad <= 0) {
+                continue;
+            }
+
+            double stock = planta.getStock(producto);
+
+            double ocupacion = 100 * stock / capacidad;
+
+            picoOcupacionPlantaPct =
+                max(picoOcupacionPlantaPct, ocupacion);
+
+            double sobreNominal = max(0, stock - capacidad);
+
+            if (sobreNominal <= 0.0001) {
+                continue;
+            }
+
+            diaEnSobrecarga = true;
+
+            tonDiaSobreNominalPlanta += sobreNominal;
+
+            double critico =
+                capacidad * datos.escenario.umbralSobrecargaPct / 100;
+
+            tonDiaSobreCriticoPlanta += max(0, stock - critico);
+
+            costoPenalidadSobrecarga +=
+                sobreNominal
+                * datos.penalidadSobrecargaUsdTnDia("PLANTA", producto);
+        }
+
+        if (diaEnSobrecarga) {
+            diasSobrecargaPlanta++;
+        }
+    }
+
+    void devengarOportunidadFrioPropio() {
+        // El frio propio no se factura, pero ocupa un recurso que tiene alternativa.
+        // Se devenga aparte para que el costo de caja siga siendo comparable contra la
+        // cotizacion de un tercero (ADR-049).
+        for (TipoProducto producto : TipoProducto.values()) {
+
+            costoOportunidadFrio +=
+                inventario.stock("PLANTA", producto)
+                * datos.oportunidadUsdTnDia("PLANTA", producto);
+        }
+    }
+
+    double costoTotalEconomico() {
+        // Costo de caja mas lo que cuesta ocupar el frio propio y la penalidad por
+        // operar sobre la capacidad nominal (ADR-049). Con las tarifas en cero coincide
+        // con el costo de caja.
+        return costoTotalCampania()
+            + costoOportunidadFrio
+            + costoPenalidadSobrecarga;
+    }
+
+    double costoEconomicoPorTonelada() {
+        double toneladas = toneladasExportadas();
+
+        return toneladas <= 0
+            ? 0
+            : costoTotalEconomico() / toneladas;
+    }
+
     // ----- Eventos -----
 
     // evento pasoDiario [timeout cyclic] cada 1 day
@@ -2026,11 +2194,13 @@ class Main extends Agent {
         abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
         abrirPosicionesCrossDockDelDia();        // 4. abrir la capacidad de cross dock del dia
         programarCrossDockDelDia();              // 5. cruzar lo que no necesita guardarse
-        revisarTransferenciasPlanta();           // 6. recibir e ingresar el excedente
+        revisarTransferenciasPlanta();           // 6. sacar de planta solo lo necesario
         revisarPedidosPendientes();              // 7. reservar contra stock
         prepararPedidosReservados();             // 8. armar los contenedores del pedido
         despacharContenedoresPendientes();       // 9. consolidar y despachar lo que entra
         devengarAlmacenamientoDiario();          // 10. devengar almacenaje
+        devengarOportunidadFrioPropio();         // 10b. devengar el uso del frio propio
+        registrarOcupacionPlanta();              // 10c. medir la sobrecarga del dia
         registrarAtrasos();                      // 11. registrar indicadores del dia
         validarInventario();              // invariantes de las capas (ADR-023)
     }

@@ -60,14 +60,14 @@ public class GeneradorSintetico implements java.io.Serializable {
 		{ 600, 70, 60 }
 	};
 
-	// Por deposito: velocidad de estiba tn/h, posiciones de consolidacion,
-	// contenedores por posicion y dia, y operaciones de cross dock por dia
+	// Por deposito: velocidad de estiba tn/h, contenedores consolidados por dia y
+	// operaciones de cross dock por dia
 	private static final double[][] CONSOLIDACION_DEPOSITO = {
-		{ 30, 1, 4, 12 },
-		{ 28, 1, 4, 10 },
-		{ 25, 1, 3, 0 },
-		{ 32, 2, 3, 16 },
-		{ 26, 1, 3, 8 }
+		{ 30, 4, 12 },
+		{ 28, 4, 10 },
+		{ 25, 3, 0 },
+		{ 32, 6, 16 },
+		{ 26, 3, 8 }
 	};
 
 	// Por deposito: usd/tn de cross dock de jugo, cascara, aceite. Es mas barato que
@@ -90,11 +90,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 		{ 9, 8, 14 }
 	};
 
-	// Por terminal: posiciones de consolidacion y contenedores por posicion y dia
-	private static final double[][] CONSOLIDACION_TERMINAL = {
-		{ 2, 8 },
-		{ 3, 8 }
-	};
+	// Por terminal: contenedores consolidados por dia
+	private static final double[] CONSOLIDACION_TERMINAL = { 16, 24 };
 
 	// Por terminal: usd/tn de consolidacion de jugo, cascara, aceite
 	private static final double[][] CONSOLIDACION = {
@@ -105,6 +102,15 @@ public class GeneradorSintetico implements java.io.Serializable {
 	// Capacidad de la planta y produccion diaria media por producto
 	private static final double[] CAPACIDAD_PLANTA = { 5000, 1800, 1500 };
 	private static final double[] PRODUCCION_MEDIA = { 100, 60, 8 };
+
+	// Costo de oportunidad del frio propio por producto (usd/tn/dia). No se
+	// factura, pero sin el la planta sale gratis y siempre gana la comparacion
+	// contra cualquier deposito (ADR-049). Debajo del deposito mas barato.
+	private static final double[] OPORTUNIDAD_PLANTA = { 0.25, 0.18, 0.35 };
+
+	// Penalidad por tonelada y dia sobre la capacidad nominal. Cero por defecto:
+	// la sobrecarga se mide en tn-dia y no se disfraza de plata (ADR-048).
+	private static final double PENALIDAD_SOBRECARGA = 0;
 
 	private static final TipoProducto[] PRODUCTOS = { TipoProducto.JUGO, TipoProducto.CASCARA, TipoProducto.ACEITE };
 
@@ -121,7 +127,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 	/** Escenarios del barrido. Agregar uno es agregar un caso aca, no tocar el experimento. */
 	public static final String[] ESCENARIOS = {
 		"E-00", "E-01", "E-02", "E-03", "E-04", "E-05",
-		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11"
+		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11", "E-12"
 	};
 
 	/**
@@ -154,6 +160,11 @@ public class GeneradorSintetico implements java.io.Serializable {
 		e.estrategiaConsolidacion = "CONSOLIDACION_DEPOSITO";
 		e.clienteDefault = "GENERICO";
 		e.calidadDefault = "ESTANDAR";
+		e.umbralAlertaPct = 85;
+		e.umbralSobrecargaPct = 105;
+		e.umbralObjetivoPct = 50;
+		e.diasForecast = 7;
+		e.politicaFrioPropio = "FLEXIBLE";
 
 		if (idEscenario.equals("E-00")) {
 			return e;                                    // caso base
@@ -183,6 +194,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 			e.factorStorage = 2;                         // almacenaje caro
 		} else if (idEscenario.equals("E-11")) {
 			e.estrategiaConsolidacion = "CONSOLIDACION_TERMINAL";
+		} else if (idEscenario.equals("E-12")) {
+			e.politicaFrioPropio = "REACTIVA";           // vaciar la planta apenas se activa
 		} else {
 			throw new RuntimeException("Escenario no definido: " + idEscenario);
 		}
@@ -210,28 +223,31 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 		DatosEntrada.Escenario escenario = datos.escenario;
 
-		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0, 0));
+		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0));
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
 			datos.productos.add(new DatosEntrada.Producto(
 				PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i], TON_OBJETIVO_LOTE[i]));
 			datos.capacidades.add(new DatosEntrada.Capacidad(
 				PLANTA, PRODUCTOS[i], CAPACIDAD_PLANTA[i] * escenario.factorCapacidadPlanta));
+			// El frio propio no se factura (storage 0) pero cuesta ocuparlo.
+			datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
+				PLANTA, PRODUCTOS[i], 0, OPORTUNIDAD_PLANTA[i], PENALIDAD_SOBRECARGA));
 		}
 
 		for (int d = 0; d < DEPOSITOS.length; d++) {
 
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 				DEPOSITOS[d], "DEPOSITO", true, 50, 0, CONSOLIDACION_DEPOSITO[d][0], 0,
-				CONSOLIDACION_DEPOSITO[d][1], CONSOLIDACION_DEPOSITO[d][2],
-				CONSOLIDACION_DEPOSITO[d][3]));
+				CONSOLIDACION_DEPOSITO[d][1], CONSOLIDACION_DEPOSITO[d][2]));
 			datos.distancias.add(new DatosEntrada.Distancia(PLANTA, DEPOSITOS[d], DISTANCIA[d][0]));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
 				datos.capacidades.add(new DatosEntrada.Capacidad(
 					DEPOSITOS[d], PRODUCTOS[p], CAPACIDAD[d][p] * escenario.factorCapacidadDeposito));
 				datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
-					DEPOSITOS[d], PRODUCTOS[p], STORAGE[d][p] * escenario.factorStorage));
+					DEPOSITOS[d], PRODUCTOS[p], STORAGE[d][p] * escenario.factorStorage,
+					0, PENALIDAD_SOBRECARGA));
 				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
 					DEPOSITOS[d], PRODUCTOS[p], "CONSOLIDACION", ESTIBA_DEPOSITO[d][p]));
 				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
@@ -244,7 +260,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 				TERMINALES[t], "TERMINAL", true, 0,
 				TERMINAL_OPERACION[t][1], TERMINAL_OPERACION[t][2], TERMINAL_OPERACION[t][0],
-				CONSOLIDACION_TERMINAL[t][0], CONSOLIDACION_TERMINAL[t][1], 0));
+				CONSOLIDACION_TERMINAL[t], 0));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
 				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
@@ -278,7 +294,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 				double toneladas = media * (1 + variabilidad * ruido);
 
 				datos.produccionPlan.add(
-					new DatosEntrada.ProduccionPlan(dia, PRODUCTOS[p], Math.max(0, toneladas)));
+					new DatosEntrada.ProduccionPlan(dia, PRODUCTOS[p], redondear(Math.max(0, toneladas))));
 			}
 		}
 	}
@@ -324,9 +340,18 @@ public class GeneradorSintetico implements java.io.Serializable {
 				diaLlegada,
 				diaLlegada + plazo,
 				producto,
-				Math.max(10, toneladas),
+				redondear(Math.max(10, toneladas)),
 				terminal));
 		}
+	}
+
+	/**
+	 * Redondea al gramo. El libro de Excel guarda 15-16 cifras significativas:
+	 * sin esto, la misma campania corrida desde Excel y desde el generador se
+	 * separa por el ultimo bit del double y deja de ser comparable.
+	 */
+	private static double redondear(double toneladas) {
+		return Math.round(toneladas * 1e6) / 1e6;
 	}
 
 	/** Elige producto en proporcion a la produccion media, no uniformemente. */

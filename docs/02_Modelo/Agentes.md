@@ -41,8 +41,7 @@ Origen productivo y ubicación de stock inicial.
 ### Responsabilidades
 
 - generar producción diaria;
-- controlar capacidad;
-- registrar excedente;
+- medir ocupación y sobrecarga contra la capacidad nominal;
 - almacenar y retirar producto;
 - alimentar lotes;
 - consolidar contenedores.
@@ -61,9 +60,8 @@ Implementada para producción y stock. Pendiente consolidación DES completa.
 | `capacidadAceite` | double | tn | Capacidad máxima |
 | `produccionDiaria*` | double | tn/día | Producción por producto |
 | `produccionAcumulada*` | double | tn | Producción generada |
-| `excedente*` | double | tn | Producción no almacenada |
-| `nivelActivacion*` | double | tn | Umbral de transferencia |
-| `stockObjetivo*` | double | tn | Saldo objetivo tras transferencia |
+
+La capacidad es **nominal**: la producción del plan ingresa completa aunque el stock la supere, y no hay descarte (ADR-048). Los umbrales de transferencia dejaron de ser toneladas del agente (`nivelActivacion*`, `stockObjetivo*`) y son porcentajes del escenario (`umbral_alerta_pct`, `umbral_objetivo_pct`, `umbral_sobrecarga_pct`); el desborde se mide en `Main` con `tonDiaSobreNominalPlanta`, `tonDiaSobreCriticoPlanta`, `diasSobrecargaPlanta` y `picoOcupacionPlantaPct`.
 
 ## 3. Deposito
 
