@@ -13,6 +13,13 @@ Formato: una entrada por cambio relevante del modelo o de las definiciones. Las 
 - `RegistroCostos.exportarCsv(ruta)`: volcado opcional del detalle para auditar un número. No se llama en el barrido, porque una campaña son cientos de miles de cargos.
 - `Capa.idCapa`, asignada por `Inventario`: la capa necesita identidad propia porque un lote puede tener varias capas en el mismo depósito y el cargo de almacenaje tiene que poder apuntar a una y sólo una.
 - ADR-051, ADR-052 y casos de validación V-029 y V-030.
+- Modelo, costeo por circuito (C3, ADR-053), versión `fase-22`. Se devengan los seis conceptos que estaban en 0: IN cuando la capa entra al almacenamiento, OUT cuando el envío se despacha, THC y costo de terminal cuando el contenedor cargado entra a la terminal —o cuando se arma ahí, en el circuito de terminal—, despachante por contenedor o por pedido según la unidad, y espera de camión de producto y de portacontenedor por las horas que superan la franquicia. Consolidación y cross dock pasan a cobrarse por contenedor completo, así que el último contenedor parcial paga como uno lleno.
+- `Main.costoEsperadoCircuito(envio)` y `exigirIgual(...)`: la auditoría de costeo por circuito reconstruye el importe desde las tarifas, sin mirar el registro, y `finalizarEnvio()` aborta la corrida si no coincide con lo devengado. Ejecuta V-COST-01 a V-COST-05 y V-COST-07 en cada envío de cada corrida (≈ 222 000 auditorías en el barrido).
+- `Main.costoEndToEndPedido`, `costoIncrementalPedido` y `costoHistoricoPedido`: las tres vistas de costo del pedido, sobre el registro. La comparación entre alternativas usa la incremental, porque el almacenaje y el flete ya incurridos son costo hundido.
+- Once columnas de descomposición por categoría en `resultados/kpis_por_corrida.csv` (`costo_flete_producto_usd`, `costo_round_trip_usd`, `costo_consolidacion_usd`, `costo_cross_dock_usd`, `costo_almacenamiento_usd`, `costo_in_usd`, `costo_out_usd`, `costo_thc_usd`, `costo_terminal_usd`, `costo_despachante_usd`, `costo_espera_usd`) y las mismas líneas en el panel de costos de `Main`.
+- `DatosEntrada.tarifaEspera` y `horasEsperaFacturables` como consultas separadas del importe, y una validación nueva: la franquicia y la tarifa de espera de `TarifaRoundTrip` tienen que coincidir con la fila de `TarifaEspera` del mismo sitio, o la corrida aborta.
+- Tarifas de referencia marcadas como supuesto con proveedor `SUPUESTO_C3`: IN y OUT (2,0–3,0 USD/tn), THC (150–220 USD/contenedor), costo de terminal (70–90), despachante (120) y espera (3 h, 25 USD/h). Se reemplazan en el Excel sin tocar código.
+- ADR-053 y los diez casos de validación V-COST-01 a V-COST-10.
 
 ### Corregido
 

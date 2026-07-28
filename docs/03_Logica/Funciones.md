@@ -208,6 +208,24 @@ Todas reciben el día de campaña y la clave del concepto (origen/destino/produc
 
 `registrar(...)` crea un `Cargo` inmutable, calcula el importe como `cantidad × tarifa`, rechaza cantidades o tarifas negativas y devuelve el importe registrado, o 0 si el cargo ya estaba (idempotencia por operación, categoría, unidad y motivo). Los totales por categoría, tipo, pedido, contenedor, producto, sitio, estrategia y día son consultas sobre la misma lista, así que no hay un segundo saldo que sincronizar. `Main.reconciliarCostos()` compara cada acumulador de agente contra el total de su categoría, todos los días y al cierre, y aborta si difieren en más de 0,01 USD. `exportarCsv(ruta)` vuelca el detalle a pedido y **no** se llama en el barrido.
 
+### Devengos por circuito: `registrarInDeposito`, `registrarOutDeposito`, `registrarCargosTerminal`, `registrarDespachante`, `registrarEspera` y `registrarFleteProducto`
+
+**Estado:** implementadas (C3, ADR-053).
+
+Cada una registra un cargo en el evento físico que lo genera y devuelve el importe efectivamente registrado, que los acumuladores suman. `registrarInDeposito(sitio, producto, toneladas, lote, pedido, operacion)` corre cuando la capa entra al almacenamiento, y no corre cuando el producto cruza en cross dock. `registrarOutDeposito(envio)` corre al despachar, y `pagaOutDeposito(envio)` decide si corresponde: sólo paga egreso lo que estuvo almacenado en un depósito de terceros, así que el frío propio y el cross dock no lo pagan. `registrarCargosTerminal(envio)` devenga THC y costo de terminal por contenedor completo y guarda el día en `Envio.diaCargosTerminal`, porque en el circuito de terminal el contenedor recién existe al consolidar. `registrarDespachante(envio)` respeta la unidad de la tarifa: por contenedor, o una sola vez por pedido si es `USD_PEDIDO`. `registrarEspera(envio, recurso, sitio, horas, motivo)` cobra sólo el excedente sobre la franquicia, con `DatosEntrada.horasEsperaFacturables` como única regla.
+
+### `costoEsperadoCircuito(Envio envio)` y `exigirIgual(...)`
+
+**Estado:** implementadas (C3, ADR-053).
+
+Auditoría de costeo por circuito. `costoEsperadoCircuito` reconstruye lo que el envío **debe** pagar leyendo las tarifas del día correspondiente a cada devengo —sin mirar el registro—: ciclo del portacontenedor o flete a granel, nunca los dos; armado del contenedor en el sitio donde ocurre; THC, costo de terminal y despachante por contenedor completo; egreso del depósito si corresponde; y espera sobre la franquicia. `finalizarEnvio()` compara ese número contra lo devengado con `exigirIgual` y aborta la corrida si difieren más de 0,01 USD. Es lo que hace que V-COST-01 a V-COST-05 y V-COST-07 se verifiquen en cada envío de cada corrida en lugar de una vez a mano.
+
+### Vistas de costo del pedido: `costoEndToEndPedido`, `costoIncrementalPedido` y `costoHistoricoPedido`
+
+**Estado:** implementadas (C3, ADR-053).
+
+Las tres son consultas sobre el registro. La **end-to-end** es todo lo devengado contra el pedido. La **incremental** es lo posterior al día en que el pedido eligió origen y circuito: es la vista con la que se comparan alternativas, porque el almacenaje y el flete ya incurridos son costo hundido y no pueden decidir dónde consolidar. La **histórica** los reporta aparte, justamente para poder explicarlos sin meterlos en la comparación.
+
 ### KPIs de cierre de corrida
 
 **Estado:** implementadas (fase 13).

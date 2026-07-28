@@ -91,7 +91,7 @@ Contenedores creados, esperando posición de consolidación, exportados; envíos
 
 ### Costos (USD)
 
-Almacenaje, flete planta–depósito, flete depósito–puerto, consolidación, cross dock, total de caja, costo por tonelada exportada y, aparte, el costo económico con el frío propio y la penalidad de sobrecarga (ADR-049). El total es `costoTotalCampania()`, la misma función que alimenta el CSV del barrido: el tablero y el barrido no pueden discrepar.
+Siete líneas con la descomposición completa: almacenaje e in/out; flete planta–depósito y a granel; ciclo del portacontenedor y espera; consolidación y cross dock; THC, costo de terminal y despachante; total de caja y económico; y costo por tonelada exportada, también en las dos versiones (ADR-049, ADR-053). El total es `costoTotalCampania()`, que devuelve `registro.total(CAJA)`, la misma función que alimenta el CSV del barrido: tablero, barrido y registro no pueden discrepar.
 
 Desde C2 el número no sale de sumar los indicadores del panel: sale del registro de cargos (`registro.total(CAJA)` y `registro.total()` para el económico), y cada línea del panel es una vista de ese registro por categoría (ADR-052). `reconciliarCostos()` compara las dos cosas todos los días y aborta la corrida si difieren en más de 0,01 USD, así que un desglose que no sume el total es imposible por construcción. Para auditar un número concreto —por qué costó eso este pedido, este contenedor o este día— se vuelca el detalle con `registro.exportarCsv("resultados/cargos.csv")`, que da una fila por cargo con día, categoría, tipo, pedido, contenedor, lote, producto, origen, destino, sitio, estrategia, proveedor, unidad, cantidad, tarifa e importe. No se llama solo: una campaña son cientos de miles de cargos.
 
@@ -117,7 +117,7 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 
 | KPI | Definición | Unidad | Rango |
 |---|---|---|---|
-| `costo_total_usd` | Almacenaje + flete planta–depósito + flete depósito–puerto + consolidación + cross dock | USD | ≥ 0 |
+| `costo_total_usd` | `registro.total(CAJA)`: la suma de las once categorías de caja del registro de cargos | USD | ≥ 0 |
 | `costo_usd_tn` | `costo_total_usd / toneladas_exportadas` | USD/tn | ≥ 0 |
 | `nivel_servicio` | Pedidos entregados sin atraso / pedidos recibidos | fracción | 0 a 1 |
 | `atraso_promedio_dias` | Suma de días de atraso / pedidos recibidos | días | ≥ 0 |
@@ -140,6 +140,19 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 | `contenedores_circuito_cross_dock` | Contenedores que cruzaron el depósito sin almacenarse (circuito 3) | unidades | ≥ 0 |
 | `contenedores_circuito_terminal` | Contenedores armados en la terminal, sin portacontenedor (circuito 4) | unidades | ≥ 0 |
 | `viajes_granel_terminal` | Viajes a granel origen → terminal del circuito 4 | viajes | ≥ 0 |
+| `costo_flete_producto_usd` | Flete de producto: planta→depósito, al sitio de cross dock y a granel a la terminal | USD | ≥ 0 |
+| `costo_round_trip_usd` | Ciclo del portacontenedor terminal → origen → terminal. **0** en el circuito de terminal | USD | ≥ 0 |
+| `costo_consolidacion_usd` | Armado del contenedor, por contenedor completo, en el sitio donde ocurre | USD | ≥ 0 |
+| `costo_cross_dock_usd` | Cruce sin almacenamiento, por contenedor completo | USD | ≥ 0 |
+| `costo_almacenamiento_usd` | Almacenaje de terceros, una vez por día y por capa | USD | ≥ 0 |
+| `costo_in_usd` | Ingreso al almacenamiento, por tonelada. No lo paga lo que cruza ni el frío propio | USD | ≥ 0 |
+| `costo_out_usd` | Egreso del almacenamiento, por tonelada, mismas exclusiones | USD | ≥ 0 |
+| `costo_thc_usd` | THC, por contenedor completo | USD | ≥ 0 |
+| `costo_terminal_usd` | Costo de terminal, por contenedor completo | USD | ≥ 0 |
+| `costo_despachante_usd` | Despachante, por contenedor o por pedido según la unidad de la tarifa | USD | ≥ 0 |
+| `costo_espera_usd` | Espera de camión de producto y de portacontenedor por encima de la franquicia | USD | ≥ 0 |
+
+Las once categorías suman exactamente `costo_total_usd`: es la descomposición con la que se compara un circuito contra otro (ADR-053).
 
 ---
 
@@ -162,8 +175,9 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 - La planta no tiene tarifa de almacenaje de caja: retener producto ahí sólo aparece en el costo económico (`oportunidad_usd_tn_dia`), que por default puede estar en 0.
 - La carga y la descarga no consumen jornada de camión (faltan velocidades operativas en las tablas), así que la utilización de la flota de producto está subestimada.
 - La terminal todavía no tiene cola propia ni THC, así que no hay panel de terminal.
-- El tramo vacío terminal → origen del portacontenedor ocupa el pool y consume tiempo, pero **no** tiene costo: la tarifa del ciclo de contenedor todavía no existe (ADR-050).
-- El costo por tonelada **todavía no** es comparable contra una cotización de un tercero: IN, OUT, THC, costo terminal, despachante y espera tienen tarifa y consulta pero no se devengan, y están en 0 (ADR-051). Es el trabajo de C3.
+- El costo por tonelada ya incluye las once categorías, pero **los valores de IN, OUT, THC, costo terminal y despachante son supuestos** (proveedor `SUPUESTO_C3`, ADR-053): la estructura es comparable contra una cotización, los números lo son cuando se carguen los reales en el Excel.
+- `costo_espera_usd` es 0 en todo el barrido: con las velocidades sintéticas la carga tarda menos de una hora y no se supera la franquicia de 3 h. No significa que no se cobre.
+- Las series de costo anteriores a `fase-22` no son comparables: C3 agrega cargos que antes no existían. Lo que sí es comparable es la parte física y de servicio, idéntica a `fase-21`.
 
 ---
 

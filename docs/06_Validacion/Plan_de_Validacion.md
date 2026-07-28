@@ -279,6 +279,89 @@ Las dos verificaciones que exige ADR-050 se leen directamente de esa tabla: el c
 
 **Encontrado con este caso:** la primera versión usaba `día|lote|ubicación|producto` como clave de idempotencia del almacenaje, que no distingue dos capas del mismo lote en el mismo depósito; sólo la primera capa pagaba y el costo de almacenaje caía a un tercio. La comparación contra `fase-21` lo detectó en la primera corrida y se corrigió dándole identidad propia a la capa (`Capa.idCapa`).
 
+## 4.2 Costeo por circuito (C3/C4, ADR-053)
+
+**Cómo se ejecutan.** Los diez casos no son corridas aparte: son propiedades que el modelo verifica solo, en cada envío y en cada corrida. `Main.costoEsperadoCircuito(envio)` reconstruye lo que el circuito **debe** pagar leyendo las tarifas —sin mirar el registro— y `finalizarEnvio()` aborta la corrida si lo devengado no coincide con eso. La evidencia que se cita abajo es el barrido completo de `fase-22`: 14 escenarios × 30 réplicas = 420 corridas, todas `Finished`, con unos 530 envíos auditados por corrida (≈ 222 000 auditorías) y `reconciliarCostos()` corriendo todos los días.
+
+La descomposición por categoría sale del CSV (medias de 30 réplicas, USD):
+
+| Escenario | circuito | flete prod. | round trip | consol. | cross dock | almacenaje | IN | OUT | THC | terminal | despachante | espera |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| E-00 | depósito | 257 264 | 232 000 | 118 795 | 0 | 969 700 | 51 965 | 30 055 | 105 727 | 44 583 | 63 584 | 0 |
+| E-05 | cross dock | 251 730 | 226 078 | 52 744 | 56 768 | 959 527 | 35 971 | 14 065 | 105 740 | 44 588 | 63 592 | 0 |
+| E-11 | terminal | 377 956 | **0** | 167 358 | 0 | 967 331 | 51 965 | 30 058 | 105 740 | 44 588 | 63 592 | 0 |
+| E-13 | planta | 126 227 | 254 286 | 111 874 | 0 | 1 047 654 | 23 646 | 54 | 105 740 | 44 588 | 63 592 | 0 |
+
+### V-COST-01 Consolidación en planta
+
+**Esperado:** el envío paga round trip terminal–planta–terminal, consolidación en planta, THC, costo terminal, despachante y espera; **no** paga flete planta→depósito, IN, almacenaje de terceros ni OUT.
+
+**Medido:** los 528,9 envíos de circuito planta de E-13 pasan la auditoría en las 30 réplicas. `pagaOutDeposito()` devuelve `false` cuando el origen no es un depósito, así que el egreso no entra en el esperado ni en el devengado; los 54 USD de OUT y el almacenaje de E-13 son del producto que **no** salió por planta: el frío propio desborda y esas toneladas se transfieren a depósitos, donde pagan IN y almacenaje aunque nadie las despache. Es física de `fase-21`, no un cargo del circuito: los KPIs físicos de E-13 no se movieron.
+
+### V-COST-02 Consolidación en depósito
+
+**Esperado:** flete de producto al depósito, IN, almacenaje diario, OUT, round trip terminal–depósito–terminal, consolidación en el depósito, THC, costo terminal, despachante y espera.
+
+**Medido:** E-00 devenga las once categorías (fila de la tabla). El flete planta→depósito y el almacenaje se devengan cuando ocurren, contra el **lote**, no contra el envío: por eso no entran en `costoEsperadoCircuito()`, que audita lo que el envío paga desde que se decide su circuito. La vista incremental (`costoIncrementalPedido`) es la que compara alternativas y no vuelve a incluir esos costos ya incurridos; la histórica (`costoHistoricoPedido`) los reporta aparte para poder explicarlos.
+
+### V-COST-03 Cross docking en depósito
+
+**Esperado:** flete al punto de cross dock, round trip, tarifa de cross dock por contenedor, THC, costo terminal, despachante y espera. En el sitio de cross dock, dentro de la ventana de operación, no se cobra IN, ni almacenaje, ni OUT.
+
+**Medido:** en E-05 el cargo se registra en la categoría `CROSS_DOCK` (56 768 USD) y no en `CONSOLIDACION`, y las toneladas que cruzan no pagan ingreso ni egreso: IN cae de 51 965 a 35 971 USD (−31 %) y OUT de 30 055 a 14 065 (−53 %) contra E-00, con la misma producción y las mismas toneladas exportadas. El almacenaje baja apenas (969 700 → 959 527) porque lo que cruza es una fracción del stock que igual se acumula.
+
+### V-COST-04 Consolidación/cross dock en terminal
+
+**Esperado:** flete planta→terminal o depósito→terminal, consolidación en terminal por contenedor, THC, costo terminal y despachante; **sin** round trip de portacontenedor y sin almacenaje temporal en terminal.
+
+**Medido:** E-11 da `costo_round_trip_usd` = 0,00 exacto en las 30 réplicas, con 530 contenedores exportados y 530 viajes a granel, y es el escenario con más flete de producto (377 956 USD contra 257 264 de E-00): el producto viaja a granel y paga ese flete, no un ciclo que no ocurre. La consolidación es la más cara por contenedor (315,8 USD contra 224,2 en E-00) porque la tarifa de terminal es mayor que la de depósito. En este circuito el contenedor recién existe en la terminal, así que THC y costo terminal se devengan al consolidar y no al ingresar: el día del devengo queda guardado en `Envio.diaCargosTerminal` y la auditoría usa ese día para elegir la tarifa vigente.
+
+### V-COST-05 Último contenedor parcial
+
+**Esperado:** un contenedor que carga menos que su capacidad paga consolidación, cross dock, THC, costo terminal, despachante y round trip como contenedor **completo**; sólo el flete de producto y el almacenaje se cobran por tonelada.
+
+**Medido:** todos los cargos por contenedor usan `contenedoresNecesarios()`, que redondea para arriba, y la unidad registrada es `USD_CONTENEDOR` con `cantidad` = contenedores. En E-00 el THC medio es 199,51 USD por contenedor y el despachante 119,98, contra tarifas de 220/150/190 y 120 por contenedor según producto: la mezcla, no la tonelada. El efecto del contenedor parcial se lee en la consolidación: 118 795 USD sobre 12 737 tn son 9,33 USD/tn efectivos contra 9,00 USD/tn de tarifa equivalente (225 USD ÷ 25 tn), es decir un 3,6 % de sobrecosto que es exactamente el hueco de los contenedores que salieron con 24,0 tn en lugar de 25.
+
+### V-COST-06 Transferencia entre depósitos
+
+**Estado:** pendiente por decisión del usuario ("hoy no existe el movimiento"). La fórmula queda documentada —OUT del depósito de origen, flete entre depósitos e IN en el destino, sin cargos de contenedor— y se puede evaluar a mano con `DatosEntrada.outUsdTn`, `importeFlete` e `inUsdTn`, que ya resuelven por día y sitio. No se implementa el movimiento físico, así que el modelo **no** devenga esta combinación y ninguna corrida la ejercita.
+
+### V-COST-07 No duplicación
+
+**Esperado:** ningún concepto se cobra dos veces por el mismo evento; en particular THC, costo terminal y despachante, una vez por contenedor (o por pedido, si la unidad es `USD_PEDIDO`).
+
+**Medido:** tres candados encadenados. (1) `RegistroCostos.registrar()` es idempotente por operación, categoría, unidad y motivo, y devuelve 0 si el cargo ya estaba. (2) `costoEsperadoCircuito()` cuenta cada concepto una sola vez, así que un devengo repetido rompe la igualdad y aborta la corrida. (3) El despachante con unidad `USD_PEDIDO` lo paga sólo el primer envío entregado del pedido, y la auditoría replica esa regla. En el barrido, THC/contenedor es 199,51 en los cuatro circuitos y despachante/contenedor 119,98 en todos: si un circuito cobrara de más, la relación se movería. Las 420 corridas terminaron sin abortos.
+
+### V-COST-08 Almacenaje de reservas de cross dock
+
+**Esperado:** el producto reservado para cruzar no paga almacenaje en el sitio de cross dock durante la ventana de operación; si el cross dock se degrada y la mercadería queda como stock normal, ahí sí paga IN y almacenaje.
+
+**Medido:** `transferirToneladasLote(..., cruza)` no devenga IN cuando el producto cruza, y el degradado sí lo devenga cuando la mercadería termina como stock. E-05 es el único escenario con cross dock y es el único con IN y OUT por debajo de E-00, con las mismas toneladas exportadas y el mismo nivel de servicio.
+
+### V-COST-09 Reconciliación
+
+**Esperado:** el total de cada categoría en el registro coincide con el acumulador que la devenga, y el costo del pedido con la suma de sus envíos.
+
+**Medido:** `reconciliarCostos()` corre todos los días y antes de escribir los KPIs de cada corrida, con tolerancia de 0,01 USD, y abarca las ocho categorías nuevas de C3. Las 420 corridas terminaron `Finished`. Además `costoTotalCampania()` sale de `registro.total(CAJA)`, así que pantalla, CSV y registro no pueden discrepar: el panel de costos de `Main` muestra la descomposición completa y suma al total.
+
+### V-COST-10 Comparación manual
+
+**Esperado:** los circuitos se pueden comparar categoría por categoría y la diferencia se explica.
+
+**Medido:** la tabla de arriba es esa comparación. Contra `fase-21`, el costo de campaña sube entre 11,8 % y 37,2 % según escenario, y **todos** los KPIs físicos y de servicio quedan idénticos fila por fila en las 420 corridas: nivel de servicio, atraso, toneladas exportadas, contenedores, viajes, contadores por circuito y sobrecarga, con diferencia máxima 0. Las dos únicas columnas físicas que se mueven son las utilizaciones de flota y de pool, y sólo en E-05 (máximo 0,0007), porque la elección del sitio de cross dock se hace por costo estimado y ahora ese estimado incluye IN, OUT y los cargos por contenedor: el modelo elige otro depósito en algunas réplicas, con las mismas toneladas y el mismo servicio.
+
+| Escenario | `fase-21` USD/tn | `fase-22` USD/tn | Δ costo total |
+|---|---:|---:|---:|
+| E-00 depósito | 124,4 | 148,0 | +19,1 % |
+| E-05 cross dock | 122,0 | 143,0 | +17,4 % |
+| E-07 sin capacidad | 59,8 | 82,0 | +37,2 % |
+| E-11 terminal | 127,8 | 142,8 | +11,8 % |
+| E-13 planta | 121,3 | 140,3 | +15,7 % |
+
+El aumento es explicable en su totalidad: los cargos nuevos son IN + OUT + THC + costo terminal + despachante (≈ 296 000 USD por corrida en E-00) más el sobrecosto del contenedor parcial en consolidación. `fase-21` deja de ser comparable en costo y sigue siendo la línea de base física.
+
+**Espera en 0.** Las tarifas de espera están cargadas como supuesto (franquicia 3 h, 25 USD/h), y `costo_espera_usd` es 0 en las 420 corridas: con las velocidades sintéticas un contenedor se carga en menos de una hora, así que nunca se supera la franquicia. El concepto se devenga —`registrarEspera()` corre en la carga, en la descarga y en la terminal— y se activa solo cuando los tiempos reales o la franquicia real lo pidan.
+
 ## 4.1 Validación de datos de entrada
 
 Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.

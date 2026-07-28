@@ -32,4 +32,6 @@ class Envio extends Agent {
     String idSitioOrigen = "";
     EstrategiaLogistica circuito = EstrategiaLogistica.SIN_DEFINIR;
     double tiempoViajeVacioHoras = 0;
+    double costoCargosReal = 0;
+    double diaCargosTerminal = -1;
 }
