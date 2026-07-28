@@ -10,9 +10,6 @@ class Terminal extends Agent {
     String nombreTerminal = "Terminal";
     double capacidadDiariaTn = 0;
     boolean habilitada = true;
-    double costoConsolidadoJugo = 0;
-    double costoConsolidadoCascara = 0;
-    double costoConsolidadoAceite = 0;
     double velocidadDescargaTnHora = 60;
     double velocidadConsolidacionTnHora = 40;
 
@@ -24,20 +21,17 @@ class Terminal extends Agent {
 
     // ----- Funciones -----
 
-    double getCostoConsolidado(TipoProducto producto) {
-        switch (producto) {
+    double getImporteConsolidacion(TipoProducto producto, double toneladas, int contenedores) {
+        // Consolidar en la terminal lo cobra la terminal, con la unidad de su tarifa
+        // (ADR-051). El agente ya no guarda una copia de la tarifa por producto.
+        Main modelo = (Main) getRootAgent();
 
-            case JUGO:
-                return costoConsolidadoJugo;
-
-            case CASCARA:
-                return costoConsolidadoCascara;
-
-            case ACEITE:
-                return costoConsolidadoAceite;
-
-            default:
-                return 0;
-        }
+        return modelo.datos.importeConsolidacion(
+            modelo.diaCampania(),
+            idUbicacion,
+            producto,
+            toneladas,
+            contenedores
+        );
     }
 }

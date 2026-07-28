@@ -86,22 +86,54 @@ public class VolcarDatos {
 			System.out.println(x.origen + "\t" + x.destino + "\t" + x.distanciaKm);
 		}
 
-		hoja("TarifaAlmacenamiento", "id_ubicacion\tproducto\tstorage_usd_tn_dia"
-				+ "\toportunidad_usd_tn_dia\tpenalidad_sobrecarga_usd_tn_dia");
-		for (DatosEntrada.TarifaAlmacenamiento t : d.tarifasAlmacenamiento) {
-			System.out.println(t.idUbicacion + "\t" + t.producto + "\t" + t.storageUsdTnDia
-					+ "\t" + t.oportunidadUsdTnDia + "\t" + t.penalidadSobrecargaUsdTnDia);
+		hoja("TarifaSitio", "id_ubicacion\tproducto\tin_usd_tn\tstorage_usd_tn_dia\tout_usd_tn"
+				+ "\toportunidad_usd_tn_dia\tpenalidad_sobrecarga_usd_tn_dia"
+				+ "\tconsolidacion_tarifa\tconsolidacion_unidad"
+				+ "\tcross_dock_tarifa\tcross_dock_unidad"
+				+ "\tthc_usd_contenedor\tcosto_terminal_usd_contenedor"
+				+ "\tdespachante_tarifa\tdespachante_unidad"
+				+ "\tproveedor\tvigencia_desde\tvigencia_hasta\thabilitada");
+		for (DatosEntrada.TarifaSitio t : d.tarifasSitio) {
+			System.out.println(t.idUbicacion + "\t" + t.producto
+					+ "\t" + t.inUsdTn + "\t" + t.storageUsdTnDia + "\t" + t.outUsdTn
+					+ "\t" + t.oportunidadUsdTnDia + "\t" + t.penalidadSobrecargaUsdTnDia
+					+ "\t" + t.consolidacionTarifa + "\t" + t.consolidacionUnidad
+					+ "\t" + t.crossDockTarifa + "\t" + t.crossDockUnidad
+					+ "\t" + t.thcUsdContenedor + "\t" + t.costoTerminalUsdContenedor
+					+ "\t" + t.despachanteTarifa + "\t" + t.despachanteUnidad
+					+ "\t" + t.proveedor + "\t" + t.vigenciaDesde + "\t" + t.vigenciaHasta
+					+ "\t" + t.habilitada);
 		}
 
-		hoja("TarifaFleteProducto", "origen\tdestino\tproducto\ttarifa_usd_tn");
+		hoja("TarifaFleteProducto", "origen\tdestino\tproducto\ttipo_camion\tcapacidad_camion_tn"
+				+ "\tunidad\ttarifa\tvariable_usd_tn"
+				+ "\tproveedor\tvigencia_desde\tvigencia_hasta\thabilitada");
 		for (DatosEntrada.TarifaFlete t : d.tarifasFlete) {
-			System.out.println(t.origen + "\t" + t.destino + "\t" + t.producto + "\t" + t.tarifaUsdTn);
+			System.out.println(t.origen + "\t" + t.destino + "\t" + t.producto
+					+ "\t" + t.tipoCamion + "\t" + t.capacidadCamionTn
+					+ "\t" + t.unidad + "\t" + t.tarifa + "\t" + t.variableUsdTn
+					+ "\t" + t.proveedor + "\t" + t.vigenciaDesde + "\t" + t.vigenciaHasta
+					+ "\t" + t.habilitada);
 		}
 
-		hoja("TarifaServicioCarga", "id_ubicacion\tproducto\ttipo_servicio\ttarifa_usd_tn");
-		for (DatosEntrada.TarifaServicioCarga t : d.tarifasServicioCarga) {
-			System.out.println(t.idUbicacion + "\t" + t.producto + "\t" + t.tipoServicio
-					+ "\t" + t.tarifaUsdTn);
+		hoja("TarifaRoundTrip", "terminal\tsitio\ttipo_contenedor\ttarifa_usd_contenedor"
+				+ "\thoras_espera_incluidas\ttarifa_espera_usd_hora"
+				+ "\tproveedor\tvigencia_desde\tvigencia_hasta\thabilitada");
+		for (DatosEntrada.TarifaRoundTrip t : d.tarifasRoundTrip) {
+			System.out.println(t.terminal + "\t" + t.sitio + "\t" + t.tipoContenedor
+					+ "\t" + t.tarifaUsdContenedor
+					+ "\t" + t.horasEsperaIncluidas + "\t" + t.tarifaEsperaUsdHora
+					+ "\t" + t.proveedor + "\t" + t.vigenciaDesde + "\t" + t.vigenciaHasta
+					+ "\t" + t.habilitada);
+		}
+
+		hoja("TarifaEspera", "tipo_recurso\tid_ubicacion\tfranquicia_horas\tusd_hora"
+				+ "\tproveedor\tvigencia_desde\tvigencia_hasta\thabilitada");
+		for (DatosEntrada.TarifaEspera t : d.tarifasEspera) {
+			System.out.println(t.tipoRecurso + "\t" + t.idUbicacion
+					+ "\t" + t.franquiciaHoras + "\t" + t.usdHora
+					+ "\t" + t.proveedor + "\t" + t.vigenciaDesde + "\t" + t.vigenciaHasta
+					+ "\t" + t.habilitada);
 		}
 
 		hoja("ProduccionPlan", "id_escenario\tdia\tproducto\tproduccion_tn");

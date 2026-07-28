@@ -123,52 +123,171 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 	}
 
-	public static class TarifaAlmacenamiento implements java.io.Serializable {
-		private static final long serialVersionUID = 1L;
-		public String idUbicacion;
-		public TipoProducto producto;
-		public double storageUsdTnDia;               // lo que se factura: entra al costo de caja
-		public double oportunidadUsdTnDia;           // costo de oportunidad del frio propio (ADR-049)
-		public double penalidadSobrecargaUsdTnDia;   // por tonelada y dia sobre la capacidad nominal
+	/**
+	 * Unidad contractual de una tarifa. El importe no se deduce del nombre del
+	 * campo: la unidad es un dato, porque el mismo concepto se contrata por viaje,
+	 * por tonelada o por contenedor segun el proveedor (ADR-051).
+	 */
+	public enum Unidad {
+		USD_VIAJE, USD_TN, USD_CONTENEDOR, USD_TN_DIA, USD_HORA, USD_OPERACION, USD_PEDIDO
+	}
 
-		public TarifaAlmacenamiento(String idUbicacion, TipoProducto producto, double storageUsdTnDia,
-				double oportunidadUsdTnDia, double penalidadSobrecargaUsdTnDia) {
-			this.idUbicacion = idUbicacion;
-			this.producto = producto;
-			this.storageUsdTnDia = storageUsdTnDia;
-			this.oportunidadUsdTnDia = oportunidadUsdTnDia;
-			this.penalidadSobrecargaUsdTnDia = penalidadSobrecargaUsdTnDia;
+	/**
+	 * Lo que toda tarifa tiene ademas del importe: quien la cobra y desde cuando.
+	 * Las tarifas reales cambian por mes, asi que una clave no tiene un valor unico
+	 * y toda consulta resuelve por dia de campania (ADR-051).
+	 */
+	public static abstract class Tarifa implements java.io.Serializable {
+		private static final long serialVersionUID = 1L;
+		public String proveedor;
+		public int vigenciaDesde;                    // dia de campania, inclusive
+		public int vigenciaHasta;                    // dia de campania, inclusive
+		public boolean habilitada;
+
+		protected Tarifa(String proveedor, int vigenciaDesde, int vigenciaHasta, boolean habilitada) {
+			this.proveedor = proveedor;
+			this.vigenciaDesde = vigenciaDesde;
+			this.vigenciaHasta = vigenciaHasta;
+			this.habilitada = habilitada;
+		}
+
+		public boolean vigente(int dia) {
+			return habilitada && dia >= vigenciaDesde && dia <= vigenciaHasta;
+		}
+
+		public String vigenciaTexto() {
+			return "dias " + vigenciaDesde + "-" + vigenciaHasta;
 		}
 	}
 
-	public static class TarifaFlete implements java.io.Serializable {
+	/**
+	 * Transporte de producto a granel. El contrato real se cobra por viaje; la
+	 * unidad queda explicita para poder cargar tambien tarifas por tonelada, y
+	 * variableUsdTn cubre la parte variable de los contratos que tienen las dos.
+	 */
+	public static class TarifaFlete extends Tarifa {
 		private static final long serialVersionUID = 1L;
 		public String origen;
 		public String destino;
 		public TipoProducto producto;
-		public double tarifaUsdTn;
+		public String tipoCamion;
+		public double capacidadCamionTn;
+		public Unidad unidad;                        // USD_VIAJE o USD_TN
+		public double tarifa;
+		public double variableUsdTn;                 // componente por tonelada (0 si no aplica)
 
-		public TarifaFlete(String origen, String destino, TipoProducto producto, double tarifaUsdTn) {
+		public TarifaFlete(String origen, String destino, TipoProducto producto, String tipoCamion,
+				double capacidadCamionTn, Unidad unidad, double tarifa, double variableUsdTn,
+				String proveedor, int vigenciaDesde, int vigenciaHasta, boolean habilitada) {
+			super(proveedor, vigenciaDesde, vigenciaHasta, habilitada);
 			this.origen = origen;
 			this.destino = destino;
 			this.producto = producto;
-			this.tarifaUsdTn = tarifaUsdTn;
+			this.tipoCamion = tipoCamion;
+			this.capacidadCamionTn = capacidadCamionTn;
+			this.unidad = unidad;
+			this.tarifa = tarifa;
+			this.variableUsdTn = variableUsdTn;
 		}
 	}
 
-	public static class TarifaServicioCarga implements java.io.Serializable {
+	/**
+	 * Ciclo del portacontenedor terminal -> sitio -> terminal. Es una tarifa por
+	 * contenedor y no por kilometro: el proveedor cotiza el circuito completo, con
+	 * horas de espera incluidas y un adicional por hora cuando se pasa (ADR-051).
+	 */
+	public static class TarifaRoundTrip extends Tarifa {
+		private static final long serialVersionUID = 1L;
+		public String terminal;
+		public String sitio;
+		public TipoContenedor tipoContenedor;
+		public double tarifaUsdContenedor;
+		public double horasEsperaIncluidas;
+		public double tarifaEsperaUsdHora;
+
+		public TarifaRoundTrip(String terminal, String sitio, TipoContenedor tipoContenedor,
+				double tarifaUsdContenedor, double horasEsperaIncluidas, double tarifaEsperaUsdHora,
+				String proveedor, int vigenciaDesde, int vigenciaHasta, boolean habilitada) {
+			super(proveedor, vigenciaDesde, vigenciaHasta, habilitada);
+			this.terminal = terminal;
+			this.sitio = sitio;
+			this.tipoContenedor = tipoContenedor;
+			this.tarifaUsdContenedor = tarifaUsdContenedor;
+			this.horasEsperaIncluidas = horasEsperaIncluidas;
+			this.tarifaEsperaUsdHora = tarifaEsperaUsdHora;
+		}
+	}
+
+	/**
+	 * Todo lo que cobra un sitio por un producto: una fila por sitio, producto y
+	 * vigencia. Planta, deposito y terminal comparten la tabla porque comparten los
+	 * conceptos; lo que cambia son los que valen cero (la planta no factura
+	 * almacenaje, el deposito no cobra THC).
+	 */
+	public static class TarifaSitio extends Tarifa {
 		private static final long serialVersionUID = 1L;
 		public String idUbicacion;
 		public TipoProducto producto;
-		public String tipoServicio;                  // CONSOLIDACION o CROSS_DOCK
-		public double tarifaUsdTn;
+		public double inUsdTn;                       // ingreso al almacenamiento
+		public double storageUsdTnDia;               // lo que se factura: entra al costo de caja
+		public double outUsdTn;                      // egreso del almacenamiento
+		public double oportunidadUsdTnDia;           // costo de oportunidad del frio propio (ADR-049)
+		public double penalidadSobrecargaUsdTnDia;   // por tonelada y dia sobre la capacidad nominal
+		public double consolidacionTarifa;
+		public Unidad consolidacionUnidad;           // USD_CONTENEDOR o USD_TN
+		public double crossDockTarifa;
+		public Unidad crossDockUnidad;
+		public double thcUsdContenedor;              // solo terminal
+		public double costoTerminalUsdContenedor;    // solo terminal
+		public double despachanteTarifa;             // solo terminal
+		public Unidad despachanteUnidad;             // USD_CONTENEDOR o USD_PEDIDO
 
-		public TarifaServicioCarga(String idUbicacion, TipoProducto producto, String tipoServicio,
-				double tarifaUsdTn) {
+		public TarifaSitio(String idUbicacion, TipoProducto producto, double inUsdTn,
+				double storageUsdTnDia, double outUsdTn, double oportunidadUsdTnDia,
+				double penalidadSobrecargaUsdTnDia, double consolidacionTarifa,
+				Unidad consolidacionUnidad, double crossDockTarifa, Unidad crossDockUnidad,
+				double thcUsdContenedor, double costoTerminalUsdContenedor, double despachanteTarifa,
+				Unidad despachanteUnidad, String proveedor, int vigenciaDesde, int vigenciaHasta,
+				boolean habilitada) {
+			super(proveedor, vigenciaDesde, vigenciaHasta, habilitada);
 			this.idUbicacion = idUbicacion;
 			this.producto = producto;
-			this.tipoServicio = tipoServicio;
-			this.tarifaUsdTn = tarifaUsdTn;
+			this.inUsdTn = inUsdTn;
+			this.storageUsdTnDia = storageUsdTnDia;
+			this.outUsdTn = outUsdTn;
+			this.oportunidadUsdTnDia = oportunidadUsdTnDia;
+			this.penalidadSobrecargaUsdTnDia = penalidadSobrecargaUsdTnDia;
+			this.consolidacionTarifa = consolidacionTarifa;
+			this.consolidacionUnidad = consolidacionUnidad;
+			this.crossDockTarifa = crossDockTarifa;
+			this.crossDockUnidad = crossDockUnidad;
+			this.thcUsdContenedor = thcUsdContenedor;
+			this.costoTerminalUsdContenedor = costoTerminalUsdContenedor;
+			this.despachanteTarifa = despachanteTarifa;
+			this.despachanteUnidad = despachanteUnidad;
+		}
+	}
+
+	/**
+	 * Espera de un camion o de un portacontenedor por encima de la franquicia. En
+	 * cero no cambia ningun numero: la estructura queda lista para cuando el dato
+	 * exista (C1, seccion 4.2 de la especificacion de costos).
+	 */
+	public static class TarifaEspera extends Tarifa {
+		private static final long serialVersionUID = 1L;
+		public String tipoRecurso;                   // CAMION_PRODUCTO o PORTACONTENEDOR
+		public String idUbicacion;
+		public double franquiciaHoras;
+		public double usdHora;
+
+		public TarifaEspera(String tipoRecurso, String idUbicacion, double franquiciaHoras,
+				double usdHora, String proveedor, int vigenciaDesde, int vigenciaHasta,
+				boolean habilitada) {
+			super(proveedor, vigenciaDesde, vigenciaHasta, habilitada);
+			this.tipoRecurso = tipoRecurso;
+			this.idUbicacion = idUbicacion;
+			this.franquiciaHoras = franquiciaHoras;
+			this.usdHora = usdHora;
 		}
 	}
 
@@ -210,9 +329,10 @@ public class DatosEntrada implements java.io.Serializable {
 	public java.util.List<Capacidad> capacidades = new java.util.ArrayList<Capacidad>();
 	public java.util.List<Producto> productos = new java.util.ArrayList<Producto>();
 	public java.util.List<Distancia> distancias = new java.util.ArrayList<Distancia>();
-	public java.util.List<TarifaAlmacenamiento> tarifasAlmacenamiento = new java.util.ArrayList<TarifaAlmacenamiento>();
+	public java.util.List<TarifaSitio> tarifasSitio = new java.util.ArrayList<TarifaSitio>();
 	public java.util.List<TarifaFlete> tarifasFlete = new java.util.ArrayList<TarifaFlete>();
-	public java.util.List<TarifaServicioCarga> tarifasServicioCarga = new java.util.ArrayList<TarifaServicioCarga>();
+	public java.util.List<TarifaRoundTrip> tarifasRoundTrip = new java.util.ArrayList<TarifaRoundTrip>();
+	public java.util.List<TarifaEspera> tarifasEspera = new java.util.ArrayList<TarifaEspera>();
 	public java.util.List<ProduccionPlan> produccionPlan = new java.util.ArrayList<ProduccionPlan>();
 	public java.util.List<PedidoPlan> pedidoPlan = new java.util.ArrayList<PedidoPlan>();
 
@@ -282,63 +402,183 @@ public class DatosEntrada implements java.io.Serializable {
 		return ubicacion(idUbicacion).contenedoresPorDia;
 	}
 
-	public double storageUsdTnDia(String idUbicacion, TipoProducto producto) {
-		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
-			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
-				return t.storageUsdTnDia;
+	/**
+	 * Resuelve la fila de tarifa del sitio vigente ese dia. Dos filas vigentes para
+	 * la misma clave es un error de datos y no un empate a resolver por orden de
+	 * carga: el modelo no elige tarifa.
+	 */
+	public TarifaSitio tarifaSitio(int dia, String idUbicacion, TipoProducto producto) {
+		TarifaSitio encontrada = null;
+		for (TarifaSitio t : tarifasSitio) {
+			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto && t.vigente(dia)) {
+				if (encontrada != null) {
+					throw new RuntimeException("Dos tarifas vigentes el dia " + dia + " para " + producto
+							+ " en " + idUbicacion + " (" + encontrada.vigenciaTexto() + " y "
+							+ t.vigenciaTexto() + ", tabla TarifaSitio).");
+				}
+				encontrada = t;
 			}
 		}
-		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
-				+ " (tabla TarifaAlmacenamiento).");
+		if (encontrada == null) {
+			throw new RuntimeException("Falta la tarifa de " + producto + " en " + idUbicacion
+					+ " vigente el dia " + dia + " (tabla TarifaSitio).");
+		}
+		return encontrada;
+	}
+
+	public double storageUsdTnDia(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).storageUsdTnDia;
+	}
+
+	public double inUsdTn(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).inUsdTn;
+	}
+
+	public double outUsdTn(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).outUsdTn;
 	}
 
 	/**
 	 * Costo de oportunidad del frio propio: no se factura, pero sin el la planta
 	 * es gratis y toda comparacion de estrategias la elige siempre (ADR-049).
 	 */
-	public double oportunidadUsdTnDia(String idUbicacion, TipoProducto producto) {
-		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
-			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
-				return t.oportunidadUsdTnDia;
-			}
-		}
-		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
-				+ " (tabla TarifaAlmacenamiento).");
+	public double oportunidadUsdTnDia(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).oportunidadUsdTnDia;
 	}
 
-	public double penalidadSobrecargaUsdTnDia(String idUbicacion, TipoProducto producto) {
-		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
-			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
-				return t.penalidadSobrecargaUsdTnDia;
-			}
-		}
-		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
-				+ " (tabla TarifaAlmacenamiento).");
+	public double penalidadSobrecargaUsdTnDia(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).penalidadSobrecargaUsdTnDia;
 	}
 
-	public double fleteUsdTn(String origen, String destino, TipoProducto producto) {
+	public double thcUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
+		return tarifaSitio(dia, idTerminal, producto).thcUsdContenedor;
+	}
+
+	public double costoTerminalUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
+		return tarifaSitio(dia, idTerminal, producto).costoTerminalUsdContenedor;
+	}
+
+	/**
+	 * Importe del servicio de estiba o de cross dock. La unidad decide si se cobra
+	 * por tonelada o por contenedor, asi que cambiar de una a otra es cambiar el
+	 * dato y no la formula (correccion 3 de la especificacion de costos).
+	 */
+	public double importeConsolidacion(int dia, String idUbicacion, TipoProducto producto,
+			double toneladas, int contenedores) {
+		TarifaSitio t = tarifaSitio(dia, idUbicacion, producto);
+		return importe(t.consolidacionUnidad, t.consolidacionTarifa, toneladas, contenedores,
+				"consolidacion de " + producto + " en " + idUbicacion);
+	}
+
+	public double importeCrossDock(int dia, String idUbicacion, TipoProducto producto,
+			double toneladas, int contenedores) {
+		TarifaSitio t = tarifaSitio(dia, idUbicacion, producto);
+		return importe(t.crossDockUnidad, t.crossDockTarifa, toneladas, contenedores,
+				"cross dock de " + producto + " en " + idUbicacion);
+	}
+
+	public double importeDespachante(int dia, String idTerminal, TipoProducto producto,
+			int contenedores, int pedidos) {
+		TarifaSitio t = tarifaSitio(dia, idTerminal, producto);
+		if (t.despachanteUnidad == Unidad.USD_PEDIDO) {
+			return t.despachanteTarifa * pedidos;
+		}
+		return t.despachanteTarifa * contenedores;
+	}
+
+	private double importe(Unidad unidad, double tarifa, double toneladas, int contenedores,
+			String concepto) {
+		if (unidad == Unidad.USD_CONTENEDOR) {
+			return tarifa * contenedores;
+		}
+		if (unidad == Unidad.USD_TN) {
+			return tarifa * toneladas;
+		}
+		throw new RuntimeException("Unidad " + unidad + " no valida para la " + concepto + ".");
+	}
+
+	public TarifaFlete tarifaFlete(int dia, String origen, String destino, TipoProducto producto) {
+		TarifaFlete encontrada = null;
 		for (TarifaFlete t : tarifasFlete) {
-			if (t.origen.equals(origen) && t.destino.equals(destino) && t.producto == producto) {
-				return t.tarifaUsdTn;
+			if (t.origen.equals(origen) && t.destino.equals(destino) && t.producto == producto
+					&& t.vigente(dia)) {
+				if (encontrada != null) {
+					throw new RuntimeException("Dos tarifas de flete vigentes el dia " + dia + ": "
+							+ origen + " -> " + destino + " de " + producto + " ("
+							+ encontrada.vigenciaTexto() + " y " + t.vigenciaTexto()
+							+ ", tabla TarifaFleteProducto).");
+				}
+				encontrada = t;
 			}
 		}
-		throw new RuntimeException("Falta la tarifa de flete " + origen + " -> " + destino + " de " + producto
-				+ " (tabla TarifaFleteProducto).");
+		if (encontrada == null) {
+			throw new RuntimeException("Falta la tarifa de flete " + origen + " -> " + destino + " de "
+					+ producto + " vigente el dia " + dia + " (tabla TarifaFleteProducto).");
+		}
+		return encontrada;
 	}
 
-	public double servicioCargaUsdTn(String idUbicacion, TipoProducto producto) {
-		return servicioCargaUsdTn(idUbicacion, producto, "CONSOLIDACION");
+	/**
+	 * Importe del transporte de producto. Por viaje se cobra el viaje completo
+	 * aunque el camion vaya a medio cargar, que es el contrato real; por tonelada se
+	 * cobra lo que se movio.
+	 */
+	public double importeFlete(int dia, String origen, String destino, TipoProducto producto,
+			double toneladas, int viajes) {
+		TarifaFlete t = tarifaFlete(dia, origen, destino, producto);
+		double base = t.unidad == Unidad.USD_VIAJE ? t.tarifa * viajes : t.tarifa * toneladas;
+		return base + t.variableUsdTn * toneladas;
 	}
 
-	public double servicioCargaUsdTn(String idUbicacion, TipoProducto producto, String tipoServicio) {
-		for (TarifaServicioCarga t : tarifasServicioCarga) {
-			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto
-					&& t.tipoServicio.equals(tipoServicio)) {
-				return t.tarifaUsdTn;
+	public TarifaRoundTrip tarifaRoundTrip(int dia, String idTerminal, String sitio,
+			TipoContenedor tipoContenedor) {
+		TarifaRoundTrip encontrada = null;
+		for (TarifaRoundTrip t : tarifasRoundTrip) {
+			if (t.terminal.equals(idTerminal) && t.sitio.equals(sitio)
+					&& t.tipoContenedor == tipoContenedor && t.vigente(dia)) {
+				if (encontrada != null) {
+					throw new RuntimeException("Dos tarifas de round trip vigentes el dia " + dia + ": "
+							+ idTerminal + " <-> " + sitio + " en " + tipoContenedor + " ("
+							+ encontrada.vigenciaTexto() + " y " + t.vigenciaTexto()
+							+ ", tabla TarifaRoundTrip).");
+				}
+				encontrada = t;
 			}
 		}
-		throw new RuntimeException("Falta la tarifa de " + tipoServicio + " de " + producto + " en "
-				+ idUbicacion + " (tabla TarifaServicioCarga).");
+		if (encontrada == null) {
+			throw new RuntimeException("Falta la tarifa de round trip " + idTerminal + " <-> " + sitio
+					+ " en " + tipoContenedor + " vigente el dia " + dia + " (tabla TarifaRoundTrip).");
+		}
+		return encontrada;
+	}
+
+	public double roundTripUsdContenedor(int dia, String idTerminal, String sitio,
+			TipoContenedor tipoContenedor) {
+		return tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedor).tarifaUsdContenedor;
+	}
+
+	/**
+	 * Espera del recurso sobre la franquicia. Devuelve cero mientras la tarifa este
+	 * en cero, que es el estado hasta que se cargue el dato real.
+	 */
+	public double importeEspera(int dia, String tipoRecurso, String idUbicacion, double horas) {
+		TarifaEspera encontrada = null;
+		for (TarifaEspera t : tarifasEspera) {
+			if (t.tipoRecurso.equals(tipoRecurso) && t.idUbicacion.equals(idUbicacion)
+					&& t.vigente(dia)) {
+				if (encontrada != null) {
+					throw new RuntimeException("Dos tarifas de espera vigentes el dia " + dia + " para "
+							+ tipoRecurso + " en " + idUbicacion + " (tabla TarifaEspera).");
+				}
+				encontrada = t;
+			}
+		}
+		if (encontrada == null) {
+			throw new RuntimeException("Falta la tarifa de espera de " + tipoRecurso + " en "
+					+ idUbicacion + " vigente el dia " + dia + " (tabla TarifaEspera).");
+		}
+		double excedente = horas - encontrada.franquiciaHoras;
+		return excedente <= 0 ? 0 : excedente * encontrada.usdHora;
 	}
 
 	/**
@@ -487,31 +727,88 @@ public class DatosEntrada implements java.io.Serializable {
 			}
 		}
 
-		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
+		for (TarifaSitio t : tarifasSitio) {
 			if (!existeUbicacion(t.idUbicacion)) {
-				errores.add("TarifaAlmacenamiento referencia la ubicacion inexistente " + t.idUbicacion + ".");
+				errores.add("TarifaSitio referencia la ubicacion inexistente " + t.idUbicacion + ".");
 			}
-			if (t.storageUsdTnDia < 0) {
-				errores.add("storage_usd_tn_dia negativa en " + t.idUbicacion + " / " + t.producto + ".");
+			String donde = t.idUbicacion + " / " + t.producto + " (" + t.vigenciaTexto() + ")";
+			if (t.inUsdTn < 0 || t.storageUsdTnDia < 0 || t.outUsdTn < 0) {
+				errores.add("in/storage/out no pueden ser negativos en " + donde + ".");
 			}
-			if (t.oportunidadUsdTnDia < 0) {
-				errores.add("oportunidad_usd_tn_dia negativa en " + t.idUbicacion + " / " + t.producto + ".");
+			if (t.oportunidadUsdTnDia < 0 || t.penalidadSobrecargaUsdTnDia < 0) {
+				errores.add("oportunidad y penalidad no pueden ser negativas en " + donde + ".");
 			}
-			if (t.penalidadSobrecargaUsdTnDia < 0) {
-				errores.add("penalidad_sobrecarga_usd_tn_dia negativa en "
-						+ t.idUbicacion + " / " + t.producto + ".");
+			if (t.consolidacionTarifa < 0 || t.crossDockTarifa < 0) {
+				errores.add("consolidacion y cross dock no pueden ser negativas en " + donde + ".");
 			}
+			if (t.thcUsdContenedor < 0 || t.costoTerminalUsdContenedor < 0 || t.despachanteTarifa < 0) {
+				errores.add("thc, costo terminal y despachante no pueden ser negativos en " + donde + ".");
+			}
+			// Una unidad que el modelo no sabe cobrar es un error de carga, no un cero.
+			if (t.consolidacionUnidad != Unidad.USD_TN && t.consolidacionUnidad != Unidad.USD_CONTENEDOR) {
+				errores.add("consolidacion_unidad debe ser USD_TN o USD_CONTENEDOR en " + donde + ".");
+			}
+			if (t.crossDockUnidad != Unidad.USD_TN && t.crossDockUnidad != Unidad.USD_CONTENEDOR) {
+				errores.add("cross_dock_unidad debe ser USD_TN o USD_CONTENEDOR en " + donde + ".");
+			}
+			if (t.despachanteUnidad != Unidad.USD_CONTENEDOR && t.despachanteUnidad != Unidad.USD_PEDIDO) {
+				errores.add("despachante_unidad debe ser USD_CONTENEDOR o USD_PEDIDO en " + donde + ".");
+			}
+			errores.addAll(vigenciaInvalida("TarifaSitio", donde, t));
 		}
 
 		for (TarifaFlete t : tarifasFlete) {
+			String donde = t.origen + " -> " + t.destino + " / " + t.producto
+					+ " (" + t.vigenciaTexto() + ")";
 			if (!existeUbicacion(t.origen) || !existeUbicacion(t.destino)) {
-				errores.add("TarifaFleteProducto referencia una ubicacion inexistente: "
-						+ t.origen + " -> " + t.destino + ".");
+				errores.add("TarifaFleteProducto referencia una ubicacion inexistente: " + donde + ".");
 			}
-			if (t.tarifaUsdTn <= 0) {
-				errores.add("tarifa debe ser > 0 en " + t.origen + " -> " + t.destino + " / " + t.producto + ".");
+			if (t.tarifa <= 0) {
+				errores.add("La tarifa de flete debe ser > 0 en " + donde + ".");
 			}
+			if (t.variableUsdTn < 0) {
+				errores.add("variable_usd_tn no puede ser negativa en " + donde + ".");
+			}
+			if (t.unidad != Unidad.USD_VIAJE && t.unidad != Unidad.USD_TN) {
+				errores.add("unidad debe ser USD_VIAJE o USD_TN en " + donde + ".");
+			}
+			// Por viaje sin capacidad no se puede saber cuantos viajes hacen falta.
+			if (t.unidad == Unidad.USD_VIAJE && t.capacidadCamionTn <= 0) {
+				errores.add("capacidad_camion_tn debe ser > 0 para una tarifa por viaje en " + donde + ".");
+			}
+			errores.addAll(vigenciaInvalida("TarifaFleteProducto", donde, t));
 		}
+
+		for (TarifaRoundTrip t : tarifasRoundTrip) {
+			String donde = t.terminal + " <-> " + t.sitio + " / " + t.tipoContenedor
+					+ " (" + t.vigenciaTexto() + ")";
+			if (!existeUbicacion(t.terminal) || !existeUbicacion(t.sitio)) {
+				errores.add("TarifaRoundTrip referencia una ubicacion inexistente: " + donde + ".");
+			}
+			if (t.tarifaUsdContenedor <= 0) {
+				errores.add("tarifa_usd_contenedor debe ser > 0 en " + donde + ".");
+			}
+			if (t.horasEsperaIncluidas < 0 || t.tarifaEsperaUsdHora < 0) {
+				errores.add("La espera del round trip no puede ser negativa en " + donde + ".");
+			}
+			errores.addAll(vigenciaInvalida("TarifaRoundTrip", donde, t));
+		}
+
+		for (TarifaEspera t : tarifasEspera) {
+			String donde = t.tipoRecurso + " en " + t.idUbicacion + " (" + t.vigenciaTexto() + ")";
+			if (!existeUbicacion(t.idUbicacion)) {
+				errores.add("TarifaEspera referencia la ubicacion inexistente " + t.idUbicacion + ".");
+			}
+			if (!t.tipoRecurso.equals("CAMION_PRODUCTO") && !t.tipoRecurso.equals("PORTACONTENEDOR")) {
+				errores.add("tipo_recurso invalido en " + donde + ".");
+			}
+			if (t.franquiciaHoras < 0 || t.usdHora < 0) {
+				errores.add("La espera no puede ser negativa en " + donde + ".");
+			}
+			errores.addAll(vigenciaInvalida("TarifaEspera", donde, t));
+		}
+
+		errores.addAll(coberturaTarifas());
 
 		// Toda combinacion alcanzable deposito x terminal x producto necesita
 		// almacenamiento, flete y consolidacion: si falta, la corrida abortaria a
@@ -519,25 +816,9 @@ public class DatosEntrada implements java.io.Serializable {
 		for (Ubicacion deposito : ubicacionesDeTipo("DEPOSITO")) {
 			for (TipoProducto producto : TipoProducto.values()) {
 				errores.addAll(faltante(deposito.idUbicacion, producto));
-				// Consolidar en el deposito necesita su propia tarifa de estiba, y
-				// hacer cross dock ahi tiene su propia tarifa: no es el mismo servicio.
-				try {
-					servicioCargaUsdTn(deposito.idUbicacion, producto);
-				} catch (RuntimeException e) {
-					errores.add(e.getMessage());
-				}
-				if (deposito.posicionesCrossDock > 0) {
-					try {
-						servicioCargaUsdTn(deposito.idUbicacion, producto, "CROSS_DOCK");
-					} catch (RuntimeException e) {
-						errores.add(e.getMessage());
-					}
-				}
 				for (Ubicacion terminal : ubicacionesDeTipo("TERMINAL")) {
 					try {
-						fleteUsdTn(deposito.idUbicacion, terminal.idUbicacion, producto);
 						distanciaKm(deposito.idUbicacion, terminal.idUbicacion);
-						servicioCargaUsdTn(terminal.idUbicacion, producto);
 					} catch (RuntimeException e) {
 						errores.add(e.getMessage());
 					}
@@ -550,19 +831,12 @@ public class DatosEntrada implements java.io.Serializable {
 		for (TipoProducto producto : TipoProducto.values()) {
 			try {
 				capacidadTn("PLANTA", producto);
-				// La planta no factura almacenaje, pero su costo de oportunidad y su
-				// penalidad de sobrecarga son datos, no cero implicito (ADR-049).
-				storageUsdTnDia("PLANTA", producto);
-				// Consolidar en planta es un circuito posible (ADR-050): sin tarifa de
-				// estiba, sin distancia y sin flete al puerto saldria gratis.
-				servicioCargaUsdTn("PLANTA", producto);
 			} catch (RuntimeException e) {
 				errores.add(e.getMessage());
 			}
 			for (Ubicacion terminal : ubicacionesDeTipo("TERMINAL")) {
 				try {
 					distanciaKm("PLANTA", terminal.idUbicacion);
-					fleteUsdTn("PLANTA", terminal.idUbicacion, producto);
 				} catch (RuntimeException e) {
 					errores.add(e.getMessage());
 				}
@@ -621,12 +895,120 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.add(e.getMessage());
 		}
 		try {
-			storageUsdTnDia(idDeposito, producto);
+			distanciaKm("PLANTA", idDeposito);
 		} catch (RuntimeException e) {
 			errores.add(e.getMessage());
 		}
+		return errores;
+	}
+
+	private java.util.List<String> vigenciaInvalida(String tabla, String donde, Tarifa t) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		if (t.vigenciaHasta < t.vigenciaDesde) {
+			errores.add(tabla + ": vigencia_hasta < vigencia_desde en " + donde + ".");
+		}
+		if (t.proveedor == null || t.proveedor.trim().isEmpty()) {
+			errores.add(tabla + ": proveedor vacio en " + donde + ".");
+		}
+		return errores;
+	}
+
+	/**
+	 * Toda tarifa que la campania va a necesitar tiene que estar cubierta todos los
+	 * dias por exactamente una fila habilitada. Con tarifas mensuales, un hueco de
+	 * un dia aborta la corrida a mitad de campania y una superposicion la hace
+	 * depender del orden de carga; las dos cosas son errores de datos.
+	 */
+	private java.util.List<String> coberturaTarifas() {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+
+		int dias = escenario.duracionCampaniaDias;
+		java.util.List<Ubicacion> depositos = ubicacionesDeTipo("DEPOSITO");
+		java.util.List<Ubicacion> terminales = ubicacionesDeTipo("TERMINAL");
+
+		for (int dia = 0; dia <= dias; dia++) {
+			for (TipoProducto producto : TipoProducto.values()) {
+
+				// La planta es origen posible de despacho y sitio de estiba (ADR-050).
+				errores.addAll(unaSola(dia, "PLANTA", producto));
+
+				for (Ubicacion deposito : depositos) {
+					errores.addAll(unaSola(dia, deposito.idUbicacion, producto));
+					errores.addAll(unaSolaFlete(dia, "PLANTA", deposito.idUbicacion, producto));
+				}
+
+				for (Ubicacion terminal : terminales) {
+					errores.addAll(unaSola(dia, terminal.idUbicacion, producto));
+					errores.addAll(unaSolaFlete(dia, "PLANTA", terminal.idUbicacion, producto));
+					errores.addAll(unaSolaRoundTrip(dia, terminal.idUbicacion, "PLANTA", producto));
+
+					for (Ubicacion deposito : depositos) {
+						errores.addAll(unaSolaFlete(dia, deposito.idUbicacion, terminal.idUbicacion,
+								producto));
+						errores.addAll(unaSolaRoundTrip(dia, terminal.idUbicacion, deposito.idUbicacion,
+								producto));
+					}
+				}
+			}
+
+			// La espera es por recurso y sitio, no por producto.
+			for (Ubicacion deposito : depositos) {
+				errores.addAll(unaSolaEspera(dia, "PORTACONTENEDOR", deposito.idUbicacion));
+				errores.addAll(unaSolaEspera(dia, "CAMION_PRODUCTO", deposito.idUbicacion));
+			}
+			errores.addAll(unaSolaEspera(dia, "PORTACONTENEDOR", "PLANTA"));
+			errores.addAll(unaSolaEspera(dia, "CAMION_PRODUCTO", "PLANTA"));
+			for (Ubicacion terminal : terminales) {
+				errores.addAll(unaSolaEspera(dia, "PORTACONTENEDOR", terminal.idUbicacion));
+				errores.addAll(unaSolaEspera(dia, "CAMION_PRODUCTO", terminal.idUbicacion));
+			}
+
+			// Los errores de cobertura se repiten todos los dias del hueco: con el
+			// primer dia alcanza para corregir la fila.
+			if (!errores.isEmpty()) {
+				return errores;
+			}
+		}
+
+		return errores;
+	}
+
+	private java.util.List<String> unaSola(int dia, String idUbicacion, TipoProducto producto) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
 		try {
-			distanciaKm("PLANTA", idDeposito);
+			tarifaSitio(dia, idUbicacion, producto);
+		} catch (RuntimeException e) {
+			errores.add(e.getMessage());
+		}
+		return errores;
+	}
+
+	private java.util.List<String> unaSolaFlete(int dia, String origen, String destino,
+			TipoProducto producto) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		try {
+			tarifaFlete(dia, origen, destino, producto);
+		} catch (RuntimeException e) {
+			errores.add(e.getMessage());
+		}
+		return errores;
+	}
+
+	private java.util.List<String> unaSolaRoundTrip(int dia, String idTerminal, String sitio,
+			TipoProducto producto) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		try {
+			tarifaRoundTrip(dia, idTerminal, sitio, producto(producto).tipoContenedor);
+		} catch (RuntimeException e) {
+			errores.add(e.getMessage());
+		}
+		return errores;
+	}
+
+	private java.util.List<String> unaSolaEspera(int dia, String tipoRecurso, String idUbicacion) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		try {
+			importeEspera(dia, tipoRecurso, idUbicacion, 0);
 		} catch (RuntimeException e) {
 			errores.add(e.getMessage());
 		}

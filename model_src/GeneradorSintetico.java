@@ -129,6 +129,31 @@ public class GeneradorSintetico implements java.io.Serializable {
 	// la sobrecarga se mide en tn-dia y no se disfraza de plata (ADR-048).
 	private static final double PENALIDAD_SOBRECARGA = 0;
 
+	// Flete de producto planta -> deposito. Estaban cableados en Main como
+	// costo_fijo_viaje, costo_km y costo_tn; ahora son la tarifa por viaje de la
+	// tabla, con el mismo valor, para que la migracion no mueva ningun numero
+	// (ADR-051). El componente por tonelada es la parte variable del contrato.
+	private static final double COSTO_FIJO_VIAJE = 150;
+	private static final double COSTO_KM = 1.2;
+	private static final double COSTO_VARIABLE_TN = 2.0;
+
+	private static final String TIPO_CAMION_GRANEL = "GRANEL_25";
+	private static final String PROVEEDOR = "SINTETICO";
+
+	// Tarifas reales cambian por mes (respuesta del negocio, C1): el generador
+	// emite tramos mensuales con el mismo valor, de modo que la resolucion por dia
+	// queda ejercitada sin cambiar resultados. Seis tramos cubren la campania.
+	private static final int DIAS_TRAMO = 31;
+	private static final int TRAMOS = 6;
+
+	// El ultimo tramo queda abierto: una campania mas larga no deja huecos.
+	private static final int SIN_FIN = 9999;
+
+	// Espera de camion y portacontenedor: la estructura queda cargada y en cero
+	// hasta que exista la franquicia real (C1, seccion 4.2).
+	private static final double FRANQUICIA_HORAS = 0;
+	private static final double ESPERA_USD_HORA = 0;
+
 	private static final TipoProducto[] PRODUCTOS = { TipoProducto.JUGO, TipoProducto.CASCARA, TipoProducto.ACEITE };
 
 	private static final TipoContenedor[] CONTENEDOR = {
@@ -250,11 +275,12 @@ public class GeneradorSintetico implements java.io.Serializable {
 				PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i], TON_OBJETIVO_LOTE[i]));
 			datos.capacidades.add(new DatosEntrada.Capacidad(
 				PLANTA, PRODUCTOS[i], CAPACIDAD_PLANTA[i] * escenario.factorCapacidadPlanta));
-			// El frio propio no se factura (storage 0) pero cuesta ocuparlo.
-			datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
-				PLANTA, PRODUCTOS[i], 0, OPORTUNIDAD_PLANTA[i], PENALIDAD_SOBRECARGA));
-			datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-				PLANTA, PRODUCTOS[i], "CONSOLIDACION", ESTIBA_PLANTA[i]));
+
+			// El frio propio no se factura (storage, in y out en cero) pero cuesta
+			// ocuparlo. El cross dock no es un servicio de la planta: se carga con la
+			// tarifa de estiba para que una consulta indebida no salga gratis.
+			tarifaSitio(datos, PLANTA, PRODUCTOS[i], 0, 0, 0, OPORTUNIDAD_PLANTA[i],
+				PENALIDAD_SOBRECARGA, ESTIBA_PLANTA[i], ESTIBA_PLANTA[i], 0, 0, 0);
 		}
 
 		for (int d = 0; d < DEPOSITOS.length; d++) {
@@ -267,14 +293,16 @@ public class GeneradorSintetico implements java.io.Serializable {
 			for (int p = 0; p < PRODUCTOS.length; p++) {
 				datos.capacidades.add(new DatosEntrada.Capacidad(
 					DEPOSITOS[d], PRODUCTOS[p], CAPACIDAD[d][p] * escenario.factorCapacidadDeposito));
-				datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
-					DEPOSITOS[d], PRODUCTOS[p], STORAGE[d][p] * escenario.factorStorage,
-					0, PENALIDAD_SOBRECARGA));
-				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-					DEPOSITOS[d], PRODUCTOS[p], "CONSOLIDACION", ESTIBA_DEPOSITO[d][p]));
-				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-					DEPOSITOS[d], PRODUCTOS[p], "CROSS_DOCK", CROSS_DOCK_DEPOSITO[d][p]));
+
+				// IN y OUT en cero: el deposito de hoy solo cobra almacenaje y estiba.
+				// La columna existe para poder cargar el contrato real sin tocar codigo.
+				tarifaSitio(datos, DEPOSITOS[d], PRODUCTOS[p], 0,
+					STORAGE[d][p] * escenario.factorStorage, 0, 0, PENALIDAD_SOBRECARGA,
+					ESTIBA_DEPOSITO[d][p], CROSS_DOCK_DEPOSITO[d][p], 0, 0, 0);
 			}
+
+			// Flete a granel planta -> deposito, cobrado por viaje.
+			fleteViaje(datos, PLANTA, DEPOSITOS[d], DISTANCIA[d][0], escenario.capacidadCamionTn);
 		}
 
 		for (int t = 0; t < TERMINALES.length; t++) {
@@ -288,24 +316,112 @@ public class GeneradorSintetico implements java.io.Serializable {
 				new DatosEntrada.Distancia(PLANTA, TERMINALES[t], DISTANCIA_PLANTA_TERMINAL[t]));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
-				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-					TERMINALES[t], PRODUCTOS[p], "CONSOLIDACION", CONSOLIDACION[t][p]));
-				datos.tarifasFlete.add(
-					new DatosEntrada.TarifaFlete(PLANTA, TERMINALES[t], PRODUCTOS[p], FLETE_PLANTA[t]));
+				// THC, costo terminal y despachante quedan en cero: son tarifas por
+				// contenedor que todavia no tenemos y que se cobran en C3 (ADR-051).
+				tarifaSitio(datos, TERMINALES[t], PRODUCTOS[p], 0, 0, 0, 0, 0,
+					CONSOLIDACION[t][p], CONSOLIDACION[t][p], 0, 0, 0);
+
+				// Flete de producto a granel hasta la terminal, en usd/tn.
+				fleteTonelada(datos, PLANTA, TERMINALES[t], PRODUCTOS[p], FLETE_PLANTA[t],
+					escenario.capacidadCamionTn);
 			}
+
+			// Round trip del portacontenedor terminal -> sitio -> terminal. El valor
+			// heredado es el que Main cobraba con la formula cableada; C3 lo reemplaza
+			// por la tarifa del proveedor.
+			roundTrip(datos, TERMINALES[t], PLANTA, DISTANCIA_PLANTA_TERMINAL[t]);
 
 			for (int d = 0; d < DEPOSITOS.length; d++) {
 
 				datos.distancias.add(
 					new DatosEntrada.Distancia(DEPOSITOS[d], TERMINALES[t], DISTANCIA[d][t + 1]));
 
+				roundTrip(datos, TERMINALES[t], DEPOSITOS[d], DISTANCIA[d][t + 1]);
+
 				for (int p = 0; p < PRODUCTOS.length; p++) {
 					// El flete producto no depende del producto en los datos de
 					// hoy; la tabla igual lo desagrega porque el Excel real si lo hace.
-					datos.tarifasFlete.add(
-						new DatosEntrada.TarifaFlete(DEPOSITOS[d], TERMINALES[t], PRODUCTOS[p], FLETE[d][t]));
+					fleteTonelada(datos, DEPOSITOS[d], TERMINALES[t], PRODUCTOS[p], FLETE[d][t],
+						escenario.capacidadCamionTn);
 				}
 			}
+		}
+
+		for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+			espera(datos, "CAMION_PRODUCTO", u.idUbicacion);
+			espera(datos, "PORTACONTENEDOR", u.idUbicacion);
+		}
+	}
+
+	/** Primer dia del tramo mensual. El ultimo queda abierto para cubrir la campania. */
+	private static int desde(int tramo) {
+		return tramo * DIAS_TRAMO;
+	}
+
+	private static int hasta(int tramo) {
+		return tramo == TRAMOS - 1 ? SIN_FIN : (tramo + 1) * DIAS_TRAMO - 1;
+	}
+
+	private static void tarifaSitio(DatosEntrada datos, String idUbicacion, TipoProducto producto,
+			double inUsdTn, double storageUsdTnDia, double outUsdTn, double oportunidadUsdTnDia,
+			double penalidadUsdTnDia, double consolidacionUsdTn, double crossDockUsdTn,
+			double thcUsdContenedor, double costoTerminalUsdContenedor, double despachanteUsdContenedor) {
+
+		for (int tramo = 0; tramo < TRAMOS; tramo++) {
+			datos.tarifasSitio.add(new DatosEntrada.TarifaSitio(idUbicacion, producto, inUsdTn,
+				storageUsdTnDia, outUsdTn, oportunidadUsdTnDia, penalidadUsdTnDia,
+				consolidacionUsdTn, DatosEntrada.Unidad.USD_TN,
+				crossDockUsdTn, DatosEntrada.Unidad.USD_TN,
+				thcUsdContenedor, costoTerminalUsdContenedor,
+				despachanteUsdContenedor, DatosEntrada.Unidad.USD_CONTENEDOR,
+				PROVEEDOR, desde(tramo), hasta(tramo), true));
+		}
+	}
+
+	private static void fleteViaje(DatosEntrada datos, String origen, String destino, double km,
+			double capacidadCamionTn) {
+
+		// Mismo valor que la formula cableada: fijo mas kilometraje por viaje, mas la
+		// parte variable por tonelada.
+		double porViaje = COSTO_FIJO_VIAJE + km * COSTO_KM;
+
+		for (int p = 0; p < PRODUCTOS.length; p++) {
+			for (int tramo = 0; tramo < TRAMOS; tramo++) {
+				datos.tarifasFlete.add(new DatosEntrada.TarifaFlete(origen, destino, PRODUCTOS[p],
+					TIPO_CAMION_GRANEL, capacidadCamionTn, DatosEntrada.Unidad.USD_VIAJE, porViaje,
+					COSTO_VARIABLE_TN, PROVEEDOR, desde(tramo), hasta(tramo), true));
+			}
+		}
+	}
+
+	private static void fleteTonelada(DatosEntrada datos, String origen, String destino,
+			TipoProducto producto, double usdTn, double capacidadCamionTn) {
+
+		for (int tramo = 0; tramo < TRAMOS; tramo++) {
+			datos.tarifasFlete.add(new DatosEntrada.TarifaFlete(origen, destino, producto,
+				TIPO_CAMION_GRANEL, capacidadCamionTn, DatosEntrada.Unidad.USD_TN, usdTn, 0,
+				PROVEEDOR, desde(tramo), hasta(tramo), true));
+		}
+	}
+
+	private static void roundTrip(DatosEntrada datos, String terminal, String sitio, double km) {
+
+		// Valor heredado de la formula cableada de Main: ida y vuelta del tramo.
+		double porContenedor = COSTO_FIJO_VIAJE + km * 2 * COSTO_KM;
+
+		for (int c = 0; c < CONTENEDOR.length; c++) {
+			for (int tramo = 0; tramo < TRAMOS; tramo++) {
+				datos.tarifasRoundTrip.add(new DatosEntrada.TarifaRoundTrip(terminal, sitio,
+					CONTENEDOR[c], porContenedor, FRANQUICIA_HORAS, ESPERA_USD_HORA,
+					PROVEEDOR, desde(tramo), hasta(tramo), true));
+			}
+		}
+	}
+
+	private static void espera(DatosEntrada datos, String tipoRecurso, String idUbicacion) {
+		for (int tramo = 0; tramo < TRAMOS; tramo++) {
+			datos.tarifasEspera.add(new DatosEntrada.TarifaEspera(tipoRecurso, idUbicacion,
+				FRANQUICIA_HORAS, ESPERA_USD_HORA, PROVEEDOR, desde(tramo), hasta(tramo), true));
 		}
 	}
 
