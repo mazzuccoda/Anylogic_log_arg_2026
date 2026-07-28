@@ -256,13 +256,17 @@ La flota planta→depósito es capacidad diaria, igual que las posiciones de con
 
 Traduce la fila del escenario a estado del modelo: duración de campaña, cross dock y estrategia de consolidación. Las dos flotas no se fijan acá sino en `abrirFlotaDelDia()` (ADR-044). Corre una sola vez, después de cargar y validar las tablas y antes del día 1. Todo lo demás que el escenario cambia (producción, capacidades, tarifas, ventana de demanda) ya viene aplicado en las tablas, no acá.
 
-### Funciones objetivo de planificación
+### Evaluador de circuitos: `usaEvaluador()`, `asignarConEvaluador(Pedido)`, `generarAlternativas(Pedido)`, `evaluarAlternativa`, `costearAlternativa`, `costearHundidoAlternativa`, `horasCicloAlternativa`, `ordenarAlternativas`, `ejecutarAlternativa` y `registrarPlan`
 
-- `localizarExistenciasPedido(Pedido pedido)`;
-- `generarPlanesLogisticos(Pedido pedido)`;
-- `evaluarPlan(PlanLogistico plan)`;
-- `seleccionarMejorPlan(Pedido pedido)`;
-- `ejecutarPlan(PlanLogistico plan)`.
+**Estado:** implementadas (C6, ADR-054).
+
+`usaEvaluador()` decide si la política del escenario pasa por acá: las `FIJA_*` y `MANUAL` no, y conservan la asignación anterior. Cuando sí, `asignarConEvaluador()` corre por pedido, en orden de fecha límite y código.
+
+`generarAlternativas()` parte del stock real: por cada ubicación con stock libre del producto genera el circuito de consolidación en el sitio, por cada depósito habilitado el cross dock, y el circuito de terminal; agrega además la transferencia depósito→depósito **ya descartada**, con el motivo de que no existe el movimiento físico (C7). `evaluarAlternativa()` verifica stock libre, habilitación, cupo de cross dock, espacio de paso, flota de producto, flota de granel y capacidad de estiba **sin mutar inventario**, y escribe el motivo cuando descarta.
+
+`costearAlternativa()` arma el costo incremental —flete, round trip, estiba, OUT, THC, terminal y despachante— con las mismas tarifas y accesores que después devengan el envío; `costearHundidoAlternativa()` arma el IN, el almacenaje y el flete ya incurridos. `horasCicloAlternativa()` estima el ciclo y con él la fecha de entrega y si llega a tiempo.
+
+`ordenarAlternativas()` es la política: primero servicio, después el criterio de costo (incremental o end-to-end según el escenario) y desempate por clave, para que dos corridas con la misma semilla decidan igual. `ejecutarAlternativa()` no mueve producto por su cuenta: reserva contra el origen elegido o llama a `ejecutarCrossDockPedido()`, es decir el flujo que ya existía. `registrarPlan()` guarda el `PlanLogistico` con todas las alternativas, factibles y descartadas.
 
 ### Funciones objetivo de contenedores
 
@@ -315,14 +319,9 @@ Separa costo histórico, incremental y end-to-end.
 
 ### `validarPlan()`
 
-Actualmente valida referencias obligatorias. Debe incorporar inventario, capacidad, recursos, fecha límite y tarifas.
+Valida referencias obligatorias.
 
-### Pendientes
-
-- `estimarTiempo()`;
-- `validarFechaLimite()`;
-- `validarRecursos()`;
-- `calcularScore()`.
+Desde ADR-054 el plan es un registro de la decisión y no la calcula: la factibilidad, la estimación de tiempo y el costo de cada alternativa los resuelve el evaluador de `Main` sobre `AlternativaCircuito`, que es donde están las tarifas, el inventario y los cupos. `estimarTiempo()`, `validarFechaLimite()`, `validarRecursos()` y `calcularScore()` quedan sin implementar por esa razón, no por falta de alcance.
 
 ## 8. Funciones de ContenedorExportacion
 

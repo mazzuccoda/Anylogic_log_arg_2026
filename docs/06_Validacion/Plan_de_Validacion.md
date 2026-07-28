@@ -362,6 +362,70 @@ El aumento es explicable en su totalidad: los cargos nuevos son IN + OUT + THC +
 
 **Espera en 0.** Las tarifas de espera están cargadas como supuesto (franquicia 3 h, 25 USD/h), y `costo_espera_usd` es 0 en las 420 corridas: con las velocidades sintéticas un contenedor se carga en menos de una hora, así que nunca se supera la franquicia. El concepto se devenga —`registrarEspera()` corre en la carga, en la descarga y en la terminal— y se activa solo cuando los tiempos reales o la franquicia real lo pidan.
 
+## 4.3 Decisión de circuito (C5/C6, ADR-054)
+
+Los casos que siguen se verificaron sobre el barrido `fase-23`: 36 escenarios × 30 réplicas = 1 080 corridas, todas `Finished`.
+
+### V-DEC-01 Las políticas fijas no cambian
+
+**Esperado:** activar el evaluador no puede mover un solo número de los escenarios que no lo usan.
+
+**Medido:** las 420 corridas de E-00 a E-13 de `fase-23` se compararon fila por fila contra `fase-22`, por `id_escenario` y `réplica`, en las 37 columnas comunes: **idéntico, sin una sola diferencia**. En los 32 escenarios de política fija los cinco KPIs de decisión son 0, que es la comprobación de que la asignación no pasa por el evaluador.
+
+### V-DEC-02 Nunca se ejecuta una alternativa no factible
+
+**Esperado:** una alternativa descartada no puede llegar al flujo físico.
+
+**Medido:** `ordenarAlternativas()` construye la lista de candidatas filtrando `factible`, y es la única fuente de la elegida. La ejecución es la que ya existía —reservar contra el origen o cruzar por el depósito—, así que una alternativa que el flujo no puede tomar falla ahí y se marca `el flujo no pudo tomarla al ejecutar` en lugar de mover producto. En las 120 corridas con evaluador, `pedidos_sin_alternativa_factible` es 0 y `Inventario.validar()` cierra todos los días.
+
+### V-DEC-03 El servicio manda sobre el costo
+
+**Esperado:** mientras exista una alternativa que llega a tiempo, no se elige una tardía por barata.
+
+**Medido:** el comparador ordena por `llegaATiempo` antes que por costo cuando `servicio_minimo_proyectado > 0`. E-14 entrega el 100 % de los pedidos en fecha (30/30 réplicas) contra 98,7 % de E-00, con `planes_tardios` en 0.
+
+### V-DEC-04 Selección por menor costo incremental
+
+**Esperado:** con `MENOR_COSTO_INCREMENTAL_FACTIBLE` la campaña no puede salir más cara que con el circuito fijo, a igual demanda servida.
+
+**Medido:** E-14 sale 9,11 USD/tn más barato que E-00 (−6,2 %) y lo hace **en las 30 réplicas**, con desvío del pareado 1,47 y las mismas toneladas exportadas. El reparto muestra que la decisión es por pedido y no global: 267 contenedores desde planta, 214 desde depósito y 49 armados en terminal, contra 530 todos desde depósito en E-00.
+
+### V-DEC-05 Selección por menor costo end-to-end
+
+**Esperado:** la vista end-to-end existe y decide distinto que la incremental, porque suma el costo hundido.
+
+**Medido:** E-15 elige 519 contenedores desde planta y prácticamente ninguno desde depósito: el almacenaje ya pagado empuja a despachar desde donde está el stock. Sale 7,44 USD/tn más barato que E-00 pero **pierde 7,8 puntos de nivel de servicio**, que es la evidencia de por qué la decisión táctica se toma con la incremental y no con esta.
+
+### V-DEC-06 Prioridad del frío propio
+
+**Esperado:** `PRIORIDAD_FRIO_PROPIO` antepone el despacho desde planta y el costo sólo desempata.
+
+**Medido:** E-16 coincide con E-15 en 29 de las 30 réplicas en todas las columnas. No es que compartan código —el comparador de E-16 ordena por origen y el de E-15 por costo end-to-end— sino que con estas tarifas el costo hundido lleva casi siempre a la misma elección que la regla de frío propio.
+
+### V-DEC-07 Las alternativas descartadas quedan registradas
+
+**Esperado:** el plan conserva lo que se evaluó y por qué se descartó.
+
+**Medido:** `PlanLogistico` guarda la lista completa de `AlternativaCircuito` con `factible` y `motivoNoFactible`, y el barrido publica los agregados: en E-14, 18 alternativas evaluadas por pedido y 574 descartadas por campaña (80 %). Los motivos son los ocho de factibilidad —stock libre, depósito no habilitado, cupo de cross dock, espacio de paso, flota de producto, flota de granel y capacidad de estiba— más la transferencia depósito→depósito, que se genera siempre descartada con `sin movimiento fisico en el modelo (C7)`.
+
+### V-DEC-08 El plan elegido es el que se ejecuta
+
+**Esperado:** el circuito que el plan promete es el que la cadena hace y el que se cobra.
+
+**Medido:** `confirmarAsignacion()` escribe `Pedido.estrategiaSeleccionada`, que es lo que lee `seleccionarCircuito` en el flujo, y los contadores por circuito del CSV se corresponden con el reparto de planes. Además la auditoría por envío de ADR-053 sigue activa en las 120 corridas con evaluador: si el plan mandara un pedido por un circuito y se cobrara otro, `costoEsperadoCircuito()` abortaría la corrida.
+
+### V-DEC-09 Los factores de sensibilidad se cobran
+
+**Esperado:** cambiar `factor_tarifa_*` cambia el costo de campaña en la proporción esperada, y no sólo la cotización del evaluador.
+
+**Medido:** el primer barrido abortó en E-20 con `round trip del envio 1: registro 390,0 contra 312,0`, porque el devengo leía el campo crudo de la tarifa y la auditoría el accesor con el factor. Desde ADR-054 punto 8 el devengo usa los mismos accesores. Resultado en `fase-23`: E-18/E-19 (flete ±20 %) dan 142,8 y 152,0 USD/tn contra 148,0 de E-00, E-20/E-21 (round trip) 144,3 y 151,6, E-22/E-23 (cross dock, sobre E-05) 142,1 y 143,9, y E-24/E-25 (terminal) 144,6 y 151,3.
+
+### V-DEC-10 Excel y sintético siguen dando lo mismo
+
+**Esperado:** las columnas nuevas del contrato no separan las dos rutas de carga.
+
+**Medido:** E-00 corrido desde `datos/entrada_ejemplo.xlsx` da 1 970 450 USD de costo de campaña, 11 921 tn exportadas, 494 contenedores, 1 048 viajes y almacenaje 1 109 754 USD, exactamente los mismos valores que la corrida sintética de la misma réplica.
+
 ## 4.1 Validación de datos de entrada
 
 Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.
@@ -401,6 +465,20 @@ Después de cada cambio ejecutar al menos:
 - generación de plan;
 - creación de contenedor;
 - corrida corta sin excepciones.
+
+### Regresión de C5/C6 (fase-23)
+
+**Ejecutado:** 2026-07-29 en AnyLogic PLE 8.9.9, modelo `fase-23`.
+
+| Comprobación | Resultado |
+|---|---|
+| Build | `Build completed successfully`, 0 errores |
+| Campaña completa | 365 días de reloj (183 de campaña más el drenaje) sin excepciones |
+| Barrido | 1 080 corridas (36 escenarios × 30 réplicas) `Finished`, CSV etiquetado `fase-23` |
+| Regresión de política fija | E-00 a E-13 idénticos a `fase-22` en las 420 filas y las 37 columnas comunes |
+| KPIs de decisión | 0 en los 32 escenarios de política fija; 40 planes y 720 alternativas por corrida en los 4 con evaluador |
+| Excel vs. sintético | E-00 da los mismos KPIs por los dos caminos |
+| Auditoría por envío | Sin abortos en las 1 080 corridas, incluidos los 8 escenarios de sensibilidad tarifaria |
 
 ### Regresión de la fase 19
 

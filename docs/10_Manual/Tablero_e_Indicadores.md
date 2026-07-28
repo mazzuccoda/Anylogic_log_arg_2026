@@ -177,7 +177,8 @@ Las once categorías suman exactamente `costo_total_usd`: es la descomposición 
 - La terminal todavía no tiene cola propia ni THC, así que no hay panel de terminal.
 - El costo por tonelada ya incluye las once categorías, pero **los valores de IN, OUT, THC, costo terminal y despachante son supuestos** (proveedor `SUPUESTO_C3`, ADR-053): la estructura es comparable contra una cotización, los números lo son cuando se carguen los reales en el Excel.
 - `costo_espera_usd` es 0 en todo el barrido: con las velocidades sintéticas la carga tarda menos de una hora y no se supera la franquicia de 3 h. No significa que no se cobre.
-- Las series de costo anteriores a `fase-22` no son comparables: C3 agrega cargos que antes no existían. Lo que sí es comparable es la parte física y de servicio, idéntica a `fase-21`.
+- Las series de costo anteriores a `fase-22` no son comparables: C3 agrega cargos que antes no existían. Lo que sí es comparable es la parte física y de servicio, idéntica a `fase-21`. `fase-23` sí es comparable con `fase-22` en los escenarios de política fija: da idéntico fila por fila.
+- El tablero de `Main` no muestra los planes del evaluador. Los cinco KPIs de decisión (`planes_emitidos`, `planes_tardios`, `alternativas_evaluadas`, `alternativas_descartadas`, `pedidos_sin_alternativa_factible`) se leen en el CSV del barrido; el detalle de las alternativas descartadas y su motivo vive en `PlanLogistico` y todavía no se exporta.
 
 ---
 

@@ -7,7 +7,7 @@ class Simulation extends SimulationExperiment {
 }
 
 class Escenarios extends ParamVariationExperiment {
-    // corridas: 420
+    // corridas: 1080
     // parámetro #1786000001 = (getCurrentIteration() - 1) % REPLICAS
     // parámetro #1791000000003 = GeneradorSintetico.ESCENARIOS[(getCurrentIteration() - 1) / REPLICAS]
 
@@ -15,7 +15,7 @@ class Escenarios extends ParamVariationExperiment {
     void additionalClassCode() {
         // Version del modelo con la que se corrio el barrido: sin esto un csv de
         // resultados no se puede volver a atar al codigo que lo produjo.
-        static final String VERSION_MODELO = "fase-22";
+        static final String VERSION_MODELO = "fase-23";
 
         static final int REPLICAS = 30;
 
@@ -41,7 +41,9 @@ class Escenarios extends ParamVariationExperiment {
         	"costo_flete_producto_usd", "costo_round_trip_usd", "costo_consolidacion_usd",
         	"costo_cross_dock_usd", "costo_almacenamiento_usd", "costo_in_usd",
         	"costo_out_usd", "costo_thc_usd", "costo_terminal_usd", "costo_despachante_usd",
-        	"costo_espera_usd"
+        	"costo_espera_usd",
+        	"planes_emitidos", "planes_tardios", "alternativas_evaluadas",
+        	"alternativas_descartadas", "pedidos_sin_alternativa_factible"
         };
 
         // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -333,7 +335,7 @@ class Escenarios extends ParamVariationExperiment {
         Corrida c = new Corrida();
 
         c.idEscenario = root.idEscenario;
-        c.config = String.format(java.util.Locale.US, "%d/%d  x%.2f  x%.2f  %-3s %s",
+        c.config = String.format(java.util.Locale.US, "%d/%d  x%.2f  x%.2f  %-3s %s  %s",
         	root.datos.escenario.camionesProducto,
         	root.datos.escenario.camionesPortacontenedor,
         	root.datos.escenario.factorCapacidadDeposito,
@@ -342,7 +344,8 @@ class Escenarios extends ParamVariationExperiment {
         	"CONSOLIDACION_TERMINAL".equals(root.datos.escenario.estrategiaConsolidacion)
         		? "term"
         		: ("CONSOLIDACION_PLANTA".equals(root.datos.escenario.estrategiaConsolidacion)
-        			? "planta" : "dep"));
+        			? "planta" : "dep"),
+        	root.datos.escenario.politicaSeleccion);
         c.replica = root.replica;
         c.semilla = root.semillaBase + root.replica;
 
@@ -381,7 +384,12 @@ class Escenarios extends ParamVariationExperiment {
         	root.registro.total(RegistroCostos.Categoria.COSTO_TERMINAL),
         	root.registro.total(RegistroCostos.Categoria.DESPACHANTE),
         	root.registro.total(RegistroCostos.Categoria.ESPERA_CAMION_PRODUCTO)
-        		+ root.registro.total(RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR)
+        		+ root.registro.total(RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR),
+        	root.planesEmitidos,
+        	root.planesTardios,
+        	root.alternativasEvaluadasTotal,
+        	root.alternativasDescartadasTotal,
+        	root.pedidosSinAlternativaFactible
         };
 
         corridas.add(c);

@@ -70,6 +70,13 @@ class Main extends Agent {
     double costoEsperaCamionProducto = 0;
     double costoEsperaPortacontenedor = 0;
     double costoFleteGranelTerminal = 0;
+    DatosEntrada.PoliticaSeleccion politicaSeleccion = DatosEntrada.PoliticaSeleccion.FIJA_DEPOSITO;
+    int siguienteIdPlan = 1;
+    int planesEmitidos = 0;
+    int planesTardios = 0;
+    int alternativasEvaluadasTotal = 0;
+    int alternativasDescartadasTotal = 0;
+    int pedidosSinAlternativaFactible = 0;
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -78,6 +85,7 @@ class Main extends Agent {
     // ----- Objetos embebidos (poblaciones y bloques de flowchart) -----
     //  planta
     //  lotes
+    //  planes
     //  depFrinoa
     //  depNorry
     //  depBoreas
@@ -461,6 +469,10 @@ class Main extends Agent {
             return false;
         }
 
+        if (usaEvaluador()) {
+            return asignarConEvaluador(pedido);
+        }
+
         String idSitio =
             seleccionarSitioParaPedido(pedido);
 
@@ -478,7 +490,11 @@ class Main extends Agent {
             return false;
         }
 
-        confirmarAsignacion(pedido, idSitio);
+        confirmarAsignacion(
+            pedido,
+            idSitio,
+            circuitoDe(idSitio, pedido.esCrossDock)
+        );
 
         return true;
     }
@@ -903,14 +919,41 @@ class Main extends Agent {
     }
 
     void revisarPedidosPendientes() {
+        java.util.List<Pedido> pendientes =
+            new java.util.ArrayList<Pedido>();
+
         for (Pedido pedido : pedidos) {
 
             if (
                 pedido.estado == EstadoPedido.PENDIENTE
                 || pedido.estado == EstadoPedido.ATRASADO
             ) {
-                intentarAsignarPedido(pedido);
+                pendientes.add(pedido);
             }
+        }
+
+        // Con evaluador los pedidos compiten por la misma capacidad, asi que el orden decide:
+        // primero el que vence antes, y el empate se rompe por codigo para que la corrida sea
+        // reproducible. Sin evaluador se conserva el orden de la poblacion (regresion).
+        if (usaEvaluador()) {
+
+            java.util.Collections.sort(
+                pendientes,
+                new java.util.Comparator<Pedido>() {
+
+                    public int compare(Pedido a, Pedido b) {
+
+                        int orden = Double.compare(a.diaLimite, b.diaLimite);
+
+                        return orden != 0
+                            ? orden
+                            : a.codigoPedido.compareTo(b.codigoPedido);
+                    }
+                });
+        }
+
+        for (Pedido pedido : pendientes) {
+            intentarAsignarPedido(pedido);
         }
     }
 
@@ -978,7 +1021,8 @@ class Main extends Agent {
                 "", "", "" + capa.idLote, capa.producto,
                 capa.idUbicacion, capa.idUbicacion, capa.idUbicacion,
                 EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
-                DatosEntrada.Unidad.USD_TN_DIA, facturables, tarifa.storageUsdTnDia,
+                DatosEntrada.Unidad.USD_TN_DIA, facturables,
+                datos.storageUsdTnDia(diaCampania(), capa.idUbicacion, capa.producto),
                 "STO-" + diaCampania() + "-" + capa.idLote + "-" + capa.idUbicacion
                     + "-" + capa.producto + "-" + capa.idCapa,
                 "almacenaje del dia"
@@ -1742,7 +1786,7 @@ class Main extends Agent {
         return toneladas - pendiente;
     }
 
-    boolean intentarCrossDockPedido(Pedido pedido) {
+    boolean ejecutarCrossDockPedido(Pedido pedido, Deposito sitio) {
         // El pedido se sirve con producto que todavia esta en planta: sale hoy, se
         // estiba hoy y no entra a almacenamiento (ADR-010). Si algo no da, no se mueve
         // nada y el pedido sigue el camino normal.
@@ -1753,8 +1797,6 @@ class Main extends Agent {
         ) {
             return false;
         }
-
-        Deposito sitio = seleccionarSitioCrossDock(pedido);
 
         if (sitio == null) {
             crossDockReprogramados++;
@@ -1821,7 +1863,11 @@ class Main extends Agent {
 
         pedido.esCrossDock = true;
 
-        confirmarAsignacion(pedido, sitio.idUbicacion);
+        confirmarAsignacion(
+            pedido,
+            sitio.idUbicacion,
+            EstrategiaLogistica.CROSS_DOCK_DEPOSITO
+        );
 
         toneladasCrossDock += movidas;
 
@@ -1829,7 +1875,9 @@ class Main extends Agent {
     }
 
     void programarCrossDockDelDia() {
-        if (!habilitaCrossDock) {
+        // Con evaluador el cross dock es una alternativa mas del pedido y se decide junto
+        // con las demas: adelantarlo aca seria decidir dos veces (ADR-054).
+        if (!habilitaCrossDock || usaEvaluador()) {
             return;
         }
 
@@ -1870,6 +1918,7 @@ class Main extends Agent {
 
         duracionCampaniaDias = escenario.duracionCampaniaDias;
         habilitaCrossDock = escenario.habilitaCrossDock;
+        politicaSeleccion = datos.politicaSeleccion();
 
         if (
             escenario.estrategiaConsolidacion.equals("CONSOLIDACION_PLANTA")
@@ -2632,15 +2681,16 @@ class Main extends Agent {
         return true;
     }
 
-    void confirmarAsignacion(Pedido pedido, String idSitio) {
+    void confirmarAsignacion(Pedido pedido, String idSitio, EstrategiaLogistica circuito) {
         pedido.idSitioOrigen = idSitio;
 
         // Sigue habiendo deposito asignado cuando el origen es un deposito; en el
         // circuito de planta queda nulo y el origen es el propio frio propio.
         pedido.depositoAsignado = buscarDeposito(idSitio);
 
-        pedido.estrategiaSeleccionada =
-            circuitoDe(idSitio, pedido.esCrossDock);
+        // El circuito lo decide quien asigna: la politica del escenario en las FIJA_*, y
+        // el evaluador en las de costo (ADR-054).
+        pedido.estrategiaSeleccionada = circuito;
 
         pedido.toneladasReservadas =
             pedido.toneladasSolicitadas;
@@ -2779,7 +2829,8 @@ class Main extends Agent {
                 RegistroCostos.Tipo.CAJA,
                 codigoPedido, "", idLote, producto,
                 origen, destino, origen, estrategia, tarifa.proveedor,
-                DatosEntrada.Unidad.USD_VIAJE, viajes, tarifa.tarifa,
+                DatosEntrada.Unidad.USD_VIAJE, viajes,
+                datos.fleteTarifaUnitaria(dia, origen, destino, producto),
                 idOperacion, "flete por viaje"
             );
 
@@ -2791,7 +2842,8 @@ class Main extends Agent {
                 RegistroCostos.Tipo.CAJA,
                 codigoPedido, "", idLote, producto,
                 origen, destino, origen, estrategia, tarifa.proveedor,
-                DatosEntrada.Unidad.USD_TN, toneladas, tarifa.tarifa,
+                DatosEntrada.Unidad.USD_TN, toneladas,
+                datos.fleteTarifaUnitaria(dia, origen, destino, producto),
                 idOperacion, "flete por tonelada"
             );
         }
@@ -2804,7 +2856,8 @@ class Main extends Agent {
                 RegistroCostos.Tipo.CAJA,
                 codigoPedido, "", idLote, producto,
                 origen, destino, origen, estrategia, tarifa.proveedor,
-                DatosEntrada.Unidad.USD_TN, toneladas, tarifa.variableUsdTn,
+                DatosEntrada.Unidad.USD_TN, toneladas,
+                datos.fleteVariableUsdTn(dia, origen, destino, producto),
                 idOperacion, "componente variable del flete"
             );
         }
@@ -2843,7 +2896,13 @@ class Main extends Agent {
             "", envio.producto,
             envio.idSitioOrigen, envio.terminalDestino.idUbicacion, envio.idSitioOrigen,
             envio.circuito, tarifa.proveedor,
-            DatosEntrada.Unidad.USD_CONTENEDOR, 1, tarifa.tarifaUsdContenedor,
+            DatosEntrada.Unidad.USD_CONTENEDOR, 1,
+            datos.roundTripUsdContenedor(
+                diaTarifa,
+                envio.terminalDestino.idUbicacion,
+                envio.idSitioOrigen,
+                pedido.tipoContenedor
+            ),
             "ENV-" + envio.idEnvio, "ciclo terminal -> origen -> terminal"
         );
 
@@ -2870,7 +2929,9 @@ class Main extends Agent {
             cruza ? tarifa.crossDockUnidad : tarifa.consolidacionUnidad;
 
         double usd =
-            cruza ? tarifa.crossDockTarifa : tarifa.consolidacionTarifa;
+            cruza
+            ? datos.crossDockTarifa(diaTarifa, sitio, envio.producto)
+            : datos.consolidacionTarifa(diaTarifa, sitio, envio.producto);
 
         double cantidad =
             unidad == DatosEntrada.Unidad.USD_CONTENEDOR
@@ -3042,7 +3103,8 @@ class Main extends Agent {
             "", envio.producto,
             envio.idSitioOrigen, terminal, terminal,
             envio.circuito, tarifa.proveedor,
-            DatosEntrada.Unidad.USD_CONTENEDOR, contenedores, tarifa.thcUsdContenedor,
+            DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
+            datos.thcUsdContenedor(dia, terminal, envio.producto),
             "ENV-" + envio.idEnvio, "thc del contenedor"
         );
 
@@ -3056,7 +3118,7 @@ class Main extends Agent {
             envio.idSitioOrigen, terminal, terminal,
             envio.circuito, tarifa.proveedor,
             DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
-            tarifa.costoTerminalUsdContenedor,
+            datos.costoTerminalUsdContenedor(dia, terminal, envio.producto),
             "ENV-" + envio.idEnvio, "costo de terminal del contenedor"
         );
 
@@ -3098,7 +3160,7 @@ class Main extends Agent {
             envio.circuito, tarifa.proveedor,
             tarifa.despachanteUnidad,
             porPedido ? 1 : contenedores,
-            tarifa.despachanteTarifa,
+            datos.despachanteTarifa(dia, terminal, envio.producto),
             porPedido ? "PED-" + pedido.codigoPedido : "ENV-" + envio.idEnvio,
             "despacho de exportacion"
         );
@@ -3219,11 +3281,12 @@ class Main extends Agent {
 
             // Un solo cargo por pedido: lo paga el primer envio que se entrega.
             if (pedido.enviosEntregados <= 1) {
-                esperado += tarifaCierre.despachanteTarifa;
+                esperado += datos.despachanteTarifa(diaCierre, terminal, envio.producto);
             }
 
         } else {
-            esperado += tarifaCierre.despachanteTarifa * contenedores;
+            esperado +=
+                datos.despachanteTarifa(diaCierre, terminal, envio.producto) * contenedores;
         }
 
         // Egreso del deposito de origen, cuando el producto salio de almacenamiento.
@@ -3274,6 +3337,543 @@ class Main extends Agent {
         }
 
         return historico;
+    }
+
+    boolean usaEvaluador() {
+        // Las politicas FIJA_* y MANUAL son la conducta previa al evaluador y quedan como
+        // regresion: solo las de costo y la de frio propio generan y comparan alternativas.
+        return politicaSeleccion == DatosEntrada.PoliticaSeleccion.PRIORIDAD_FRIO_PROPIO
+            || politicaSeleccion
+                == DatosEntrada.PoliticaSeleccion.MENOR_COSTO_INCREMENTAL_FACTIBLE
+            || politicaSeleccion
+                == DatosEntrada.PoliticaSeleccion.MENOR_COSTO_END_TO_END_FACTIBLE;
+    }
+
+    boolean decideEndToEnd() {
+        // La decision tactica compara incremental; la estrategica, end-to-end (seccion 7.4).
+        return politicaSeleccion
+            == DatosEntrada.PoliticaSeleccion.MENOR_COSTO_END_TO_END_FACTIBLE;
+    }
+
+    java.util.List<AlternativaCircuito> generarAlternativas(Pedido pedido) {
+        // Un pedido puede servirse de varios origenes por varios circuitos. Se enumeran todos
+        // los que el flujo fisico sabe ejecutar y se agrega, descartada, la transferencia entre
+        // depositos: no existe como movimiento (C7) y no se aproxima con otro circuito.
+        java.util.List<AlternativaCircuito> alternativas =
+            new java.util.ArrayList<AlternativaCircuito>();
+
+        double toneladas = pedido.toneladasSolicitadas;
+
+        int contenedores =
+            contenedoresNecesarios(pedido.producto, toneladas);
+
+        String terminal = pedido.puertoSalida.idUbicacion;
+
+        alternativas.add(
+            new AlternativaCircuito(
+                "PLANTA", "PLANTA", EstrategiaLogistica.CONSOLIDACION_PLANTA,
+                false, toneladas, contenedores));
+
+        alternativas.add(
+            new AlternativaCircuito(
+                "PLANTA", terminal, EstrategiaLogistica.CONSOLIDACION_TERMINAL,
+                false, toneladas, contenedores));
+
+        for (Deposito deposito : depositos) {
+
+            alternativas.add(
+                new AlternativaCircuito(
+                    deposito.idUbicacion, deposito.idUbicacion,
+                    EstrategiaLogistica.CONSOLIDACION_DEPOSITO,
+                    false, toneladas, contenedores));
+
+            alternativas.add(
+                new AlternativaCircuito(
+                    deposito.idUbicacion, deposito.idUbicacion,
+                    EstrategiaLogistica.CROSS_DOCK_DEPOSITO,
+                    true, toneladas, contenedores));
+
+            alternativas.add(
+                new AlternativaCircuito(
+                    deposito.idUbicacion, terminal,
+                    EstrategiaLogistica.CONSOLIDACION_TERMINAL,
+                    false, toneladas, contenedores));
+        }
+
+        for (AlternativaCircuito alternativa : alternativas) {
+            evaluarAlternativa(pedido, alternativa);
+        }
+
+        AlternativaCircuito transferencia =
+            new AlternativaCircuito(
+                "DEPOSITO", "DEPOSITO", EstrategiaLogistica.CONSOLIDACION_DEPOSITO,
+                false, toneladas, contenedores);
+
+        transferencia.descartar(
+            "transferencia deposito-deposito sin movimiento fisico en el modelo (C7)");
+
+        alternativas.add(transferencia);
+
+        return alternativas;
+    }
+
+    void evaluarAlternativa(Pedido pedido, AlternativaCircuito alternativa) {
+        // Factibilidad antes que costo: una alternativa que el flujo no puede ejecutar hoy no
+        // compite, y el motivo queda escrito para poder auditar la decision (seccion 6.3).
+        alternativa.factible = true;
+        alternativa.motivoNoFactible = "";
+
+        String terminal = pedido.puertoSalida.idUbicacion;
+
+        double toneladas = alternativa.toneladas;
+
+        if (alternativa.esCrossDock) {
+
+            if (!habilitaCrossDock) {
+                alternativa.descartar("cross dock deshabilitado en el escenario");
+                return;
+            }
+
+            // El cross dock cruza producto que todavia esta en planta: lo que ya entro a un
+            // deposito no vuelve a cruzar (ADR-010).
+            if (
+                inventario.libre("PLANTA", pedido.producto) + 0.0001
+                < toneladas
+            ) {
+                alternativa.descartar("sin stock libre en planta para cruzar");
+                return;
+            }
+
+            Deposito sitio = buscarDeposito(alternativa.idOrigen);
+
+            if (sitio == null || !sitio.habilitado) {
+                alternativa.descartar("deposito no habilitado");
+                return;
+            }
+
+            if (
+                capacidadCrossDockLibre(alternativa.idOrigen)
+                < alternativa.contenedores
+            ) {
+                alternativa.descartar("sin cupo de cross dock hoy");
+                return;
+            }
+
+            if (
+                sitio.getEspacioDisponible(pedido.producto) + 0.0001
+                < toneladas
+            ) {
+                alternativa.descartar("sin espacio de paso en el deposito");
+                return;
+            }
+
+            if (
+                !flotaProductoAlcanza("PLANTA", alternativa.idOrigen, toneladas)
+            ) {
+                alternativa.descartar("sin flota de producto planta-deposito");
+                return;
+            }
+
+        } else {
+
+            if (
+                inventario.libre(alternativa.idOrigen, pedido.producto) + 0.0001
+                < toneladas
+            ) {
+                alternativa.descartar("sin stock libre en " + alternativa.idOrigen);
+                return;
+            }
+
+            if (
+                alternativa.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL
+                && !flotaProductoAlcanza(alternativa.idOrigen, terminal, toneladas)
+            ) {
+                alternativa.descartar("sin flota de producto para el granel a terminal");
+                return;
+            }
+        }
+
+        // El contenedor se arma en algun lado: sin capacidad declarada el circuito no puede
+        // ejecutarse ningun dia, no solo hoy.
+        if (
+            !alternativa.esCrossDock
+            && datos.ubicacion(alternativa.sitioEstiba).contenedoresPorDia <= 0
+        ) {
+            alternativa.descartar("sin capacidad de estiba en " + alternativa.sitioEstiba);
+            return;
+        }
+
+        costearAlternativa(pedido, alternativa);
+
+        // Un dia para armar y programar el contenedor mas el ciclo fisico del circuito.
+        alternativa.diaEntregaEstimado =
+            time() + 1 + horasCicloAlternativa(pedido, alternativa) / 24.0;
+
+        alternativa.llegaATiempo =
+            alternativa.diaEntregaEstimado <= pedido.diaLimite + 0.0001;
+    }
+
+    void costearAlternativa(Pedido pedido, AlternativaCircuito alternativa) {
+        // Gemelo ex ante de costoEsperadoCircuito(): las mismas tarifas, unidades y reglas de
+        // contenedor completo, con la diferencia de que aca todavia no existe el envio. Si los
+        // dos difieren, el evaluador esta decidiendo con un costo que despues no se cobra.
+        int dia = diaCampania();
+
+        String terminal = pedido.puertoSalida.idUbicacion;
+
+        double toneladas = alternativa.toneladas;
+
+        int contenedores = alternativa.contenedores;
+
+        boolean granel =
+            alternativa.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+        alternativa.costoFleteProducto = 0;
+
+        if (alternativa.esCrossDock) {
+
+            // Tramo previo: el producto sale hoy de planta y cruza sin guardarse.
+            alternativa.costoFleteProducto +=
+                datos.importeFlete(
+                    dia, "PLANTA", alternativa.idOrigen, pedido.producto,
+                    toneladas, viajesNecesariosCamion(toneladas));
+        }
+
+        if (granel) {
+
+            alternativa.costoFleteProducto +=
+                datos.importeFlete(
+                    dia, alternativa.idOrigen, terminal, pedido.producto,
+                    toneladas, viajesNecesariosCamion(toneladas));
+
+            alternativa.costoRoundTrip = 0;
+
+        } else {
+
+            alternativa.costoRoundTrip =
+                datos.roundTripUsdContenedor(
+                    dia, terminal, alternativa.idOrigen, pedido.tipoContenedor)
+                * contenedores;
+        }
+
+        alternativa.costoEstiba =
+            alternativa.esCrossDock
+            ? datos.importeCrossDock(
+                dia, alternativa.sitioEstiba, pedido.producto, toneladas, contenedores)
+            : datos.importeConsolidacion(
+                dia, alternativa.sitioEstiba, pedido.producto, toneladas, contenedores);
+
+        // El egreso lo paga lo que estaba almacenado: el cross dock no entra ni sale, y la
+        // planta no factura deposito (ADR-053).
+        alternativa.costoOut =
+            alternativa.esCrossDock || "PLANTA".equals(alternativa.idOrigen)
+            ? 0
+            : datos.outUsdTn(dia, alternativa.idOrigen, pedido.producto) * toneladas;
+
+        alternativa.costoTHC =
+            datos.thcUsdContenedor(dia, terminal, pedido.producto) * contenedores;
+
+        alternativa.costoTerminal =
+            datos.costoTerminalUsdContenedor(dia, terminal, pedido.producto) * contenedores;
+
+        DatosEntrada.TarifaSitio tarifa =
+            datos.tarifaSitio(dia, terminal, pedido.producto);
+
+        alternativa.costoDespachante =
+            tarifa.despachanteUnidad == DatosEntrada.Unidad.USD_PEDIDO
+            ? datos.despachanteTarifa(dia, terminal, pedido.producto)
+            : datos.despachanteTarifa(dia, terminal, pedido.producto) * contenedores;
+
+        costearHundidoAlternativa(pedido, alternativa);
+
+        alternativa.totalizar();
+    }
+
+    void costearHundidoAlternativa(Pedido pedido, AlternativaCircuito alternativa) {
+        // Lo que el stock ya pago por estar donde esta. No entra en la vista incremental
+        // (seccion 7.1) y por eso se guarda aparte: sirve para explicar la comparacion
+        // estrategica, no para decidir la tactica.
+        alternativa.costoInHundido = 0;
+        alternativa.costoAlmacenajeHundido = 0;
+        alternativa.costoFleteHundido = 0;
+
+        if (alternativa.esCrossDock || "PLANTA".equals(alternativa.idOrigen)) {
+            return;
+        }
+
+        int dia = diaCampania();
+
+        double toneladas = alternativa.toneladas;
+
+        alternativa.costoInHundido =
+            datos.inUsdTn(dia, alternativa.idOrigen, pedido.producto) * toneladas;
+
+        alternativa.costoFleteHundido =
+            datos.importeFlete(
+                dia, "PLANTA", alternativa.idOrigen, pedido.producto,
+                toneladas, viajesNecesariosCamion(toneladas));
+
+        alternativa.costoAlmacenajeHundido =
+            datos.storageUsdTnDia(dia, alternativa.idOrigen, pedido.producto)
+            * toneladaDiaEnStock(alternativa.idOrigen, pedido.producto, toneladas);
+    }
+
+    double toneladaDiaEnStock(String idUbicacion, TipoProducto producto, double toneladas) {
+        // Tonelada-dia acumulada por las capas FIFO que serviria la alternativa: es el
+        // almacenaje que ese stock ya devengo, y depende de cual se consume, no del promedio.
+        double pendiente = toneladas;
+
+        double acumulado = 0;
+
+        for (Capa capa : inventario.fifo(idUbicacion, producto)) {
+
+            if (pendiente <= 0.0001) {
+                break;
+            }
+
+            double toma = Math.min(capa.libres(), pendiente);
+
+            if (toma <= 0) {
+                continue;
+            }
+
+            acumulado += toma * Math.max(0, time() - capa.diaIngreso);
+
+            pendiente -= toma;
+        }
+
+        return acumulado;
+    }
+
+    double horasCicloAlternativa(Pedido pedido, AlternativaCircuito alternativa) {
+        // Mismo ciclo fisico que arma crearEnvio(), estimado antes de que el envio exista.
+        boolean granel =
+            alternativa.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+        String terminal = pedido.puertoSalida.idUbicacion;
+
+        double toneladas = alternativa.toneladas;
+
+        double velocidad = datos.escenario.velocidadCamionKmh;
+
+        DatosEntrada.Ubicacion origen = datos.ubicacion(alternativa.idOrigen);
+
+        DatosEntrada.Ubicacion puerto = datos.ubicacion(terminal);
+
+        double distancia = datos.distanciaKm(alternativa.idOrigen, terminal);
+
+        double horas = 0;
+
+        if (alternativa.esCrossDock) {
+            horas += datos.distanciaKm("PLANTA", alternativa.idOrigen) / velocidad;
+        }
+
+        horas +=
+            granel
+            ? toneladas / origen.velocidadCargaTnHora
+            : toneladas / origen.velocidadConsolidacionTnHora;
+
+        // Circuitos 1 a 3: el portacontenedor sale vacio de la terminal antes de cargar.
+        horas += granel ? 0 : distancia / velocidad;
+
+        horas += distancia / velocidad;
+
+        horas += toneladas / puerto.velocidadDescargaTnHora;
+
+        horas += granel ? toneladas / puerto.velocidadConsolidacionTnHora : 0;
+
+        return horas;
+    }
+
+    java.util.List<AlternativaCircuito> ordenarAlternativas(Pedido pedido, java.util.List<AlternativaCircuito> alternativas) {
+        // Ranking de lo factible. El orden es la politica: primero servicio, despues el
+        // criterio de costo, y el desempate por clave para que dos corridas iguales decidan
+        // igual (seccion 6.8).
+        final boolean endToEnd = decideEndToEnd();
+
+        final boolean frioPropio =
+            politicaSeleccion == DatosEntrada.PoliticaSeleccion.PRIORIDAD_FRIO_PROPIO;
+
+        final boolean exigeServicio =
+            datos.escenario.servicioMinimoProyectado > 0;
+
+        java.util.List<AlternativaCircuito> factibles =
+            new java.util.ArrayList<AlternativaCircuito>();
+
+        for (AlternativaCircuito alternativa : alternativas) {
+
+            if (alternativa.factible) {
+                factibles.add(alternativa);
+            }
+        }
+
+        java.util.Collections.sort(
+            factibles,
+            new java.util.Comparator<AlternativaCircuito>() {
+
+                public int compare(AlternativaCircuito a, AlternativaCircuito b) {
+
+                    // Ninguna diferencia de costo compra una entrega tarde mientras exista una
+                    // alternativa que llega a tiempo.
+                    if (exigeServicio && a.llegaATiempo != b.llegaATiempo) {
+                        return a.llegaATiempo ? -1 : 1;
+                    }
+
+                    if (frioPropio) {
+
+                        boolean pa = "PLANTA".equals(a.idOrigen) && !a.esCrossDock;
+                        boolean pb = "PLANTA".equals(b.idOrigen) && !b.esCrossDock;
+
+                        if (pa != pb) {
+                            return pa ? -1 : 1;
+                        }
+                    }
+
+                    int orden =
+                        Double.compare(a.costoSegun(endToEnd), b.costoSegun(endToEnd));
+
+                    return orden != 0 ? orden : a.clave().compareTo(b.clave());
+                }
+            });
+
+        return factibles;
+    }
+
+    boolean ejecutarAlternativa(Pedido pedido, AlternativaCircuito alternativa) {
+        // El plan se ejecuta con el flujo fisico que ya existe: reservar contra el origen
+        // elegido, o cruzar por el deposito elegido. El evaluador no mueve producto por su
+        // cuenta, asi no puede prometer algo que la cadena no hace.
+        if (alternativa.esCrossDock) {
+
+            Deposito sitio = buscarDeposito(alternativa.idOrigen);
+
+            return sitio != null && ejecutarCrossDockPedido(pedido, sitio);
+        }
+
+        if (!reservarLotesParaPedido(pedido, alternativa.idOrigen)) {
+            return false;
+        }
+
+        confirmarAsignacion(pedido, alternativa.idOrigen, alternativa.circuito);
+
+        return true;
+    }
+
+    boolean asignarConEvaluador(Pedido pedido) {
+        // C6: generar, descartar, costear, ordenar, ejecutar y dejar constancia. Se recorre el
+        // ranking porque tomar capacidad puede fallar contra otro pedido del mismo dia; lo que
+        // no se pudo tomar queda descartado con su motivo, no elegido en silencio.
+        java.util.List<AlternativaCircuito> alternativas =
+            generarAlternativas(pedido);
+
+        java.util.List<AlternativaCircuito> ranking =
+            ordenarAlternativas(pedido, alternativas);
+
+        for (AlternativaCircuito elegida : ranking) {
+
+            if (!ejecutarAlternativa(pedido, elegida)) {
+                elegida.descartar("el flujo no pudo tomarla al ejecutar");
+                continue;
+            }
+
+            registrarPlan(pedido, alternativas, elegida);
+
+            return true;
+        }
+
+        pedidosSinAlternativaFactible++;
+
+        return false;
+    }
+
+    void registrarPlan(Pedido pedido, java.util.List<AlternativaCircuito> alternativas, AlternativaCircuito elegida) {
+        // El plan es la constancia de la decision: que se eligio, contra que se lo comparo y
+        // con que numeros. PlanLogistico existia desde el primer dia del proyecto sin ninguna
+        // referencia; esta es la funcion que lo pone a vivir (ADR-054).
+        PlanLogistico plan = add_planes();
+
+        plan.idPlan = "PL-" + siguienteIdPlan;
+        siguienteIdPlan++;
+
+        plan.pedido = pedido;
+        plan.terminal = pedido.puertoSalida;
+        plan.politica = "" + politicaSeleccion;
+        plan.diaDecision = time();
+        plan.alternativas = alternativas;
+        plan.alternativasEvaluadas = alternativas.size();
+
+        int descartadas = 0;
+
+        for (AlternativaCircuito alternativa : alternativas) {
+
+            if (!alternativa.factible) {
+                descartadas++;
+            }
+        }
+
+        plan.alternativasDescartadas = descartadas;
+
+        alternativasEvaluadasTotal += alternativas.size();
+        alternativasDescartadasTotal += descartadas;
+
+        plan.estrategia = elegida.circuito;
+        plan.idOrigen = elegida.idOrigen;
+        plan.idSitioEstiba = elegida.sitioEstiba;
+        plan.toneladas = elegida.toneladas;
+        plan.cantidadContenedores = elegida.contenedores;
+        plan.diaEntregaEstimado = elegida.diaEntregaEstimado;
+        plan.llegaATiempo = elegida.llegaATiempo;
+        plan.tiempoEstimado = horasCicloAlternativa(pedido, elegida);
+        plan.factible = true;
+        plan.estado = EstadoPlanLogistico.SELECCIONADO;
+
+        plan.origenProducto =
+            "PLANTA".equals(elegida.idOrigen)
+            ? (Agent) planta
+            : (Agent) buscarDeposito(elegida.idOrigen);
+
+        plan.lugarConsolidacion =
+            elegida.sitioEstiba.equals(elegida.idOrigen)
+            ? plan.origenProducto
+            : (Agent) pedido.puertoSalida;
+
+        // La descomposicion viaja al plan concepto por concepto: el total no se copia, lo
+        // recalcula el propio plan y despues se exige que coincida.
+        plan.costoFleteGuarda = elegida.costoFleteHundido;
+        plan.costoAlmacenajeIn = elegida.costoInHundido;
+        plan.costoAlmacenajeDiario = elegida.costoAlmacenajeHundido;
+        plan.costoAlmacenajeOut = elegida.costoOut;
+        plan.costoFleteCrossDock = elegida.costoFleteProducto;
+        plan.costoCicloContenedor = elegida.costoRoundTrip;
+        plan.costoConsolidacion = elegida.esCrossDock ? 0 : elegida.costoEstiba;
+        plan.costoCrossDock = elegida.esCrossDock ? elegida.costoEstiba : 0;
+        plan.costoTerminal = elegida.costoTerminal;
+        plan.costoTHC = elegida.costoTHC;
+        plan.costoDespachante = elegida.costoDespachante;
+
+        plan.recalcularCostos();
+
+        exigirIgual(
+            plan.costoTotalEndToEnd,
+            elegida.costoEndToEnd,
+            "plan " + plan.idPlan + " contra la alternativa elegida");
+
+        plan.motivoSeleccion =
+            (decideEndToEnd() ? "menor costo end-to-end factible" : "menor costo incremental factible")
+            + " USD " + Math.round(elegida.costoSegun(decideEndToEnd()))
+            + " entre " + (alternativas.size() - descartadas) + " factibles"
+            + (elegida.llegaATiempo ? "" : " (ninguna llega a tiempo)");
+
+        planesEmitidos++;
+
+        if (!elegida.llegaATiempo) {
+            planesTardios++;
+        }
+    }
+
+    boolean intentarCrossDockPedido(Pedido pedido) {
+        // Sin evaluador, el sitio de cruce lo elige la heuristica de costo de siempre.
+        return ejecutarCrossDockPedido(pedido, seleccionarSitioCrossDock(pedido));
     }
 
     // ----- Eventos -----
