@@ -18,7 +18,14 @@ public class RegistroCostos implements java.io.Serializable {
 	/** Tolerancia de la reconciliacion: redondeo de punto flotante, no de negocio. */
 	public static final double EPS = 0.01;
 
-	/** Concepto facturable. Cada categoria tiene un solo devengo y un solo dueno. */
+	/**
+	 * Concepto facturable. Cada categoria tiene un solo devengo y un solo dueno.
+	 *
+	 * El sitio donde ocurre el servicio no abre categorias nuevas: es una dimension
+	 * del cargo (sitio, estrategia), asi que la consolidacion en planta, en deposito
+	 * o en terminal se separan filtrando y no duplicando conceptos (ADR-053). La
+	 * espera si se separa por recurso porque son dos contratos distintos.
+	 */
 	public enum Categoria {
 		FLETE_PRODUCTO,
 		ROUND_TRIP,
@@ -30,7 +37,8 @@ public class RegistroCostos implements java.io.Serializable {
 		THC,
 		COSTO_TERMINAL,
 		DESPACHANTE,
-		ESPERA,
+		ESPERA_CAMION_PRODUCTO,
+		ESPERA_PORTACONTENEDOR,
 		OPORTUNIDAD_FRIO,
 		PENALIDAD_SOBRECARGA
 	}
@@ -282,6 +290,95 @@ public class RegistroCostos implements java.io.Serializable {
 		}
 
 		return total;
+	}
+
+	/**
+	 * Costo end-to-end de un pedido: todo lo que se devengo contra el, desde el flete
+	 * hasta el despachante. No incluye el almacenaje del stock del que se sirvio: ese
+	 * cargo es del lote y ya estaba incurrido cuando el pedido eligio de donde salir
+	 * (ADR-053).
+	 */
+	public double totalDePedido(String codigoPedido, Tipo tipo) {
+		return totalDePedidoEntre(codigoPedido, tipo, -1, Double.MAX_VALUE);
+	}
+
+	/** Lo ya incurrido contra el pedido hasta el dia de la decision, sin incluirlo. */
+	public double totalHistoricoDePedido(String codigoPedido, Tipo tipo, double diaDecision) {
+		return totalDePedidoEntre(codigoPedido, tipo, -1, diaDecision);
+	}
+
+	/** Lo que agrega la decision: end-to-end menos historico, con el mismo registro. */
+	public double totalIncrementalDePedido(String codigoPedido, Tipo tipo, double diaDecision) {
+		return totalDePedidoEntre(codigoPedido, tipo, diaDecision, Double.MAX_VALUE);
+	}
+
+	private double totalDePedidoEntre(String codigoPedido, Tipo tipo, double desde, double hasta) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (
+				codigoPedido != null
+				&& codigoPedido.equals(cargo.codigoPedido)
+				&& (tipo == null || cargo.tipo == tipo)
+				&& cargo.dia >= desde
+				&& cargo.dia < hasta
+			) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	/**
+	 * Costo hundido de un lote: almacenaje y flete que ya se pagaron por tenerlo
+	 * donde esta. Es la vista historica del stock, y no debe entrar en la comparacion
+	 * entre alternativas de un pedido.
+	 */
+	public double totalDeLote(String idLote, Tipo tipo) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (idLote != null && idLote.equals(cargo.idLote) && (tipo == null || cargo.tipo == tipo)) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	/** Total de una categoria en un sitio: separa la estiba de planta, deposito y terminal. */
+	public double totalDeCategoriaEnSitio(Categoria categoria, String sitio) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (cargo.categoria == categoria && sitio != null && sitio.equals(cargo.sitio)) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	/** Cantidad de cargos de una categoria: sirve para verificar el devengo unico. */
+	public int cantidadDe(Categoria categoria) {
+		exigirDetalle();
+
+		int cantidad = 0;
+
+		for (Cargo cargo : cargos) {
+			if (cargo.categoria == categoria) {
+				cantidad++;
+			}
+		}
+
+		return cantidad;
 	}
 
 	/**

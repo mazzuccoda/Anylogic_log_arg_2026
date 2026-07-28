@@ -1397,6 +1397,127 @@ cargarDatosEntrada();]]></StartupCode>
 					</Properties>
 
 				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1791300000301</Id>
+					<Name><![CDATA[costoInDeposito]]></Name>
+					<X>-140</X><Y>540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000303</Id>
+					<Name><![CDATA[costoOutDeposito]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000305</Id>
+					<Name><![CDATA[costoThcReal]]></Name>
+					<X>-140</X><Y>580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000307</Id>
+					<Name><![CDATA[costoTerminalReal]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000309</Id>
+					<Name><![CDATA[costoDespachanteReal]]></Name>
+					<X>-140</X><Y>620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000311</Id>
+					<Name><![CDATA[costoEsperaCamionProducto]]></Name>
+					<X>-140</X><Y>640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000313</Id>
+					<Name><![CDATA[costoEsperaPortacontenedor]]></Name>
+					<X>-140</X><Y>660</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000315</Id>
+					<Name><![CDATA[costoFleteGranelTerminal]]></Name>
+					<X>-140</X><Y>680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Connectors>
 				<Connector>
@@ -2231,7 +2352,7 @@ while (pendiente > 0.0001) {
     // Si en el deposito elegido no entra todo, se manda lo que entra y el resto sale
     // en la vuelta siguiente, posiblemente a otro deposito.
     double movidas =
-        transferirToneladasLote(lote, destino, aMover);
+        transferirToneladasLote(lote, destino, aMover, false);
 
     if (movidas <= 0.0001) {
         break;
@@ -2706,13 +2827,24 @@ envio.tiempoRetornoHoras =
     : 0;
 
 // El ciclo del portacontenedor se cotiza por contenedor y por circuito, no por
-// kilometro: la tarifa cubre terminal -> origen -> terminal (ADR-051).
+// kilometro: la tarifa cubre terminal -> origen -> terminal (ADR-051). El circuito de
+// terminal no usa portacontenedor: el producto viaja a granel y lo que paga es ese
+// flete, no un ciclo que nunca ocurre (ADR-053).
 envio.costoFleteReal =
-    datos.roundTripUsdContenedor(
+    conPortacontenedor
+    ? datos.roundTripUsdContenedor(
         diaCampania(),
         envio.terminalDestino.idUbicacion,
         envio.idSitioOrigen,
         pedido.tipoContenedor
+    )
+    : datos.importeFlete(
+        diaCampania(),
+        envio.idSitioOrigen,
+        envio.terminalDestino.idUbicacion,
+        envio.producto,
+        toneladas,
+        viajesNecesariosCamion(toneladas)
     );
 
 envio.costoConsolidacionReal =
@@ -2783,6 +2915,11 @@ if (despachadas + 0.0001 < envio.toneladas) {
 }
 
 actualizarEstadoLotesVacios();
+
+// El egreso se devenga cuando el producto sale fisicamente del almacenamiento
+// (ADR-053).
+envio.costoCargosReal +=
+    registrarOutDeposito(envio);
 
 pedido.toneladasDespachadas +=
     envio.toneladas;
@@ -3398,6 +3535,10 @@ error(
 						<Name><![CDATA[toneladas]]></Name>
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cruza]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
 					<Body><![CDATA[// Fase 4: el lote deja de viajar entero. Se mueve lo que se pide, acotado por lo que
 // el lote tiene libre en planta y por el lugar que queda en el deposito.
 // El movimiento no necesita reversion: al acotar antes, mover() retira e ingresa
@@ -3475,6 +3616,21 @@ double costoViaje = registrarFleteProducto(
 
 lote.costoAcumulado += costoViaje;
 costoFletePlantaDeposito += costoViaje;
+
+// El ingreso al almacenamiento lo paga el producto que se queda; el que cruza en cross
+// dock no entra al stock y no lo paga (ADR-053).
+if (!cruza) {
+
+    lote.costoAcumulado += registrarInDeposito(
+        destino.idUbicacion,
+        lote.producto,
+        movidas,
+        "" + lote.idLote,
+        "",
+        "IN-" + diaCampania() + "-" + lote.idLote + "-" + destino.idUbicacion
+            + "-" + cantidadTransferenciasDepositos
+    );
+}
 
 destino.toneladasRecibidasAcumuladas += movidas;
 destino.cantidadRecepciones++;
@@ -4170,6 +4326,10 @@ return mejorSitio;]]></Body>
 						<Name><![CDATA[toneladas]]></Name>
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cruza]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
 					<Body><![CDATA[double pendiente = toneladas;
 
 while (pendiente > 0.0001) {
@@ -4191,7 +4351,8 @@ while (pendiente > 0.0001) {
                     "PLANTA"
                 ),
                 pendiente
-            )
+            ),
+            cruza
         );
 
     if (movidas <= 0.0001) {
@@ -4266,7 +4427,8 @@ double movidas =
     transferirLotesADeposito(
         pedido.producto,
         sitio,
-        pedido.toneladasSolicitadas
+        pedido.toneladasSolicitadas,
+        true
     );
 
 // Si el producto se movio pero el pedido no se puede armar, lo movido queda en
@@ -4277,6 +4439,18 @@ if (
     || !reservarLotesParaPedido(pedido, sitio.idUbicacion)
 ) {
     crossDockDegradados++;
+
+    // Lo movido queda como stock normal: desde aca paga ingreso y almacenaje. El
+    // cargo va sin lote porque puede venir de varios (ADR-053).
+    registrarInDeposito(
+        sitio.idUbicacion,
+        pedido.producto,
+        movidas,
+        "",
+        pedido.codigoPedido,
+        "INX-" + diaCampania() + "-" + pedido.codigoPedido
+    );
+
     return false;
 }
 
@@ -5199,7 +5373,64 @@ if (envio.contenedor != null) {
         EstadoContenedor.INGRESADO_TERMINAL;
 
     envio.contenedor.horaIngresoTerminal = time();
-}]]></Body>
+}
+
+if (usaPortacontenedor(envio)) {
+
+    // Circuitos 1 a 3: entra un contenedor ya cargado, y ahi se devengan THC y costo
+    // de terminal. El portacontenedor cobra la espera del sitio de estiba (ADR-053).
+    envio.costoCargosReal +=
+        registrarCargosTerminal(envio);
+
+    envio.costoCargosReal += registrarEspera(
+        envio,
+        "PORTACONTENEDOR",
+        envio.idSitioOrigen,
+        envio.tiempoCargaHoras,
+        "espera en el sitio de estiba"
+    );
+
+    return;
+}
+
+// Circuito 4: el viaje a granel termina aca, asi que aca se devenga el flete: el
+// transporte se cobra cuando el viaje se ejecuta (ADR-053).
+double flete = registrarFleteProducto(
+    envio.idSitioOrigen,
+    envio.terminalDestino.idUbicacion,
+    envio.producto,
+    envio.toneladas,
+    viajesNecesariosCamion(envio.toneladas),
+    "",
+    envio.pedido.codigoPedido,
+    envio.circuito,
+    "ENV-" + envio.idEnvio
+);
+
+exigirIgual(
+    flete,
+    envio.costoFleteReal,
+    "flete a granel del envio " + envio.idEnvio
+);
+
+envio.costoCargosReal += flete;
+costoFleteGranelTerminal += flete;
+
+envio.costoCargosReal += registrarEspera(
+    envio,
+    "CAMION_PRODUCTO",
+    envio.idSitioOrigen,
+    envio.tiempoCargaHoras,
+    "espera en la carga a granel"
+);
+
+envio.costoCargosReal += registrarEspera(
+    envio,
+    "CAMION_PRODUCTO",
+    envio.terminalDestino.idUbicacion,
+    envio.tiempoDescargaHoras,
+    "espera en la descarga a granel"
+);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -5228,7 +5459,12 @@ envio.terminalDestino
 if (envio.contenedor != null) {
     envio.contenedor.estado =
         EstadoContenedor.CONSOLIDANDO;
-}]]></Body>
+}
+
+// El contenedor recien existe aca, asi que este es el evento que devenga THC y costo
+// de terminal en el circuito de terminal (ADR-053).
+envio.costoCargosReal +=
+    registrarCargosTerminal(envio);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -5260,15 +5496,6 @@ pedido.toneladasEntregadas +=
 
 pedido.enviosEntregados++;
 
-pedido.costoFleteReal +=
-    envio.costoFleteReal;
-
-pedido.costoConsolidacionReal +=
-    envio.costoConsolidacionReal;
-
-pedido.costoLogisticoReal +=
-    envio.costoTotalReal;
-
 if (
     pedido.toneladasEntregadas
     >= pedido.toneladasSolicitadas - 0.0001
@@ -5287,16 +5514,57 @@ if (
         );
 }
 
-costoFleteDepositoPuertoReal +=
-    registrarRoundTrip(envio);
+// El ciclo del portacontenedor se devenga recien cuando se completa (ADR-051); el
+// circuito de terminal no lo paga porque no usa portacontenedor (ADR-053).
+double roundTrip = registrarRoundTrip(envio);
+
+costoFleteDepositoPuertoReal += roundTrip;
+envio.costoCargosReal += roundTrip;
+
+double estiba = registrarServicioEstiba(envio);
 
 if (envio.pedido.esCrossDock) {
-    costoCrossDockReal +=
-        registrarServicioEstiba(envio);
+    costoCrossDockReal += estiba;
 } else {
-    costoConsolidacionReal +=
-        registrarServicioEstiba(envio);
+    costoConsolidacionReal += estiba;
 }
+
+envio.costoCargosReal += estiba;
+
+envio.costoCargosReal +=
+    registrarDespachante(envio);
+
+if (usaPortacontenedor(envio)) {
+
+    // El portacontenedor tambien espera en la terminal mientras se descarga.
+    envio.costoCargosReal += registrarEspera(
+        envio,
+        "PORTACONTENEDOR",
+        envio.terminalDestino.idUbicacion,
+        envio.tiempoDescargaHoras,
+        "espera en la terminal"
+    );
+}
+
+// Lo devengado tiene que ser exactamente lo que el circuito debe pagar segun las
+// tarifas: es la auditoria de costeo por circuito (V-COST-01 a V-COST-05).
+exigirIgual(
+    envio.costoCargosReal,
+    costoEsperadoCircuito(envio),
+    "circuito " + envio.circuito + " del envio " + envio.idEnvio
+);
+
+envio.costoTotalReal =
+    envio.costoCargosReal;
+
+pedido.costoFleteReal +=
+    envio.costoFleteReal;
+
+pedido.costoConsolidacionReal +=
+    envio.costoConsolidacionReal;
+
+pedido.costoLogisticoReal +=
+    envio.costoTotalReal;
 
 switch (envio.circuito) {
 
@@ -5718,6 +5986,13 @@ return importe;]]></Body>
 					</Parameter>
 					<Body><![CDATA[// El ciclo se devenga recien cuando se completa: un circuito truncado al cierre de
 // la campania no genera cargo (ADR-051). La tarifa es la del dia en que salio.
+if (!usaPortacontenedor(envio)) {
+
+    // El circuito de terminal manda el producto a granel: no hay ciclo que cobrar, y
+    // su transporte ya se devengo como flete de producto (ADR-053).
+    return 0;
+}
+
 int diaTarifa = (int) Math.floor(envio.diaCreacion);
 
 Pedido pedido = envio.pedido;
@@ -5852,8 +6127,10 @@ double dia = time();
 registro.reconciliar(
     RegistroCostos.Categoria.ALMACENAMIENTO, getCostoAlmacenamientoTotal(), dia);
 
+// El flete de producto tiene dos destinos: el deposito y la terminal del circuito 4.
 registro.reconciliar(
-    RegistroCostos.Categoria.FLETE_PRODUCTO, costoFletePlantaDeposito, dia);
+    RegistroCostos.Categoria.FLETE_PRODUCTO,
+    costoFletePlantaDeposito + costoFleteGranelTerminal, dia);
 
 registro.reconciliar(
     RegistroCostos.Categoria.ROUND_TRIP, costoFleteDepositoPuertoReal, dia);
@@ -5865,10 +6142,506 @@ registro.reconciliar(
     RegistroCostos.Categoria.CROSS_DOCK, costoCrossDockReal, dia);
 
 registro.reconciliar(
+    RegistroCostos.Categoria.IN_DEPOSITO, costoInDeposito, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.OUT_DEPOSITO, costoOutDeposito, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.THC, costoThcReal, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.COSTO_TERMINAL, costoTerminalReal, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.DESPACHANTE, costoDespachanteReal, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.ESPERA_CAMION_PRODUCTO, costoEsperaCamionProducto, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR, costoEsperaPortacontenedor, dia);
+
+registro.reconciliar(
     RegistroCostos.Categoria.OPORTUNIDAD_FRIO, costoOportunidadFrio, dia);
 
 registro.reconciliar(
     RegistroCostos.Categoria.PENALIDAD_SOBRECARGA, costoPenalidadSobrecarga, dia);]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000331</Id>
+					<Name><![CDATA[registrarInDeposito]]></Name>
+					<X>130</X><Y>1620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idSitio]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idLote]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[codigoPedido]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idOperacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El ingreso al almacenamiento se devenga cuando el producto entra fisicamente al
+// deposito. El cross dock no lo paga: cruza el sitio sin ingresar al stock (ADR-053).
+DatosEntrada.TarifaSitio tarifa =
+    datos.tarifaSitio(diaCampania(), idSitio, producto);
+
+double importe = registro.registrar(
+    time(),
+    RegistroCostos.Categoria.IN_DEPOSITO,
+    RegistroCostos.Tipo.CAJA,
+    codigoPedido, "", idLote, producto,
+    idSitio, idSitio, idSitio,
+    EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
+    DatosEntrada.Unidad.USD_TN, toneladas, tarifa.inUsdTn,
+    idOperacion, "ingreso al almacenamiento"
+);
+
+costoInDeposito += importe;
+
+return importe;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1791300000333</Id>
+					<Name><![CDATA[pagaOutDeposito]]></Name>
+					<X>130</X><Y>1660</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Solo paga egreso el producto que estuvo almacenado en un deposito de terceros: no
+// lo paga lo que sale del frio propio ni lo que cruza en cross dock (ADR-053).
+return envio != null
+    && envio.pedido != null
+    && !envio.pedido.esCrossDock
+    && buscarDeposito(envio.idSitioOrigen) != null;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000335</Id>
+					<Name><![CDATA[registrarOutDeposito]]></Name>
+					<X>130</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[if (!pagaOutDeposito(envio)) {
+    return 0;
+}
+
+DatosEntrada.TarifaSitio tarifa =
+    datos.tarifaSitio(diaCampania(), envio.idSitioOrigen, envio.producto);
+
+double importe = registro.registrar(
+    time(),
+    RegistroCostos.Categoria.OUT_DEPOSITO,
+    RegistroCostos.Tipo.CAJA,
+    envio.pedido.codigoPedido,
+    envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+    "", envio.producto,
+    envio.idSitioOrigen, envio.terminalDestino.idUbicacion, envio.idSitioOrigen,
+    envio.circuito, tarifa.proveedor,
+    DatosEntrada.Unidad.USD_TN, envio.toneladas, tarifa.outUsdTn,
+    "ENV-" + envio.idEnvio, "egreso del almacenamiento"
+);
+
+costoOutDeposito += importe;
+
+return importe;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000337</Id>
+					<Name><![CDATA[registrarCargosTerminal]]></Name>
+					<X>130</X><Y>1740</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// THC y costo de terminal se cobran por contenedor y no por tonelada: el ultimo
+// contenedor parcial paga completo (respuesta del negocio, C1). Se devengan cuando el
+// contenedor cargado entra a la terminal, una sola vez por envio (ADR-053).
+int dia = diaCampania();
+
+String terminal = envio.terminalDestino.idUbicacion;
+
+DatosEntrada.TarifaSitio tarifa =
+    datos.tarifaSitio(dia, terminal, envio.producto);
+
+int contenedores =
+    contenedoresNecesarios(envio.producto, envio.toneladas);
+
+// El dia del devengo queda anotado: con tarifas mensuales, auditar con otro dia seria
+// comparar contra una tarifa distinta de la que se cobro.
+envio.diaCargosTerminal = dia;
+
+double thc = registro.registrar(
+    time(),
+    RegistroCostos.Categoria.THC,
+    RegistroCostos.Tipo.CAJA,
+    envio.pedido.codigoPedido,
+    envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+    "", envio.producto,
+    envio.idSitioOrigen, terminal, terminal,
+    envio.circuito, tarifa.proveedor,
+    DatosEntrada.Unidad.USD_CONTENEDOR, contenedores, tarifa.thcUsdContenedor,
+    "ENV-" + envio.idEnvio, "thc del contenedor"
+);
+
+double terminalCargo = registro.registrar(
+    time(),
+    RegistroCostos.Categoria.COSTO_TERMINAL,
+    RegistroCostos.Tipo.CAJA,
+    envio.pedido.codigoPedido,
+    envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+    "", envio.producto,
+    envio.idSitioOrigen, terminal, terminal,
+    envio.circuito, tarifa.proveedor,
+    DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
+    tarifa.costoTerminalUsdContenedor,
+    "ENV-" + envio.idEnvio, "costo de terminal del contenedor"
+);
+
+costoThcReal += thc;
+costoTerminalReal += terminalCargo;
+
+return thc + terminalCargo;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000339</Id>
+					<Name><![CDATA[registrarDespachante]]></Name>
+					<X>130</X><Y>1780</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El despachante se cobra por contenedor o por pedido segun el contrato: con la
+// unidad por pedido el cargo es uno por pedido y el registro descarta el segundo
+// envio del mismo pedido por clave repetida (ADR-052).
+int dia = diaCampania();
+
+String terminal = envio.terminalDestino.idUbicacion;
+
+Pedido pedido = envio.pedido;
+
+DatosEntrada.TarifaSitio tarifa =
+    datos.tarifaSitio(dia, terminal, envio.producto);
+
+boolean porPedido =
+    tarifa.despachanteUnidad == DatosEntrada.Unidad.USD_PEDIDO;
+
+int contenedores =
+    contenedoresNecesarios(envio.producto, envio.toneladas);
+
+double importe = registro.registrar(
+    time(),
+    RegistroCostos.Categoria.DESPACHANTE,
+    RegistroCostos.Tipo.CAJA,
+    pedido.codigoPedido,
+    porPedido
+        ? ""
+        : (envio.contenedor == null ? "" : envio.contenedor.idContenedor),
+    "", envio.producto,
+    envio.idSitioOrigen, terminal, terminal,
+    envio.circuito, tarifa.proveedor,
+    tarifa.despachanteUnidad,
+    porPedido ? 1 : contenedores,
+    tarifa.despachanteTarifa,
+    porPedido ? "PED-" + pedido.codigoPedido : "ENV-" + envio.idEnvio,
+    "despacho de exportacion"
+);
+
+costoDespachanteReal += importe;
+
+return importe;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000341</Id>
+					<Name><![CDATA[registrarEspera]]></Name>
+					<X>130</X><Y>1820</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idSitio]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[horas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[motivo]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Se paga solo lo que pasa la franquicia del sitio, y el recurso decide el contrato:
+// el camion de producto y el portacontenedor no esperan al mismo precio (ADR-053).
+int dia = diaCampania();
+
+DatosEntrada.TarifaEspera tarifa =
+    datos.tarifaEspera(dia, tipoRecurso, idSitio);
+
+double facturables =
+    datos.horasEsperaFacturables(dia, tipoRecurso, idSitio, horas);
+
+if (facturables <= 0) {
+    return 0;
+}
+
+RegistroCostos.Categoria categoria =
+    tipoRecurso.equals("PORTACONTENEDOR")
+    ? RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR
+    : RegistroCostos.Categoria.ESPERA_CAMION_PRODUCTO;
+
+double importe = registro.registrar(
+    time(),
+    categoria,
+    RegistroCostos.Tipo.CAJA,
+    envio.pedido.codigoPedido,
+    envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+    "", envio.producto,
+    envio.idSitioOrigen, envio.terminalDestino.idUbicacion, idSitio,
+    envio.circuito, tarifa.proveedor,
+    DatosEntrada.Unidad.USD_HORA, facturables, tarifa.usdHora,
+    "ENV-" + envio.idEnvio, motivo
+);
+
+if (categoria == RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR) {
+    costoEsperaPortacontenedor += importe;
+} else {
+    costoEsperaCamionProducto += importe;
+}
+
+return importe;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000343</Id>
+					<Name><![CDATA[costoEsperadoCircuito]]></Name>
+					<X>130</X><Y>1860</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Auditoria de costeo por circuito (V-COST-01 a V-COST-05): reconstruye lo que el
+// circuito tiene que pagar leyendo las tarifas y sin mirar el registro. Si no coincide
+// con lo devengado, falta un cargo o hay uno de mas.
+Pedido pedido = envio.pedido;
+
+String terminal = envio.terminalDestino.idUbicacion;
+
+String sitio = sitioEstiba(pedido);
+
+int diaSalida = (int) Math.floor(envio.diaCreacion);
+
+int diaLlegada = (int) Math.floor(envio.diaLlegadaTerminal);
+
+int diaCierre = (int) Math.floor(envio.diaEntrega);
+
+int contenedores =
+    contenedoresNecesarios(envio.producto, envio.toneladas);
+
+double esperado = 0;
+
+// Transporte: el ciclo del portacontenedor o el flete a granel, nunca los dos.
+if (usaPortacontenedor(envio)) {
+
+    esperado += datos.roundTripUsdContenedor(
+        diaSalida, terminal, envio.idSitioOrigen, pedido.tipoContenedor);
+
+    esperado += datos.importeEspera(
+        diaLlegada, "PORTACONTENEDOR", envio.idSitioOrigen, envio.tiempoCargaHoras);
+
+    esperado += datos.importeEspera(
+        diaCierre, "PORTACONTENEDOR", terminal, envio.tiempoDescargaHoras);
+
+} else {
+
+    esperado += datos.importeFlete(
+        diaLlegada, envio.idSitioOrigen, terminal, envio.producto,
+        envio.toneladas, viajesNecesariosCamion(envio.toneladas));
+
+    esperado += datos.importeEspera(
+        diaLlegada, "CAMION_PRODUCTO", envio.idSitioOrigen, envio.tiempoCargaHoras);
+
+    esperado += datos.importeEspera(
+        diaLlegada, "CAMION_PRODUCTO", terminal, envio.tiempoDescargaHoras);
+}
+
+// Armado del contenedor, en el sitio donde ocurre.
+esperado += pedido.esCrossDock
+    ? datos.importeCrossDock(
+        diaSalida, sitio, envio.producto, envio.toneladas, contenedores)
+    : datos.importeConsolidacion(
+        diaSalida, sitio, envio.producto, envio.toneladas, contenedores);
+
+// Cargos de la terminal, por contenedor completo y con la tarifa del dia en que se
+// devengaron: en el circuito de terminal el contenedor se arma despues de llegar.
+int diaTerminal = (int) envio.diaCargosTerminal;
+
+esperado += datos.thcUsdContenedor(diaTerminal, terminal, envio.producto) * contenedores;
+
+esperado +=
+    datos.costoTerminalUsdContenedor(diaTerminal, terminal, envio.producto) * contenedores;
+
+DatosEntrada.TarifaSitio tarifaCierre =
+    datos.tarifaSitio(diaCierre, terminal, envio.producto);
+
+if (tarifaCierre.despachanteUnidad == DatosEntrada.Unidad.USD_PEDIDO) {
+
+    // Un solo cargo por pedido: lo paga el primer envio que se entrega.
+    if (pedido.enviosEntregados <= 1) {
+        esperado += tarifaCierre.despachanteTarifa;
+    }
+
+} else {
+    esperado += tarifaCierre.despachanteTarifa * contenedores;
+}
+
+// Egreso del deposito de origen, cuando el producto salio de almacenamiento.
+if (pagaOutDeposito(envio)) {
+    esperado +=
+        datos.outUsdTn(diaSalida, envio.idSitioOrigen, envio.producto) * envio.toneladas;
+}
+
+return esperado;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000345</Id>
+					<Name><![CDATA[costoEndToEndPedido]]></Name>
+					<X>130</X><Y>1900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Todo lo devengado contra el pedido. El almacenaje del stock del que se sirvio es
+// del lote y ya estaba incurrido cuando el pedido eligio su origen (ADR-053).
+return pedido == null
+    ? 0
+    : registro.totalDePedido(pedido.codigoPedido, RegistroCostos.Tipo.CAJA);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000347</Id>
+					<Name><![CDATA[costoIncrementalPedido]]></Name>
+					<X>130</X><Y>1940</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Lo que agrega la decision: los cargos posteriores al dia en que el pedido eligio
+// origen y circuito. Es la vista con la que se comparan alternativas.
+return pedido == null
+    ? 0
+    : registro.totalIncrementalDePedido(
+        pedido.codigoPedido, RegistroCostos.Tipo.CAJA, pedido.diaReserva);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000349</Id>
+					<Name><![CDATA[costoHistoricoPedido]]></Name>
+					<X>130</X><Y>1980</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Costo hundido: lo devengado contra el pedido antes de la decision mas el
+// almacenaje y el flete del stock que va a consumir. No debe entrar en la comparacion
+// entre alternativas, y se reporta para poder explicarlo.
+if (pedido == null) {
+    return 0;
+}
+
+double historico = registro.totalHistoricoDePedido(
+    pedido.codigoPedido, RegistroCostos.Tipo.CAJA, pedido.diaReserva);
+
+for (LoteProducto lote : lotes) {
+
+    if (
+        lote.producto == pedido.producto
+        && inventario.reservadoDeLotePorPedido(lote.idLote, pedido.codigoPedido) > 0
+    ) {
+        historico += registro.totalDeLote("" + lote.idLote, RegistroCostos.Tipo.CAJA);
+    }
+}
+
+return historico;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -10270,7 +11043,7 @@ if (!retirado) {
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>350</Width>
-					<Height>155</Height>
+					<Height>178</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-657931</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -10311,7 +11084,8 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Almacenaje: " + round(getCostoAlmacenamientoTotal())]]></TextCode>
+					<TextCode><![CDATA["Almacenaje: " + round(getCostoAlmacenamientoTotal())
++ " · in/out: " + round(costoInDeposito + costoOutDeposito)]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -10333,7 +11107,8 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Flete planta-depósito: " + round(costoFletePlantaDeposito)]]></TextCode>
+					<TextCode><![CDATA["Flete planta-dep.: " + round(costoFletePlantaDeposito)
++ " · granel: " + round(costoFleteGranelTerminal)]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -10355,7 +11130,8 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Flete depósito-puerto: " + round(costoFleteDepositoPuertoReal)]]></TextCode>
+					<TextCode><![CDATA["Ciclo del portacontenedor: " + round(costoFleteDepositoPuertoReal)
++ " · espera: " + round(costoEsperaCamionProducto + costoEsperaPortacontenedor)]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -10426,6 +11202,30 @@ if (!retirado) {
 					<TextCode><![CDATA["Por tonelada exportada: "
 + round(10 * costoPorToneladaExportada()) / 10.0
 + " · econ. " + round(10 * costoEconomicoPorTonelada()) / 10.0]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1791300000401</Id>
+					<Name><![CDATA[panelCostosLinea6]]></Name>
+					<X>1124</X><Y>363</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Terminal: thc " + round(costoThcReal)
++ " · costo " + round(costoTerminalReal)
++ " · despachante " + round(costoDespachanteReal)]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -15462,6 +16262,38 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1791300000321</Id>
+					<Name><![CDATA[costoCargosReal]]></Name>
+					<X>-140</X><Y>340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1791300000323</Id>
+					<Name><![CDATA[diaCargosTerminal]]></Name>
+					<X>-140</X><Y>360</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<AgentLinks>
 				<AgentLink>
@@ -17173,7 +18005,7 @@ estado = factible
 			<Name><![CDATA[Escenarios]]></Name>
 			<AdditionalClassCode><![CDATA[// Version del modelo con la que se corrio el barrido: sin esto un csv de
 // resultados no se puede volver a atar al codigo que lo produjo.
-static final String VERSION_MODELO = "fase-21";
+static final String VERSION_MODELO = "fase-22";
 
 static final int REPLICAS = 30;
 
@@ -17195,7 +18027,11 @@ static final String[] KPIS = {
 	"ton_dia_sobre_nominal", "dias_sobrecarga", "pico_ocupacion_planta_pct",
 	"contenedores_circuito_planta", "contenedores_circuito_deposito",
 	"contenedores_circuito_cross_dock", "contenedores_circuito_terminal",
-	"viajes_granel_terminal"
+	"viajes_granel_terminal",
+	"costo_flete_producto_usd", "costo_round_trip_usd", "costo_consolidacion_usd",
+	"costo_cross_dock_usd", "costo_almacenamiento_usd", "costo_in_usd",
+	"costo_out_usd", "costo_thc_usd", "costo_terminal_usd", "costo_despachante_usd",
+	"costo_espera_usd"
 };
 
 // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -17520,7 +18356,19 @@ c.kpis = new double[] {
 	root.contenedoresCircuitoDeposito,
 	root.contenedoresCircuitoCrossDock,
 	root.contenedoresCircuitoTerminal,
-	root.viajesGranelTerminal
+	root.viajesGranelTerminal,
+	root.registro.total(RegistroCostos.Categoria.FLETE_PRODUCTO),
+	root.registro.total(RegistroCostos.Categoria.ROUND_TRIP),
+	root.registro.total(RegistroCostos.Categoria.CONSOLIDACION),
+	root.registro.total(RegistroCostos.Categoria.CROSS_DOCK),
+	root.registro.total(RegistroCostos.Categoria.ALMACENAMIENTO),
+	root.registro.total(RegistroCostos.Categoria.IN_DEPOSITO),
+	root.registro.total(RegistroCostos.Categoria.OUT_DEPOSITO),
+	root.registro.total(RegistroCostos.Categoria.THC),
+	root.registro.total(RegistroCostos.Categoria.COSTO_TERMINAL),
+	root.registro.total(RegistroCostos.Categoria.DESPACHANTE),
+	root.registro.total(RegistroCostos.Categoria.ESPERA_CAMION_PRODUCTO)
+		+ root.registro.total(RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR)
 };
 
 corridas.add(c);]]></AfterSimulationRunCode>
@@ -18615,11 +19463,8 @@ public class DatosEntrada implements java.io.Serializable {
 		return tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedor).tarifaUsdContenedor;
 	}
 
-	/**
-	 * Espera del recurso sobre la franquicia. Devuelve cero mientras la tarifa este
-	 * en cero, que es el estado hasta que se cargue el dato real.
-	 */
-	public double importeEspera(int dia, String tipoRecurso, String idUbicacion, double horas) {
+	/** Fila de espera vigente del recurso en el sitio. Sin fila es error de datos. */
+	public TarifaEspera tarifaEspera(int dia, String tipoRecurso, String idUbicacion) {
 		TarifaEspera encontrada = null;
 		for (TarifaEspera t : tarifasEspera) {
 			if (t.tipoRecurso.equals(tipoRecurso) && t.idUbicacion.equals(idUbicacion)
@@ -18635,8 +19480,23 @@ public class DatosEntrada implements java.io.Serializable {
 			throw new RuntimeException("Falta la tarifa de espera de " + tipoRecurso + " en "
 					+ idUbicacion + " vigente el dia " + dia + " (tabla TarifaEspera).");
 		}
-		double excedente = horas - encontrada.franquiciaHoras;
-		return excedente <= 0 ? 0 : excedente * encontrada.usdHora;
+		return encontrada;
+	}
+
+	/**
+	 * Horas por encima de la franquicia del sitio: las unicas que se facturan. Se
+	 * expone aparte del importe porque es la cantidad del cargo (ADR-052).
+	 */
+	public double horasEsperaFacturables(int dia, String tipoRecurso, String idUbicacion,
+			double horas) {
+		double excedente = horas - tarifaEspera(dia, tipoRecurso, idUbicacion).franquiciaHoras;
+		return excedente <= 0 ? 0 : excedente;
+	}
+
+	/** Espera del recurso sobre la franquicia del sitio, en usd. */
+	public double importeEspera(int dia, String tipoRecurso, String idUbicacion, double horas) {
+		return horasEsperaFacturables(dia, tipoRecurso, idUbicacion, horas)
+			* tarifaEspera(dia, tipoRecurso, idUbicacion).usdHora;
 	}
 
 	/**
@@ -19021,6 +19881,21 @@ public class DatosEntrada implements java.io.Serializable {
 				errores.addAll(unaSolaEspera(dia, "CAMION_PRODUCTO", terminal.idUbicacion));
 			}
 
+			// La coherencia se chequea recien cuando hay cobertura: sin fila vigente no
+			// hay nada que comparar.
+			if (errores.isEmpty()) {
+				for (Ubicacion terminal : terminales) {
+					for (TipoProducto producto : TipoProducto.values()) {
+						TipoContenedor tipo = producto(producto).tipoContenedor;
+						errores.addAll(esperaCoherente(dia, terminal.idUbicacion, "PLANTA", tipo));
+						for (Ubicacion deposito : depositos) {
+							errores.addAll(esperaCoherente(dia, terminal.idUbicacion,
+									deposito.idUbicacion, tipo));
+						}
+					}
+				}
+			}
+
 			// Los errores de cobertura se repiten todos los dias del hueco: con el
 			// primer dia alcanza para corregir la fila.
 			if (!errores.isEmpty()) {
@@ -19063,10 +19938,29 @@ public class DatosEntrada implements java.io.Serializable {
 		return errores;
 	}
 
+	private java.util.List<String> esperaCoherente(int dia, String idTerminal, String sitio,
+			TipoContenedor tipoContenedor) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		TarifaRoundTrip ciclo = tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedor);
+		TarifaEspera espera = tarifaEspera(dia, "PORTACONTENEDOR", sitio);
+		String donde = idTerminal + " - " + sitio + " - " + tipoContenedor + " el dia " + dia;
+		if (Math.abs(ciclo.horasEsperaIncluidas - espera.franquiciaHoras) > 0.0001) {
+			errores.add("La franquicia de espera del ciclo (" + ciclo.horasEsperaIncluidas
+					+ " h) no coincide con la del sitio (" + espera.franquiciaHoras + " h) en "
+					+ donde + ".");
+		}
+		if (Math.abs(ciclo.tarifaEsperaUsdHora - espera.usdHora) > 0.0001) {
+			errores.add("La tarifa de espera del ciclo (" + ciclo.tarifaEsperaUsdHora
+					+ " usd/h) no coincide con la del sitio (" + espera.usdHora + " usd/h) en "
+					+ donde + ".");
+		}
+		return errores;
+	}
+
 	private java.util.List<String> unaSolaEspera(int dia, String tipoRecurso, String idUbicacion) {
 		java.util.List<String> errores = new java.util.ArrayList<String>();
 		try {
-			importeEspera(dia, tipoRecurso, idUbicacion, 0);
+			tarifaEspera(dia, tipoRecurso, idUbicacion);
 		} catch (RuntimeException e) {
 			errores.add(e.getMessage());
 		}
@@ -19214,8 +20108,24 @@ public class GeneradorSintetico implements java.io.Serializable {
 	private static final double COSTO_KM = 1.2;
 	private static final double COSTO_VARIABLE_TN = 2.0;
 
+	// IN y OUT del deposito de terceros (usd/tn) de jugo, cascara y aceite. Valores
+	// de referencia marcados como supuesto: no son una cotizacion, se reemplazan por
+	// el contrato real en la hoja TarifaSitio sin tocar codigo (ADR-053).
+	private static final double[] IN_DEPOSITO = { 2.5, 2.0, 3.0 };
+	private static final double[] OUT_DEPOSITO = { 2.5, 2.0, 3.0 };
+
+	// Cargos de la terminal por contenedor (usd/contenedor), tambien de referencia.
+	// Van por producto porque cada producto viaja en su tipo de contenedor.
+	private static final double[] THC = { 220, 150, 190 };
+	private static final double[] COSTO_TERMINAL = { 90, 70, 80 };
+	private static final double DESPACHANTE = 120;
+
 	private static final String TIPO_CAMION_GRANEL = "GRANEL_25";
 	private static final String PROVEEDOR = "SINTETICO";
+
+	// Marca de los valores que no salen de una cotizacion. Van como proveedor de la
+	// fila para que el registro de cargos diga, cargo por cargo, cual es supuesto.
+	private static final String PROVEEDOR_SUPUESTO = "SUPUESTO_C3";
 
 	// Tarifas reales cambian por mes (respuesta del negocio, C1): el generador
 	// emite tramos mensuales con el mismo valor, de modo que la resolucion por dia
@@ -19226,10 +20136,11 @@ public class GeneradorSintetico implements java.io.Serializable {
 	// El ultimo tramo queda abierto: una campania mas larga no deja huecos.
 	private static final int SIN_FIN = 9999;
 
-	// Espera de camion y portacontenedor: la estructura queda cargada y en cero
-	// hasta que exista la franquicia real (C1, seccion 4.2).
-	private static final double FRANQUICIA_HORAS = 0;
-	private static final double ESPERA_USD_HORA = 0;
+	// Espera de camion y portacontenedor. Valores de referencia (supuesto): tres
+	// horas incluidas por operacion y el adicional por hora. Con estos numeros la
+	// estiba normal no genera cargo y solo lo paga la operacion que se pasa.
+	private static final double FRANQUICIA_HORAS = 3;
+	private static final double ESPERA_USD_HORA = 25;
 
 	private static final TipoProducto[] PRODUCTOS = { TipoProducto.JUGO, TipoProducto.CASCARA, TipoProducto.ACEITE };
 
@@ -19371,10 +20282,12 @@ public class GeneradorSintetico implements java.io.Serializable {
 				datos.capacidades.add(new DatosEntrada.Capacidad(
 					DEPOSITOS[d], PRODUCTOS[p], CAPACIDAD[d][p] * escenario.factorCapacidadDeposito));
 
-				// IN y OUT en cero: el deposito de hoy solo cobra almacenaje y estiba.
-				// La columna existe para poder cargar el contrato real sin tocar codigo.
-				tarifaSitio(datos, DEPOSITOS[d], PRODUCTOS[p], 0,
-					STORAGE[d][p] * escenario.factorStorage, 0, 0, PENALIDAD_SOBRECARGA,
+				// El deposito de terceros cobra el ingreso, el almacenaje diario y el
+				// egreso. IN y OUT son valores de referencia (supuesto): el cross dock
+				// no los paga porque el producto no entra al almacenamiento (ADR-053).
+				tarifaSitio(datos, DEPOSITOS[d], PRODUCTOS[p], IN_DEPOSITO[p],
+					STORAGE[d][p] * escenario.factorStorage, OUT_DEPOSITO[p], 0,
+					PENALIDAD_SOBRECARGA,
 					ESTIBA_DEPOSITO[d][p], CROSS_DOCK_DEPOSITO[d][p], 0, 0, 0);
 			}
 
@@ -19393,10 +20306,12 @@ public class GeneradorSintetico implements java.io.Serializable {
 				new DatosEntrada.Distancia(PLANTA, TERMINALES[t], DISTANCIA_PLANTA_TERMINAL[t]));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
-				// THC, costo terminal y despachante quedan en cero: son tarifas por
-				// contenedor que todavia no tenemos y que se cobran en C3 (ADR-051).
+				// THC, costo terminal y despachante por contenedor, con valores de
+				// referencia marcados como supuesto (ADR-053). La terminal no factura
+				// almacenaje: el contenedor no se queda esperando ahi (ADR-050).
 				tarifaSitio(datos, TERMINALES[t], PRODUCTOS[p], 0, 0, 0, 0, 0,
-					CONSOLIDACION[t][p], CONSOLIDACION[t][p], 0, 0, 0);
+					CONSOLIDACION[t][p], CONSOLIDACION[t][p],
+					THC[p], COSTO_TERMINAL[p], DESPACHANTE);
 
 				// Flete de producto a granel hasta la terminal, en usd/tn.
 				fleteTonelada(datos, PLANTA, TERMINALES[t], PRODUCTOS[p], FLETE_PLANTA[t],
@@ -19444,15 +20359,31 @@ public class GeneradorSintetico implements java.io.Serializable {
 			double penalidadUsdTnDia, double consolidacionUsdTn, double crossDockUsdTn,
 			double thcUsdContenedor, double costoTerminalUsdContenedor, double despachanteUsdContenedor) {
 
+		// La estiba y el cross dock se contratan por contenedor: el ultimo contenedor
+		// parcial paga completo (respuesta del negocio, C1). El valor por contenedor
+		// sale del usd/tn de referencia por la capacidad del contenedor del producto.
+		double capacidad = capacidadContenedor(producto);
+		boolean supuesto = inUsdTn > 0 || outUsdTn > 0 || thcUsdContenedor > 0
+			|| costoTerminalUsdContenedor > 0 || despachanteUsdContenedor > 0;
+
 		for (int tramo = 0; tramo < TRAMOS; tramo++) {
 			datos.tarifasSitio.add(new DatosEntrada.TarifaSitio(idUbicacion, producto, inUsdTn,
 				storageUsdTnDia, outUsdTn, oportunidadUsdTnDia, penalidadUsdTnDia,
-				consolidacionUsdTn, DatosEntrada.Unidad.USD_TN,
-				crossDockUsdTn, DatosEntrada.Unidad.USD_TN,
+				consolidacionUsdTn * capacidad, DatosEntrada.Unidad.USD_CONTENEDOR,
+				crossDockUsdTn * capacidad, DatosEntrada.Unidad.USD_CONTENEDOR,
 				thcUsdContenedor, costoTerminalUsdContenedor,
 				despachanteUsdContenedor, DatosEntrada.Unidad.USD_CONTENEDOR,
-				PROVEEDOR, desde(tramo), hasta(tramo), true));
+				supuesto ? PROVEEDOR_SUPUESTO : PROVEEDOR, desde(tramo), hasta(tramo), true));
 		}
+	}
+
+	private static double capacidadContenedor(TipoProducto producto) {
+		for (int p = 0; p < PRODUCTOS.length; p++) {
+			if (PRODUCTOS[p] == producto) {
+				return CAPACIDAD_CONTENEDOR[p];
+			}
+		}
+		throw new RuntimeException("Producto sin capacidad de contenedor: " + producto + ".");
 	}
 
 	private static void fleteViaje(DatosEntrada datos, String origen, String destino, double km,
@@ -19498,7 +20429,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 	private static void espera(DatosEntrada datos, String tipoRecurso, String idUbicacion) {
 		for (int tramo = 0; tramo < TRAMOS; tramo++) {
 			datos.tarifasEspera.add(new DatosEntrada.TarifaEspera(tipoRecurso, idUbicacion,
-				FRANQUICIA_HORAS, ESPERA_USD_HORA, PROVEEDOR, desde(tramo), hasta(tramo), true));
+				FRANQUICIA_HORAS, ESPERA_USD_HORA, PROVEEDOR_SUPUESTO,
+				desde(tramo), hasta(tramo), true));
 		}
 	}
 
@@ -20103,7 +21035,14 @@ public class RegistroCostos implements java.io.Serializable {
 	/** Tolerancia de la reconciliacion: redondeo de punto flotante, no de negocio. */
 	public static final double EPS = 0.01;
 
-	/** Concepto facturable. Cada categoria tiene un solo devengo y un solo dueno. */
+	/**
+	 * Concepto facturable. Cada categoria tiene un solo devengo y un solo dueno.
+	 *
+	 * El sitio donde ocurre el servicio no abre categorias nuevas: es una dimension
+	 * del cargo (sitio, estrategia), asi que la consolidacion en planta, en deposito
+	 * o en terminal se separan filtrando y no duplicando conceptos (ADR-053). La
+	 * espera si se separa por recurso porque son dos contratos distintos.
+	 */
 	public enum Categoria {
 		FLETE_PRODUCTO,
 		ROUND_TRIP,
@@ -20115,7 +21054,8 @@ public class RegistroCostos implements java.io.Serializable {
 		THC,
 		COSTO_TERMINAL,
 		DESPACHANTE,
-		ESPERA,
+		ESPERA_CAMION_PRODUCTO,
+		ESPERA_PORTACONTENEDOR,
 		OPORTUNIDAD_FRIO,
 		PENALIDAD_SOBRECARGA
 	}
@@ -20367,6 +21307,95 @@ public class RegistroCostos implements java.io.Serializable {
 		}
 
 		return total;
+	}
+
+	/**
+	 * Costo end-to-end de un pedido: todo lo que se devengo contra el, desde el flete
+	 * hasta el despachante. No incluye el almacenaje del stock del que se sirvio: ese
+	 * cargo es del lote y ya estaba incurrido cuando el pedido eligio de donde salir
+	 * (ADR-053).
+	 */
+	public double totalDePedido(String codigoPedido, Tipo tipo) {
+		return totalDePedidoEntre(codigoPedido, tipo, -1, Double.MAX_VALUE);
+	}
+
+	/** Lo ya incurrido contra el pedido hasta el dia de la decision, sin incluirlo. */
+	public double totalHistoricoDePedido(String codigoPedido, Tipo tipo, double diaDecision) {
+		return totalDePedidoEntre(codigoPedido, tipo, -1, diaDecision);
+	}
+
+	/** Lo que agrega la decision: end-to-end menos historico, con el mismo registro. */
+	public double totalIncrementalDePedido(String codigoPedido, Tipo tipo, double diaDecision) {
+		return totalDePedidoEntre(codigoPedido, tipo, diaDecision, Double.MAX_VALUE);
+	}
+
+	private double totalDePedidoEntre(String codigoPedido, Tipo tipo, double desde, double hasta) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (
+				codigoPedido != null
+				&& codigoPedido.equals(cargo.codigoPedido)
+				&& (tipo == null || cargo.tipo == tipo)
+				&& cargo.dia >= desde
+				&& cargo.dia < hasta
+			) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	/**
+	 * Costo hundido de un lote: almacenaje y flete que ya se pagaron por tenerlo
+	 * donde esta. Es la vista historica del stock, y no debe entrar en la comparacion
+	 * entre alternativas de un pedido.
+	 */
+	public double totalDeLote(String idLote, Tipo tipo) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (idLote != null && idLote.equals(cargo.idLote) && (tipo == null || cargo.tipo == tipo)) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	/** Total de una categoria en un sitio: separa la estiba de planta, deposito y terminal. */
+	public double totalDeCategoriaEnSitio(Categoria categoria, String sitio) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (cargo.categoria == categoria && sitio != null && sitio.equals(cargo.sitio)) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	/** Cantidad de cargos de una categoria: sirve para verificar el devengo unico. */
+	public int cantidadDe(Categoria categoria) {
+		exigirDetalle();
+
+		int cantidad = 0;
+
+		for (Cargo cargo : cargos) {
+			if (cargo.categoria == categoria) {
+				cantidad++;
+			}
+		}
+
+		return cantidad;
 	}
 
 	/**

@@ -15,7 +15,7 @@ class Escenarios extends ParamVariationExperiment {
     void additionalClassCode() {
         // Version del modelo con la que se corrio el barrido: sin esto un csv de
         // resultados no se puede volver a atar al codigo que lo produjo.
-        static final String VERSION_MODELO = "fase-21";
+        static final String VERSION_MODELO = "fase-22";
 
         static final int REPLICAS = 30;
 
@@ -37,7 +37,11 @@ class Escenarios extends ParamVariationExperiment {
         	"ton_dia_sobre_nominal", "dias_sobrecarga", "pico_ocupacion_planta_pct",
         	"contenedores_circuito_planta", "contenedores_circuito_deposito",
         	"contenedores_circuito_cross_dock", "contenedores_circuito_terminal",
-        	"viajes_granel_terminal"
+        	"viajes_granel_terminal",
+        	"costo_flete_producto_usd", "costo_round_trip_usd", "costo_consolidacion_usd",
+        	"costo_cross_dock_usd", "costo_almacenamiento_usd", "costo_in_usd",
+        	"costo_out_usd", "costo_thc_usd", "costo_terminal_usd", "costo_despachante_usd",
+        	"costo_espera_usd"
         };
 
         // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -365,7 +369,19 @@ class Escenarios extends ParamVariationExperiment {
         	root.contenedoresCircuitoDeposito,
         	root.contenedoresCircuitoCrossDock,
         	root.contenedoresCircuitoTerminal,
-        	root.viajesGranelTerminal
+        	root.viajesGranelTerminal,
+        	root.registro.total(RegistroCostos.Categoria.FLETE_PRODUCTO),
+        	root.registro.total(RegistroCostos.Categoria.ROUND_TRIP),
+        	root.registro.total(RegistroCostos.Categoria.CONSOLIDACION),
+        	root.registro.total(RegistroCostos.Categoria.CROSS_DOCK),
+        	root.registro.total(RegistroCostos.Categoria.ALMACENAMIENTO),
+        	root.registro.total(RegistroCostos.Categoria.IN_DEPOSITO),
+        	root.registro.total(RegistroCostos.Categoria.OUT_DEPOSITO),
+        	root.registro.total(RegistroCostos.Categoria.THC),
+        	root.registro.total(RegistroCostos.Categoria.COSTO_TERMINAL),
+        	root.registro.total(RegistroCostos.Categoria.DESPACHANTE),
+        	root.registro.total(RegistroCostos.Categoria.ESPERA_CAMION_PRODUCTO)
+        		+ root.registro.total(RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR)
         };
 
         corridas.add(c);

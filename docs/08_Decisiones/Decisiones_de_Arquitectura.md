@@ -495,6 +495,24 @@ Queda un hueco declarado: el tramo vacío consume tiempo y pool pero **no** cues
 
 **Consecuencias:** el total dejó de poder cerrar consigo mismo, y eso encontró un error real en el primer intento: la clave de idempotencia del almacenaje era `día|lote|ubicación|producto`, que no distingue dos capas del mismo lote en el mismo depósito, así que sólo la primera capa de cada lote pagaba y el costo caía a un tercio. La capa pasó a tener identidad propia (`Capa.idCapa`, asignada por `Inventario`) y la reconciliación volvió a cerrar. La contrapartida es costo de memoria: los cargos se guardan en una lista por corrida.
 
+## ADR-053 — Cada circuito paga lo que físicamente ocurre, y el modelo lo audita envío por envío
+
+**Estado:** aceptada.  
+**Fecha:** 2026-07-28  
+**Contexto:** con C1 y C2 las tarifas ya tenían unidad, proveedor y vigencia, y el total salía del registro, pero seis conceptos estaban en 0 y no se devengaban: IN, OUT, THC, costo terminal, despachante y espera. El costo por tonelada no era comparable contra una cotización real, y no había forma de verificar que un circuito no pagara cargos de otro: los cuatro circuitos existen físicamente desde ADR-050, pero nada impedía cobrarle un round trip al circuito de terminal, que no usa portacontenedor.
+
+**Decisión:** el cargo se devenga en el evento físico que lo genera, y el modelo verifica en cada envío que lo devengado sea exactamente lo que el circuito debe pagar.
+
+1. **Devengo en el evento físico:** IN cuando el producto entra al almacenamiento, almacenaje una vez por día sobre el stock físico, OUT cuando sale, flete cuando el viaje se ejecuta, consolidación o cross dock en el sitio donde se arma el contenedor, THC y costo terminal cuando el contenedor cargado entra a la terminal —en el circuito de terminal, cuando se arma ahí, con el día guardado en `Envio.diaCargosTerminal`—, despachante por contenedor o por pedido según la unidad, espera sólo por las horas que superan la franquicia y round trip al completar el ciclo.
+2. **Auditoría por circuito:** `Main.costoEsperadoCircuito(envio)` reconstruye el importe desde las tarifas, sin mirar el registro, y `finalizarEnvio()` aborta la corrida si difiere de lo devengado. Es la única forma de garantizar que un circuito no cobre lo que no le corresponde, y es lo que ejecuta los casos V-COST-01 a V-COST-05 y V-COST-07 en cada corrida.
+3. **Lo que un circuito no paga, no se registra:** el de terminal no paga round trip (`usaPortacontenedor()` es falso) y paga el flete a granel; el que sale del frío propio no paga IN, almacenaje de terceros ni OUT (`pagaOutDeposito()` exige que el origen sea un depósito); lo que cruza en cross dock no paga IN ni OUT ni almacenaje en el sitio de cross dock, y sí los paga si el cross dock se degrada y la mercadería queda como stock.
+4. **Vistas separadas:** `costoEndToEndPedido`, `costoIncrementalPedido` y `costoHistoricoPedido` sobre el registro. La comparación entre alternativas usa la **incremental**: el almacenaje y el flete ya incurridos son costo hundido y no pueden decidir dónde consolidar.
+5. **Valores de referencia marcados como supuesto:** IN y OUT por tonelada (2,0–3,0 USD/tn según producto), THC (150–220 USD/contenedor), costo terminal (70–90) y despachante (120) entran con proveedor `SUPUESTO_C3` en lugar de quedar en 0, para que el barrido y los casos V-COST midan algo. Se reemplazan en el Excel sin tocar código.
+
+**Alternativas:** dejar los seis conceptos en 0 con la estructura lista (el modelo compila y no cambia nada, pero el USD/tn sigue sin ser comparable y los casos V-COST no miden); devengar todo al cierre del envío (más simple, pero entonces el almacenaje de un lote no despachado no existiría y la vista incremental no podría separar el costo hundido); confiar en la reconciliación por categoría sin auditar por envío (detecta un total mal sumado, no un cargo puesto en el circuito equivocado); cobrar THC y costo terminal por tonelada (no es el contrato: hoy son por contenedor).
+
+**Consecuencias:** el costo de campaña **sube** entre 11,8 % y 37,2 % según escenario y `fase-21` deja de ser comparable en costo, aunque sigue siendo la línea de base física: los KPIs físicos y de servicio quedaron idénticos fila por fila en las 420 corridas. Las utilizaciones de flota y pool se mueven sólo en E-05 (≤ 0,0007) porque la elección del sitio de cross dock se hace por costo estimado y ese estimado ahora incluye los cargos nuevos. `costo_espera_usd` es 0 en las 420 corridas: con las velocidades sintéticas la carga tarda menos de una hora y la franquicia de 3 h no se supera nunca; el concepto está devengado y se activa con los tiempos reales. La transferencia depósito→depósito queda pendiente por decisión del usuario, así que V-COST-06 se documenta pero no se ejercita.
+
 ## Plantilla para nuevas decisiones
 
 ```markdown

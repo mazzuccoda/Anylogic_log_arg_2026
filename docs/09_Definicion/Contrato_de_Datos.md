@@ -163,7 +163,24 @@ THC y costo terminal entran por contenedor y por producto, que es cómo se factu
 | `franquicia_horas` | double ≥ 0 |
 | `usd_hora` | double ≥ 0 |
 
-Con `franquicia_horas` y `usd_hora` en 0 la espera no cambia ningún número: la estructura queda lista y se activa cuando se cargue el dato real.
+Desde C3 la espera se devenga: `Main.registrarEspera()` cobra las horas que superan `franquicia_horas` en la carga, en la descarga y en la terminal. Con los valores sintéticos (franquicia 3 h, 25 USD/h, proveedor `SUPUESTO_C3`) el cargo es 0, porque un contenedor se carga en menos de una hora; con `franquicia_horas` alta o `usd_hora` en 0 tampoco cambia ningún número.
+
+### 5.5 Valores marcados como supuesto (`SUPUESTO_C3`)
+
+Las tarifas que el usuario todavía no aportó entran con proveedor `SUPUESTO_C3`, para que el barrido mida algo en lugar de cobrar 0. Reemplazarlas en el Excel no requiere tocar código; conviene además cambiar el proveedor por el real, que es lo que permite distinguir en el registro de cargos qué números son supuestos.
+
+| Concepto | Unidad | Jugo | Cáscara | Aceite |
+|---|---|---:|---:|---:|
+| `in_usd_tn` / `out_usd_tn` (depósito) | USD/tn | 2,5 | 2,0 | 3,0 |
+| `thc_usd_contenedor` (terminal) | USD/contenedor | 220 | 150 | 190 |
+| `costo_terminal_usd_contenedor` | USD/contenedor | 90 | 70 | 80 |
+| `despachante_tarifa` | USD/contenedor | 120 | 120 | 120 |
+| `consolidacion_tarifa` (depósito) | USD/contenedor | 225 | 175 | 280 |
+| `cross_dock_tarifa` (depósito) | USD/contenedor | 175 | 150 | 240 |
+| `consolidacion_tarifa` (terminal) | USD/contenedor | 300 | 250 | 360 |
+| `franquicia_horas` / `usd_hora` | h, USD/h | 3 / 25 | 3 / 25 | 3 / 25 |
+
+Los datos operativos de la planta (velocidades, `contenedores_por_dia`, tarifa de consolidación) siguen siendo los del depósito de referencia, también como supuesto (ADR-050).
 
 ---
 
@@ -291,9 +308,9 @@ Las columnas se buscan por nombre, no por posición: se pueden reordenar o agreg
 | `Distancia` | sí | sin tránsito min/moda/max: el tránsito todavía se deriva de la distancia y la velocidad del camión |
 | `TiemposOperativos` | no | los tiempos siguen calculándose como toneladas ÷ velocidad |
 | `TarifaFleteProducto` | sí, todos los tramos | reemplaza a la fórmula cableada `costoFijoViajePD + km × costoKmPD`: desde C1 el flete se cobra con la tarifa de la tabla, en `USD_VIAJE` o `USD_TN` según la unidad de la fila (ADR-051) |
-| `TarifaRoundTrip` | sí | reemplaza al `× 2` de la fórmula cableada. Se devenga al completar el ciclo. `horas_espera_incluidas` y `tarifa_espera_usd_hora` están en 0: la franquicia todavía no se mide |
-| `TarifaSitio` | sí, parcial | consolidación, cross dock, almacenaje, oportunidad y penalidad se consumen. `in_usd_tn`, `out_usd_tn`, `thc_usd_contenedor`, `costo_terminal_usd_contenedor` y `despachante_tarifa` tienen consulta y quedan en 0 hasta C3, que es donde se devengan |
-| `TarifaEspera` | estructura y consulta | ningún recurso mide todavía sus horas de espera, así que no genera cargos |
+| `TarifaRoundTrip` | sí | reemplaza al `× 2` de la fórmula cableada. Se devenga al completar el ciclo, y sólo en los circuitos que usan portacontenedor. `horas_espera_incluidas` y `tarifa_espera_usd_hora` tienen que coincidir con la fila de `TarifaEspera` del mismo sitio: `validarDatosEntrada()` aborta si difieren |
+| `TarifaSitio` | sí, completa | desde C3 se devengan las once categorías: consolidación, cross dock, almacenaje, oportunidad, penalidad, IN, OUT, THC, costo terminal y despachante (ADR-053). Los valores de IN, OUT, THC, costo terminal y despachante son supuestos (§5.5) |
+| `TarifaEspera` | sí | `registrarEspera()` cobra las horas que superan la franquicia en carga, descarga y terminal. Con los tiempos sintéticos el cargo es 0 |
 | `Escenario` | sí, parcial | implementa `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion` y `variabilidad_demanda`, y agrega `pedidos_por_campania`, `toneladas_medias_pedido` y `plazo_pedido_dias`, que son los que gobiernan la demanda sintética |
 | `ProduccionPlan` | sí | serie diaria completa por producto |
 | `PedidoPlan` | sí | sin cliente, calidad, lote solicitado, naviera ni incoterm: el modelo aún no los usa |

@@ -137,8 +137,24 @@ public class GeneradorSintetico implements java.io.Serializable {
 	private static final double COSTO_KM = 1.2;
 	private static final double COSTO_VARIABLE_TN = 2.0;
 
+	// IN y OUT del deposito de terceros (usd/tn) de jugo, cascara y aceite. Valores
+	// de referencia marcados como supuesto: no son una cotizacion, se reemplazan por
+	// el contrato real en la hoja TarifaSitio sin tocar codigo (ADR-053).
+	private static final double[] IN_DEPOSITO = { 2.5, 2.0, 3.0 };
+	private static final double[] OUT_DEPOSITO = { 2.5, 2.0, 3.0 };
+
+	// Cargos de la terminal por contenedor (usd/contenedor), tambien de referencia.
+	// Van por producto porque cada producto viaja en su tipo de contenedor.
+	private static final double[] THC = { 220, 150, 190 };
+	private static final double[] COSTO_TERMINAL = { 90, 70, 80 };
+	private static final double DESPACHANTE = 120;
+
 	private static final String TIPO_CAMION_GRANEL = "GRANEL_25";
 	private static final String PROVEEDOR = "SINTETICO";
+
+	// Marca de los valores que no salen de una cotizacion. Van como proveedor de la
+	// fila para que el registro de cargos diga, cargo por cargo, cual es supuesto.
+	private static final String PROVEEDOR_SUPUESTO = "SUPUESTO_C3";
 
 	// Tarifas reales cambian por mes (respuesta del negocio, C1): el generador
 	// emite tramos mensuales con el mismo valor, de modo que la resolucion por dia
@@ -149,10 +165,11 @@ public class GeneradorSintetico implements java.io.Serializable {
 	// El ultimo tramo queda abierto: una campania mas larga no deja huecos.
 	private static final int SIN_FIN = 9999;
 
-	// Espera de camion y portacontenedor: la estructura queda cargada y en cero
-	// hasta que exista la franquicia real (C1, seccion 4.2).
-	private static final double FRANQUICIA_HORAS = 0;
-	private static final double ESPERA_USD_HORA = 0;
+	// Espera de camion y portacontenedor. Valores de referencia (supuesto): tres
+	// horas incluidas por operacion y el adicional por hora. Con estos numeros la
+	// estiba normal no genera cargo y solo lo paga la operacion que se pasa.
+	private static final double FRANQUICIA_HORAS = 3;
+	private static final double ESPERA_USD_HORA = 25;
 
 	private static final TipoProducto[] PRODUCTOS = { TipoProducto.JUGO, TipoProducto.CASCARA, TipoProducto.ACEITE };
 
@@ -294,10 +311,12 @@ public class GeneradorSintetico implements java.io.Serializable {
 				datos.capacidades.add(new DatosEntrada.Capacidad(
 					DEPOSITOS[d], PRODUCTOS[p], CAPACIDAD[d][p] * escenario.factorCapacidadDeposito));
 
-				// IN y OUT en cero: el deposito de hoy solo cobra almacenaje y estiba.
-				// La columna existe para poder cargar el contrato real sin tocar codigo.
-				tarifaSitio(datos, DEPOSITOS[d], PRODUCTOS[p], 0,
-					STORAGE[d][p] * escenario.factorStorage, 0, 0, PENALIDAD_SOBRECARGA,
+				// El deposito de terceros cobra el ingreso, el almacenaje diario y el
+				// egreso. IN y OUT son valores de referencia (supuesto): el cross dock
+				// no los paga porque el producto no entra al almacenamiento (ADR-053).
+				tarifaSitio(datos, DEPOSITOS[d], PRODUCTOS[p], IN_DEPOSITO[p],
+					STORAGE[d][p] * escenario.factorStorage, OUT_DEPOSITO[p], 0,
+					PENALIDAD_SOBRECARGA,
 					ESTIBA_DEPOSITO[d][p], CROSS_DOCK_DEPOSITO[d][p], 0, 0, 0);
 			}
 
@@ -316,10 +335,12 @@ public class GeneradorSintetico implements java.io.Serializable {
 				new DatosEntrada.Distancia(PLANTA, TERMINALES[t], DISTANCIA_PLANTA_TERMINAL[t]));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
-				// THC, costo terminal y despachante quedan en cero: son tarifas por
-				// contenedor que todavia no tenemos y que se cobran en C3 (ADR-051).
+				// THC, costo terminal y despachante por contenedor, con valores de
+				// referencia marcados como supuesto (ADR-053). La terminal no factura
+				// almacenaje: el contenedor no se queda esperando ahi (ADR-050).
 				tarifaSitio(datos, TERMINALES[t], PRODUCTOS[p], 0, 0, 0, 0, 0,
-					CONSOLIDACION[t][p], CONSOLIDACION[t][p], 0, 0, 0);
+					CONSOLIDACION[t][p], CONSOLIDACION[t][p],
+					THC[p], COSTO_TERMINAL[p], DESPACHANTE);
 
 				// Flete de producto a granel hasta la terminal, en usd/tn.
 				fleteTonelada(datos, PLANTA, TERMINALES[t], PRODUCTOS[p], FLETE_PLANTA[t],
@@ -367,15 +388,31 @@ public class GeneradorSintetico implements java.io.Serializable {
 			double penalidadUsdTnDia, double consolidacionUsdTn, double crossDockUsdTn,
 			double thcUsdContenedor, double costoTerminalUsdContenedor, double despachanteUsdContenedor) {
 
+		// La estiba y el cross dock se contratan por contenedor: el ultimo contenedor
+		// parcial paga completo (respuesta del negocio, C1). El valor por contenedor
+		// sale del usd/tn de referencia por la capacidad del contenedor del producto.
+		double capacidad = capacidadContenedor(producto);
+		boolean supuesto = inUsdTn > 0 || outUsdTn > 0 || thcUsdContenedor > 0
+			|| costoTerminalUsdContenedor > 0 || despachanteUsdContenedor > 0;
+
 		for (int tramo = 0; tramo < TRAMOS; tramo++) {
 			datos.tarifasSitio.add(new DatosEntrada.TarifaSitio(idUbicacion, producto, inUsdTn,
 				storageUsdTnDia, outUsdTn, oportunidadUsdTnDia, penalidadUsdTnDia,
-				consolidacionUsdTn, DatosEntrada.Unidad.USD_TN,
-				crossDockUsdTn, DatosEntrada.Unidad.USD_TN,
+				consolidacionUsdTn * capacidad, DatosEntrada.Unidad.USD_CONTENEDOR,
+				crossDockUsdTn * capacidad, DatosEntrada.Unidad.USD_CONTENEDOR,
 				thcUsdContenedor, costoTerminalUsdContenedor,
 				despachanteUsdContenedor, DatosEntrada.Unidad.USD_CONTENEDOR,
-				PROVEEDOR, desde(tramo), hasta(tramo), true));
+				supuesto ? PROVEEDOR_SUPUESTO : PROVEEDOR, desde(tramo), hasta(tramo), true));
 		}
+	}
+
+	private static double capacidadContenedor(TipoProducto producto) {
+		for (int p = 0; p < PRODUCTOS.length; p++) {
+			if (PRODUCTOS[p] == producto) {
+				return CAPACIDAD_CONTENEDOR[p];
+			}
+		}
+		throw new RuntimeException("Producto sin capacidad de contenedor: " + producto + ".");
 	}
 
 	private static void fleteViaje(DatosEntrada datos, String origen, String destino, double km,
@@ -421,7 +458,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 	private static void espera(DatosEntrada datos, String tipoRecurso, String idUbicacion) {
 		for (int tramo = 0; tramo < TRAMOS; tramo++) {
 			datos.tarifasEspera.add(new DatosEntrada.TarifaEspera(tipoRecurso, idUbicacion,
-				FRANQUICIA_HORAS, ESPERA_USD_HORA, PROVEEDOR, desde(tramo), hasta(tramo), true));
+				FRANQUICIA_HORAS, ESPERA_USD_HORA, PROVEEDOR_SUPUESTO,
+				desde(tramo), hasta(tramo), true));
 		}
 	}
 

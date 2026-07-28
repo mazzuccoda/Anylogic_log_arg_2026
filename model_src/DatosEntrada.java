@@ -557,11 +557,8 @@ public class DatosEntrada implements java.io.Serializable {
 		return tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedor).tarifaUsdContenedor;
 	}
 
-	/**
-	 * Espera del recurso sobre la franquicia. Devuelve cero mientras la tarifa este
-	 * en cero, que es el estado hasta que se cargue el dato real.
-	 */
-	public double importeEspera(int dia, String tipoRecurso, String idUbicacion, double horas) {
+	/** Fila de espera vigente del recurso en el sitio. Sin fila es error de datos. */
+	public TarifaEspera tarifaEspera(int dia, String tipoRecurso, String idUbicacion) {
 		TarifaEspera encontrada = null;
 		for (TarifaEspera t : tarifasEspera) {
 			if (t.tipoRecurso.equals(tipoRecurso) && t.idUbicacion.equals(idUbicacion)
@@ -577,8 +574,23 @@ public class DatosEntrada implements java.io.Serializable {
 			throw new RuntimeException("Falta la tarifa de espera de " + tipoRecurso + " en "
 					+ idUbicacion + " vigente el dia " + dia + " (tabla TarifaEspera).");
 		}
-		double excedente = horas - encontrada.franquiciaHoras;
-		return excedente <= 0 ? 0 : excedente * encontrada.usdHora;
+		return encontrada;
+	}
+
+	/**
+	 * Horas por encima de la franquicia del sitio: las unicas que se facturan. Se
+	 * expone aparte del importe porque es la cantidad del cargo (ADR-052).
+	 */
+	public double horasEsperaFacturables(int dia, String tipoRecurso, String idUbicacion,
+			double horas) {
+		double excedente = horas - tarifaEspera(dia, tipoRecurso, idUbicacion).franquiciaHoras;
+		return excedente <= 0 ? 0 : excedente;
+	}
+
+	/** Espera del recurso sobre la franquicia del sitio, en usd. */
+	public double importeEspera(int dia, String tipoRecurso, String idUbicacion, double horas) {
+		return horasEsperaFacturables(dia, tipoRecurso, idUbicacion, horas)
+			* tarifaEspera(dia, tipoRecurso, idUbicacion).usdHora;
 	}
 
 	/**
@@ -963,6 +975,21 @@ public class DatosEntrada implements java.io.Serializable {
 				errores.addAll(unaSolaEspera(dia, "CAMION_PRODUCTO", terminal.idUbicacion));
 			}
 
+			// La coherencia se chequea recien cuando hay cobertura: sin fila vigente no
+			// hay nada que comparar.
+			if (errores.isEmpty()) {
+				for (Ubicacion terminal : terminales) {
+					for (TipoProducto producto : TipoProducto.values()) {
+						TipoContenedor tipo = producto(producto).tipoContenedor;
+						errores.addAll(esperaCoherente(dia, terminal.idUbicacion, "PLANTA", tipo));
+						for (Ubicacion deposito : depositos) {
+							errores.addAll(esperaCoherente(dia, terminal.idUbicacion,
+									deposito.idUbicacion, tipo));
+						}
+					}
+				}
+			}
+
 			// Los errores de cobertura se repiten todos los dias del hueco: con el
 			// primer dia alcanza para corregir la fila.
 			if (!errores.isEmpty()) {
@@ -1005,10 +1032,29 @@ public class DatosEntrada implements java.io.Serializable {
 		return errores;
 	}
 
+	private java.util.List<String> esperaCoherente(int dia, String idTerminal, String sitio,
+			TipoContenedor tipoContenedor) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		TarifaRoundTrip ciclo = tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedor);
+		TarifaEspera espera = tarifaEspera(dia, "PORTACONTENEDOR", sitio);
+		String donde = idTerminal + " - " + sitio + " - " + tipoContenedor + " el dia " + dia;
+		if (Math.abs(ciclo.horasEsperaIncluidas - espera.franquiciaHoras) > 0.0001) {
+			errores.add("La franquicia de espera del ciclo (" + ciclo.horasEsperaIncluidas
+					+ " h) no coincide con la del sitio (" + espera.franquiciaHoras + " h) en "
+					+ donde + ".");
+		}
+		if (Math.abs(ciclo.tarifaEsperaUsdHora - espera.usdHora) > 0.0001) {
+			errores.add("La tarifa de espera del ciclo (" + ciclo.tarifaEsperaUsdHora
+					+ " usd/h) no coincide con la del sitio (" + espera.usdHora + " usd/h) en "
+					+ donde + ".");
+		}
+		return errores;
+	}
+
 	private java.util.List<String> unaSolaEspera(int dia, String tipoRecurso, String idUbicacion) {
 		java.util.List<String> errores = new java.util.ArrayList<String>();
 		try {
-			importeEspera(dia, tipoRecurso, idUbicacion, 0);
+			tarifaEspera(dia, tipoRecurso, idUbicacion);
 		} catch (RuntimeException e) {
 			errores.add(e.getMessage());
 		}

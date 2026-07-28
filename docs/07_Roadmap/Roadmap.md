@@ -213,24 +213,37 @@ Implementado en el modelo y verificado en PLE (ADR-051, ADR-052).
 - [x] `RegistroCostos`: cargo inmutable con identidad, categoría, tipo (caja/económico), pedido, contenedor, lote, producto, origen, destino, sitio, estrategia, proveedor, unidad, cantidad, tarifa e importe calculado; idempotencia por operación; totales por ocho dimensiones; volcado opcional a csv.
 - [x] `costoTotalCampania()` y el económico salen del registro; los acumuladores de los agentes quedan como vistas y `reconciliarCostos()` los compara contra el registro todos los días y al cierre.
 - [x] Verificado en PLE: build limpio, 420 corridas `Finished` comparadas fila por fila contra `fase-21` (idénticas salvo 1 × 10⁻⁴ USD en una réplica) y corrida desde Excel idéntica a la sintética.
-- [ ] Pendiente en C3: devengar IN, OUT, THC, costo terminal, despachante y espera, que hoy tienen tarifa y consulta en 0. Hasta entonces el USD/tn no es comparable contra una cotización.
-- [ ] Pendiente en C7: movimiento depósito → depósito, franquicia y horas de espera medidas, y ciclo completo del vacío.
+- [ ] Pendiente en C7: movimiento depósito → depósito y ciclo completo del vacío.
+
+## 11g. C3 y C4 — Costeo por circuito y casos V-COST
+
+Implementado en el modelo y verificado en PLE (ADR-053), versión `fase-22`.
+
+- [x] IN y OUT de depósito devengados en el evento físico: IN cuando la capa entra al almacenamiento, OUT cuando el envío se despacha, y ninguno de los dos cuando el producto sale del frío propio o cruza en cross dock.
+- [x] THC, costo terminal y despachante por contenedor completo, al ingresar el contenedor cargado a la terminal —o al armarlo ahí, en el circuito de terminal—, con el día del devengo guardado en `Envio.diaCargosTerminal`.
+- [x] Consolidación y cross dock por contenedor (`USD_CONTENEDOR`) en el sitio donde ocurren, con el contenedor parcial cobrado como completo.
+- [x] Espera de camión de producto y de portacontenedor sobre la franquicia, en carga, descarga y terminal. Con los tiempos sintéticos el cargo es 0.
+- [x] El circuito de terminal no paga round trip y sí paga el flete a granel hasta el puerto.
+- [x] Vistas de costo end-to-end, incremental e histórica sobre el registro, y once columnas de descomposición por categoría en el CSV, más la descomposición en el panel de costos de `Main`.
+- [x] Auditoría por circuito: `costoEsperadoCircuito()` reconstruye el importe desde las tarifas y la corrida aborta si no coincide con lo devengado. Ejecuta V-COST-01 a V-COST-05 y V-COST-07 en cada envío.
+- [x] Verificado en PLE: build limpio, campaña completa de 183 días sin excepciones, 420 corridas `Finished` con CSV etiquetado `fase-22`, y los KPIs físicos y de servicio idénticos a `fase-21` fila por fila. El costo sube entre 11,8 % y 37,2 % según escenario.
+- [ ] Pendiente: V-COST-06 (transferencia depósito → depósito) queda documentado sin movimiento físico, por decisión del usuario. Los valores de IN, OUT, THC, costo terminal y despachante son supuestos (`SUPUESTO_C3`) hasta que se carguen los reales.
 
 ## 12. Fase 9 — Terminal
 
 - [ ] Entrega de vacíos.
 - [ ] Cola de ingreso cargado.
-- [ ] Costo terminal.
-- [ ] THC.
-- [ ] Cierre de ciclo.
+- [x] Costo terminal (C3, ADR-053).
+- [x] THC (C3, ADR-053).
+- [x] Cierre de ciclo: el round trip se devenga al completarse (C1, ADR-051).
 - [ ] Liberación del camión.
 
 ## 13. Fase 10 — Costos
 
 - [x] Separar histórico, incremental y end-to-end.
 - [x] Definir categorías.
-- [ ] Crear tablas tarifarias.
-- [ ] Crear registro auditable.
+- [x] Crear tablas tarifarias (C1, ADR-051).
+- [x] Crear registro auditable (C2, ADR-052).
 - [ ] Evitar duplicación.
 - [ ] Reconciliar estimado y real.
 

@@ -62,6 +62,14 @@ class Main extends Agent {
     int contenedoresCircuitoCrossDock = 0;
     int contenedoresCircuitoTerminal = 0;
     RegistroCostos registro = new RegistroCostos();
+    double costoInDeposito = 0;
+    double costoOutDeposito = 0;
+    double costoThcReal = 0;
+    double costoTerminalReal = 0;
+    double costoDespachanteReal = 0;
+    double costoEsperaCamionProducto = 0;
+    double costoEsperaPortacontenedor = 0;
+    double costoFleteGranelTerminal = 0;
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -273,7 +281,7 @@ class Main extends Agent {
             // Si en el deposito elegido no entra todo, se manda lo que entra y el resto sale
             // en la vuelta siguiente, posiblemente a otro deposito.
             double movidas =
-                transferirToneladasLote(lote, destino, aMover);
+                transferirToneladasLote(lote, destino, aMover, false);
 
             if (movidas <= 0.0001) {
                 break;
@@ -604,13 +612,24 @@ class Main extends Agent {
             : 0;
 
         // El ciclo del portacontenedor se cotiza por contenedor y por circuito, no por
-        // kilometro: la tarifa cubre terminal -> origen -> terminal (ADR-051).
+        // kilometro: la tarifa cubre terminal -> origen -> terminal (ADR-051). El circuito de
+        // terminal no usa portacontenedor: el producto viaja a granel y lo que paga es ese
+        // flete, no un ciclo que nunca ocurre (ADR-053).
         envio.costoFleteReal =
-            datos.roundTripUsdContenedor(
+            conPortacontenedor
+            ? datos.roundTripUsdContenedor(
                 diaCampania(),
                 envio.terminalDestino.idUbicacion,
                 envio.idSitioOrigen,
                 pedido.tipoContenedor
+            )
+            : datos.importeFlete(
+                diaCampania(),
+                envio.idSitioOrigen,
+                envio.terminalDestino.idUbicacion,
+                envio.producto,
+                toneladas,
+                viajesNecesariosCamion(toneladas)
             );
 
         envio.costoConsolidacionReal =
@@ -669,6 +688,11 @@ class Main extends Agent {
         }
 
         actualizarEstadoLotesVacios();
+
+        // El egreso se devenga cuando el producto sale fisicamente del almacenamiento
+        // (ADR-053).
+        envio.costoCargosReal +=
+            registrarOutDeposito(envio);
 
         pedido.toneladasDespachadas +=
             envio.toneladas;
@@ -1075,7 +1099,7 @@ class Main extends Agent {
         );
     }
 
-    double transferirToneladasLote(LoteProducto lote, Deposito destino, double toneladas) {
+    double transferirToneladasLote(LoteProducto lote, Deposito destino, double toneladas, boolean cruza) {
         // Fase 4: el lote deja de viajar entero. Se mueve lo que se pide, acotado por lo que
         // el lote tiene libre en planta y por el lugar que queda en el deposito.
         // El movimiento no necesita reversion: al acotar antes, mover() retira e ingresa
@@ -1153,6 +1177,21 @@ class Main extends Agent {
 
         lote.costoAcumulado += costoViaje;
         costoFletePlantaDeposito += costoViaje;
+
+        // El ingreso al almacenamiento lo paga el producto que se queda; el que cruza en cross
+        // dock no entra al stock y no lo paga (ADR-053).
+        if (!cruza) {
+
+            lote.costoAcumulado += registrarInDeposito(
+                destino.idUbicacion,
+                lote.producto,
+                movidas,
+                "" + lote.idLote,
+                "",
+                "IN-" + diaCampania() + "-" + lote.idLote + "-" + destino.idUbicacion
+                    + "-" + cantidadTransferenciasDepositos
+            );
+        }
 
         destino.toneladasRecibidasAcumuladas += movidas;
         destino.cantidadRecepciones++;
@@ -1667,7 +1706,7 @@ class Main extends Agent {
         return mejorSitio;
     }
 
-    double transferirLotesADeposito(TipoProducto producto, Deposito destino, double toneladas) {
+    double transferirLotesADeposito(TipoProducto producto, Deposito destino, double toneladas, boolean cruza) {
         double pendiente = toneladas;
 
         while (pendiente > 0.0001) {
@@ -1689,7 +1728,8 @@ class Main extends Agent {
                             "PLANTA"
                         ),
                         pendiente
-                    )
+                    ),
+                    cruza
                 );
 
             if (movidas <= 0.0001) {
@@ -1752,7 +1792,8 @@ class Main extends Agent {
             transferirLotesADeposito(
                 pedido.producto,
                 sitio,
-                pedido.toneladasSolicitadas
+                pedido.toneladasSolicitadas,
+                true
             );
 
         // Si el producto se movio pero el pedido no se puede armar, lo movido queda en
@@ -1763,6 +1804,18 @@ class Main extends Agent {
             || !reservarLotesParaPedido(pedido, sitio.idUbicacion)
         ) {
             crossDockDegradados++;
+
+            // Lo movido queda como stock normal: desde aca paga ingreso y almacenaje. El
+            // cargo va sin lote porque puede venir de varios (ADR-053).
+            registrarInDeposito(
+                sitio.idUbicacion,
+                pedido.producto,
+                movidas,
+                "",
+                pedido.codigoPedido,
+                "INX-" + diaCampania() + "-" + pedido.codigoPedido
+            );
+
             return false;
         }
 
@@ -2350,6 +2403,63 @@ class Main extends Agent {
 
             envio.contenedor.horaIngresoTerminal = time();
         }
+
+        if (usaPortacontenedor(envio)) {
+
+            // Circuitos 1 a 3: entra un contenedor ya cargado, y ahi se devengan THC y costo
+            // de terminal. El portacontenedor cobra la espera del sitio de estiba (ADR-053).
+            envio.costoCargosReal +=
+                registrarCargosTerminal(envio);
+
+            envio.costoCargosReal += registrarEspera(
+                envio,
+                "PORTACONTENEDOR",
+                envio.idSitioOrigen,
+                envio.tiempoCargaHoras,
+                "espera en el sitio de estiba"
+            );
+
+            return;
+        }
+
+        // Circuito 4: el viaje a granel termina aca, asi que aca se devenga el flete: el
+        // transporte se cobra cuando el viaje se ejecuta (ADR-053).
+        double flete = registrarFleteProducto(
+            envio.idSitioOrigen,
+            envio.terminalDestino.idUbicacion,
+            envio.producto,
+            envio.toneladas,
+            viajesNecesariosCamion(envio.toneladas),
+            "",
+            envio.pedido.codigoPedido,
+            envio.circuito,
+            "ENV-" + envio.idEnvio
+        );
+
+        exigirIgual(
+            flete,
+            envio.costoFleteReal,
+            "flete a granel del envio " + envio.idEnvio
+        );
+
+        envio.costoCargosReal += flete;
+        costoFleteGranelTerminal += flete;
+
+        envio.costoCargosReal += registrarEspera(
+            envio,
+            "CAMION_PRODUCTO",
+            envio.idSitioOrigen,
+            envio.tiempoCargaHoras,
+            "espera en la carga a granel"
+        );
+
+        envio.costoCargosReal += registrarEspera(
+            envio,
+            "CAMION_PRODUCTO",
+            envio.terminalDestino.idUbicacion,
+            envio.tiempoDescargaHoras,
+            "espera en la descarga a granel"
+        );
     }
 
     void registrarConsolidacionEnTerminal(Envio envio) {
@@ -2367,6 +2477,11 @@ class Main extends Agent {
             envio.contenedor.estado =
                 EstadoContenedor.CONSOLIDANDO;
         }
+
+        // El contenedor recien existe aca, asi que este es el evento que devenga THC y costo
+        // de terminal en el circuito de terminal (ADR-053).
+        envio.costoCargosReal +=
+            registrarCargosTerminal(envio);
     }
 
     void finalizarEnvio(Envio envio) {
@@ -2386,15 +2501,6 @@ class Main extends Agent {
 
         pedido.enviosEntregados++;
 
-        pedido.costoFleteReal +=
-            envio.costoFleteReal;
-
-        pedido.costoConsolidacionReal +=
-            envio.costoConsolidacionReal;
-
-        pedido.costoLogisticoReal +=
-            envio.costoTotalReal;
-
         if (
             pedido.toneladasEntregadas
             >= pedido.toneladasSolicitadas - 0.0001
@@ -2413,16 +2519,57 @@ class Main extends Agent {
                 );
         }
 
-        costoFleteDepositoPuertoReal +=
-            registrarRoundTrip(envio);
+        // El ciclo del portacontenedor se devenga recien cuando se completa (ADR-051); el
+        // circuito de terminal no lo paga porque no usa portacontenedor (ADR-053).
+        double roundTrip = registrarRoundTrip(envio);
+
+        costoFleteDepositoPuertoReal += roundTrip;
+        envio.costoCargosReal += roundTrip;
+
+        double estiba = registrarServicioEstiba(envio);
 
         if (envio.pedido.esCrossDock) {
-            costoCrossDockReal +=
-                registrarServicioEstiba(envio);
+            costoCrossDockReal += estiba;
         } else {
-            costoConsolidacionReal +=
-                registrarServicioEstiba(envio);
+            costoConsolidacionReal += estiba;
         }
+
+        envio.costoCargosReal += estiba;
+
+        envio.costoCargosReal +=
+            registrarDespachante(envio);
+
+        if (usaPortacontenedor(envio)) {
+
+            // El portacontenedor tambien espera en la terminal mientras se descarga.
+            envio.costoCargosReal += registrarEspera(
+                envio,
+                "PORTACONTENEDOR",
+                envio.terminalDestino.idUbicacion,
+                envio.tiempoDescargaHoras,
+                "espera en la terminal"
+            );
+        }
+
+        // Lo devengado tiene que ser exactamente lo que el circuito debe pagar segun las
+        // tarifas: es la auditoria de costeo por circuito (V-COST-01 a V-COST-05).
+        exigirIgual(
+            envio.costoCargosReal,
+            costoEsperadoCircuito(envio),
+            "circuito " + envio.circuito + " del envio " + envio.idEnvio
+        );
+
+        envio.costoTotalReal =
+            envio.costoCargosReal;
+
+        pedido.costoFleteReal +=
+            envio.costoFleteReal;
+
+        pedido.costoConsolidacionReal +=
+            envio.costoConsolidacionReal;
+
+        pedido.costoLogisticoReal +=
+            envio.costoTotalReal;
 
         switch (envio.circuito) {
 
@@ -2668,6 +2815,13 @@ class Main extends Agent {
     double registrarRoundTrip(Envio envio) {
         // El ciclo se devenga recien cuando se completa: un circuito truncado al cierre de
         // la campania no genera cargo (ADR-051). La tarifa es la del dia en que salio.
+        if (!usaPortacontenedor(envio)) {
+
+            // El circuito de terminal manda el producto a granel: no hay ciclo que cobrar, y
+            // su transporte ya se devengo como flete de producto (ADR-053).
+            return 0;
+        }
+
         int diaTarifa = (int) Math.floor(envio.diaCreacion);
 
         Pedido pedido = envio.pedido;
@@ -2762,8 +2916,10 @@ class Main extends Agent {
         registro.reconciliar(
             RegistroCostos.Categoria.ALMACENAMIENTO, getCostoAlmacenamientoTotal(), dia);
 
+        // El flete de producto tiene dos destinos: el deposito y la terminal del circuito 4.
         registro.reconciliar(
-            RegistroCostos.Categoria.FLETE_PRODUCTO, costoFletePlantaDeposito, dia);
+            RegistroCostos.Categoria.FLETE_PRODUCTO,
+            costoFletePlantaDeposito + costoFleteGranelTerminal, dia);
 
         registro.reconciliar(
             RegistroCostos.Categoria.ROUND_TRIP, costoFleteDepositoPuertoReal, dia);
@@ -2775,10 +2931,349 @@ class Main extends Agent {
             RegistroCostos.Categoria.CROSS_DOCK, costoCrossDockReal, dia);
 
         registro.reconciliar(
+            RegistroCostos.Categoria.IN_DEPOSITO, costoInDeposito, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.OUT_DEPOSITO, costoOutDeposito, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.THC, costoThcReal, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.COSTO_TERMINAL, costoTerminalReal, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.DESPACHANTE, costoDespachanteReal, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.ESPERA_CAMION_PRODUCTO, costoEsperaCamionProducto, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR, costoEsperaPortacontenedor, dia);
+
+        registro.reconciliar(
             RegistroCostos.Categoria.OPORTUNIDAD_FRIO, costoOportunidadFrio, dia);
 
         registro.reconciliar(
             RegistroCostos.Categoria.PENALIDAD_SOBRECARGA, costoPenalidadSobrecarga, dia);
+    }
+
+    double registrarInDeposito(String idSitio, TipoProducto producto, double toneladas, String idLote, String codigoPedido, String idOperacion) {
+        // El ingreso al almacenamiento se devenga cuando el producto entra fisicamente al
+        // deposito. El cross dock no lo paga: cruza el sitio sin ingresar al stock (ADR-053).
+        DatosEntrada.TarifaSitio tarifa =
+            datos.tarifaSitio(diaCampania(), idSitio, producto);
+
+        double importe = registro.registrar(
+            time(),
+            RegistroCostos.Categoria.IN_DEPOSITO,
+            RegistroCostos.Tipo.CAJA,
+            codigoPedido, "", idLote, producto,
+            idSitio, idSitio, idSitio,
+            EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
+            DatosEntrada.Unidad.USD_TN, toneladas, tarifa.inUsdTn,
+            idOperacion, "ingreso al almacenamiento"
+        );
+
+        costoInDeposito += importe;
+
+        return importe;
+    }
+
+    boolean pagaOutDeposito(Envio envio) {
+        // Solo paga egreso el producto que estuvo almacenado en un deposito de terceros: no
+        // lo paga lo que sale del frio propio ni lo que cruza en cross dock (ADR-053).
+        return envio != null
+            && envio.pedido != null
+            && !envio.pedido.esCrossDock
+            && buscarDeposito(envio.idSitioOrigen) != null;
+    }
+
+    double registrarOutDeposito(Envio envio) {
+        if (!pagaOutDeposito(envio)) {
+            return 0;
+        }
+
+        DatosEntrada.TarifaSitio tarifa =
+            datos.tarifaSitio(diaCampania(), envio.idSitioOrigen, envio.producto);
+
+        double importe = registro.registrar(
+            time(),
+            RegistroCostos.Categoria.OUT_DEPOSITO,
+            RegistroCostos.Tipo.CAJA,
+            envio.pedido.codigoPedido,
+            envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+            "", envio.producto,
+            envio.idSitioOrigen, envio.terminalDestino.idUbicacion, envio.idSitioOrigen,
+            envio.circuito, tarifa.proveedor,
+            DatosEntrada.Unidad.USD_TN, envio.toneladas, tarifa.outUsdTn,
+            "ENV-" + envio.idEnvio, "egreso del almacenamiento"
+        );
+
+        costoOutDeposito += importe;
+
+        return importe;
+    }
+
+    double registrarCargosTerminal(Envio envio) {
+        // THC y costo de terminal se cobran por contenedor y no por tonelada: el ultimo
+        // contenedor parcial paga completo (respuesta del negocio, C1). Se devengan cuando el
+        // contenedor cargado entra a la terminal, una sola vez por envio (ADR-053).
+        int dia = diaCampania();
+
+        String terminal = envio.terminalDestino.idUbicacion;
+
+        DatosEntrada.TarifaSitio tarifa =
+            datos.tarifaSitio(dia, terminal, envio.producto);
+
+        int contenedores =
+            contenedoresNecesarios(envio.producto, envio.toneladas);
+
+        // El dia del devengo queda anotado: con tarifas mensuales, auditar con otro dia seria
+        // comparar contra una tarifa distinta de la que se cobro.
+        envio.diaCargosTerminal = dia;
+
+        double thc = registro.registrar(
+            time(),
+            RegistroCostos.Categoria.THC,
+            RegistroCostos.Tipo.CAJA,
+            envio.pedido.codigoPedido,
+            envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+            "", envio.producto,
+            envio.idSitioOrigen, terminal, terminal,
+            envio.circuito, tarifa.proveedor,
+            DatosEntrada.Unidad.USD_CONTENEDOR, contenedores, tarifa.thcUsdContenedor,
+            "ENV-" + envio.idEnvio, "thc del contenedor"
+        );
+
+        double terminalCargo = registro.registrar(
+            time(),
+            RegistroCostos.Categoria.COSTO_TERMINAL,
+            RegistroCostos.Tipo.CAJA,
+            envio.pedido.codigoPedido,
+            envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+            "", envio.producto,
+            envio.idSitioOrigen, terminal, terminal,
+            envio.circuito, tarifa.proveedor,
+            DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
+            tarifa.costoTerminalUsdContenedor,
+            "ENV-" + envio.idEnvio, "costo de terminal del contenedor"
+        );
+
+        costoThcReal += thc;
+        costoTerminalReal += terminalCargo;
+
+        return thc + terminalCargo;
+    }
+
+    double registrarDespachante(Envio envio) {
+        // El despachante se cobra por contenedor o por pedido segun el contrato: con la
+        // unidad por pedido el cargo es uno por pedido y el registro descarta el segundo
+        // envio del mismo pedido por clave repetida (ADR-052).
+        int dia = diaCampania();
+
+        String terminal = envio.terminalDestino.idUbicacion;
+
+        Pedido pedido = envio.pedido;
+
+        DatosEntrada.TarifaSitio tarifa =
+            datos.tarifaSitio(dia, terminal, envio.producto);
+
+        boolean porPedido =
+            tarifa.despachanteUnidad == DatosEntrada.Unidad.USD_PEDIDO;
+
+        int contenedores =
+            contenedoresNecesarios(envio.producto, envio.toneladas);
+
+        double importe = registro.registrar(
+            time(),
+            RegistroCostos.Categoria.DESPACHANTE,
+            RegistroCostos.Tipo.CAJA,
+            pedido.codigoPedido,
+            porPedido
+                ? ""
+                : (envio.contenedor == null ? "" : envio.contenedor.idContenedor),
+            "", envio.producto,
+            envio.idSitioOrigen, terminal, terminal,
+            envio.circuito, tarifa.proveedor,
+            tarifa.despachanteUnidad,
+            porPedido ? 1 : contenedores,
+            tarifa.despachanteTarifa,
+            porPedido ? "PED-" + pedido.codigoPedido : "ENV-" + envio.idEnvio,
+            "despacho de exportacion"
+        );
+
+        costoDespachanteReal += importe;
+
+        return importe;
+    }
+
+    double registrarEspera(Envio envio, String tipoRecurso, String idSitio, double horas, String motivo) {
+        // Se paga solo lo que pasa la franquicia del sitio, y el recurso decide el contrato:
+        // el camion de producto y el portacontenedor no esperan al mismo precio (ADR-053).
+        int dia = diaCampania();
+
+        DatosEntrada.TarifaEspera tarifa =
+            datos.tarifaEspera(dia, tipoRecurso, idSitio);
+
+        double facturables =
+            datos.horasEsperaFacturables(dia, tipoRecurso, idSitio, horas);
+
+        if (facturables <= 0) {
+            return 0;
+        }
+
+        RegistroCostos.Categoria categoria =
+            tipoRecurso.equals("PORTACONTENEDOR")
+            ? RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR
+            : RegistroCostos.Categoria.ESPERA_CAMION_PRODUCTO;
+
+        double importe = registro.registrar(
+            time(),
+            categoria,
+            RegistroCostos.Tipo.CAJA,
+            envio.pedido.codigoPedido,
+            envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+            "", envio.producto,
+            envio.idSitioOrigen, envio.terminalDestino.idUbicacion, idSitio,
+            envio.circuito, tarifa.proveedor,
+            DatosEntrada.Unidad.USD_HORA, facturables, tarifa.usdHora,
+            "ENV-" + envio.idEnvio, motivo
+        );
+
+        if (categoria == RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR) {
+            costoEsperaPortacontenedor += importe;
+        } else {
+            costoEsperaCamionProducto += importe;
+        }
+
+        return importe;
+    }
+
+    double costoEsperadoCircuito(Envio envio) {
+        // Auditoria de costeo por circuito (V-COST-01 a V-COST-05): reconstruye lo que el
+        // circuito tiene que pagar leyendo las tarifas y sin mirar el registro. Si no coincide
+        // con lo devengado, falta un cargo o hay uno de mas.
+        Pedido pedido = envio.pedido;
+
+        String terminal = envio.terminalDestino.idUbicacion;
+
+        String sitio = sitioEstiba(pedido);
+
+        int diaSalida = (int) Math.floor(envio.diaCreacion);
+
+        int diaLlegada = (int) Math.floor(envio.diaLlegadaTerminal);
+
+        int diaCierre = (int) Math.floor(envio.diaEntrega);
+
+        int contenedores =
+            contenedoresNecesarios(envio.producto, envio.toneladas);
+
+        double esperado = 0;
+
+        // Transporte: el ciclo del portacontenedor o el flete a granel, nunca los dos.
+        if (usaPortacontenedor(envio)) {
+
+            esperado += datos.roundTripUsdContenedor(
+                diaSalida, terminal, envio.idSitioOrigen, pedido.tipoContenedor);
+
+            esperado += datos.importeEspera(
+                diaLlegada, "PORTACONTENEDOR", envio.idSitioOrigen, envio.tiempoCargaHoras);
+
+            esperado += datos.importeEspera(
+                diaCierre, "PORTACONTENEDOR", terminal, envio.tiempoDescargaHoras);
+
+        } else {
+
+            esperado += datos.importeFlete(
+                diaLlegada, envio.idSitioOrigen, terminal, envio.producto,
+                envio.toneladas, viajesNecesariosCamion(envio.toneladas));
+
+            esperado += datos.importeEspera(
+                diaLlegada, "CAMION_PRODUCTO", envio.idSitioOrigen, envio.tiempoCargaHoras);
+
+            esperado += datos.importeEspera(
+                diaLlegada, "CAMION_PRODUCTO", terminal, envio.tiempoDescargaHoras);
+        }
+
+        // Armado del contenedor, en el sitio donde ocurre.
+        esperado += pedido.esCrossDock
+            ? datos.importeCrossDock(
+                diaSalida, sitio, envio.producto, envio.toneladas, contenedores)
+            : datos.importeConsolidacion(
+                diaSalida, sitio, envio.producto, envio.toneladas, contenedores);
+
+        // Cargos de la terminal, por contenedor completo y con la tarifa del dia en que se
+        // devengaron: en el circuito de terminal el contenedor se arma despues de llegar.
+        int diaTerminal = (int) envio.diaCargosTerminal;
+
+        esperado += datos.thcUsdContenedor(diaTerminal, terminal, envio.producto) * contenedores;
+
+        esperado +=
+            datos.costoTerminalUsdContenedor(diaTerminal, terminal, envio.producto) * contenedores;
+
+        DatosEntrada.TarifaSitio tarifaCierre =
+            datos.tarifaSitio(diaCierre, terminal, envio.producto);
+
+        if (tarifaCierre.despachanteUnidad == DatosEntrada.Unidad.USD_PEDIDO) {
+
+            // Un solo cargo por pedido: lo paga el primer envio que se entrega.
+            if (pedido.enviosEntregados <= 1) {
+                esperado += tarifaCierre.despachanteTarifa;
+            }
+
+        } else {
+            esperado += tarifaCierre.despachanteTarifa * contenedores;
+        }
+
+        // Egreso del deposito de origen, cuando el producto salio de almacenamiento.
+        if (pagaOutDeposito(envio)) {
+            esperado +=
+                datos.outUsdTn(diaSalida, envio.idSitioOrigen, envio.producto) * envio.toneladas;
+        }
+
+        return esperado;
+    }
+
+    double costoEndToEndPedido(Pedido pedido) {
+        // Todo lo devengado contra el pedido. El almacenaje del stock del que se sirvio es
+        // del lote y ya estaba incurrido cuando el pedido eligio su origen (ADR-053).
+        return pedido == null
+            ? 0
+            : registro.totalDePedido(pedido.codigoPedido, RegistroCostos.Tipo.CAJA);
+    }
+
+    double costoIncrementalPedido(Pedido pedido) {
+        // Lo que agrega la decision: los cargos posteriores al dia en que el pedido eligio
+        // origen y circuito. Es la vista con la que se comparan alternativas.
+        return pedido == null
+            ? 0
+            : registro.totalIncrementalDePedido(
+                pedido.codigoPedido, RegistroCostos.Tipo.CAJA, pedido.diaReserva);
+    }
+
+    double costoHistoricoPedido(Pedido pedido) {
+        // Costo hundido: lo devengado contra el pedido antes de la decision mas el
+        // almacenaje y el flete del stock que va a consumir. No debe entrar en la comparacion
+        // entre alternativas, y se reporta para poder explicarlo.
+        if (pedido == null) {
+            return 0;
+        }
+
+        double historico = registro.totalHistoricoDePedido(
+            pedido.codigoPedido, RegistroCostos.Tipo.CAJA, pedido.diaReserva);
+
+        for (LoteProducto lote : lotes) {
+
+            if (
+                lote.producto == pedido.producto
+                && inventario.reservadoDeLotePorPedido(lote.idLote, pedido.codigoPedido) > 0
+            ) {
+                historico += registro.totalDeLote("" + lote.idLote, RegistroCostos.Tipo.CAJA);
+            }
+        }
+
+        return historico;
     }
 
     // ----- Eventos -----
