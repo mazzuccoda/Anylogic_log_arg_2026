@@ -93,6 +93,8 @@ Contenedores creados, esperando posición de consolidación, exportados; envíos
 
 Almacenaje, flete planta–depósito, flete depósito–puerto, consolidación, cross dock, total de caja, costo por tonelada exportada y, aparte, el costo económico con el frío propio y la penalidad de sobrecarga (ADR-049). El total es `costoTotalCampania()`, la misma función que alimenta el CSV del barrido: el tablero y el barrido no pueden discrepar.
 
+Desde C2 el número no sale de sumar los indicadores del panel: sale del registro de cargos (`registro.total(CAJA)` y `registro.total()` para el económico), y cada línea del panel es una vista de ese registro por categoría (ADR-052). `reconciliarCostos()` compara las dos cosas todos los días y aborta la corrida si difieren en más de 0,01 USD, así que un desglose que no sume el total es imposible por construcción. Para auditar un número concreto —por qué costó eso este pedido, este contenedor o este día— se vuelca el detalle con `registro.exportarCsv("resultados/cargos.csv")`, que da una fila por cargo con día, categoría, tipo, pedido, contenedor, lote, producto, origen, destino, sitio, estrategia, proveedor, unidad, cantidad, tarifa e importe. No se llama solo: una campaña son cientos de miles de cargos.
+
 ---
 
 ## 3. Gráficos
@@ -161,6 +163,7 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 - La carga y la descarga no consumen jornada de camión (faltan velocidades operativas en las tablas), así que la utilización de la flota de producto está subestimada.
 - La terminal todavía no tiene cola propia ni THC, así que no hay panel de terminal.
 - El tramo vacío terminal → origen del portacontenedor ocupa el pool y consume tiempo, pero **no** tiene costo: la tarifa del ciclo de contenedor todavía no existe (ADR-050).
+- El costo por tonelada **todavía no** es comparable contra una cotización de un tercero: IN, OUT, THC, costo terminal, despachante y espera tienen tarifa y consulta pero no se devengan, y están en 0 (ADR-051). Es el trabajo de C3.
 
 ---
 

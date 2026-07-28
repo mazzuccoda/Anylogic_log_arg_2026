@@ -1127,6 +1127,96 @@ cargarDatosEntrada();]]></StartupCode>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000030</Id>
+					<Name><![CDATA[viajesGranelTerminal]]></Name>
+					<X>-140</X><Y>940</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000031</Id>
+					<Name><![CDATA[contenedoresCircuitoPlanta]]></Name>
+					<X>-140</X><Y>980</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000032</Id>
+					<Name><![CDATA[contenedoresCircuitoDeposito]]></Name>
+					<X>-140</X><Y>1020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000033</Id>
+					<Name><![CDATA[contenedoresCircuitoCrossDock]]></Name>
+					<X>-140</X><Y>1060</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000034</Id>
+					<Name><![CDATA[contenedoresCircuitoTerminal]]></Name>
+					<X>-140</X><Y>1100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791100000201</Id>
+					<Name><![CDATA[registro]]></Name>
+					<X>1200</X><Y>180</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[RegistroCostos]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new RegistroCostos()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1791000000113</Id>
 					<Name><![CDATA[origenDatos]]></Name>
@@ -1306,98 +1396,6 @@ cargarDatosEntrada();]]></StartupCode>
 						</CollectionInitializer>
 					</Properties>
 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792000030</Id>
-					<Name><![CDATA[viajesGranelTerminal]]></Name>
-					<X>-140</X><Y>940</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000031</Id>
-					<Name><![CDATA[contenedoresCircuitoPlanta]]></Name>
-					<X>-140</X><Y>980</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000032</Id>
-					<Name><![CDATA[contenedoresCircuitoDeposito]]></Name>
-					<X>-140</X><Y>1020</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000033</Id>
-					<Name><![CDATA[contenedoresCircuitoCrossDock]]></Name>
-					<X>-140</X><Y>1060</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000034</Id>
-					<Name><![CDATA[contenedoresCircuitoTerminal]]></Name>
-					<X>-140</X><Y>1100</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1791100000201</Id>
-					<Name><![CDATA[registro]]></Name>
-					<X>-140</X><Y>500</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[RegistroCostos]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new RegistroCostos()]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<Connectors>
@@ -1665,7 +1663,7 @@ cargarDatosEntrada();]]></StartupCode>
 						<Point><X>-80</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
-							<Connector>
+				<Connector>
 					<Id>1792400001</Id>
 					<Name><![CDATA[connector0001]]></Name>
 					<X>110</X><Y>710</Y>
@@ -3200,7 +3198,7 @@ for (Capa capa : inventario.capas) {
         EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
         DatosEntrada.Unidad.USD_TN_DIA, facturables, tarifa.storageUsdTnDia,
         "STO-" + diaCampania() + "-" + capa.idLote + "-" + capa.idUbicacion
-            + "-" + capa.producto,
+            + "-" + capa.producto + "-" + capa.idCapa,
         "almacenaje del dia"
     );
 
@@ -4960,7 +4958,6 @@ return toneladas <= 0
     ? 0
     : costoTotalEconomico() / toneladas;]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
@@ -5328,7 +5325,6 @@ if (envio.contenedor != null) {
         envio.costoTotalReal;
 }]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
@@ -5570,7 +5566,6 @@ return flotaProductoLibreHoy() + 0.0001
     >= viajesNecesariosCamion(toneladas)
     * camionDiaViaje(idOrigen, idDestino);]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[int]]></ReturnType>
@@ -5611,7 +5606,6 @@ for (Deposito deposito : depositos) {
         datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.ACEITE);
 }]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
@@ -7576,39 +7570,39 @@ registro.reconciliar(
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-					<Parameter>
-						<Name><![CDATA[conditionIsProbabilistic]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[false]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[condition]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[usaPortacontenedor((Envio) agent)]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[probability]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onAtEnter]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onEnter]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExitTrue]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExitFalse]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[choiceIsVolatile]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[true]]></Code>
-						</Value>
-					</Parameter>
+						<Parameter>
+							<Name><![CDATA[conditionIsProbabilistic]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[false]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[condition]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[usaPortacontenedor((Envio) agent)]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[probability]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtEnter]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExitTrue]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExitFalse]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[choiceIsVolatile]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -7655,41 +7649,41 @@ registro.reconciliar(
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-					<Parameter>
-						<Name><![CDATA[type]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[delayTime]]></Name>
-						<Value Class="CodeUnitValue">
-							<Code><![CDATA[((Envio) agent).tiempoViajeVacioHoras]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[capacity]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[maximumCapacity]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[true]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[entityLocation]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[pushProtocol]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[forceStatisticsCollection]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onEnter]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[Envio envio = (Envio) agent;
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[((Envio) agent).tiempoViajeVacioHoras]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[Envio envio = (Envio) agent;
 
 // El portacontenedor no aparece en el origen: sale vacio de la terminal y hace el
 // tramo hasta planta o deposito antes de poder estibar (ADR-050).
@@ -7697,17 +7691,17 @@ if (envio.contenedor != null) {
     envio.contenedor.estado =
         EstadoContenedor.EN_TRANSITO_VACIO;
 }]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onAtExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onRemove]]></Name>
-					</Parameter>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -7754,41 +7748,41 @@ if (envio.contenedor != null) {
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-					<Parameter>
-						<Name><![CDATA[type]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[delayTime]]></Name>
-						<Value Class="CodeUnitValue">
-							<Code><![CDATA[((Envio) agent).tiempoCargaHoras]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[capacity]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[maximumCapacity]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[true]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[entityLocation]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[pushProtocol]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[forceStatisticsCollection]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onEnter]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[Envio envio = (Envio) agent;
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[((Envio) agent).tiempoCargaHoras]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[Envio envio = (Envio) agent;
 
 // Circuito 4: el producto se carga a granel en el origen y el contenedor todavia
 // no existe fisicamente; se arma en la terminal.
@@ -7797,17 +7791,17 @@ envio.estado = EstadoEnvio.CARGANDO;
 if (envio.contenedor != null) {
     envio.contenedor.horaInicioCarga = time();
 }]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onAtExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onRemove]]></Name>
-					</Parameter>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -7854,41 +7848,41 @@ if (envio.contenedor != null) {
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-					<Parameter>
-						<Name><![CDATA[type]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[delayTime]]></Name>
-						<Value Class="CodeUnitValue">
-							<Code><![CDATA[((Envio) agent).tiempoViajeIdaHoras]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[capacity]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[maximumCapacity]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[true]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[entityLocation]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[pushProtocol]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[forceStatisticsCollection]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onEnter]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[Envio envio = (Envio) agent;
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[((Envio) agent).tiempoViajeIdaHoras]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[Envio envio = (Envio) agent;
 
 envio.estado = EstadoEnvio.EN_TRANSITO;
 envio.diaSalidaDeposito = time();
@@ -7896,17 +7890,17 @@ envio.diaSalidaDeposito = time();
 if (envio.contenedor != null) {
     envio.contenedor.horaFinCarga = time();
 }]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onAtExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onRemove]]></Name>
-					</Parameter>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -7953,52 +7947,52 @@ if (envio.contenedor != null) {
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-					<Parameter>
-						<Name><![CDATA[type]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[delayTime]]></Name>
-						<Value Class="CodeUnitValue">
-							<Code><![CDATA[((Envio) agent).tiempoDescargaHoras]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[capacity]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[maximumCapacity]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[true]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[entityLocation]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[pushProtocol]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[forceStatisticsCollection]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onEnter]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[registrarIngresoTerminal((Envio) agent);]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onAtExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onRemove]]></Name>
-					</Parameter>
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[((Envio) agent).tiempoDescargaHoras]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[registrarIngresoTerminal((Envio) agent);]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -11091,6 +11085,51 @@ if (!retirado) {
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000020</Id>
+					<Name><![CDATA[toneladasConsolidadas]]></Name>
+					<X>-140</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000021</Id>
+					<Name><![CDATA[contenedoresConsolidados]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000022</Id>
+					<Name><![CDATA[costoConsolidacionAcumulado]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1784242444879</Id>
 					<Name><![CDATA[capacidadJugo]]></Name>
@@ -11162,52 +11201,6 @@ if (!retirado) {
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792000020</Id>
-					<Name><![CDATA[toneladasConsolidadas]]></Name>
-					<X>-140</X><Y>520</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000021</Id>
-					<Name><![CDATA[contenedoresConsolidados]]></Name>
-					<X>-140</X><Y>560</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000022</Id>
-					<Name><![CDATA[costoConsolidacionAcumulado]]></Name>
-					<X>-140</X><Y>600</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<Functions>
@@ -12869,6 +12862,21 @@ if (producto != null) {
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000001</Id>
+					<Name><![CDATA[idSitioOrigen]]></Name>
+					<X>-140</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1784396835308</Id>
 					<Name><![CDATA[idPedido]]></Name>
@@ -13757,22 +13765,6 @@ if (producto != null) {
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792000001</Id>
-					<Name><![CDATA[idSitioOrigen]]></Name>
-					<X>-140</X><Y>520</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<Functions>
@@ -14899,6 +14891,51 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 			<CurrentLevel>1784590351330</CurrentLevel>
 			<ConnectionsId>1784590351325</ConnectionsId>
 			<Variables>
+				<Variable Class="PlainVariable">
+					<Id>1792000010</Id>
+					<Name><![CDATA[idSitioOrigen]]></Name>
+					<X>-140</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000011</Id>
+					<Name><![CDATA[circuito]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[EstrategiaLogistica]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[EstrategiaLogistica.SIN_DEFINIR]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000012</Id>
+					<Name><![CDATA[tiempoViajeVacioHoras]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1784590396486</Id>
 					<Name><![CDATA[estado]]></Name>
@@ -15424,52 +15461,6 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792000010</Id>
-					<Name><![CDATA[idSitioOrigen]]></Name>
-					<X>-140</X><Y>520</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000011</Id>
-					<Name><![CDATA[circuito]]></Name>
-					<X>-140</X><Y>560</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[EstrategiaLogistica]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[EstrategiaLogistica.SIN_DEFINIR]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000012</Id>
-					<Name><![CDATA[tiempoViajeVacioHoras]]></Name>
-					<X>-140</X><Y>600</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<AgentLinks>
@@ -17997,15 +17988,6 @@ for (int k = 0; k < KPIS.length; k++) {
 				</Expression>
 			</FreeformParamValue>
 			<FreeformParamValue>	
-				<Id>1784381347601</Id>
-			</FreeformParamValue>
-			<FreeformParamValue>	
-				<Id>1784381360528</Id>
-			</FreeformParamValue>
-			<FreeformParamValue>	
-				<Id>1784381388672</Id>
-			</FreeformParamValue>
-			<FreeformParamValue>	
 				<Id>1784382673676</Id>
 			</FreeformParamValue>
 			<FreeformParamValue>	
@@ -18025,18 +18007,6 @@ for (int k = 0; k < KPIS.length; k++) {
 			</FreeformParamValue>
 			<RangeVariationParamValue>	
 				<Id>1786000001</Id>
-				<Type>FIXED</Type>
-			</RangeVariationParamValue>
-			<RangeVariationParamValue>	
-				<Id>1784381347601</Id>
-				<Type>FIXED</Type>
-			</RangeVariationParamValue>
-			<RangeVariationParamValue>	
-				<Id>1784381360528</Id>
-				<Type>FIXED</Type>
-			</RangeVariationParamValue>
-			<RangeVariationParamValue>	
-				<Id>1784381388672</Id>
 				<Type>FIXED</Type>
 			</RangeVariationParamValue>
 			<RangeVariationParamValue>	
@@ -20025,6 +19995,9 @@ public class Capa implements java.io.Serializable {
 		}
 	}
 
+	/** Identidad de la capa, para que un cargo pueda apuntar a una y solo una. */
+	public long idCapa = 0;
+
 	public final int idLote;
 	public final TipoProducto producto;
 	public final double diaProduccion;
@@ -20436,6 +20409,40 @@ public class RegistroCostos implements java.io.Serializable {
 		return texto;
 	}
 
+	/**
+	 * Escribe el detalle en un csv. No se llama en el barrido: una campania son cientos
+	 * de miles de cargos y el archivo solo hace falta cuando hay que auditar un numero.
+	 */
+	public void exportarCsv(String ruta) {
+		exigirDetalle();
+
+		java.io.PrintWriter salida = null;
+
+		try {
+			salida = new java.io.PrintWriter(ruta, "UTF-8");
+
+			salida.println("id,dia,categoria,tipo,pedido,contenedor,lote,producto,origen,destino,"
+					+ "sitio,estrategia,proveedor,unidad,cantidad,tarifa,importe,operacion,motivo");
+
+			for (Cargo c : cargos) {
+				salida.println(c.id + "," + c.dia + "," + c.categoria + "," + c.tipo + ","
+						+ c.codigoPedido + "," + c.codigoContenedor + "," + c.idLote + ","
+						+ c.producto + "," + c.origen + "," + c.destino + "," + c.sitio + ","
+						+ c.estrategia + "," + c.proveedor + "," + c.unidad + ","
+						+ c.cantidad + "," + c.tarifa + "," + c.importe + ","
+						+ c.idOperacion + "," + c.motivo);
+			}
+
+		} catch (java.io.IOException e) {
+			throw new RuntimeException("No se pudo escribir " + ruta + ": " + e.getMessage());
+
+		} finally {
+			if (salida != null) {
+				salida.close();
+			}
+		}
+	}
+
 	private void exigirDetalle() {
 		if (!guardarDetalle) {
 			throw new RuntimeException("El detalle de cargos esta apagado: las vistas por"
@@ -20465,6 +20472,9 @@ public class Inventario implements java.io.Serializable {
 
 	public final java.util.List<Capa> capas = new java.util.ArrayList<Capa>();
 
+	/** Numerador de capas: dos capas pueden coincidir en todo menos en su identidad. */
+	private long secuenciaCapa = 0;
+
 	/** Orden FIFO: primero la capa que ingreso antes; los empates se rompen igual siempre. */
 	private static class PorAntiguedad
 			implements java.util.Comparator<Capa>, java.io.Serializable {
@@ -20492,6 +20502,7 @@ public class Inventario implements java.io.Serializable {
 			return null;
 		}
 		Capa capa = new Capa(idLote, producto, idUbicacion, toneladas, dia, diaProduccion);
+		capa.idCapa = ++secuenciaCapa;
 		capas.add(capa);
 		return capa;
 	}
@@ -20718,12 +20729,20 @@ public class Inventario implements java.io.Serializable {
 				continue;
 			}
 			c.toneladas -= toma;
-			nuevas.add(new Capa(c.idLote, c.producto, destino, toma, dia, c.diaProduccion));
+			nuevas.add(nuevaCapa(c, destino, toma, dia));
 			pendiente -= toma;
 		}
 		capas.addAll(nuevas);
 		limpiar();
 		return toneladas - pendiente;
+	}
+
+	/** Parte de una capa que se muda: mismo lote y misma produccion, otra identidad. */
+	private Capa nuevaCapa(Capa origen, String destino, double toneladas, double dia) {
+		Capa capa = new Capa(origen.idLote, origen.producto, destino, toneladas, dia,
+				origen.diaProduccion);
+		capa.idCapa = ++secuenciaCapa;
+		return capa;
 	}
 
 	/** Igual que mover(), pero limitado a las capas de un lote. */
@@ -20740,7 +20759,7 @@ public class Inventario implements java.io.Serializable {
 				continue;
 			}
 			c.toneladas -= toma;
-			nuevas.add(new Capa(c.idLote, c.producto, destino, toma, dia, c.diaProduccion));
+			nuevas.add(nuevaCapa(c, destino, toma, dia));
 			pendiente -= toma;
 		}
 		capas.addAll(nuevas);

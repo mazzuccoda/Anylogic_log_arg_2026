@@ -956,7 +956,7 @@ class Main extends Agent {
                 EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
                 DatosEntrada.Unidad.USD_TN_DIA, facturables, tarifa.storageUsdTnDia,
                 "STO-" + diaCampania() + "-" + capa.idLote + "-" + capa.idUbicacion
-                    + "-" + capa.producto,
+                    + "-" + capa.producto + "-" + capa.idCapa,
                 "almacenaje del dia"
             );
 

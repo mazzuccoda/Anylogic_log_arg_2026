@@ -324,6 +324,40 @@ public class RegistroCostos implements java.io.Serializable {
 		return texto;
 	}
 
+	/**
+	 * Escribe el detalle en un csv. No se llama en el barrido: una campania son cientos
+	 * de miles de cargos y el archivo solo hace falta cuando hay que auditar un numero.
+	 */
+	public void exportarCsv(String ruta) {
+		exigirDetalle();
+
+		java.io.PrintWriter salida = null;
+
+		try {
+			salida = new java.io.PrintWriter(ruta, "UTF-8");
+
+			salida.println("id,dia,categoria,tipo,pedido,contenedor,lote,producto,origen,destino,"
+					+ "sitio,estrategia,proveedor,unidad,cantidad,tarifa,importe,operacion,motivo");
+
+			for (Cargo c : cargos) {
+				salida.println(c.id + "," + c.dia + "," + c.categoria + "," + c.tipo + ","
+						+ c.codigoPedido + "," + c.codigoContenedor + "," + c.idLote + ","
+						+ c.producto + "," + c.origen + "," + c.destino + "," + c.sitio + ","
+						+ c.estrategia + "," + c.proveedor + "," + c.unidad + ","
+						+ c.cantidad + "," + c.tarifa + "," + c.importe + ","
+						+ c.idOperacion + "," + c.motivo);
+			}
+
+		} catch (java.io.IOException e) {
+			throw new RuntimeException("No se pudo escribir " + ruta + ": " + e.getMessage());
+
+		} finally {
+			if (salida != null) {
+				salida.close();
+			}
+		}
+	}
+
 	private void exigirDetalle() {
 		if (!guardarDetalle) {
 			throw new RuntimeException("El detalle de cargos esta apagado: las vistas por"

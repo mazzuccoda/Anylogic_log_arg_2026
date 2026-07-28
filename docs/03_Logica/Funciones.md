@@ -196,6 +196,18 @@ Fase 5 de la secuencia diaria, antes de las transferencias normales. Recorre los
 
 Resuelven quién cobra la estiba y dónde se arma el contenedor: la tarifa `CROSS_DOCK` del depósito si el pedido se cruzó, la de `CONSOLIDACION` del depósito si la estrategia consolida ahí, y la de la terminal en el caso contrario. Se usan tanto para el costo estimado del contenedor como para el costo real del envío, de modo que no puedan divergir.
 
+### Consultas de tarifas por día de campaña: `DatosEntrada.tarifaFlete`, `tarifaRoundTrip`, `tarifaSitio`, `tarifaEspera` e `importe`
+
+**Estado:** implementadas (C1, ADR-051).
+
+Todas reciben el día de campaña y la clave del concepto (origen/destino/producto, terminal/sitio/tipo de contenedor, sitio/producto, recurso/sitio) y devuelven la **única** fila habilitada y vigente ese día. Dos filas vigentes para la misma clave, o ninguna, abortan la corrida indicando clave y día: la alternativa —devolver 0— convertiría un dato faltante en un resultado barato. `importe(unidad, tarifa, toneladas, contenedores, motivo)` es la que traduce unidad a base de cálculo y rechaza una unidad que no aplique al concepto; `importeFlete`, `importeConsolidacion`, `importeCrossDock` y `roundTripUsdContenedor` son los envoltorios que usa el modelo.
+
+### Registro de cargos: `RegistroCostos.registrar()`, `total()`, `totalDe*()`, `reconciliar()` y `exportarCsv()`
+
+**Estado:** implementadas (C2, ADR-052).
+
+`registrar(...)` crea un `Cargo` inmutable, calcula el importe como `cantidad × tarifa`, rechaza cantidades o tarifas negativas y devuelve el importe registrado, o 0 si el cargo ya estaba (idempotencia por operación, categoría, unidad y motivo). Los totales por categoría, tipo, pedido, contenedor, producto, sitio, estrategia y día son consultas sobre la misma lista, así que no hay un segundo saldo que sincronizar. `Main.reconciliarCostos()` compara cada acumulador de agente contra el total de su categoría, todos los días y al cierre, y aborta si difieren en más de 0,01 USD. `exportarCsv(ruta)` vuelca el detalle a pedido y **no** se llama en el barrido.
+
 ### KPIs de cierre de corrida
 
 **Estado:** implementadas (fase 13).

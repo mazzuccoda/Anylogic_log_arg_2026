@@ -267,6 +267,18 @@ Las dos verificaciones que exige ADR-050 se leen directamente de esa tabla: el c
 
 **Esperado:** al hacer real el tramo vacío, la capacidad efectiva del pool baja y eso se ve en servicio, no en costo. Medido sobre 30 réplicas, E-01 (1 camión de producto, 1 portacontenedor) pasa de 0,98 a 0,77 de nivel de servicio y de 0,49 a 2,06 días de atraso, con costo idéntico; los escenarios con pool holgado no se mueven. Es la evidencia de que el tramo vacío es un consumo de recurso y no un delay decorativo.
 
+### V-029 La migración del contrato de costos no mueve ningún número (ADR-051)
+
+**Esperado:** reemplazar las fórmulas cableadas por tarifas con unidad, proveedor y vigencia no cambia ningún resultado, porque los valores sintéticos están calibrados para reproducir la línea base. **Medido:** barrido completo de 420 corridas (14 escenarios × 30 réplicas, todas `Finished`) comparado fila por fila contra `fase-21`; las 26 columnas de KPI coinciden en las 420 filas, con una única diferencia de 1 × 10⁻⁴ USD en `costo_total_economico_usd` de E-00 réplica 29, que es orden de suma de punto flotante. Si alguna otra columna se hubiera movido, la migración habría perdido o duplicado un devengo.
+
+**Esperado (falta de cobertura):** una tarifa que no cubra algún día de la campaña aborta la corrida indicando clave y día, en lugar de devolver 0. Verificado por construcción en `DatosEntrada.tarifaFlete/tarifaRoundTrip/tarifaSitio/tarifaEspera`, que también abortan si dos filas están vigentes a la vez para la misma clave.
+
+### V-030 El registro de cargos reconcilia con los acumuladores (ADR-052)
+
+**Esperado:** el total de cada categoría en `RegistroCostos` coincide con el acumulador del agente que la devenga, todos los días y al cierre, con tolerancia de 0,01 USD; si no, la corrida aborta. **Medido:** `reconciliarCostos()` corre en la secuencia diaria y antes de escribir los KPIs de cada corrida del barrido; las 420 corridas terminaron `Finished`, es decir sin una sola diferencia. Además `costoTotalCampania()` sale del registro (`total(CAJA)`) y el económico de `total()`, así que pantalla, CSV y registro no pueden discrepar.
+
+**Encontrado con este caso:** la primera versión usaba `día|lote|ubicación|producto` como clave de idempotencia del almacenaje, que no distingue dos capas del mismo lote en el mismo depósito; sólo la primera capa pagaba y el costo de almacenaje caía a un tercio. La comparación contra `fase-21` lo detectó en la primera corrida y se corrigió dándole identidad propia a la capa (`Capa.idCapa`).
+
 ## 4.1 Validación de datos de entrada
 
 Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.

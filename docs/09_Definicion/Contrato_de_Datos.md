@@ -106,46 +106,64 @@ Nota: hoy la habilitación se deriva de `capacidad > 0` (ADR-009). El contrato l
 
 ## 5. Tablas de tarifas
 
-Todas incluyen `vigencia_desde` y `vigencia_hasta` (fecha; `vigencia_hasta` vacío = sin límite) y `moneda` (`USD` o `ARS`).
+Cuatro tablas cubren todos los conceptos facturables (ADR-051). **Toda** tarifa lleva `proveedor`, `vigencia_desde`, `vigencia_hasta` (en días de campaña; el generador sintético usa tramos de 31 días) y `habilitada`, porque las tarifas reales se negocian por mes: la consulta resuelve por día de campaña y **falla** si no hay fila vigente o si hay dos vigentes para la misma clave. Un cero silencioso por falta de cobertura sería un error de datos disfrazado de resultado.
+
+Cada tarifa lleva además su `unidad`, y la unidad decide la base de cálculo: `USD_VIAJE`, `USD_TN`, `USD_CONTENEDOR`, `USD_TN_DIA`, `USD_HORA`, `USD_OPERACION` o `USD_PEDIDO`. El último contenedor parcial paga **contenedor completo** en consolidación, cross dock, THC, costo terminal, despachante y round trip; sólo el flete de producto y el almacenaje se cobran por tonelada.
 
 ### 5.1 `TarifaFleteProducto`
 
+Flete a granel del producto (planta → depósito, depósito → terminal, planta → terminal).
+
 | Columna | Tipo |
 |---|---|
-| `origen`, `destino` | texto |
+| `origen`, `destino` | texto (`id_ubicacion`) |
 | `producto` | enum |
-| `tipo_movimiento` | enum: `REUBICACION_PRODUCTO`, `TRANSPORTE_CROSS_DOCK` |
-| `unidad_tarifaria` | enum: `USD_VIAJE`, `USD_TN` |
-| `tarifa` | double > 0 |
+| `tipo_camion` | texto |
 | `capacidad_camion_tn` | double > 0 |
+| `unidad` | enum: `USD_VIAJE` o `USD_TN` |
+| `tarifa` | double ≥ 0, en la unidad declarada |
+| `variable_usd_tn` | double ≥ 0; componente por tonelada que se suma a la tarifa por viaje |
 
-### 5.2 `TarifaCicloContenedor`
+### 5.2 `TarifaRoundTrip`
 
-`terminal`, `lugar_carga`, `producto`, `tipo_contenedor`, `tarifa_usd_contenedor`, `duracion_ciclo_dias`.
+Ciclo del portacontenedor terminal → sitio de consolidación → terminal. Se devenga **al completar** el ciclo: un circuito truncado al cierre de campaña no genera cargo.
 
-### 5.3 `TarifaAlmacenamiento`
+| Columna | Tipo |
+|---|---|
+| `terminal`, `sitio` | texto (`id_ubicacion`) |
+| `tipo_contenedor` | enum |
+| `tarifa_usd_contenedor` | double ≥ 0 |
+| `horas_espera_incluidas` | double ≥ 0; franquicia del ciclo |
+| `tarifa_espera_usd_hora` | double ≥ 0; espera por encima de la franquicia |
 
-`id_deposito`, `producto`, `in_usd_tn`, `storage_usd_tn_dia`, `out_usd_tn`, `periodo_minimo_dias` (0 si no hay mínimo).
+### 5.3 `TarifaSitio`
 
-Desde la fase 19 la tabla suma dos columnas que **no** son caja (ADR-049): `oportunidad_usd_tn_dia`, el costo de oportunidad del frío propio, que sólo se carga en la planta y sólo entra al costo económico; y `penalidad_sobrecarga_usd_tn_dia`, que castiga las toneladas por encima del nivel nominal. Ambas en 0 dejan el costo económico igual al de caja.
+Una fila por sitio (planta, depósito o terminal) y producto, con todos los conceptos que cobra ese sitio. Unificarlos evita que la misma clave (`sitio`, `producto`, día) se busque en seis tablas distintas.
 
-`periodo_minimo_dias` se agrega porque los depósitos suelen cobrar por período mínimo (quincena o mes) y no por día exacto. Si la tarifa real es día a día, se carga 0.
+| Columna | Tipo | Aplica a |
+|---|---|---|
+| `id_ubicacion`, `producto` | texto, enum | clave |
+| `in_usd_tn`, `out_usd_tn` | double ≥ 0 | depósito |
+| `storage_usd_tn_dia` | double ≥ 0 | depósito (la planta cobra 0: el frío es propio) |
+| `oportunidad_usd_tn_dia` | double ≥ 0 | planta; **no** es caja (ADR-049) |
+| `penalidad_sobrecarga_usd_tn_dia` | double ≥ 0 | planta; **no** es caja (ADR-049) |
+| `consolidacion_tarifa` + `consolidacion_unidad` | double, enum | planta, depósito, terminal |
+| `cross_dock_tarifa` + `cross_dock_unidad` | double, enum | depósito, terminal |
+| `thc_usd_contenedor`, `costo_terminal_usd_contenedor` | double ≥ 0 | terminal |
+| `despachante_tarifa` + `despachante_unidad` | double, enum | terminal (`USD_CONTENEDOR` o `USD_PEDIDO`) |
 
-### 5.4 `TarifaServicioCarga`
+THC y costo terminal entran por contenedor y por producto, que es cómo se facturan hoy; la estructura acepta `USD_TN` para cuando cambie el contrato.
 
-`id_ubicacion`, `producto`, `tipo_servicio` (`CONSOLIDACION` o `CROSS_DOCK`), `tarifa_usd_contenedor`.
+### 5.4 `TarifaEspera`
 
-### 5.5 `TarifaTerminal`
+| Columna | Tipo |
+|---|---|
+| `tipo_recurso` | texto: `CAMION_PRODUCTO` o `PORTACONTENEDOR` |
+| `id_ubicacion` | texto |
+| `franquicia_horas` | double ≥ 0 |
+| `usd_hora` | double ≥ 0 |
 
-`terminal`, `producto`, `tipo_contenedor`, `tarifa_usd_contenedor`.
-
-### 5.6 `TarifaTHC`
-
-`naviera`, `terminal`, `producto`, `tipo_contenedor`, `tarifa_usd_contenedor`.
-
-### 5.7 `TarifaDespachante`
-
-`lugar_consolidacion`, `producto`, `tarifa_usd_contenedor`.
+Con `franquicia_horas` y `usd_hora` en 0 la espera no cambia ningún número: la estructura queda lista y se activa cuando se cargue el dato real.
 
 ---
 
@@ -256,9 +274,10 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 | `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `contenedores_por_dia`, `posiciones_cross_dock` |
 | `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |
 | `Distancia` | `origen`, `destino`, `distancia_km` |
-| `TarifaAlmacenamiento` | `id_ubicacion`, `producto`, `storage_usd_tn_dia`, `oportunidad_usd_tn_dia`, `penalidad_sobrecarga_usd_tn_dia` |
-| `TarifaFleteProducto` | `origen`, `destino`, `producto`, `tarifa_usd_tn` |
-| `TarifaServicioCarga` | `id_ubicacion`, `producto`, `tipo_servicio`, `tarifa_usd_tn` |
+| `TarifaSitio` | `id_ubicacion`, `producto`, `in_usd_tn`, `storage_usd_tn_dia`, `out_usd_tn`, `oportunidad_usd_tn_dia`, `penalidad_sobrecarga_usd_tn_dia`, `consolidacion_tarifa`, `consolidacion_unidad`, `cross_dock_tarifa`, `cross_dock_unidad`, `thc_usd_contenedor`, `costo_terminal_usd_contenedor`, `despachante_tarifa`, `despachante_unidad`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
+| `TarifaFleteProducto` | `origen`, `destino`, `producto`, `tipo_camion`, `capacidad_camion_tn`, `unidad`, `tarifa`, `variable_usd_tn`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
+| `TarifaRoundTrip` | `terminal`, `sitio`, `tipo_contenedor`, `tarifa_usd_contenedor`, `horas_espera_incluidas`, `tarifa_espera_usd_hora`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
+| `TarifaEspera` | `tipo_recurso`, `id_ubicacion`, `franquicia_horas`, `usd_hora`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
 | `ProduccionPlan` | `id_escenario`, `dia`, `producto`, `produccion_tn` |
 | `PedidoPlan` | `id_escenario`, `codigo_pedido`, `dia_llegada`, `dia_limite`, `producto`, `toneladas_solicitadas`, `terminal` |
 
@@ -271,10 +290,10 @@ Las columnas se buscan por nombre, no por posición: se pueden reordenar o agreg
 | `CapacidadUbicacion` | sí | — |
 | `Distancia` | sí | sin tránsito min/moda/max: el tránsito todavía se deriva de la distancia y la velocidad del camión |
 | `TiemposOperativos` | no | los tiempos siguen calculándose como toneladas ÷ velocidad |
-| `TarifaFleteProducto` | sí, depósito → terminal | sólo `USD_TN`. El flete planta → depósito sigue siendo la fórmula `costoFijoViajePD + km × costoKmPD + tn × costoTnPD`, con los km leídos de `Distancia` |
-| `TarifaAlmacenamiento` | sí | `storage_usd_tn_dia` de caja, más `oportunidad_usd_tn_dia` y `penalidad_sobrecarga_usd_tn_dia`, que sólo afectan el costo económico (ADR-049); IN/OUT y período mínimo siguen sin consumirse |
-| `TarifaServicioCarga` | sí | tarifa en `USD_TN`, no en `USD_CONTENEDOR`. Desde la fase 7 hace falta una fila `CONSOLIDACION` por cada depósito y producto, además de las de terminal, porque el contenedor se puede estibar en cualquiera de los dos; desde la fase 8, una fila `CROSS_DOCK` por depósito y producto |
-| `TarifaCicloContenedor`, `TarifaTerminal`, `TarifaTHC`, `TarifaDespachante` | no | ninguna está consumida por el modelo todavía |
+| `TarifaFleteProducto` | sí, todos los tramos | reemplaza a la fórmula cableada `costoFijoViajePD + km × costoKmPD`: desde C1 el flete se cobra con la tarifa de la tabla, en `USD_VIAJE` o `USD_TN` según la unidad de la fila (ADR-051) |
+| `TarifaRoundTrip` | sí | reemplaza al `× 2` de la fórmula cableada. Se devenga al completar el ciclo. `horas_espera_incluidas` y `tarifa_espera_usd_hora` están en 0: la franquicia todavía no se mide |
+| `TarifaSitio` | sí, parcial | consolidación, cross dock, almacenaje, oportunidad y penalidad se consumen. `in_usd_tn`, `out_usd_tn`, `thc_usd_contenedor`, `costo_terminal_usd_contenedor` y `despachante_tarifa` tienen consulta y quedan en 0 hasta C3, que es donde se devengan |
+| `TarifaEspera` | estructura y consulta | ningún recurso mide todavía sus horas de espera, así que no genera cargos |
 | `Escenario` | sí, parcial | implementa `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion` y `variabilidad_demanda`, y agrega `pedidos_por_campania`, `toneladas_medias_pedido` y `plazo_pedido_dias`, que son los que gobiernan la demanda sintética |
 | `ProduccionPlan` | sí | serie diaria completa por producto |
 | `PedidoPlan` | sí | sin cliente, calidad, lote solicitado, naviera ni incoterm: el modelo aún no los usa |

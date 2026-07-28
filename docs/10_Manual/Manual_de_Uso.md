@@ -64,20 +64,36 @@ El modelo lee exactamente las mismas tablas, vengan del generador sintético o d
 
 1. Partir de la plantilla `datos/entrada_ejemplo.xlsx`, que ya tiene las hojas y los encabezados correctos. **No** empieces un libro desde cero.
 2. Reemplazar los valores. Reglas:
-   - una hoja por tabla, con el nombre exacto (`Escenario`, `Ubicacion`, `Distancia`, `Producto`, `CapacidadUbicacion`, `TarifaAlmacenamiento`, `TarifaFleteProducto`, `TarifaServicioCarga`, `ProduccionPlan`, `PedidoPlan`);
+   - una hoja por tabla, con el nombre exacto (`Escenario`, `Ubicacion`, `Distancia`, `Producto`, `CapacidadUbicacion`, `TarifaSitio`, `TarifaFleteProducto`, `TarifaRoundTrip`, `TarifaEspera`, `ProduccionPlan`, `PedidoPlan`);
    - las columnas se buscan **por nombre**, así que podés reordenarlas o agregar columnas propias, pero no renombrar las que el modelo pide;
    - las hojas con `id_escenario` se filtran por el escenario de la corrida: un mismo libro puede tener varios escenarios;
    - las filas vacías se saltean.
 3. En `Simulation → Properties`, poner `origenDatos = OrigenDatos.EXCEL` y `rutaExcel` con la ruta al libro (relativa a la carpeta del modelo o absoluta).
 4. Correr. Si falta algo, la corrida se detiene **antes del día 1** e informa todos los problemas juntos: hojas faltantes, columnas faltantes, celdas no numéricas con hoja/fila/columna, y después las validaciones de negocio (tarifa faltante, capacidad cero, etc.).
 
-Un libro anterior a `fase-17` **no importa**: la hoja `Producto` pide ahora `toneladas_objetivo_lote_tn` y la hoja `Escenario` pide `cliente_default` y `calidad_default` (ADR-047). Si cambiaste de versión del modelo y tu libro es viejo, la forma rápida de actualizarlo es regenerar la plantilla y volver a cargar tus valores:
+Un libro anterior a C1 **no importa**: las hojas de tarifas cambiaron (`TarifaAlmacenamiento` y `TarifaServicioCarga` se reemplazan por `TarifaSitio`, y se agregan `TarifaRoundTrip` y `TarifaEspera`), y toda tarifa pide ahora `proveedor`, `vigencia_desde`, `vigencia_hasta` y `habilitada` (ADR-051). Si cambiaste de versión del modelo y tu libro es viejo, la forma rápida de actualizarlo es regenerar la plantilla y volver a cargar tus valores:
 
 ```bash
 python3 tools/generar_excel_ejemplo.py
 ```
 
 La plantilla se genera corriendo el propio `GeneradorSintetico` del modelo, así que la plantilla y el contrato no pueden divergir.
+
+### Cargar tarifas mes por mes
+
+Toda tarifa vive un rango de días de campaña y las consultas resuelven **por día** (ADR-051). Para cargar una tarifa que cambia cada mes, se pone **una fila por mes** con la misma clave y tramos que no se solapen:
+
+| `origen` | `destino` | `producto` | `unidad` | `tarifa` | `proveedor` | `vigencia_desde` | `vigencia_hasta` | `habilitada` |
+|---|---|---|---|---:|---|---:|---:|---|
+| `FRINOA` | `ZARATE` | `JUGO` | `USD_VIAJE` | 240 | `TRANSPORTES_X` | 0 | 30 | `true` |
+| `FRINOA` | `ZARATE` | `JUGO` | `USD_VIAJE` | 255 | `TRANSPORTES_X` | 31 | 61 | `true` |
+
+Dos cosas que la corrida **no** perdona, y es a propósito:
+
+- **Un día sin tarifa** aborta con la clave y el día en el mensaje. Un cero por falta de cobertura sería un costo barato inventado.
+- **Dos filas vigentes el mismo día** para la misma clave también abortan: no hay regla de desempate. Para dar de baja una tarifa sin borrarla, se pone `habilitada = false`.
+
+La campaña tiene `duracion_campania_dias` días (183 por default), así que los tramos tienen que cubrir de 0 a 182 como mínimo.
 
 ---
 

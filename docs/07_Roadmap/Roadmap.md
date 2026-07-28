@@ -203,6 +203,19 @@ Implementado en el modelo y verificado en PLE (ADR-048, ADR-049).
 - [x] Verificado en PLE: build limpio, campaña completa sin excepciones, 390 corridas `Finished`, corrida desde Excel idéntica a la sintética y cero pérdida de producto.
 - [ ] Pendiente: forecast con error, penalidad de sobrecarga calibrada con datos reales y capacidad de frío propio como variable de decisión del barrido.
 
+## 11f. C1 y C2 — Contrato de costos y registro auditable
+
+Implementado en el modelo y verificado en PLE (ADR-051, ADR-052).
+
+- [x] Cuatro tablas de tarifas con `unidad`, `proveedor`, `vigencia_desde`, `vigencia_hasta` y `habilitada`: `TarifaFleteProducto`, `TarifaRoundTrip`, `TarifaSitio` y `TarifaEspera`. Generador sintético, validaciones, importador de Excel, `tools/VolcarDatos.java` y plantilla, todo por el mismo camino.
+- [x] Consultas que resuelven por día de campaña y abortan si no hay cobertura o si hay dos filas vigentes para la misma clave.
+- [x] El flete de producto y el round trip dejan de ser fórmulas cableadas: se cobran con la tarifa de la tabla, en `USD_VIAJE` o `USD_TN` según la fila, y el round trip se devenga al completar el ciclo.
+- [x] `RegistroCostos`: cargo inmutable con identidad, categoría, tipo (caja/económico), pedido, contenedor, lote, producto, origen, destino, sitio, estrategia, proveedor, unidad, cantidad, tarifa e importe calculado; idempotencia por operación; totales por ocho dimensiones; volcado opcional a csv.
+- [x] `costoTotalCampania()` y el económico salen del registro; los acumuladores de los agentes quedan como vistas y `reconciliarCostos()` los compara contra el registro todos los días y al cierre.
+- [x] Verificado en PLE: build limpio, 420 corridas `Finished` comparadas fila por fila contra `fase-21` (idénticas salvo 1 × 10⁻⁴ USD en una réplica) y corrida desde Excel idéntica a la sintética.
+- [ ] Pendiente en C3: devengar IN, OUT, THC, costo terminal, despachante y espera, que hoy tienen tarifa y consulta en 0. Hasta entonces el USD/tn no es comparable contra una cotización.
+- [ ] Pendiente en C7: movimiento depósito → depósito, franquicia y horas de espera medidas, y ciclo completo del vacío.
+
 ## 12. Fase 9 — Terminal
 
 - [ ] Entrega de vacíos.
