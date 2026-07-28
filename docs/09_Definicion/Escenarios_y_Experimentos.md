@@ -45,6 +45,7 @@ Cada escenario es **una fila**: `GeneradorSintetico.escenario(id, semilla)` part
 | E-10 | Almacenaje caro | `factor_storage` ×2 | Cuándo conviene mover producto vs guardarlo |
 | E-11 | Consolidación en terminal | `estrategia_consolidacion` | Dónde conviene estibar |
 | E-12 | Frío propio reactivo | `politica_frio_propio` `FLEXIBLE` → `REACTIVA` | ADR-048: cuánto compra retener en frío propio |
+| E-13 | Consolidación en planta | `estrategia_consolidacion` `CONSOLIDACION_PLANTA` | ADR-050: qué compra estibar en el frío propio |
 
 Un escenario de la propuesta original sigue sin estar en la tabla:
 
@@ -52,7 +53,7 @@ Un escenario de la propuesta original sigue sin estar en la tabla:
 
 ## 4. Diseño de experimento
 
-- **Corridas:** 13 escenarios × 30 réplicas = 390.
+- **Corridas:** 14 escenarios × 30 réplicas = 420.
 - **Réplicas:** 30 por escenario (`REPLICAS` en el experimento), semilla `semilla_base + replica`.
 - **Estadísticos reportados:** media, desvío, mínimo, máximo y P95 de cada KPI, impresos por escenario al terminar el barrido.
 - **Comparación:** cada escenario se reporta como delta absoluto y porcentual contra E-00.

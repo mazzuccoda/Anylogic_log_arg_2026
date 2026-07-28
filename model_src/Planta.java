@@ -13,6 +13,9 @@ class Planta extends Agent {
     double produccionAcumuladaJugo = 0;
     double produccionAcumuladaCascara = 0;
     double produccionAcumuladaAceite = 0;
+    double toneladasConsolidadas = 0;
+    int contenedoresConsolidados = 0;
+    double costoConsolidacionAcumulado = 0;
 
     // ----- Funciones -----
 

@@ -133,6 +133,11 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 | `ton_dia_sobre_nominal` | Tonelada-día de planta por encima del nivel nominal | tn·día | ≥ 0 |
 | `dias_sobrecarga` | Días con la planta por encima del nivel nominal | días | ≥ 0 |
 | `pico_ocupacion_planta_pct` | Máxima ocupación de la planta en la campaña | % | ≥ 0 |
+| `contenedores_circuito_planta` | Contenedores estibados en la planta (circuito 1) | unidades | ≥ 0 |
+| `contenedores_circuito_deposito` | Contenedores estibados en un depósito (circuito 2) | unidades | ≥ 0 |
+| `contenedores_circuito_cross_dock` | Contenedores que cruzaron el depósito sin almacenarse (circuito 3) | unidades | ≥ 0 |
+| `contenedores_circuito_terminal` | Contenedores armados en la terminal, sin portacontenedor (circuito 4) | unidades | ≥ 0 |
+| `viajes_granel_terminal` | Viajes a granel origen → terminal del circuito 4 | viajes | ≥ 0 |
 
 ---
 
@@ -143,7 +148,9 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 3. **Utilización baja no es una buena noticia.** Es capacidad ociosa; sólo importa junto con el nivel de servicio.
 4. **Sobrecarga y espera de posición son diagnóstico, no costo.** Señalan dónde está el cuello de botella: sobrecarga en planta apunta a frío, transporte o depósito; espera de posición apunta a la estiba.
 5. **Hay dos costos y no son intercambiables** (ADR-049). `costo_total_usd` es caja: lo que se paga, comparable contra una cotización. `costo_total_economico_usd` le suma el costo de oportunidad del frío propio y la penalidad de sobrecarga, y es el que compara retener contra tercerizar. Decir cuál de los dos se está mirando es parte del resultado.
-6. **El día importa.** Nivel de servicio y atraso a mitad de campaña todavía no significan nada: hay pedidos con fecha límite por delante.
+6. **Los cuatro contadores de circuito suman los contenedores exportados** (ADR-050). Si un escenario reparte entre dos circuitos es porque el circuito se resuelve por pedido según dónde está el stock, no por la política de la corrida: en E-13 (consolidación en planta) el 0,2 % que sale por depósito son los pedidos cuyo producto ya se había transferido.
+7. **El circuito de terminal tiene utilización de portacontenedor 0 y no es un error.** Ahí el producto viaja a granel y el contenedor ya está en la terminal, así que el pool no se toca; lo que sí consume es flota de producto y flete hasta la terminal.
+8. **El día importa.** Nivel de servicio y atraso a mitad de campaña todavía no significan nada: hay pedidos con fecha límite por delante.
 
 ---
 
@@ -153,6 +160,7 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 - La planta no tiene tarifa de almacenaje de caja: retener producto ahí sólo aparece en el costo económico (`oportunidad_usd_tn_dia`), que por default puede estar en 0.
 - La carga y la descarga no consumen jornada de camión (faltan velocidades operativas en las tablas), así que la utilización de la flota de producto está subestimada.
 - La terminal todavía no tiene cola propia ni THC, así que no hay panel de terminal.
+- El tramo vacío terminal → origen del portacontenedor ocupa el pool y consume tiempo, pero **no** tiene costo: la tarifa del ciclo de contenedor todavía no existe (ADR-050).
 
 ---
 

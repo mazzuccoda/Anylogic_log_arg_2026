@@ -45,6 +45,7 @@ class Pedido extends Agent {
 
     // ----- Variables -----
     boolean esCrossDock = false;
+    String idSitioOrigen = "";
 
     // ----- Funciones -----
 
