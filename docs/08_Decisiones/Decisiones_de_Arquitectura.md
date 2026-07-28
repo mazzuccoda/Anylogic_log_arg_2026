@@ -457,6 +457,44 @@ Las decisiones de política se toman con el económico; los KPIs reportan los do
 
 Queda un hueco declarado: el tramo vacío consume tiempo y pool pero **no** cuesta, porque la tarifa del ciclo de contenedor todavía no existe (fase 10). Los datos operativos de la planta (velocidades, `contenedores_por_dia`, distancias y tarifas planta → terminal) son sintéticos equivalentes al depósito de referencia y están marcados como supuesto en el contrato de datos.
 
+## ADR-051 — Toda tarifa tiene unidad, proveedor y vigencia, y se resuelve por día de campaña
+
+**Estado:** aceptada.  
+**Fecha:** 2026-07-28  
+**Contexto:** hasta `fase-21` había dos problemas superpuestos. Primero, **la tarifa de flete estaba en las tablas y el modelo no la usaba para cobrar**: lo que se devengaba eran tres parámetros cableados en `Main` (`envio.costoFleteReal = costoFijoViajePD + distancia * 2 * costoKmPD`), y `TarifaFleteProducto` se leía sólo para *estimar* y elegir depósito. Cambiar esa tarifa cambiaba qué depósito se elegía pero no el costo de campaña; los costos del circuito de depósito que en F21 no se movieron un centavo no eran estables, eran insensibles. Segundo, cada concepto vivía en su propia tabla con su unidad implícita, todas por tonelada, así que el último contenedor parcial de 5 tn pagaba la quinta parte de la consolidación de uno de 25, y faltaban seis conceptos (IN, OUT, THC, costo terminal, despachante, espera) más la tarifa de round trip por contenedor. Además las tarifas reales se negocian **por mes**, y el contrato tenía una vigencia por campaña.
+
+**Decisión:** un solo contrato de costos con cuatro tablas —`TarifaFleteProducto`, `TarifaRoundTrip`, `TarifaSitio` y `TarifaEspera`— y estas reglas:
+
+1. Toda tarifa lleva `proveedor`, `vigencia_desde`, `vigencia_hasta` y `habilitada`. Las consultas (`tarifaFlete`, `tarifaRoundTrip`, `tarifaSitio`, `tarifaEspera`) reciben el **día de campaña** y devuelven la fila vigente ese día. Si no hay fila vigente, o si hay dos vigentes para la misma clave, la corrida aborta con la clave y el día en el mensaje: un cero silencioso por falta de cobertura sería un error de datos disfrazado de resultado.
+2. Toda tarifa lleva su `unidad` (`USD_VIAJE`, `USD_TN`, `USD_CONTENEDOR`, `USD_TN_DIA`, `USD_HORA`, `USD_OPERACION`, `USD_PEDIDO`) y la unidad decide la base: `importe(unidad, tarifa, toneladas, contenedores, motivo)` elige entre toneladas y contenedores y rechaza una unidad que no corresponda al concepto.
+3. El flete de producto soporta las **dos** unidades en la misma tabla (`USD_VIAJE` con `variable_usd_tn` opcional, o `USD_TN`), porque hoy se contrata por viaje y la comparación contra una cotización por tonelada tiene que poder hacerse sin cambiar el modelo.
+4. El round trip es una tarifa por contenedor y se devenga **al completar** el ciclo terminal → origen → terminal: un circuito truncado al cierre de campaña no genera cargo.
+5. El último contenedor parcial paga **contenedor completo** en consolidación, cross dock, THC, costo terminal, despachante y round trip; sólo el flete de producto y el almacenaje se cobran por tonelada.
+6. `GeneradorSintetico` e `ImportadorExcel` llenan las mismas listas, y los valores sintéticos están calibrados para que el barrido reproduzca `fase-21` fila por fila: la migración del contrato **no** es una recalibración disfrazada.
+
+**Alternativas:** dejar la fórmula cableada y usar las tarifas sólo para estimar (es el estado que se está corrigiendo: el barrido no responde a los datos); una tabla por concepto (seis búsquedas para la misma clave `sitio`/`producto`/día, y seis lugares donde olvidarse de la vigencia); una vigencia por campaña (más simple, pero no es lo que existe: hay tarifas por mes); devolver 0 cuando no hay cobertura (convierte un dato faltante en un resultado barato, que es el peor error posible en un modelo de dimensionamiento).
+
+**Consecuencias:** cambiar una tarifa en el Excel ahora cambia el costo de campaña, que era el objetivo. El barrido de `fase-21` se reproduce exactamente: 420 corridas comparadas fila por fila, 26 columnas idénticas y una sola diferencia de 1 × 10⁻⁴ USD en `costo_total_economico_usd` de una réplica, que es orden de suma de punto flotante. Quedan con estructura y consulta pero sin devengo hasta C3: IN, OUT, THC, costo terminal, despachante y espera (todos en 0, así que no mueven ningún número). El costo por tonelada **todavía no** es comparable contra una cotización real, y no lo será hasta que esos conceptos se cobren.
+
+## ADR-052 — El registro de cargos es la fuente de verdad del costo; los acumuladores son vistas
+
+**Estado:** aceptada.  
+**Fecha:** 2026-07-28  
+**Contexto:** el costo de campaña se calculaba sumando once acumuladores repartidos entre `Main`, `Deposito` y `Terminal` (`costoAlmacenamientoTotal`, `costoFletePlantaDeposito`, `costoConsolidacion`, …). Con ese diseño no hay nada contra qué reconciliar: si un devengo se registraba dos veces, o no se registraba, el total seguía cerrando consigo mismo. Tampoco había forma de responder "por qué costó esto" ni de totalizar por pedido, contenedor, sitio o día.
+
+**Decisión:** existe un registro plano de cargos, `RegistroCostos` (clase Java, no un tipo de agente: el modelo está en 10 de 10 de PLE), y el total sale de ahí.
+
+1. Cada evento económico se registra como un `Cargo` inmutable con identidad propia, día, categoría, tipo (`CAJA` o `ECONOMICO`), pedido, contenedor, lote, producto, origen, destino, sitio, estrategia, proveedor, unidad, cantidad, tarifa, importe, operación y motivo.
+2. El importe se **calcula** en el registro (`importe = cantidad × tarifa`): no se puede registrar un importe que no se corresponda con su cantidad y su tarifa. Cantidad o tarifa negativa aborta la corrida.
+3. `registrar()` es idempotente por operación, categoría, unidad y motivo, y devuelve el importe registrado —0 si el cargo ya estaba—, de modo que los acumuladores existentes suman exactamente lo que entró al registro.
+4. Totales por categoría, tipo, pedido, contenedor, producto, sitio, estrategia y día son consultas sobre la misma lista. `costoTotalCampania()` devuelve `registro.total(CAJA)` y el económico `registro.total()`.
+5. `reconciliarCostos()` compara, todos los días y al cierre, cada acumulador de agente contra el total de su categoría en el registro y aborta la corrida si difieren en más de 0,01 USD. El barrido lo ejecuta antes de escribir los KPIs de cada corrida.
+6. El detalle se puede volcar a csv con `registro.exportarCsv(ruta)`, que **no** se llama en el barrido: una campaña son cientos de miles de cargos y el archivo sólo hace falta cuando hay que auditar un número.
+
+**Alternativas:** dejar los acumuladores como fuente y agregar un registro paralelo sólo para auditar (dos verdades que se van a separar en la primera distracción); registrar sin idempotencia y confiar en que cada devengo se llame una vez (es justo lo que no se puede verificar); hacer del registro un tipo de agente (no hay presupuesto en PLE); escribir el csv siempre (multiplica por cien el peso de una corrida del barrido para un dato que casi nunca se lee).
+
+**Consecuencias:** el total dejó de poder cerrar consigo mismo, y eso encontró un error real en el primer intento: la clave de idempotencia del almacenaje era `día|lote|ubicación|producto`, que no distingue dos capas del mismo lote en el mismo depósito, así que sólo la primera capa de cada lote pagaba y el costo caía a un tercio. La capa pasó a tener identidad propia (`Capa.idCapa`, asignada por `Inventario`) y la reconciliación volvió a cerrar. La contrapartida es costo de memoria: los cargos se guardan en una lista por corrida.
+
 ## Plantilla para nuevas decisiones
 
 ```markdown

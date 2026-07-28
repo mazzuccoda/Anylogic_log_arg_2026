@@ -91,17 +91,20 @@ class Deposito extends Agent {
         return getEspacioDisponible(producto) >= toneladas;
     }
 
-    double getCostoFletePuerto(Terminal terminal, TipoProducto producto) {
+    double getImporteFletePuerto(Terminal terminal, TipoProducto producto, double toneladas) {
         if (terminal == null) {
             return Double.POSITIVE_INFINITY;
         }
 
         Main modelo = (Main) getRootAgent();
 
-        return modelo.datos.fleteUsdTn(
+        return modelo.datos.importeFlete(
+            modelo.diaCampania(),
             idUbicacion,
             terminal.idUbicacion,
-            producto
+            producto,
+            toneladas,
+            modelo.viajesNecesariosCamion(toneladas)
         );
     }
 
@@ -144,25 +147,31 @@ class Deposito extends Agent {
         );
     }
 
-    double getCostoConsolidado(TipoProducto producto) {
-        // La tarifa de estiba vive en la tabla, no en el agente (ADR-036).
+    double getImporteConsolidacion(TipoProducto producto, double toneladas, int contenedores) {
+        // La tarifa de estiba vive en la tabla y no en el agente (ADR-036), y con ella su
+        // unidad: por tonelada o por contenedor completo (ADR-051).
         Main modelo = (Main) getRootAgent();
 
-        return modelo.datos.servicioCargaUsdTn(
+        return modelo.datos.importeConsolidacion(
+            modelo.diaCampania(),
             idUbicacion,
-            producto
+            producto,
+            toneladas,
+            contenedores
         );
     }
 
-    double getCostoCrossDock(TipoProducto producto) {
-        // El cross dock es otro servicio que la estiba desde stock: tiene su propia
-        // fila en TarifaServicioCarga (ADR-041).
+    double getImporteCrossDock(TipoProducto producto, double toneladas, int contenedores) {
+        // El cross dock es otro servicio que la estiba desde stock: tiene su propia columna
+        // en TarifaSitio (ADR-041).
         Main modelo = (Main) getRootAgent();
 
-        return modelo.datos.servicioCargaUsdTn(
+        return modelo.datos.importeCrossDock(
+            modelo.diaCampania(),
             idUbicacion,
             producto,
-            "CROSS_DOCK"
+            toneladas,
+            contenedores
         );
     }
 }

@@ -29,6 +29,9 @@ public class Capa implements java.io.Serializable {
 		}
 	}
 
+	/** Identidad de la capa, para que un cargo pueda apuntar a una y solo una. */
+	public long idCapa = 0;
+
 	public final int idLote;
 	public final TipoProducto producto;
 	public final double diaProduccion;

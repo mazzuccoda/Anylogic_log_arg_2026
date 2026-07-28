@@ -9,9 +9,6 @@ class Main extends Agent {
     String rutaExcel = "datos/entrada_ejemplo.xlsx";
     String idEscenario = "E-00";
     long semillaBase = 1;
-    double costoFijoViajePD = 150;
-    double costoKmPD = 1.2;
-    double costoTnPD = 2.0;
     double diasEstimadosAlmacenamiento = 30;
     int replica = 0;
 
@@ -64,6 +61,7 @@ class Main extends Agent {
     int contenedoresCircuitoDeposito = 0;
     int contenedoresCircuitoCrossDock = 0;
     int contenedoresCircuitoTerminal = 0;
+    RegistroCostos registro = new RegistroCostos();
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -170,19 +168,22 @@ class Main extends Agent {
         return inventario.cantidadLotes("PLANTA", producto);
     }
 
-    double calcularCostoPlantaDeposito(Deposito deposito, double toneladas) {
+    double calcularCostoPlantaDeposito(Deposito deposito, TipoProducto producto, double toneladas) {
         if (deposito == null || toneladas <= 0) {
             return Double.POSITIVE_INFINITY;
         }
 
-        // El costo fijo y el kilometraje son por viaje, y un viaje mueve a lo sumo un
-        // camion cargado: mover el doble de toneladas cuesta dos veces el viaje.
-        return viajesNecesariosCamion(toneladas)
-            * (
-                costoFijoViajePD
-                + datos.distanciaKm("PLANTA", deposito.idUbicacion) * costoKmPD
-            )
-            + toneladas * costoTnPD;
+        // El flete a granel se cobra por viaje: mover el doble de toneladas cuesta dos veces
+        // el viaje aunque el ultimo camion vaya a medio cargar. La tarifa, su unidad y su
+        // vigencia son dato de la tabla y no una formula cableada (ADR-051).
+        return datos.importeFlete(
+            diaCampania(),
+            "PLANTA",
+            deposito.idUbicacion,
+            producto,
+            toneladas,
+            viajesNecesariosCamion(toneladas)
+        );
     }
 
     Deposito seleccionarDeposito(TipoProducto producto, double toneladas) {
@@ -207,7 +208,7 @@ class Main extends Agent {
             }
 
             double costoEstimado =
-                calcularCostoPlantaDeposito(deposito, posible)
+                calcularCostoPlantaDeposito(deposito, producto, posible)
                 + posible
                 * deposito.getTarifaAlmacenamiento(producto)
                 * diasEstimadosAlmacenamiento;
@@ -402,20 +403,30 @@ class Main extends Agent {
                 continue;
             }
 
+            int contenedores =
+                contenedoresNecesarios(
+                    pedido.producto,
+                    pedido.toneladasSolicitadas
+                );
+
             double costoFlete =
-                pedido.toneladasSolicitadas
-                * deposito.getCostoFletePuerto(
+                deposito.getImporteFletePuerto(
                     pedido.puertoSalida,
-                    pedido.producto
+                    pedido.producto,
+                    pedido.toneladasSolicitadas
                 );
 
             double costoConsolidado =
-                pedido.toneladasSolicitadas
-                * (
-                    consolidaEnTerminal()
-                    ? pedido.puertoSalida
-                        .getCostoConsolidado(pedido.producto)
-                    : deposito.getCostoConsolidado(pedido.producto)
+                consolidaEnTerminal()
+                ? pedido.puertoSalida.getImporteConsolidacion(
+                    pedido.producto,
+                    pedido.toneladasSolicitadas,
+                    contenedores
+                )
+                : deposito.getImporteConsolidacion(
+                    pedido.producto,
+                    pedido.toneladasSolicitadas,
+                    contenedores
                 );
 
             double costoTotal =
@@ -592,13 +603,22 @@ class Main extends Agent {
             ? distancia / velocidadCamion
             : 0;
 
+        // El ciclo del portacontenedor se cotiza por contenedor y por circuito, no por
+        // kilometro: la tarifa cubre terminal -> origen -> terminal (ADR-051).
         envio.costoFleteReal =
-            costoFijoViajePD
-            + distancia * 2 * costoKmPD;
+            datos.roundTripUsdContenedor(
+                diaCampania(),
+                envio.terminalDestino.idUbicacion,
+                envio.idSitioOrigen,
+                pedido.tipoContenedor
+            );
 
         envio.costoConsolidacionReal =
-            toneladas
-            * costoServicioEstibaUsdTn(pedido);
+            importeServicioEstiba(
+                pedido,
+                toneladas,
+                contenedoresNecesarios(pedido.producto, toneladas)
+            );
 
         envio.costoTotalReal =
             envio.costoFleteReal
@@ -798,14 +818,6 @@ class Main extends Agent {
             deposito.capacidadAceite =
                 datos.capacidadTn(deposito.idUbicacion, TipoProducto.ACEITE);
 
-            deposito.costoJugoTnDia =
-                datos.storageUsdTnDia(deposito.idUbicacion, TipoProducto.JUGO);
-
-            deposito.costoCascaraTnDia =
-                datos.storageUsdTnDia(deposito.idUbicacion, TipoProducto.CASCARA);
-
-            deposito.costoAceiteTnDia =
-                datos.storageUsdTnDia(deposito.idUbicacion, TipoProducto.ACEITE);
         }
 
         for (Terminal terminal : terminales) {
@@ -817,16 +829,9 @@ class Main extends Agent {
             terminal.capacidadDiariaTn = ubicacion.capacidadDiariaTn;
             terminal.velocidadDescargaTnHora = ubicacion.velocidadDescargaTnHora;
             terminal.velocidadConsolidacionTnHora = ubicacion.velocidadConsolidacionTnHora;
-
-            terminal.costoConsolidadoJugo =
-                datos.servicioCargaUsdTn(terminal.idUbicacion, TipoProducto.JUGO);
-
-            terminal.costoConsolidadoCascara =
-                datos.servicioCargaUsdTn(terminal.idUbicacion, TipoProducto.CASCARA);
-
-            terminal.costoConsolidadoAceite =
-                datos.servicioCargaUsdTn(terminal.idUbicacion, TipoProducto.ACEITE);
         }
+
+        refrescarTarifasDelDia();
     }
 
     Terminal buscarTerminal(String idUbicacion) {
@@ -939,9 +944,21 @@ class Main extends Agent {
                 continue;
             }
 
-            double costoDia =
-                facturables
-                * deposito.getTarifaAlmacenamiento(capa.producto);
+            DatosEntrada.TarifaSitio tarifa =
+                datos.tarifaSitio(diaCampania(), capa.idUbicacion, capa.producto);
+
+            double costoDia = registro.registrar(
+                time(),
+                RegistroCostos.Categoria.ALMACENAMIENTO,
+                RegistroCostos.Tipo.CAJA,
+                "", "", "" + capa.idLote, capa.producto,
+                capa.idUbicacion, capa.idUbicacion, capa.idUbicacion,
+                EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
+                DatosEntrada.Unidad.USD_TN_DIA, facturables, tarifa.storageUsdTnDia,
+                "STO-" + diaCampania() + "-" + capa.idLote + "-" + capa.idUbicacion
+                    + "-" + capa.producto + "-" + capa.idCapa,
+                "almacenaje del dia"
+            );
 
             capa.costoAlmacenamiento += costoDia;
             deposito.costoAlmacenamientoAcumulado += costoDia;
@@ -1121,8 +1138,18 @@ class Main extends Agent {
 
         actualizarUbicacionLote(lote);
 
-        double costoViaje =
-            calcularCostoPlantaDeposito(destino, movidas);
+        double costoViaje = registrarFleteProducto(
+            "PLANTA",
+            destino.idUbicacion,
+            lote.producto,
+            movidas,
+            viajesNecesariosCamion(movidas),
+            "" + lote.idLote,
+            "",
+            EstrategiaLogistica.SIN_DEFINIR,
+            "TRA-" + diaCampania() + "-" + lote.idLote + "-" + destino.idUbicacion
+                + "-" + cantidadTransferenciasDepositos
+        );
 
         lote.costoAcumulado += costoViaje;
         costoFletePlantaDeposito += costoViaje;
@@ -1200,12 +1227,6 @@ class Main extends Agent {
 
         String sitioDeEstiba = sitioEstiba(pedido);
 
-        double distancia =
-            datos.distanciaKm(
-                origen,
-                pedido.puertoSalida.idUbicacion
-            );
-
         // Capas que este pedido tiene reservadas, en el mismo orden FIFO en que se van a
         // despachar: recorrerlas en paralelo a los contenedores da el lote de cada uno.
         java.util.List<Capa> reservadas =
@@ -1261,10 +1282,13 @@ class Main extends Agent {
             contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
 
             contenedor.costoEstimado =
-                costoFijoViajePD
-                + distancia * 2 * costoKmPD
-                + carga
-                * costoServicioEstibaUsdTn(pedido);
+                datos.roundTripUsdContenedor(
+                    diaCampania(),
+                    pedido.puertoSalida.idUbicacion,
+                    origen,
+                    pedido.tipoContenedor
+                )
+                + importeServicioEstiba(pedido, carga, 1);
 
             double resto = carga;
             double mayorAporte = 0;
@@ -1617,15 +1641,21 @@ class Main extends Agent {
             double costo =
                 calcularCostoPlantaDeposito(
                     deposito,
+                    pedido.producto,
                     pedido.toneladasSolicitadas
                 )
-                + pedido.toneladasSolicitadas
-                * (
-                    deposito.getCostoFletePuerto(
-                        pedido.puertoSalida,
-                        pedido.producto
+                + deposito.getImporteFletePuerto(
+                    pedido.puertoSalida,
+                    pedido.producto,
+                    pedido.toneladasSolicitadas
+                )
+                + deposito.getImporteCrossDock(
+                    pedido.producto,
+                    pedido.toneladasSolicitadas,
+                    contenedoresNecesarios(
+                        pedido.producto,
+                        pedido.toneladasSolicitadas
                     )
-                    + deposito.getCostoCrossDock(pedido.producto)
                 );
 
             if (costo < menorCosto) {
@@ -1810,11 +1840,9 @@ class Main extends Agent {
     }
 
     double costoTotalCampania() {
-        return costoFletePlantaDeposito
-            + costoFleteDepositoPuertoReal
-            + costoConsolidacionReal
-            + costoCrossDockReal
-            + getCostoAlmacenamientoTotal();
+        // El total no suma acumuladores: es el saldo de caja del registro de cargos, y los
+        // acumuladores de los agentes se reconcilian contra el todos los dias (ADR-052).
+        return registro.total(RegistroCostos.Tipo.CAJA);
     }
 
     double toneladasExportadas() {
@@ -2111,9 +2139,21 @@ class Main extends Agent {
 
             tonDiaSobreCriticoPlanta += max(0, stock - critico);
 
-            costoPenalidadSobrecarga +=
-                sobreNominal
-                * datos.penalidadSobrecargaUsdTnDia("PLANTA", producto);
+            DatosEntrada.TarifaSitio tarifa =
+                datos.tarifaSitio(diaCampania(), "PLANTA", producto);
+
+            costoPenalidadSobrecarga += registro.registrar(
+                time(),
+                RegistroCostos.Categoria.PENALIDAD_SOBRECARGA,
+                RegistroCostos.Tipo.ECONOMICO,
+                "", "", "", producto,
+                "PLANTA", "PLANTA", "PLANTA",
+                EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
+                DatosEntrada.Unidad.USD_TN_DIA, sobreNominal,
+                tarifa.penalidadSobrecargaUsdTnDia,
+                "PEN-" + diaCampania() + "-" + producto,
+                "toneladas sobre la capacidad nominal"
+            );
         }
 
         if (diaEnSobrecarga) {
@@ -2127,19 +2167,30 @@ class Main extends Agent {
         // cotizacion de un tercero (ADR-049).
         for (TipoProducto producto : TipoProducto.values()) {
 
-            costoOportunidadFrio +=
-                inventario.stock("PLANTA", producto)
-                * datos.oportunidadUsdTnDia("PLANTA", producto);
+            DatosEntrada.TarifaSitio tarifa =
+                datos.tarifaSitio(diaCampania(), "PLANTA", producto);
+
+            costoOportunidadFrio += registro.registrar(
+                time(),
+                RegistroCostos.Categoria.OPORTUNIDAD_FRIO,
+                RegistroCostos.Tipo.ECONOMICO,
+                "", "", "", producto,
+                "PLANTA", "PLANTA", "PLANTA",
+                EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
+                DatosEntrada.Unidad.USD_TN_DIA,
+                inventario.stock("PLANTA", producto),
+                tarifa.oportunidadUsdTnDia,
+                "OPO-" + diaCampania() + "-" + producto,
+                "ocupacion del frio propio"
+            );
         }
     }
 
     double costoTotalEconomico() {
-        // Costo de caja mas lo que cuesta ocupar el frio propio y la penalidad por
-        // operar sobre la capacidad nominal (ADR-049). Con las tarifas en cero coincide
-        // con el costo de caja.
-        return costoTotalCampania()
-            + costoOportunidadFrio
-            + costoPenalidadSobrecarga;
+        // Costo de caja mas lo que cuesta ocupar el frio propio y la penalidad por operar
+        // sobre la capacidad nominal (ADR-049). Con las tarifas en cero coincide con el costo
+        // de caja.
+        return registro.total();
     }
 
     double costoEconomicoPorTonelada() {
@@ -2363,14 +2414,14 @@ class Main extends Agent {
         }
 
         costoFleteDepositoPuertoReal +=
-            envio.costoFleteReal;
+            registrarRoundTrip(envio);
 
         if (envio.pedido.esCrossDock) {
             costoCrossDockReal +=
-                envio.costoConsolidacionReal;
+                registrarServicioEstiba(envio);
         } else {
             costoConsolidacionReal +=
-                envio.costoConsolidacionReal;
+                registrarServicioEstiba(envio);
         }
 
         switch (envio.circuito) {
@@ -2451,16 +2502,24 @@ class Main extends Agent {
         pedido.estado = EstadoPedido.RESERVADO;
 
         pedido.costoFleteEstimado =
-            pedido.toneladasSolicitadas
-            * datos.fleteUsdTn(
+            datos.importeFlete(
+                diaCampania(),
                 idSitio,
                 pedido.puertoSalida.idUbicacion,
-                pedido.producto
+                pedido.producto,
+                pedido.toneladasSolicitadas,
+                viajesNecesariosCamion(pedido.toneladasSolicitadas)
             );
 
         pedido.costoConsolidadoEstimado =
-            pedido.toneladasSolicitadas
-            * costoServicioEstibaUsdTn(pedido);
+            importeServicioEstiba(
+                pedido,
+                pedido.toneladasSolicitadas,
+                contenedoresNecesarios(
+                    pedido.producto,
+                    pedido.toneladasSolicitadas
+                )
+            );
 
         pedido.costoTotalEstimado =
             pedido.costoFleteEstimado
@@ -2473,21 +2532,17 @@ class Main extends Agent {
             pedido.toneladasSolicitadas;
     }
 
-    double costoServicioEstibaUsdTn(Pedido pedido) {
-        // Quien cobra la estiba es el sitio donde se arma el contenedor, y el cross dock
-        // es otro servicio que la estiba desde stock (ADR-041, ADR-050).
+    double importeServicioEstiba(Pedido pedido, double toneladas, int contenedores) {
+        // Quien cobra la estiba es el sitio donde se arma el contenedor, y el cross dock es
+        // otro servicio que la estiba desde stock (ADR-041, ADR-050). La unidad de la tarifa
+        // decide si se cobra por tonelada o por contenedor completo (ADR-051).
         String sitio = sitioEstiba(pedido);
 
+        int dia = diaCampania();
+
         return pedido.esCrossDock
-            ? datos.servicioCargaUsdTn(
-                sitio,
-                pedido.producto,
-                "CROSS_DOCK"
-            )
-            : datos.servicioCargaUsdTn(
-                sitio,
-                pedido.producto
-            );
+            ? datos.importeCrossDock(dia, sitio, pedido.producto, toneladas, contenedores)
+            : datos.importeConsolidacion(dia, sitio, pedido.producto, toneladas, contenedores);
     }
 
     boolean estibaEnOrigen(Pedido pedido) {
@@ -2534,13 +2589,206 @@ class Main extends Agent {
             * camionDiaViaje(idOrigen, idDestino);
     }
 
+    int diaCampania() {
+        // Las tarifas reales cambian por mes: el dia de campania es la clave con la que
+        // se resuelve cual esta vigente (ADR-051).
+        return (int) Math.floor(time());
+    }
+
+    void refrescarTarifasDelDia() {
+        // El almacenaje se devenga por dia y su tarifa puede cambiar de mes: el deposito
+        // no guarda la tarifa de la campania, guarda la de hoy (ADR-051).
+        int dia = diaCampania();
+
+        for (Deposito deposito : depositos) {
+
+            deposito.costoJugoTnDia =
+                datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.JUGO);
+
+            deposito.costoCascaraTnDia =
+                datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.CASCARA);
+
+            deposito.costoAceiteTnDia =
+                datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.ACEITE);
+        }
+    }
+
+    double registrarFleteProducto(String origen, String destino, TipoProducto producto, double toneladas, int viajes, String idLote, String codigoPedido, EstrategiaLogistica estrategia, String idOperacion) {
+        // El flete a granel puede venir por viaje o por tonelada, y ademas tener una parte
+        // variable: cada componente es un cargo con su propia unidad, para que el importe
+        // siempre sea cantidad por tarifa (ADR-052).
+        int dia = diaCampania();
+
+        DatosEntrada.TarifaFlete tarifa =
+            datos.tarifaFlete(dia, origen, destino, producto);
+
+        double importe = 0;
+
+        if (tarifa.unidad == DatosEntrada.Unidad.USD_VIAJE) {
+
+            importe += registro.registrar(
+                time(),
+                RegistroCostos.Categoria.FLETE_PRODUCTO,
+                RegistroCostos.Tipo.CAJA,
+                codigoPedido, "", idLote, producto,
+                origen, destino, origen, estrategia, tarifa.proveedor,
+                DatosEntrada.Unidad.USD_VIAJE, viajes, tarifa.tarifa,
+                idOperacion, "flete por viaje"
+            );
+
+        } else {
+
+            importe += registro.registrar(
+                time(),
+                RegistroCostos.Categoria.FLETE_PRODUCTO,
+                RegistroCostos.Tipo.CAJA,
+                codigoPedido, "", idLote, producto,
+                origen, destino, origen, estrategia, tarifa.proveedor,
+                DatosEntrada.Unidad.USD_TN, toneladas, tarifa.tarifa,
+                idOperacion, "flete por tonelada"
+            );
+        }
+
+        if (tarifa.variableUsdTn > 0) {
+
+            importe += registro.registrar(
+                time(),
+                RegistroCostos.Categoria.FLETE_PRODUCTO,
+                RegistroCostos.Tipo.CAJA,
+                codigoPedido, "", idLote, producto,
+                origen, destino, origen, estrategia, tarifa.proveedor,
+                DatosEntrada.Unidad.USD_TN, toneladas, tarifa.variableUsdTn,
+                idOperacion, "componente variable del flete"
+            );
+        }
+
+        return importe;
+    }
+
+    double registrarRoundTrip(Envio envio) {
+        // El ciclo se devenga recien cuando se completa: un circuito truncado al cierre de
+        // la campania no genera cargo (ADR-051). La tarifa es la del dia en que salio.
+        int diaTarifa = (int) Math.floor(envio.diaCreacion);
+
+        Pedido pedido = envio.pedido;
+
+        DatosEntrada.TarifaRoundTrip tarifa =
+            datos.tarifaRoundTrip(
+                diaTarifa,
+                envio.terminalDestino.idUbicacion,
+                envio.idSitioOrigen,
+                pedido.tipoContenedor
+            );
+
+        double importe = registro.registrar(
+            time(),
+            RegistroCostos.Categoria.ROUND_TRIP,
+            RegistroCostos.Tipo.CAJA,
+            pedido.codigoPedido,
+            envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+            "", envio.producto,
+            envio.idSitioOrigen, envio.terminalDestino.idUbicacion, envio.idSitioOrigen,
+            envio.circuito, tarifa.proveedor,
+            DatosEntrada.Unidad.USD_CONTENEDOR, 1, tarifa.tarifaUsdContenedor,
+            "ENV-" + envio.idEnvio, "ciclo terminal -> origen -> terminal"
+        );
+
+        exigirIgual(importe, envio.costoFleteReal, "round trip del envio " + envio.idEnvio);
+
+        return importe;
+    }
+
+    double registrarServicioEstiba(Envio envio) {
+        // Consolidar y cruzar son dos servicios distintos del mismo sitio, y la unidad de
+        // la tarifa decide si se cobran por tonelada o por contenedor completo (ADR-051).
+        int diaTarifa = (int) Math.floor(envio.diaCreacion);
+
+        Pedido pedido = envio.pedido;
+
+        String sitio = sitioEstiba(pedido);
+
+        DatosEntrada.TarifaSitio tarifa =
+            datos.tarifaSitio(diaTarifa, sitio, envio.producto);
+
+        boolean cruza = pedido.esCrossDock;
+
+        DatosEntrada.Unidad unidad =
+            cruza ? tarifa.crossDockUnidad : tarifa.consolidacionUnidad;
+
+        double usd =
+            cruza ? tarifa.crossDockTarifa : tarifa.consolidacionTarifa;
+
+        double cantidad =
+            unidad == DatosEntrada.Unidad.USD_CONTENEDOR
+            ? contenedoresNecesarios(envio.producto, envio.toneladas)
+            : envio.toneladas;
+
+        double importe = registro.registrar(
+            time(),
+            cruza
+                ? RegistroCostos.Categoria.CROSS_DOCK
+                : RegistroCostos.Categoria.CONSOLIDACION,
+            RegistroCostos.Tipo.CAJA,
+            pedido.codigoPedido,
+            envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+            "", envio.producto,
+            envio.idSitioOrigen, envio.terminalDestino.idUbicacion, sitio,
+            envio.circuito, tarifa.proveedor,
+            unidad, cantidad, usd,
+            "ENV-" + envio.idEnvio,
+            cruza ? "cross dock del envio" : "estiba del envio"
+        );
+
+        exigirIgual(importe, envio.costoConsolidacionReal, "estiba del envio " + envio.idEnvio);
+
+        return importe;
+    }
+
+    void exigirIgual(double registrado, double cotizado, String concepto) {
+        // El registro es la fuente de verdad: si un devengo no coincide con lo que el envio
+        // tenia cotizado, la tarifa cambio entre la salida y la entrega y el numero deja de
+        // ser explicable (ADR-052).
+        if (Math.abs(registrado - cotizado) > RegistroCostos.EPS) {
+            throw new RuntimeException("Devengo distinto de lo cotizado en " + concepto
+                + ": registro " + registrado + " contra " + cotizado + ".");
+        }
+    }
+
+    void reconciliarCostos() {
+        // Todo total del modelo tiene que poder explicarse cargo por cargo (ADR-052). Se
+        // llama todos los dias y al cierre de la corrida: un desvio es un error de modelo.
+        double dia = time();
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.ALMACENAMIENTO, getCostoAlmacenamientoTotal(), dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.FLETE_PRODUCTO, costoFletePlantaDeposito, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.ROUND_TRIP, costoFleteDepositoPuertoReal, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.CONSOLIDACION, costoConsolidacionReal, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.CROSS_DOCK, costoCrossDockReal, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.OPORTUNIDAD_FRIO, costoOportunidadFrio, dia);
+
+        registro.reconciliar(
+            RegistroCostos.Categoria.PENALIDAD_SOBRECARGA, costoPenalidadSobrecarga, dia);
+    }
+
     // ----- Eventos -----
 
     // evento pasoDiario [timeout cyclic] cada 1 day
     void pasoDiario_accion() {
         // Secuencia diaria del modelo (ADR-034). El orden es parte de la
         // definicion: cambiarlo cambia el costo y el servicio del dia.
-        abrirFlotaDelDia();                      // 0. abrir la capacidad de flota del dia
+        refrescarTarifasDelDia();                // 0. tarifa vigente de hoy (ADR-051)
+        abrirFlotaDelDia();                      // 0b. abrir la capacidad de flota del dia
         producirEnPlantas();                     // 1. producir
         registrarPedidosDelDia();                // 2. planificar y comprometer
         abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
@@ -2555,5 +2803,6 @@ class Main extends Agent {
         registrarOcupacionPlanta();              // 10c. medir la sobrecarga del dia
         registrarAtrasos();                      // 11. registrar indicadores del dia
         validarInventario();              // invariantes de las capas (ADR-023)
+        reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
     }
 }

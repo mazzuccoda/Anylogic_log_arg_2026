@@ -321,6 +321,10 @@ class Escenarios extends ParamVariationExperiment {
 
     // después de la corrida
     void afterSimulationRunCode() {
+        // Antes de leer un KPI de costo, el registro tiene que cerrar contra los
+        // acumuladores del modelo (ADR-052).
+        root.reconciliarCostos();
+
         // Una fila por corrida, con la identidad que permite reproducirla.
         Corrida c = new Corrida();
 

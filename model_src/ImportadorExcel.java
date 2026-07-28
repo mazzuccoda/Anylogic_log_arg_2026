@@ -111,22 +111,46 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.texto("origen"), f.texto("destino"), f.numero("distancia_km")));
 		}
 
-		for (Fila f : filas("TarifaAlmacenamiento", null, null)) {
-			datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
-					f.texto("id_ubicacion"), f.producto("producto"), f.numero("storage_usd_tn_dia"),
-					f.numero("oportunidad_usd_tn_dia"), f.numero("penalidad_sobrecarga_usd_tn_dia")));
+		// Una fila por sitio, producto y vigencia: todo lo que cobra ese sitio. Los
+		// conceptos que no aplican van en cero y no como columna ausente, para que la
+		// planilla muestre que la decision de no cobrarlos fue explicita (ADR-051).
+		for (Fila f : filas("TarifaSitio", null, null)) {
+			datos.tarifasSitio.add(new DatosEntrada.TarifaSitio(
+					f.texto("id_ubicacion"), f.producto("producto"),
+					f.numero("in_usd_tn"), f.numero("storage_usd_tn_dia"), f.numero("out_usd_tn"),
+					f.numero("oportunidad_usd_tn_dia"), f.numero("penalidad_sobrecarga_usd_tn_dia"),
+					f.numero("consolidacion_tarifa"), f.unidad("consolidacion_unidad"),
+					f.numero("cross_dock_tarifa"), f.unidad("cross_dock_unidad"),
+					f.numero("thc_usd_contenedor"), f.numero("costo_terminal_usd_contenedor"),
+					f.numero("despachante_tarifa"), f.unidad("despachante_unidad"),
+					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+					f.booleano("habilitada")));
 		}
 
 		for (Fila f : filas("TarifaFleteProducto", null, null)) {
 			datos.tarifasFlete.add(new DatosEntrada.TarifaFlete(
 					f.texto("origen"), f.texto("destino"), f.producto("producto"),
-					f.numero("tarifa_usd_tn")));
+					f.texto("tipo_camion"), f.numero("capacidad_camion_tn"), f.unidad("unidad"),
+					f.numero("tarifa"), f.numero("variable_usd_tn"),
+					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+					f.booleano("habilitada")));
 		}
 
-		for (Fila f : filas("TarifaServicioCarga", null, null)) {
-			datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-					f.texto("id_ubicacion"), f.producto("producto"), f.texto("tipo_servicio"),
-					f.numero("tarifa_usd_tn")));
+		for (Fila f : filas("TarifaRoundTrip", null, null)) {
+			datos.tarifasRoundTrip.add(new DatosEntrada.TarifaRoundTrip(
+					f.texto("terminal"), f.texto("sitio"), f.contenedor("tipo_contenedor"),
+					f.numero("tarifa_usd_contenedor"), f.numero("horas_espera_incluidas"),
+					f.numero("tarifa_espera_usd_hora"),
+					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+					f.booleano("habilitada")));
+		}
+
+		for (Fila f : filas("TarifaEspera", null, null)) {
+			datos.tarifasEspera.add(new DatosEntrada.TarifaEspera(
+					f.texto("tipo_recurso"), f.texto("id_ubicacion"),
+					f.numero("franquicia_horas"), f.numero("usd_hora"),
+					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+					f.booleano("habilitada")));
 		}
 
 		for (Fila f : filas("ProduccionPlan", "id_escenario", idEscenario)) {
@@ -294,6 +318,28 @@ public class ImportadorExcel implements java.io.Serializable {
 		private boolean booleano(String nombre) {
 			String v = texto(nombre).toUpperCase();
 			return v.equals("TRUE") || v.equals("SI") || v.equals("SÍ") || v.equals("1");
+		}
+
+		private DatosEntrada.Unidad unidad(String nombre) {
+			String v = texto(nombre).toUpperCase().replace("/", "_").replace(" ", "");
+			try {
+				return DatosEntrada.Unidad.valueOf(v);
+			} catch (IllegalArgumentException e) {
+				errores.add("Unidad desconocida '" + v + "' en la columna " + nombre + " de la fila "
+						+ fila + " de la hoja " + hoja + ".");
+				return DatosEntrada.Unidad.USD_TN;
+			}
+		}
+
+		private TipoContenedor contenedor(String nombre) {
+			String v = texto(nombre).toUpperCase();
+			try {
+				return TipoContenedor.valueOf(v);
+			} catch (IllegalArgumentException e) {
+				errores.add("Tipo de contenedor desconocido '" + v + "' en la fila " + fila
+						+ " de la hoja " + hoja + ".");
+				return TipoContenedor.REEFER_40;
+			}
 		}
 
 		private TipoProducto producto(String nombre) {

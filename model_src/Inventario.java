@@ -18,6 +18,9 @@ public class Inventario implements java.io.Serializable {
 
 	public final java.util.List<Capa> capas = new java.util.ArrayList<Capa>();
 
+	/** Numerador de capas: dos capas pueden coincidir en todo menos en su identidad. */
+	private long secuenciaCapa = 0;
+
 	/** Orden FIFO: primero la capa que ingreso antes; los empates se rompen igual siempre. */
 	private static class PorAntiguedad
 			implements java.util.Comparator<Capa>, java.io.Serializable {
@@ -45,6 +48,7 @@ public class Inventario implements java.io.Serializable {
 			return null;
 		}
 		Capa capa = new Capa(idLote, producto, idUbicacion, toneladas, dia, diaProduccion);
+		capa.idCapa = ++secuenciaCapa;
 		capas.add(capa);
 		return capa;
 	}
@@ -271,12 +275,20 @@ public class Inventario implements java.io.Serializable {
 				continue;
 			}
 			c.toneladas -= toma;
-			nuevas.add(new Capa(c.idLote, c.producto, destino, toma, dia, c.diaProduccion));
+			nuevas.add(nuevaCapa(c, destino, toma, dia));
 			pendiente -= toma;
 		}
 		capas.addAll(nuevas);
 		limpiar();
 		return toneladas - pendiente;
+	}
+
+	/** Parte de una capa que se muda: mismo lote y misma produccion, otra identidad. */
+	private Capa nuevaCapa(Capa origen, String destino, double toneladas, double dia) {
+		Capa capa = new Capa(origen.idLote, origen.producto, destino, toneladas, dia,
+				origen.diaProduccion);
+		capa.idCapa = ++secuenciaCapa;
+		return capa;
 	}
 
 	/** Igual que mover(), pero limitado a las capas de un lote. */
@@ -293,7 +305,7 @@ public class Inventario implements java.io.Serializable {
 				continue;
 			}
 			c.toneladas -= toma;
-			nuevas.add(new Capa(c.idLote, c.producto, destino, toma, dia, c.diaProduccion));
+			nuevas.add(nuevaCapa(c, destino, toma, dia));
 			pendiente -= toma;
 		}
 		capas.addAll(nuevas);

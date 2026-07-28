@@ -1127,6 +1127,96 @@ cargarDatosEntrada();]]></StartupCode>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000030</Id>
+					<Name><![CDATA[viajesGranelTerminal]]></Name>
+					<X>-140</X><Y>940</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000031</Id>
+					<Name><![CDATA[contenedoresCircuitoPlanta]]></Name>
+					<X>-140</X><Y>980</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000032</Id>
+					<Name><![CDATA[contenedoresCircuitoDeposito]]></Name>
+					<X>-140</X><Y>1020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000033</Id>
+					<Name><![CDATA[contenedoresCircuitoCrossDock]]></Name>
+					<X>-140</X><Y>1060</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000034</Id>
+					<Name><![CDATA[contenedoresCircuitoTerminal]]></Name>
+					<X>-140</X><Y>1100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791100000201</Id>
+					<Name><![CDATA[registro]]></Name>
+					<X>1200</X><Y>180</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[RegistroCostos]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new RegistroCostos()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1791000000113</Id>
 					<Name><![CDATA[origenDatos]]></Name>
@@ -1224,78 +1314,6 @@ cargarDatosEntrada();]]></StartupCode>
 					</Properties>                 
 				</Variable>
 				<Variable Class="Parameter">
-					<Id>1784381347601</Id>
-					<Name><![CDATA[costoFijoViajePD]]></Name>
-					<X>700</X><Y>-320</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[150]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784381347599</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784381360528</Id>
-					<Name><![CDATA[costoKmPD]]></Name>
-					<X>700</X><Y>-280</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[1.2]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784381360526</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784381388672</Id>
-					<Name><![CDATA[costoTnPD]]></Name>
-					<X>700</X><Y>-240</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[2.0]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784381388670</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
 					<Id>1784382673676</Id>
 					<Name><![CDATA[diasEstimadosAlmacenamiento]]></Name>
 					<X>700</X><Y>-400</Y>
@@ -1378,82 +1396,6 @@ cargarDatosEntrada();]]></StartupCode>
 						</CollectionInitializer>
 					</Properties>
 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792000030</Id>
-					<Name><![CDATA[viajesGranelTerminal]]></Name>
-					<X>-140</X><Y>940</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000031</Id>
-					<Name><![CDATA[contenedoresCircuitoPlanta]]></Name>
-					<X>-140</X><Y>980</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000032</Id>
-					<Name><![CDATA[contenedoresCircuitoDeposito]]></Name>
-					<X>-140</X><Y>1020</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000033</Id>
-					<Name><![CDATA[contenedoresCircuitoCrossDock]]></Name>
-					<X>-140</X><Y>1060</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000034</Id>
-					<Name><![CDATA[contenedoresCircuitoTerminal]]></Name>
-					<X>-140</X><Y>1100</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<Connectors>
@@ -1721,7 +1663,7 @@ cargarDatosEntrada();]]></StartupCode>
 						<Point><X>-80</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
-							<Connector>
+				<Connector>
 					<Id>1792400001</Id>
 					<Name><![CDATA[connector0001]]></Name>
 					<X>110</X><Y>710</Y>
@@ -1986,7 +1928,8 @@ cargarDatosEntrada();]]></StartupCode>
 					</Properties>
 					<Action><![CDATA[// Secuencia diaria del modelo (ADR-034). El orden es parte de la
 // definicion: cambiarlo cambia el costo y el servicio del dia.
-abrirFlotaDelDia();                      // 0. abrir la capacidad de flota del dia
+refrescarTarifasDelDia();                // 0. tarifa vigente de hoy (ADR-051)
+abrirFlotaDelDia();                      // 0b. abrir la capacidad de flota del dia
 producirEnPlantas();                     // 1. producir
 registrarPedidosDelDia();                // 2. planificar y comprometer
 abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
@@ -2000,7 +1943,8 @@ devengarAlmacenamientoDiario();          // 10. devengar almacenaje
 devengarOportunidadFrioPropio();         // 10b. devengar el uso del frio propio
 registrarOcupacionPlanta();              // 10c. medir la sobrecarga del dia
 registrarAtrasos();                      // 11. registrar indicadores del dia
-validarInventario();              // invariantes de las capas (ADR-023)]]></Action>
+validarInventario();              // invariantes de las capas (ADR-023)
+reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -2132,6 +2076,10 @@ return lote;]]></Body>
 						<Type><![CDATA[Deposito]]></Type>
 					</Parameter>
 					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
 						<Name><![CDATA[toneladas]]></Name>
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
@@ -2139,14 +2087,17 @@ return lote;]]></Body>
     return Double.POSITIVE_INFINITY;
 }
 
-// El costo fijo y el kilometraje son por viaje, y un viaje mueve a lo sumo un
-// camion cargado: mover el doble de toneladas cuesta dos veces el viaje.
-return viajesNecesariosCamion(toneladas)
-    * (
-        costoFijoViajePD
-        + datos.distanciaKm("PLANTA", deposito.idUbicacion) * costoKmPD
-    )
-    + toneladas * costoTnPD;]]></Body>
+// El flete a granel se cobra por viaje: mover el doble de toneladas cuesta dos veces
+// el viaje aunque el ultimo camion vaya a medio cargar. La tarifa, su unidad y su
+// vigencia son dato de la tabla y no una formula cableada (ADR-051).
+return datos.importeFlete(
+    diaCampania(),
+    "PLANTA",
+    deposito.idUbicacion,
+    producto,
+    toneladas,
+    viajesNecesariosCamion(toneladas)
+);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -2187,7 +2138,7 @@ for (Deposito deposito : depositos) {
     }
 
     double costoEstimado =
-        calcularCostoPlantaDeposito(deposito, posible)
+        calcularCostoPlantaDeposito(deposito, producto, posible)
         + posible
         * deposito.getTarifaAlmacenamiento(producto)
         * diasEstimadosAlmacenamiento;
@@ -2490,20 +2441,30 @@ for (Deposito deposito : depositos) {
         continue;
     }
 
+    int contenedores =
+        contenedoresNecesarios(
+            pedido.producto,
+            pedido.toneladasSolicitadas
+        );
+
     double costoFlete =
-        pedido.toneladasSolicitadas
-        * deposito.getCostoFletePuerto(
+        deposito.getImporteFletePuerto(
             pedido.puertoSalida,
-            pedido.producto
+            pedido.producto,
+            pedido.toneladasSolicitadas
         );
 
     double costoConsolidado =
-        pedido.toneladasSolicitadas
-        * (
-            consolidaEnTerminal()
-            ? pedido.puertoSalida
-                .getCostoConsolidado(pedido.producto)
-            : deposito.getCostoConsolidado(pedido.producto)
+        consolidaEnTerminal()
+        ? pedido.puertoSalida.getImporteConsolidacion(
+            pedido.producto,
+            pedido.toneladasSolicitadas,
+            contenedores
+        )
+        : deposito.getImporteConsolidacion(
+            pedido.producto,
+            pedido.toneladasSolicitadas,
+            contenedores
         );
 
     double costoTotal =
@@ -2744,13 +2705,22 @@ envio.tiempoRetornoHoras =
     ? distancia / velocidadCamion
     : 0;
 
+// El ciclo del portacontenedor se cotiza por contenedor y por circuito, no por
+// kilometro: la tarifa cubre terminal -> origen -> terminal (ADR-051).
 envio.costoFleteReal =
-    costoFijoViajePD
-    + distancia * 2 * costoKmPD;
+    datos.roundTripUsdContenedor(
+        diaCampania(),
+        envio.terminalDestino.idUbicacion,
+        envio.idSitioOrigen,
+        pedido.tipoContenedor
+    );
 
 envio.costoConsolidacionReal =
-    toneladas
-    * costoServicioEstibaUsdTn(pedido);
+    importeServicioEstiba(
+        pedido,
+        toneladas,
+        contenedoresNecesarios(pedido.producto, toneladas)
+    );
 
 envio.costoTotalReal =
     envio.costoFleteReal
@@ -3038,14 +3008,6 @@ for (Deposito deposito : depositos) {
     deposito.capacidadAceite =
         datos.capacidadTn(deposito.idUbicacion, TipoProducto.ACEITE);
 
-    deposito.costoJugoTnDia =
-        datos.storageUsdTnDia(deposito.idUbicacion, TipoProducto.JUGO);
-
-    deposito.costoCascaraTnDia =
-        datos.storageUsdTnDia(deposito.idUbicacion, TipoProducto.CASCARA);
-
-    deposito.costoAceiteTnDia =
-        datos.storageUsdTnDia(deposito.idUbicacion, TipoProducto.ACEITE);
 }
 
 for (Terminal terminal : terminales) {
@@ -3057,16 +3019,9 @@ for (Terminal terminal : terminales) {
     terminal.capacidadDiariaTn = ubicacion.capacidadDiariaTn;
     terminal.velocidadDescargaTnHora = ubicacion.velocidadDescargaTnHora;
     terminal.velocidadConsolidacionTnHora = ubicacion.velocidadConsolidacionTnHora;
+}
 
-    terminal.costoConsolidadoJugo =
-        datos.servicioCargaUsdTn(terminal.idUbicacion, TipoProducto.JUGO);
-
-    terminal.costoConsolidadoCascara =
-        datos.servicioCargaUsdTn(terminal.idUbicacion, TipoProducto.CASCARA);
-
-    terminal.costoConsolidadoAceite =
-        datos.servicioCargaUsdTn(terminal.idUbicacion, TipoProducto.ACEITE);
-}]]></Body>
+refrescarTarifasDelDia();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -3231,9 +3186,21 @@ for (Capa capa : inventario.capas) {
         continue;
     }
 
-    double costoDia =
-        facturables
-        * deposito.getTarifaAlmacenamiento(capa.producto);
+    DatosEntrada.TarifaSitio tarifa =
+        datos.tarifaSitio(diaCampania(), capa.idUbicacion, capa.producto);
+
+    double costoDia = registro.registrar(
+        time(),
+        RegistroCostos.Categoria.ALMACENAMIENTO,
+        RegistroCostos.Tipo.CAJA,
+        "", "", "" + capa.idLote, capa.producto,
+        capa.idUbicacion, capa.idUbicacion, capa.idUbicacion,
+        EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
+        DatosEntrada.Unidad.USD_TN_DIA, facturables, tarifa.storageUsdTnDia,
+        "STO-" + diaCampania() + "-" + capa.idLote + "-" + capa.idUbicacion
+            + "-" + capa.producto + "-" + capa.idCapa,
+        "almacenaje del dia"
+    );
 
     capa.costoAlmacenamiento += costoDia;
     deposito.costoAlmacenamientoAcumulado += costoDia;
@@ -3493,8 +3460,18 @@ lote.diaIngresoDeposito = time();
 
 actualizarUbicacionLote(lote);
 
-double costoViaje =
-    calcularCostoPlantaDeposito(destino, movidas);
+double costoViaje = registrarFleteProducto(
+    "PLANTA",
+    destino.idUbicacion,
+    lote.producto,
+    movidas,
+    viajesNecesariosCamion(movidas),
+    "" + lote.idLote,
+    "",
+    EstrategiaLogistica.SIN_DEFINIR,
+    "TRA-" + diaCampania() + "-" + lote.idLote + "-" + destino.idUbicacion
+        + "-" + cantidadTransferenciasDepositos
+);
 
 lote.costoAcumulado += costoViaje;
 costoFletePlantaDeposito += costoViaje;
@@ -3596,12 +3573,6 @@ String origen = pedido.idSitioOrigen;
 
 String sitioDeEstiba = sitioEstiba(pedido);
 
-double distancia =
-    datos.distanciaKm(
-        origen,
-        pedido.puertoSalida.idUbicacion
-    );
-
 // Capas que este pedido tiene reservadas, en el mismo orden FIFO en que se van a
 // despachar: recorrerlas en paralelo a los contenedores da el lote de cada uno.
 java.util.List<Capa> reservadas =
@@ -3657,10 +3628,13 @@ while (pendiente > 0.0001) {
     contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
 
     contenedor.costoEstimado =
-        costoFijoViajePD
-        + distancia * 2 * costoKmPD
-        + carga
-        * costoServicioEstibaUsdTn(pedido);
+        datos.roundTripUsdContenedor(
+            diaCampania(),
+            pedido.puertoSalida.idUbicacion,
+            origen,
+            pedido.tipoContenedor
+        )
+        + importeServicioEstiba(pedido, carga, 1);
 
     double resto = carga;
     double mayorAporte = 0;
@@ -4149,15 +4123,21 @@ for (Deposito deposito : depositos) {
     double costo =
         calcularCostoPlantaDeposito(
             deposito,
+            pedido.producto,
             pedido.toneladasSolicitadas
         )
-        + pedido.toneladasSolicitadas
-        * (
-            deposito.getCostoFletePuerto(
-                pedido.puertoSalida,
-                pedido.producto
+        + deposito.getImporteFletePuerto(
+            pedido.puertoSalida,
+            pedido.producto,
+            pedido.toneladasSolicitadas
+        )
+        + deposito.getImporteCrossDock(
+            pedido.producto,
+            pedido.toneladasSolicitadas,
+            contenedoresNecesarios(
+                pedido.producto,
+                pedido.toneladasSolicitadas
             )
-            + deposito.getCostoCrossDock(pedido.producto)
         );
 
     if (costo < menorCosto) {
@@ -4398,11 +4378,9 @@ if (
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[return costoFletePlantaDeposito
-    + costoFleteDepositoPuertoReal
-    + costoConsolidacionReal
-    + costoCrossDockReal
-    + getCostoAlmacenamientoTotal();]]></Body>
+					<Body><![CDATA[// El total no suma acumuladores: es el saldo de caja del registro de cargos, y los
+// acumuladores de los agentes se reconcilian contra el todos los dias (ADR-052).
+return registro.total(RegistroCostos.Tipo.CAJA);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -4895,9 +4873,21 @@ for (TipoProducto producto : TipoProducto.values()) {
 
     tonDiaSobreCriticoPlanta += max(0, stock - critico);
 
-    costoPenalidadSobrecarga +=
-        sobreNominal
-        * datos.penalidadSobrecargaUsdTnDia("PLANTA", producto);
+    DatosEntrada.TarifaSitio tarifa =
+        datos.tarifaSitio(diaCampania(), "PLANTA", producto);
+
+    costoPenalidadSobrecarga += registro.registrar(
+        time(),
+        RegistroCostos.Categoria.PENALIDAD_SOBRECARGA,
+        RegistroCostos.Tipo.ECONOMICO,
+        "", "", "", producto,
+        "PLANTA", "PLANTA", "PLANTA",
+        EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
+        DatosEntrada.Unidad.USD_TN_DIA, sobreNominal,
+        tarifa.penalidadSobrecargaUsdTnDia,
+        "PEN-" + diaCampania() + "-" + producto,
+        "toneladas sobre la capacidad nominal"
+    );
 }
 
 if (diaEnSobrecarga) {
@@ -4919,9 +4909,22 @@ if (diaEnSobrecarga) {
 // cotizacion de un tercero (ADR-049).
 for (TipoProducto producto : TipoProducto.values()) {
 
-    costoOportunidadFrio +=
-        inventario.stock("PLANTA", producto)
-        * datos.oportunidadUsdTnDia("PLANTA", producto);
+    DatosEntrada.TarifaSitio tarifa =
+        datos.tarifaSitio(diaCampania(), "PLANTA", producto);
+
+    costoOportunidadFrio += registro.registrar(
+        time(),
+        RegistroCostos.Categoria.OPORTUNIDAD_FRIO,
+        RegistroCostos.Tipo.ECONOMICO,
+        "", "", "", producto,
+        "PLANTA", "PLANTA", "PLANTA",
+        EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
+        DatosEntrada.Unidad.USD_TN_DIA,
+        inventario.stock("PLANTA", producto),
+        tarifa.oportunidadUsdTnDia,
+        "OPO-" + diaCampania() + "-" + producto,
+        "ocupacion del frio propio"
+    );
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -4934,12 +4937,10 @@ for (TipoProducto producto : TipoProducto.values()) {
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[// Costo de caja mas lo que cuesta ocupar el frio propio y la penalidad por
-// operar sobre la capacidad nominal (ADR-049). Con las tarifas en cero coincide
-// con el costo de caja.
-return costoTotalCampania()
-    + costoOportunidadFrio
-    + costoPenalidadSobrecarga;]]></Body>
+					<Body><![CDATA[// Costo de caja mas lo que cuesta ocupar el frio propio y la penalidad por operar
+// sobre la capacidad nominal (ADR-049). Con las tarifas en cero coincide con el costo
+// de caja.
+return registro.total();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -4957,7 +4958,6 @@ return toneladas <= 0
     ? 0
     : costoTotalEconomico() / toneladas;]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
@@ -5288,14 +5288,14 @@ if (
 }
 
 costoFleteDepositoPuertoReal +=
-    envio.costoFleteReal;
+    registrarRoundTrip(envio);
 
 if (envio.pedido.esCrossDock) {
     costoCrossDockReal +=
-        envio.costoConsolidacionReal;
+        registrarServicioEstiba(envio);
 } else {
     costoConsolidacionReal +=
-        envio.costoConsolidacionReal;
+        registrarServicioEstiba(envio);
 }
 
 switch (envio.circuito) {
@@ -5325,7 +5325,6 @@ if (envio.contenedor != null) {
         envio.costoTotalReal;
 }]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
@@ -5409,16 +5408,24 @@ pedido.diaReserva = time();
 pedido.estado = EstadoPedido.RESERVADO;
 
 pedido.costoFleteEstimado =
-    pedido.toneladasSolicitadas
-    * datos.fleteUsdTn(
+    datos.importeFlete(
+        diaCampania(),
         idSitio,
         pedido.puertoSalida.idUbicacion,
-        pedido.producto
+        pedido.producto,
+        pedido.toneladasSolicitadas,
+        viajesNecesariosCamion(pedido.toneladasSolicitadas)
     );
 
 pedido.costoConsolidadoEstimado =
-    pedido.toneladasSolicitadas
-    * costoServicioEstibaUsdTn(pedido);
+    importeServicioEstiba(
+        pedido,
+        pedido.toneladasSolicitadas,
+        contenedoresNecesarios(
+            pedido.producto,
+            pedido.toneladasSolicitadas
+        )
+    );
 
 pedido.costoTotalEstimado =
     pedido.costoFleteEstimado
@@ -5434,7 +5441,7 @@ toneladasReservadasAcumuladas +=
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792200005</Id>
-					<Name><![CDATA[costoServicioEstibaUsdTn]]></Name>
+					<Name><![CDATA[importeServicioEstiba]]></Name>
 					<X>130</X><Y>2880</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -5444,20 +5451,24 @@ toneladasReservadasAcumuladas +=
 						<Name><![CDATA[pedido]]></Name>
 						<Type><![CDATA[Pedido]]></Type>
 					</Parameter>
-					<Body><![CDATA[// Quien cobra la estiba es el sitio donde se arma el contenedor, y el cross dock
-// es otro servicio que la estiba desde stock (ADR-041, ADR-050).
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[contenedores]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Quien cobra la estiba es el sitio donde se arma el contenedor, y el cross dock es
+// otro servicio que la estiba desde stock (ADR-041, ADR-050). La unidad de la tarifa
+// decide si se cobra por tonelada o por contenedor completo (ADR-051).
 String sitio = sitioEstiba(pedido);
 
+int dia = diaCampania();
+
 return pedido.esCrossDock
-    ? datos.servicioCargaUsdTn(
-        sitio,
-        pedido.producto,
-        "CROSS_DOCK"
-    )
-    : datos.servicioCargaUsdTn(
-        sitio,
-        pedido.producto
-    );]]></Body>
+    ? datos.importeCrossDock(dia, sitio, pedido.producto, toneladas, contenedores)
+    : datos.importeConsolidacion(dia, sitio, pedido.producto, toneladas, contenedores);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -5554,6 +5565,310 @@ if (flotaProductoUsadaHoy > flotaProductoOfrecidaHoy + 0.0001) {
 return flotaProductoLibreHoy() + 0.0001
     >= viajesNecesariosCamion(toneladas)
     * camionDiaViaje(idOrigen, idDestino);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1791100000001</Id>
+					<Name><![CDATA[diaCampania]]></Name>
+					<X>130</X><Y>1340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Las tarifas reales cambian por mes: el dia de campania es la clave con la que
+// se resuelve cual esta vigente (ADR-051).
+return (int) Math.floor(time());]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791100000003</Id>
+					<Name><![CDATA[refrescarTarifasDelDia]]></Name>
+					<X>130</X><Y>1380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// El almacenaje se devenga por dia y su tarifa puede cambiar de mes: el deposito
+// no guarda la tarifa de la campania, guarda la de hoy (ADR-051).
+int dia = diaCampania();
+
+for (Deposito deposito : depositos) {
+
+    deposito.costoJugoTnDia =
+        datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.JUGO);
+
+    deposito.costoCascaraTnDia =
+        datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.CASCARA);
+
+    deposito.costoAceiteTnDia =
+        datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.ACEITE);
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791100000211</Id>
+					<Name><![CDATA[registrarFleteProducto]]></Name>
+					<X>130</X><Y>1420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[origen]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[destino]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[viajes]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idLote]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[codigoPedido]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[estrategia]]></Name>
+						<Type><![CDATA[EstrategiaLogistica]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idOperacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El flete a granel puede venir por viaje o por tonelada, y ademas tener una parte
+// variable: cada componente es un cargo con su propia unidad, para que el importe
+// siempre sea cantidad por tarifa (ADR-052).
+int dia = diaCampania();
+
+DatosEntrada.TarifaFlete tarifa =
+    datos.tarifaFlete(dia, origen, destino, producto);
+
+double importe = 0;
+
+if (tarifa.unidad == DatosEntrada.Unidad.USD_VIAJE) {
+
+    importe += registro.registrar(
+        time(),
+        RegistroCostos.Categoria.FLETE_PRODUCTO,
+        RegistroCostos.Tipo.CAJA,
+        codigoPedido, "", idLote, producto,
+        origen, destino, origen, estrategia, tarifa.proveedor,
+        DatosEntrada.Unidad.USD_VIAJE, viajes, tarifa.tarifa,
+        idOperacion, "flete por viaje"
+    );
+
+} else {
+
+    importe += registro.registrar(
+        time(),
+        RegistroCostos.Categoria.FLETE_PRODUCTO,
+        RegistroCostos.Tipo.CAJA,
+        codigoPedido, "", idLote, producto,
+        origen, destino, origen, estrategia, tarifa.proveedor,
+        DatosEntrada.Unidad.USD_TN, toneladas, tarifa.tarifa,
+        idOperacion, "flete por tonelada"
+    );
+}
+
+if (tarifa.variableUsdTn > 0) {
+
+    importe += registro.registrar(
+        time(),
+        RegistroCostos.Categoria.FLETE_PRODUCTO,
+        RegistroCostos.Tipo.CAJA,
+        codigoPedido, "", idLote, producto,
+        origen, destino, origen, estrategia, tarifa.proveedor,
+        DatosEntrada.Unidad.USD_TN, toneladas, tarifa.variableUsdTn,
+        idOperacion, "componente variable del flete"
+    );
+}
+
+return importe;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791100000213</Id>
+					<Name><![CDATA[registrarRoundTrip]]></Name>
+					<X>130</X><Y>1460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El ciclo se devenga recien cuando se completa: un circuito truncado al cierre de
+// la campania no genera cargo (ADR-051). La tarifa es la del dia en que salio.
+int diaTarifa = (int) Math.floor(envio.diaCreacion);
+
+Pedido pedido = envio.pedido;
+
+DatosEntrada.TarifaRoundTrip tarifa =
+    datos.tarifaRoundTrip(
+        diaTarifa,
+        envio.terminalDestino.idUbicacion,
+        envio.idSitioOrigen,
+        pedido.tipoContenedor
+    );
+
+double importe = registro.registrar(
+    time(),
+    RegistroCostos.Categoria.ROUND_TRIP,
+    RegistroCostos.Tipo.CAJA,
+    pedido.codigoPedido,
+    envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+    "", envio.producto,
+    envio.idSitioOrigen, envio.terminalDestino.idUbicacion, envio.idSitioOrigen,
+    envio.circuito, tarifa.proveedor,
+    DatosEntrada.Unidad.USD_CONTENEDOR, 1, tarifa.tarifaUsdContenedor,
+    "ENV-" + envio.idEnvio, "ciclo terminal -> origen -> terminal"
+);
+
+exigirIgual(importe, envio.costoFleteReal, "round trip del envio " + envio.idEnvio);
+
+return importe;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791100000215</Id>
+					<Name><![CDATA[registrarServicioEstiba]]></Name>
+					<X>130</X><Y>1500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Consolidar y cruzar son dos servicios distintos del mismo sitio, y la unidad de
+// la tarifa decide si se cobran por tonelada o por contenedor completo (ADR-051).
+int diaTarifa = (int) Math.floor(envio.diaCreacion);
+
+Pedido pedido = envio.pedido;
+
+String sitio = sitioEstiba(pedido);
+
+DatosEntrada.TarifaSitio tarifa =
+    datos.tarifaSitio(diaTarifa, sitio, envio.producto);
+
+boolean cruza = pedido.esCrossDock;
+
+DatosEntrada.Unidad unidad =
+    cruza ? tarifa.crossDockUnidad : tarifa.consolidacionUnidad;
+
+double usd =
+    cruza ? tarifa.crossDockTarifa : tarifa.consolidacionTarifa;
+
+double cantidad =
+    unidad == DatosEntrada.Unidad.USD_CONTENEDOR
+    ? contenedoresNecesarios(envio.producto, envio.toneladas)
+    : envio.toneladas;
+
+double importe = registro.registrar(
+    time(),
+    cruza
+        ? RegistroCostos.Categoria.CROSS_DOCK
+        : RegistroCostos.Categoria.CONSOLIDACION,
+    RegistroCostos.Tipo.CAJA,
+    pedido.codigoPedido,
+    envio.contenedor == null ? "" : envio.contenedor.idContenedor,
+    "", envio.producto,
+    envio.idSitioOrigen, envio.terminalDestino.idUbicacion, sitio,
+    envio.circuito, tarifa.proveedor,
+    unidad, cantidad, usd,
+    "ENV-" + envio.idEnvio,
+    cruza ? "cross dock del envio" : "estiba del envio"
+);
+
+exigirIgual(importe, envio.costoConsolidacionReal, "estiba del envio " + envio.idEnvio);
+
+return importe;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791100000217</Id>
+					<Name><![CDATA[exigirIgual]]></Name>
+					<X>130</X><Y>1540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[registrado]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cotizado]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[concepto]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El registro es la fuente de verdad: si un devengo no coincide con lo que el envio
+// tenia cotizado, la tarifa cambio entre la salida y la entrega y el numero deja de
+// ser explicable (ADR-052).
+if (Math.abs(registrado - cotizado) > RegistroCostos.EPS) {
+    throw new RuntimeException("Devengo distinto de lo cotizado en " + concepto
+        + ": registro " + registrado + " contra " + cotizado + ".");
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791100000219</Id>
+					<Name><![CDATA[reconciliarCostos]]></Name>
+					<X>130</X><Y>1580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Todo total del modelo tiene que poder explicarse cargo por cargo (ADR-052). Se
+// llama todos los dias y al cierre de la corrida: un desvio es un error de modelo.
+double dia = time();
+
+registro.reconciliar(
+    RegistroCostos.Categoria.ALMACENAMIENTO, getCostoAlmacenamientoTotal(), dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.FLETE_PRODUCTO, costoFletePlantaDeposito, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.ROUND_TRIP, costoFleteDepositoPuertoReal, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.CONSOLIDACION, costoConsolidacionReal, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.CROSS_DOCK, costoCrossDockReal, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.OPORTUNIDAD_FRIO, costoOportunidadFrio, dia);
+
+registro.reconciliar(
+    RegistroCostos.Categoria.PENALIDAD_SOBRECARGA, costoPenalidadSobrecarga, dia);]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -6235,15 +6550,6 @@ return flotaProductoLibreHoy() + 0.0001
 							<Name><![CDATA[habilitada]]></Name>
 						</Parameter>
 						<Parameter>
-							<Name><![CDATA[costoConsolidadoJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[costoConsolidadoCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[costoConsolidadoAceite]]></Name>
-						</Parameter>
-						<Parameter>
 							<Name><![CDATA[velocidadDescargaTnHora]]></Name>
 						</Parameter>
 						<Parameter>
@@ -6319,15 +6625,6 @@ return flotaProductoLibreHoy() + 0.0001
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[habilitada]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[costoConsolidadoJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[costoConsolidadoCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[costoConsolidadoAceite]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[velocidadDescargaTnHora]]></Name>
@@ -7273,39 +7570,39 @@ return flotaProductoLibreHoy() + 0.0001
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-					<Parameter>
-						<Name><![CDATA[conditionIsProbabilistic]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[false]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[condition]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[usaPortacontenedor((Envio) agent)]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[probability]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onAtEnter]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onEnter]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExitTrue]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExitFalse]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[choiceIsVolatile]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[true]]></Code>
-						</Value>
-					</Parameter>
+						<Parameter>
+							<Name><![CDATA[conditionIsProbabilistic]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[false]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[condition]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[usaPortacontenedor((Envio) agent)]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[probability]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtEnter]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExitTrue]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExitFalse]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[choiceIsVolatile]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -7352,41 +7649,41 @@ return flotaProductoLibreHoy() + 0.0001
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-					<Parameter>
-						<Name><![CDATA[type]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[delayTime]]></Name>
-						<Value Class="CodeUnitValue">
-							<Code><![CDATA[((Envio) agent).tiempoViajeVacioHoras]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[capacity]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[maximumCapacity]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[true]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[entityLocation]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[pushProtocol]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[forceStatisticsCollection]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onEnter]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[Envio envio = (Envio) agent;
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[((Envio) agent).tiempoViajeVacioHoras]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[Envio envio = (Envio) agent;
 
 // El portacontenedor no aparece en el origen: sale vacio de la terminal y hace el
 // tramo hasta planta o deposito antes de poder estibar (ADR-050).
@@ -7394,17 +7691,17 @@ if (envio.contenedor != null) {
     envio.contenedor.estado =
         EstadoContenedor.EN_TRANSITO_VACIO;
 }]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onAtExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onRemove]]></Name>
-					</Parameter>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -7451,41 +7748,41 @@ if (envio.contenedor != null) {
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-					<Parameter>
-						<Name><![CDATA[type]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[delayTime]]></Name>
-						<Value Class="CodeUnitValue">
-							<Code><![CDATA[((Envio) agent).tiempoCargaHoras]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[capacity]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[maximumCapacity]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[true]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[entityLocation]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[pushProtocol]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[forceStatisticsCollection]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onEnter]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[Envio envio = (Envio) agent;
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[((Envio) agent).tiempoCargaHoras]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[Envio envio = (Envio) agent;
 
 // Circuito 4: el producto se carga a granel en el origen y el contenedor todavia
 // no existe fisicamente; se arma en la terminal.
@@ -7494,17 +7791,17 @@ envio.estado = EstadoEnvio.CARGANDO;
 if (envio.contenedor != null) {
     envio.contenedor.horaInicioCarga = time();
 }]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onAtExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onRemove]]></Name>
-					</Parameter>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -7551,41 +7848,41 @@ if (envio.contenedor != null) {
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-					<Parameter>
-						<Name><![CDATA[type]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[delayTime]]></Name>
-						<Value Class="CodeUnitValue">
-							<Code><![CDATA[((Envio) agent).tiempoViajeIdaHoras]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[capacity]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[maximumCapacity]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[true]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[entityLocation]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[pushProtocol]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[forceStatisticsCollection]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onEnter]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[Envio envio = (Envio) agent;
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[((Envio) agent).tiempoViajeIdaHoras]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[Envio envio = (Envio) agent;
 
 envio.estado = EstadoEnvio.EN_TRANSITO;
 envio.diaSalidaDeposito = time();
@@ -7593,17 +7890,17 @@ envio.diaSalidaDeposito = time();
 if (envio.contenedor != null) {
     envio.contenedor.horaFinCarga = time();
 }]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onAtExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onRemove]]></Name>
-					</Parameter>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -7650,52 +7947,52 @@ if (envio.contenedor != null) {
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-					<Parameter>
-						<Name><![CDATA[type]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[delayTime]]></Name>
-						<Value Class="CodeUnitValue">
-							<Code><![CDATA[((Envio) agent).tiempoDescargaHoras]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[capacity]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[maximumCapacity]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[true]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[entityLocation]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[pushProtocol]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[forceStatisticsCollection]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onEnter]]></Name>
-						<Value Class="CodeValue">
-							<Code><![CDATA[registrarIngresoTerminal((Envio) agent);]]></Code>
-						</Value>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onAtExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onExit]]></Name>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[onRemove]]></Name>
-					</Parameter>
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[((Envio) agent).tiempoDescargaHoras]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[registrarIngresoTerminal((Envio) agent);]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -10788,6 +11085,51 @@ if (!retirado) {
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000020</Id>
+					<Name><![CDATA[toneladasConsolidadas]]></Name>
+					<X>-140</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000021</Id>
+					<Name><![CDATA[contenedoresConsolidados]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000022</Id>
+					<Name><![CDATA[costoConsolidacionAcumulado]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1784242444879</Id>
 					<Name><![CDATA[capacidadJugo]]></Name>
@@ -10859,52 +11201,6 @@ if (!retirado) {
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792000020</Id>
-					<Name><![CDATA[toneladasConsolidadas]]></Name>
-					<X>-140</X><Y>520</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000021</Id>
-					<Name><![CDATA[contenedoresConsolidados]]></Name>
-					<X>-140</X><Y>560</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000022</Id>
-					<Name><![CDATA[costoConsolidacionAcumulado]]></Name>
-					<X>-140</X><Y>600</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<Functions>
@@ -11774,7 +12070,7 @@ return getEspacioDisponible(producto) >= toneladas;]]></Body>
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784395664486</Id>
-					<Name><![CDATA[getCostoFletePuerto]]></Name>
+					<Name><![CDATA[getImporteFletePuerto]]></Name>
 					<X>460</X><Y>700</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -11788,16 +12084,23 @@ return getEspacioDisponible(producto) >= toneladas;]]></Body>
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
 					<Body><![CDATA[if (terminal == null) {
     return Double.POSITIVE_INFINITY;
 }
 
 Main modelo = (Main) getRootAgent();
 
-return modelo.datos.fleteUsdTn(
+return modelo.datos.importeFlete(
+    modelo.diaCampania(),
     idUbicacion,
     terminal.idUbicacion,
-    producto
+    producto,
+    toneladas,
+    modelo.viajesNecesariosCamion(toneladas)
 );]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -11895,7 +12198,7 @@ return modelo.datos.distanciaKm(
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785000110</Id>
-					<Name><![CDATA[getCostoConsolidado]]></Name>
+					<Name><![CDATA[getImporteConsolidacion]]></Name>
 					<X>130</X><Y>760</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -11905,19 +12208,31 @@ return modelo.datos.distanciaKm(
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[// La tarifa de estiba vive en la tabla, no en el agente (ADR-036).
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[contenedores]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// La tarifa de estiba vive en la tabla y no en el agente (ADR-036), y con ella su
+// unidad: por tonelada o por contenedor completo (ADR-051).
 Main modelo = (Main) getRootAgent();
 
-return modelo.datos.servicioCargaUsdTn(
+return modelo.datos.importeConsolidacion(
+    modelo.diaCampania(),
     idUbicacion,
-    producto
+    producto,
+    toneladas,
+    contenedores
 );]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785010110</Id>
-					<Name><![CDATA[getCostoCrossDock]]></Name>
+					<Name><![CDATA[getImporteCrossDock]]></Name>
 					<X>130</X><Y>760</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -11927,14 +12242,24 @@ return modelo.datos.servicioCargaUsdTn(
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[// El cross dock es otro servicio que la estiba desde stock: tiene su propia
-// fila en TarifaServicioCarga (ADR-041).
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[contenedores]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El cross dock es otro servicio que la estiba desde stock: tiene su propia columna
+// en TarifaSitio (ADR-041).
 Main modelo = (Main) getRootAgent();
 
-return modelo.datos.servicioCargaUsdTn(
+return modelo.datos.importeCrossDock(
+    modelo.diaCampania(),
     idUbicacion,
     producto,
-    "CROSS_DOCK"
+    toneladas,
+    contenedores
 );]]></Body>
 				</Function>
 			</Functions>
@@ -12275,78 +12600,6 @@ return modelo.datos.servicioCargaUsdTn(
 					</Properties>                 
 				</Variable>
 				<Variable Class="Parameter">
-					<Id>1784394679896</Id>
-					<Name><![CDATA[costoConsolidadoJugo]]></Name>
-					<X>340</X><Y>90</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784394679894</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784394700467</Id>
-					<Name><![CDATA[costoConsolidadoCascara]]></Name>
-					<X>350</X><Y>150</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784394700465</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784394714668</Id>
-					<Name><![CDATA[costoConsolidadoAceite]]></Name>
-					<X>350</X><Y>210</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784394714666</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
 					<Id>1784593731074</Id>
 					<Name><![CDATA[velocidadDescargaTnHora]]></Name>
 					<X>650</X><Y>70</Y>
@@ -12400,7 +12653,7 @@ return modelo.datos.servicioCargaUsdTn(
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784394756550</Id>
-					<Name><![CDATA[getCostoConsolidado]]></Name>
+					<Name><![CDATA[getImporteConsolidacion]]></Name>
 					<X>350</X><Y>30</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -12410,20 +12663,25 @@ return modelo.datos.servicioCargaUsdTn(
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[switch (producto) {
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[contenedores]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Consolidar en la terminal lo cobra la terminal, con la unidad de su tarifa
+// (ADR-051). El agente ya no guarda una copia de la tarifa por producto.
+Main modelo = (Main) getRootAgent();
 
-    case JUGO:
-        return costoConsolidadoJugo;
-
-    case CASCARA:
-        return costoConsolidadoCascara;
-
-    case ACEITE:
-        return costoConsolidadoAceite;
-
-    default:
-        return 0;
-}]]></Body>
+return modelo.datos.importeConsolidacion(
+    modelo.diaCampania(),
+    idUbicacion,
+    producto,
+    toneladas,
+    contenedores
+);]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -12601,6 +12859,21 @@ if (producto != null) {
 						<Type><![CDATA[boolean]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000001</Id>
+					<Name><![CDATA[idSitioOrigen]]></Name>
+					<X>-140</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -13492,22 +13765,6 @@ if (producto != null) {
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792000001</Id>
-					<Name><![CDATA[idSitioOrigen]]></Name>
-					<X>-140</X><Y>520</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<Functions>
@@ -14634,6 +14891,51 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 			<CurrentLevel>1784590351330</CurrentLevel>
 			<ConnectionsId>1784590351325</ConnectionsId>
 			<Variables>
+				<Variable Class="PlainVariable">
+					<Id>1792000010</Id>
+					<Name><![CDATA[idSitioOrigen]]></Name>
+					<X>-140</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000011</Id>
+					<Name><![CDATA[circuito]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[EstrategiaLogistica]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[EstrategiaLogistica.SIN_DEFINIR]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000012</Id>
+					<Name><![CDATA[tiempoViajeVacioHoras]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1784590396486</Id>
 					<Name><![CDATA[estado]]></Name>
@@ -15159,52 +15461,6 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792000010</Id>
-					<Name><![CDATA[idSitioOrigen]]></Name>
-					<X>-140</X><Y>520</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000011</Id>
-					<Name><![CDATA[circuito]]></Name>
-					<X>-140</X><Y>560</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[EstrategiaLogistica]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[EstrategiaLogistica.SIN_DEFINIR]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792000012</Id>
-					<Name><![CDATA[tiempoViajeVacioHoras]]></Name>
-					<X>-140</X><Y>600</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<AgentLinks>
@@ -16876,15 +17132,6 @@ estado = factible
 
 			<Parameters>
 				<Parameter>
-					<ParameterName><![CDATA[costoFijoViajePD]]></ParameterName>
-				</Parameter>
-				<Parameter>
-					<ParameterName><![CDATA[costoKmPD]]></ParameterName>
-				</Parameter>
-				<Parameter>
-					<ParameterName><![CDATA[costoTnPD]]></ParameterName>
-				</Parameter>
-				<Parameter>
 					<ParameterName><![CDATA[diasEstimadosAlmacenamiento]]></ParameterName>
 				</Parameter>
 				<Parameter>
@@ -17229,7 +17476,11 @@ String recomendaciones() {
 			<MaximumMemory>512</MaximumMemory>
 			<RandomNumberGenerationType>fixedSeed</RandomNumberGenerationType>
 			<CustomGeneratorCode>new Random()</CustomGeneratorCode>
-			<AfterSimulationRunCode><![CDATA[// Una fila por corrida, con la identidad que permite reproducirla.
+			<AfterSimulationRunCode><![CDATA[// Antes de leer un KPI de costo, el registro tiene que cerrar contra los
+// acumuladores del modelo (ADR-052).
+root.reconciliarCostos();
+
+// Una fila por corrida, con la identidad que permite reproducirla.
 Corrida c = new Corrida();
 
 c.idEscenario = root.idEscenario;
@@ -17737,15 +17988,6 @@ for (int k = 0; k < KPIS.length; k++) {
 				</Expression>
 			</FreeformParamValue>
 			<FreeformParamValue>	
-				<Id>1784381347601</Id>
-			</FreeformParamValue>
-			<FreeformParamValue>	
-				<Id>1784381360528</Id>
-			</FreeformParamValue>
-			<FreeformParamValue>	
-				<Id>1784381388672</Id>
-			</FreeformParamValue>
-			<FreeformParamValue>	
 				<Id>1784382673676</Id>
 			</FreeformParamValue>
 			<FreeformParamValue>	
@@ -17765,18 +18007,6 @@ for (int k = 0; k < KPIS.length; k++) {
 			</FreeformParamValue>
 			<RangeVariationParamValue>	
 				<Id>1786000001</Id>
-				<Type>FIXED</Type>
-			</RangeVariationParamValue>
-			<RangeVariationParamValue>	
-				<Id>1784381347601</Id>
-				<Type>FIXED</Type>
-			</RangeVariationParamValue>
-			<RangeVariationParamValue>	
-				<Id>1784381360528</Id>
-				<Type>FIXED</Type>
-			</RangeVariationParamValue>
-			<RangeVariationParamValue>	
-				<Id>1784381388672</Id>
 				<Type>FIXED</Type>
 			</RangeVariationParamValue>
 			<RangeVariationParamValue>	
@@ -17951,52 +18181,171 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 	}
 
-	public static class TarifaAlmacenamiento implements java.io.Serializable {
-		private static final long serialVersionUID = 1L;
-		public String idUbicacion;
-		public TipoProducto producto;
-		public double storageUsdTnDia;               // lo que se factura: entra al costo de caja
-		public double oportunidadUsdTnDia;           // costo de oportunidad del frio propio (ADR-049)
-		public double penalidadSobrecargaUsdTnDia;   // por tonelada y dia sobre la capacidad nominal
+	/**
+	 * Unidad contractual de una tarifa. El importe no se deduce del nombre del
+	 * campo: la unidad es un dato, porque el mismo concepto se contrata por viaje,
+	 * por tonelada o por contenedor segun el proveedor (ADR-051).
+	 */
+	public enum Unidad {
+		USD_VIAJE, USD_TN, USD_CONTENEDOR, USD_TN_DIA, USD_HORA, USD_OPERACION, USD_PEDIDO
+	}
 
-		public TarifaAlmacenamiento(String idUbicacion, TipoProducto producto, double storageUsdTnDia,
-				double oportunidadUsdTnDia, double penalidadSobrecargaUsdTnDia) {
-			this.idUbicacion = idUbicacion;
-			this.producto = producto;
-			this.storageUsdTnDia = storageUsdTnDia;
-			this.oportunidadUsdTnDia = oportunidadUsdTnDia;
-			this.penalidadSobrecargaUsdTnDia = penalidadSobrecargaUsdTnDia;
+	/**
+	 * Lo que toda tarifa tiene ademas del importe: quien la cobra y desde cuando.
+	 * Las tarifas reales cambian por mes, asi que una clave no tiene un valor unico
+	 * y toda consulta resuelve por dia de campania (ADR-051).
+	 */
+	public static abstract class Tarifa implements java.io.Serializable {
+		private static final long serialVersionUID = 1L;
+		public String proveedor;
+		public int vigenciaDesde;                    // dia de campania, inclusive
+		public int vigenciaHasta;                    // dia de campania, inclusive
+		public boolean habilitada;
+
+		protected Tarifa(String proveedor, int vigenciaDesde, int vigenciaHasta, boolean habilitada) {
+			this.proveedor = proveedor;
+			this.vigenciaDesde = vigenciaDesde;
+			this.vigenciaHasta = vigenciaHasta;
+			this.habilitada = habilitada;
+		}
+
+		public boolean vigente(int dia) {
+			return habilitada && dia >= vigenciaDesde && dia <= vigenciaHasta;
+		}
+
+		public String vigenciaTexto() {
+			return "dias " + vigenciaDesde + "-" + vigenciaHasta;
 		}
 	}
 
-	public static class TarifaFlete implements java.io.Serializable {
+	/**
+	 * Transporte de producto a granel. El contrato real se cobra por viaje; la
+	 * unidad queda explicita para poder cargar tambien tarifas por tonelada, y
+	 * variableUsdTn cubre la parte variable de los contratos que tienen las dos.
+	 */
+	public static class TarifaFlete extends Tarifa {
 		private static final long serialVersionUID = 1L;
 		public String origen;
 		public String destino;
 		public TipoProducto producto;
-		public double tarifaUsdTn;
+		public String tipoCamion;
+		public double capacidadCamionTn;
+		public Unidad unidad;                        // USD_VIAJE o USD_TN
+		public double tarifa;
+		public double variableUsdTn;                 // componente por tonelada (0 si no aplica)
 
-		public TarifaFlete(String origen, String destino, TipoProducto producto, double tarifaUsdTn) {
+		public TarifaFlete(String origen, String destino, TipoProducto producto, String tipoCamion,
+				double capacidadCamionTn, Unidad unidad, double tarifa, double variableUsdTn,
+				String proveedor, int vigenciaDesde, int vigenciaHasta, boolean habilitada) {
+			super(proveedor, vigenciaDesde, vigenciaHasta, habilitada);
 			this.origen = origen;
 			this.destino = destino;
 			this.producto = producto;
-			this.tarifaUsdTn = tarifaUsdTn;
+			this.tipoCamion = tipoCamion;
+			this.capacidadCamionTn = capacidadCamionTn;
+			this.unidad = unidad;
+			this.tarifa = tarifa;
+			this.variableUsdTn = variableUsdTn;
 		}
 	}
 
-	public static class TarifaServicioCarga implements java.io.Serializable {
+	/**
+	 * Ciclo del portacontenedor terminal -> sitio -> terminal. Es una tarifa por
+	 * contenedor y no por kilometro: el proveedor cotiza el circuito completo, con
+	 * horas de espera incluidas y un adicional por hora cuando se pasa (ADR-051).
+	 */
+	public static class TarifaRoundTrip extends Tarifa {
+		private static final long serialVersionUID = 1L;
+		public String terminal;
+		public String sitio;
+		public TipoContenedor tipoContenedor;
+		public double tarifaUsdContenedor;
+		public double horasEsperaIncluidas;
+		public double tarifaEsperaUsdHora;
+
+		public TarifaRoundTrip(String terminal, String sitio, TipoContenedor tipoContenedor,
+				double tarifaUsdContenedor, double horasEsperaIncluidas, double tarifaEsperaUsdHora,
+				String proveedor, int vigenciaDesde, int vigenciaHasta, boolean habilitada) {
+			super(proveedor, vigenciaDesde, vigenciaHasta, habilitada);
+			this.terminal = terminal;
+			this.sitio = sitio;
+			this.tipoContenedor = tipoContenedor;
+			this.tarifaUsdContenedor = tarifaUsdContenedor;
+			this.horasEsperaIncluidas = horasEsperaIncluidas;
+			this.tarifaEsperaUsdHora = tarifaEsperaUsdHora;
+		}
+	}
+
+	/**
+	 * Todo lo que cobra un sitio por un producto: una fila por sitio, producto y
+	 * vigencia. Planta, deposito y terminal comparten la tabla porque comparten los
+	 * conceptos; lo que cambia son los que valen cero (la planta no factura
+	 * almacenaje, el deposito no cobra THC).
+	 */
+	public static class TarifaSitio extends Tarifa {
 		private static final long serialVersionUID = 1L;
 		public String idUbicacion;
 		public TipoProducto producto;
-		public String tipoServicio;                  // CONSOLIDACION o CROSS_DOCK
-		public double tarifaUsdTn;
+		public double inUsdTn;                       // ingreso al almacenamiento
+		public double storageUsdTnDia;               // lo que se factura: entra al costo de caja
+		public double outUsdTn;                      // egreso del almacenamiento
+		public double oportunidadUsdTnDia;           // costo de oportunidad del frio propio (ADR-049)
+		public double penalidadSobrecargaUsdTnDia;   // por tonelada y dia sobre la capacidad nominal
+		public double consolidacionTarifa;
+		public Unidad consolidacionUnidad;           // USD_CONTENEDOR o USD_TN
+		public double crossDockTarifa;
+		public Unidad crossDockUnidad;
+		public double thcUsdContenedor;              // solo terminal
+		public double costoTerminalUsdContenedor;    // solo terminal
+		public double despachanteTarifa;             // solo terminal
+		public Unidad despachanteUnidad;             // USD_CONTENEDOR o USD_PEDIDO
 
-		public TarifaServicioCarga(String idUbicacion, TipoProducto producto, String tipoServicio,
-				double tarifaUsdTn) {
+		public TarifaSitio(String idUbicacion, TipoProducto producto, double inUsdTn,
+				double storageUsdTnDia, double outUsdTn, double oportunidadUsdTnDia,
+				double penalidadSobrecargaUsdTnDia, double consolidacionTarifa,
+				Unidad consolidacionUnidad, double crossDockTarifa, Unidad crossDockUnidad,
+				double thcUsdContenedor, double costoTerminalUsdContenedor, double despachanteTarifa,
+				Unidad despachanteUnidad, String proveedor, int vigenciaDesde, int vigenciaHasta,
+				boolean habilitada) {
+			super(proveedor, vigenciaDesde, vigenciaHasta, habilitada);
 			this.idUbicacion = idUbicacion;
 			this.producto = producto;
-			this.tipoServicio = tipoServicio;
-			this.tarifaUsdTn = tarifaUsdTn;
+			this.inUsdTn = inUsdTn;
+			this.storageUsdTnDia = storageUsdTnDia;
+			this.outUsdTn = outUsdTn;
+			this.oportunidadUsdTnDia = oportunidadUsdTnDia;
+			this.penalidadSobrecargaUsdTnDia = penalidadSobrecargaUsdTnDia;
+			this.consolidacionTarifa = consolidacionTarifa;
+			this.consolidacionUnidad = consolidacionUnidad;
+			this.crossDockTarifa = crossDockTarifa;
+			this.crossDockUnidad = crossDockUnidad;
+			this.thcUsdContenedor = thcUsdContenedor;
+			this.costoTerminalUsdContenedor = costoTerminalUsdContenedor;
+			this.despachanteTarifa = despachanteTarifa;
+			this.despachanteUnidad = despachanteUnidad;
+		}
+	}
+
+	/**
+	 * Espera de un camion o de un portacontenedor por encima de la franquicia. En
+	 * cero no cambia ningun numero: la estructura queda lista para cuando el dato
+	 * exista (C1, seccion 4.2 de la especificacion de costos).
+	 */
+	public static class TarifaEspera extends Tarifa {
+		private static final long serialVersionUID = 1L;
+		public String tipoRecurso;                   // CAMION_PRODUCTO o PORTACONTENEDOR
+		public String idUbicacion;
+		public double franquiciaHoras;
+		public double usdHora;
+
+		public TarifaEspera(String tipoRecurso, String idUbicacion, double franquiciaHoras,
+				double usdHora, String proveedor, int vigenciaDesde, int vigenciaHasta,
+				boolean habilitada) {
+			super(proveedor, vigenciaDesde, vigenciaHasta, habilitada);
+			this.tipoRecurso = tipoRecurso;
+			this.idUbicacion = idUbicacion;
+			this.franquiciaHoras = franquiciaHoras;
+			this.usdHora = usdHora;
 		}
 	}
 
@@ -18038,9 +18387,10 @@ public class DatosEntrada implements java.io.Serializable {
 	public java.util.List<Capacidad> capacidades = new java.util.ArrayList<Capacidad>();
 	public java.util.List<Producto> productos = new java.util.ArrayList<Producto>();
 	public java.util.List<Distancia> distancias = new java.util.ArrayList<Distancia>();
-	public java.util.List<TarifaAlmacenamiento> tarifasAlmacenamiento = new java.util.ArrayList<TarifaAlmacenamiento>();
+	public java.util.List<TarifaSitio> tarifasSitio = new java.util.ArrayList<TarifaSitio>();
 	public java.util.List<TarifaFlete> tarifasFlete = new java.util.ArrayList<TarifaFlete>();
-	public java.util.List<TarifaServicioCarga> tarifasServicioCarga = new java.util.ArrayList<TarifaServicioCarga>();
+	public java.util.List<TarifaRoundTrip> tarifasRoundTrip = new java.util.ArrayList<TarifaRoundTrip>();
+	public java.util.List<TarifaEspera> tarifasEspera = new java.util.ArrayList<TarifaEspera>();
 	public java.util.List<ProduccionPlan> produccionPlan = new java.util.ArrayList<ProduccionPlan>();
 	public java.util.List<PedidoPlan> pedidoPlan = new java.util.ArrayList<PedidoPlan>();
 
@@ -18110,63 +18460,183 @@ public class DatosEntrada implements java.io.Serializable {
 		return ubicacion(idUbicacion).contenedoresPorDia;
 	}
 
-	public double storageUsdTnDia(String idUbicacion, TipoProducto producto) {
-		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
-			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
-				return t.storageUsdTnDia;
+	/**
+	 * Resuelve la fila de tarifa del sitio vigente ese dia. Dos filas vigentes para
+	 * la misma clave es un error de datos y no un empate a resolver por orden de
+	 * carga: el modelo no elige tarifa.
+	 */
+	public TarifaSitio tarifaSitio(int dia, String idUbicacion, TipoProducto producto) {
+		TarifaSitio encontrada = null;
+		for (TarifaSitio t : tarifasSitio) {
+			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto && t.vigente(dia)) {
+				if (encontrada != null) {
+					throw new RuntimeException("Dos tarifas vigentes el dia " + dia + " para " + producto
+							+ " en " + idUbicacion + " (" + encontrada.vigenciaTexto() + " y "
+							+ t.vigenciaTexto() + ", tabla TarifaSitio).");
+				}
+				encontrada = t;
 			}
 		}
-		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
-				+ " (tabla TarifaAlmacenamiento).");
+		if (encontrada == null) {
+			throw new RuntimeException("Falta la tarifa de " + producto + " en " + idUbicacion
+					+ " vigente el dia " + dia + " (tabla TarifaSitio).");
+		}
+		return encontrada;
+	}
+
+	public double storageUsdTnDia(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).storageUsdTnDia;
+	}
+
+	public double inUsdTn(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).inUsdTn;
+	}
+
+	public double outUsdTn(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).outUsdTn;
 	}
 
 	/**
 	 * Costo de oportunidad del frio propio: no se factura, pero sin el la planta
 	 * es gratis y toda comparacion de estrategias la elige siempre (ADR-049).
 	 */
-	public double oportunidadUsdTnDia(String idUbicacion, TipoProducto producto) {
-		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
-			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
-				return t.oportunidadUsdTnDia;
-			}
-		}
-		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
-				+ " (tabla TarifaAlmacenamiento).");
+	public double oportunidadUsdTnDia(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).oportunidadUsdTnDia;
 	}
 
-	public double penalidadSobrecargaUsdTnDia(String idUbicacion, TipoProducto producto) {
-		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
-			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto) {
-				return t.penalidadSobrecargaUsdTnDia;
-			}
-		}
-		throw new RuntimeException("Falta la tarifa de almacenamiento de " + producto + " en " + idUbicacion
-				+ " (tabla TarifaAlmacenamiento).");
+	public double penalidadSobrecargaUsdTnDia(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).penalidadSobrecargaUsdTnDia;
 	}
 
-	public double fleteUsdTn(String origen, String destino, TipoProducto producto) {
+	public double thcUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
+		return tarifaSitio(dia, idTerminal, producto).thcUsdContenedor;
+	}
+
+	public double costoTerminalUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
+		return tarifaSitio(dia, idTerminal, producto).costoTerminalUsdContenedor;
+	}
+
+	/**
+	 * Importe del servicio de estiba o de cross dock. La unidad decide si se cobra
+	 * por tonelada o por contenedor, asi que cambiar de una a otra es cambiar el
+	 * dato y no la formula (correccion 3 de la especificacion de costos).
+	 */
+	public double importeConsolidacion(int dia, String idUbicacion, TipoProducto producto,
+			double toneladas, int contenedores) {
+		TarifaSitio t = tarifaSitio(dia, idUbicacion, producto);
+		return importe(t.consolidacionUnidad, t.consolidacionTarifa, toneladas, contenedores,
+				"consolidacion de " + producto + " en " + idUbicacion);
+	}
+
+	public double importeCrossDock(int dia, String idUbicacion, TipoProducto producto,
+			double toneladas, int contenedores) {
+		TarifaSitio t = tarifaSitio(dia, idUbicacion, producto);
+		return importe(t.crossDockUnidad, t.crossDockTarifa, toneladas, contenedores,
+				"cross dock de " + producto + " en " + idUbicacion);
+	}
+
+	public double importeDespachante(int dia, String idTerminal, TipoProducto producto,
+			int contenedores, int pedidos) {
+		TarifaSitio t = tarifaSitio(dia, idTerminal, producto);
+		if (t.despachanteUnidad == Unidad.USD_PEDIDO) {
+			return t.despachanteTarifa * pedidos;
+		}
+		return t.despachanteTarifa * contenedores;
+	}
+
+	private double importe(Unidad unidad, double tarifa, double toneladas, int contenedores,
+			String concepto) {
+		if (unidad == Unidad.USD_CONTENEDOR) {
+			return tarifa * contenedores;
+		}
+		if (unidad == Unidad.USD_TN) {
+			return tarifa * toneladas;
+		}
+		throw new RuntimeException("Unidad " + unidad + " no valida para la " + concepto + ".");
+	}
+
+	public TarifaFlete tarifaFlete(int dia, String origen, String destino, TipoProducto producto) {
+		TarifaFlete encontrada = null;
 		for (TarifaFlete t : tarifasFlete) {
-			if (t.origen.equals(origen) && t.destino.equals(destino) && t.producto == producto) {
-				return t.tarifaUsdTn;
+			if (t.origen.equals(origen) && t.destino.equals(destino) && t.producto == producto
+					&& t.vigente(dia)) {
+				if (encontrada != null) {
+					throw new RuntimeException("Dos tarifas de flete vigentes el dia " + dia + ": "
+							+ origen + " -> " + destino + " de " + producto + " ("
+							+ encontrada.vigenciaTexto() + " y " + t.vigenciaTexto()
+							+ ", tabla TarifaFleteProducto).");
+				}
+				encontrada = t;
 			}
 		}
-		throw new RuntimeException("Falta la tarifa de flete " + origen + " -> " + destino + " de " + producto
-				+ " (tabla TarifaFleteProducto).");
+		if (encontrada == null) {
+			throw new RuntimeException("Falta la tarifa de flete " + origen + " -> " + destino + " de "
+					+ producto + " vigente el dia " + dia + " (tabla TarifaFleteProducto).");
+		}
+		return encontrada;
 	}
 
-	public double servicioCargaUsdTn(String idUbicacion, TipoProducto producto) {
-		return servicioCargaUsdTn(idUbicacion, producto, "CONSOLIDACION");
+	/**
+	 * Importe del transporte de producto. Por viaje se cobra el viaje completo
+	 * aunque el camion vaya a medio cargar, que es el contrato real; por tonelada se
+	 * cobra lo que se movio.
+	 */
+	public double importeFlete(int dia, String origen, String destino, TipoProducto producto,
+			double toneladas, int viajes) {
+		TarifaFlete t = tarifaFlete(dia, origen, destino, producto);
+		double base = t.unidad == Unidad.USD_VIAJE ? t.tarifa * viajes : t.tarifa * toneladas;
+		return base + t.variableUsdTn * toneladas;
 	}
 
-	public double servicioCargaUsdTn(String idUbicacion, TipoProducto producto, String tipoServicio) {
-		for (TarifaServicioCarga t : tarifasServicioCarga) {
-			if (t.idUbicacion.equals(idUbicacion) && t.producto == producto
-					&& t.tipoServicio.equals(tipoServicio)) {
-				return t.tarifaUsdTn;
+	public TarifaRoundTrip tarifaRoundTrip(int dia, String idTerminal, String sitio,
+			TipoContenedor tipoContenedor) {
+		TarifaRoundTrip encontrada = null;
+		for (TarifaRoundTrip t : tarifasRoundTrip) {
+			if (t.terminal.equals(idTerminal) && t.sitio.equals(sitio)
+					&& t.tipoContenedor == tipoContenedor && t.vigente(dia)) {
+				if (encontrada != null) {
+					throw new RuntimeException("Dos tarifas de round trip vigentes el dia " + dia + ": "
+							+ idTerminal + " <-> " + sitio + " en " + tipoContenedor + " ("
+							+ encontrada.vigenciaTexto() + " y " + t.vigenciaTexto()
+							+ ", tabla TarifaRoundTrip).");
+				}
+				encontrada = t;
 			}
 		}
-		throw new RuntimeException("Falta la tarifa de " + tipoServicio + " de " + producto + " en "
-				+ idUbicacion + " (tabla TarifaServicioCarga).");
+		if (encontrada == null) {
+			throw new RuntimeException("Falta la tarifa de round trip " + idTerminal + " <-> " + sitio
+					+ " en " + tipoContenedor + " vigente el dia " + dia + " (tabla TarifaRoundTrip).");
+		}
+		return encontrada;
+	}
+
+	public double roundTripUsdContenedor(int dia, String idTerminal, String sitio,
+			TipoContenedor tipoContenedor) {
+		return tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedor).tarifaUsdContenedor;
+	}
+
+	/**
+	 * Espera del recurso sobre la franquicia. Devuelve cero mientras la tarifa este
+	 * en cero, que es el estado hasta que se cargue el dato real.
+	 */
+	public double importeEspera(int dia, String tipoRecurso, String idUbicacion, double horas) {
+		TarifaEspera encontrada = null;
+		for (TarifaEspera t : tarifasEspera) {
+			if (t.tipoRecurso.equals(tipoRecurso) && t.idUbicacion.equals(idUbicacion)
+					&& t.vigente(dia)) {
+				if (encontrada != null) {
+					throw new RuntimeException("Dos tarifas de espera vigentes el dia " + dia + " para "
+							+ tipoRecurso + " en " + idUbicacion + " (tabla TarifaEspera).");
+				}
+				encontrada = t;
+			}
+		}
+		if (encontrada == null) {
+			throw new RuntimeException("Falta la tarifa de espera de " + tipoRecurso + " en "
+					+ idUbicacion + " vigente el dia " + dia + " (tabla TarifaEspera).");
+		}
+		double excedente = horas - encontrada.franquiciaHoras;
+		return excedente <= 0 ? 0 : excedente * encontrada.usdHora;
 	}
 
 	/**
@@ -18315,31 +18785,88 @@ public class DatosEntrada implements java.io.Serializable {
 			}
 		}
 
-		for (TarifaAlmacenamiento t : tarifasAlmacenamiento) {
+		for (TarifaSitio t : tarifasSitio) {
 			if (!existeUbicacion(t.idUbicacion)) {
-				errores.add("TarifaAlmacenamiento referencia la ubicacion inexistente " + t.idUbicacion + ".");
+				errores.add("TarifaSitio referencia la ubicacion inexistente " + t.idUbicacion + ".");
 			}
-			if (t.storageUsdTnDia < 0) {
-				errores.add("storage_usd_tn_dia negativa en " + t.idUbicacion + " / " + t.producto + ".");
+			String donde = t.idUbicacion + " / " + t.producto + " (" + t.vigenciaTexto() + ")";
+			if (t.inUsdTn < 0 || t.storageUsdTnDia < 0 || t.outUsdTn < 0) {
+				errores.add("in/storage/out no pueden ser negativos en " + donde + ".");
 			}
-			if (t.oportunidadUsdTnDia < 0) {
-				errores.add("oportunidad_usd_tn_dia negativa en " + t.idUbicacion + " / " + t.producto + ".");
+			if (t.oportunidadUsdTnDia < 0 || t.penalidadSobrecargaUsdTnDia < 0) {
+				errores.add("oportunidad y penalidad no pueden ser negativas en " + donde + ".");
 			}
-			if (t.penalidadSobrecargaUsdTnDia < 0) {
-				errores.add("penalidad_sobrecarga_usd_tn_dia negativa en "
-						+ t.idUbicacion + " / " + t.producto + ".");
+			if (t.consolidacionTarifa < 0 || t.crossDockTarifa < 0) {
+				errores.add("consolidacion y cross dock no pueden ser negativas en " + donde + ".");
 			}
+			if (t.thcUsdContenedor < 0 || t.costoTerminalUsdContenedor < 0 || t.despachanteTarifa < 0) {
+				errores.add("thc, costo terminal y despachante no pueden ser negativos en " + donde + ".");
+			}
+			// Una unidad que el modelo no sabe cobrar es un error de carga, no un cero.
+			if (t.consolidacionUnidad != Unidad.USD_TN && t.consolidacionUnidad != Unidad.USD_CONTENEDOR) {
+				errores.add("consolidacion_unidad debe ser USD_TN o USD_CONTENEDOR en " + donde + ".");
+			}
+			if (t.crossDockUnidad != Unidad.USD_TN && t.crossDockUnidad != Unidad.USD_CONTENEDOR) {
+				errores.add("cross_dock_unidad debe ser USD_TN o USD_CONTENEDOR en " + donde + ".");
+			}
+			if (t.despachanteUnidad != Unidad.USD_CONTENEDOR && t.despachanteUnidad != Unidad.USD_PEDIDO) {
+				errores.add("despachante_unidad debe ser USD_CONTENEDOR o USD_PEDIDO en " + donde + ".");
+			}
+			errores.addAll(vigenciaInvalida("TarifaSitio", donde, t));
 		}
 
 		for (TarifaFlete t : tarifasFlete) {
+			String donde = t.origen + " -> " + t.destino + " / " + t.producto
+					+ " (" + t.vigenciaTexto() + ")";
 			if (!existeUbicacion(t.origen) || !existeUbicacion(t.destino)) {
-				errores.add("TarifaFleteProducto referencia una ubicacion inexistente: "
-						+ t.origen + " -> " + t.destino + ".");
+				errores.add("TarifaFleteProducto referencia una ubicacion inexistente: " + donde + ".");
 			}
-			if (t.tarifaUsdTn <= 0) {
-				errores.add("tarifa debe ser > 0 en " + t.origen + " -> " + t.destino + " / " + t.producto + ".");
+			if (t.tarifa <= 0) {
+				errores.add("La tarifa de flete debe ser > 0 en " + donde + ".");
 			}
+			if (t.variableUsdTn < 0) {
+				errores.add("variable_usd_tn no puede ser negativa en " + donde + ".");
+			}
+			if (t.unidad != Unidad.USD_VIAJE && t.unidad != Unidad.USD_TN) {
+				errores.add("unidad debe ser USD_VIAJE o USD_TN en " + donde + ".");
+			}
+			// Por viaje sin capacidad no se puede saber cuantos viajes hacen falta.
+			if (t.unidad == Unidad.USD_VIAJE && t.capacidadCamionTn <= 0) {
+				errores.add("capacidad_camion_tn debe ser > 0 para una tarifa por viaje en " + donde + ".");
+			}
+			errores.addAll(vigenciaInvalida("TarifaFleteProducto", donde, t));
 		}
+
+		for (TarifaRoundTrip t : tarifasRoundTrip) {
+			String donde = t.terminal + " <-> " + t.sitio + " / " + t.tipoContenedor
+					+ " (" + t.vigenciaTexto() + ")";
+			if (!existeUbicacion(t.terminal) || !existeUbicacion(t.sitio)) {
+				errores.add("TarifaRoundTrip referencia una ubicacion inexistente: " + donde + ".");
+			}
+			if (t.tarifaUsdContenedor <= 0) {
+				errores.add("tarifa_usd_contenedor debe ser > 0 en " + donde + ".");
+			}
+			if (t.horasEsperaIncluidas < 0 || t.tarifaEsperaUsdHora < 0) {
+				errores.add("La espera del round trip no puede ser negativa en " + donde + ".");
+			}
+			errores.addAll(vigenciaInvalida("TarifaRoundTrip", donde, t));
+		}
+
+		for (TarifaEspera t : tarifasEspera) {
+			String donde = t.tipoRecurso + " en " + t.idUbicacion + " (" + t.vigenciaTexto() + ")";
+			if (!existeUbicacion(t.idUbicacion)) {
+				errores.add("TarifaEspera referencia la ubicacion inexistente " + t.idUbicacion + ".");
+			}
+			if (!t.tipoRecurso.equals("CAMION_PRODUCTO") && !t.tipoRecurso.equals("PORTACONTENEDOR")) {
+				errores.add("tipo_recurso invalido en " + donde + ".");
+			}
+			if (t.franquiciaHoras < 0 || t.usdHora < 0) {
+				errores.add("La espera no puede ser negativa en " + donde + ".");
+			}
+			errores.addAll(vigenciaInvalida("TarifaEspera", donde, t));
+		}
+
+		errores.addAll(coberturaTarifas());
 
 		// Toda combinacion alcanzable deposito x terminal x producto necesita
 		// almacenamiento, flete y consolidacion: si falta, la corrida abortaria a
@@ -18347,25 +18874,9 @@ public class DatosEntrada implements java.io.Serializable {
 		for (Ubicacion deposito : ubicacionesDeTipo("DEPOSITO")) {
 			for (TipoProducto producto : TipoProducto.values()) {
 				errores.addAll(faltante(deposito.idUbicacion, producto));
-				// Consolidar en el deposito necesita su propia tarifa de estiba, y
-				// hacer cross dock ahi tiene su propia tarifa: no es el mismo servicio.
-				try {
-					servicioCargaUsdTn(deposito.idUbicacion, producto);
-				} catch (RuntimeException e) {
-					errores.add(e.getMessage());
-				}
-				if (deposito.posicionesCrossDock > 0) {
-					try {
-						servicioCargaUsdTn(deposito.idUbicacion, producto, "CROSS_DOCK");
-					} catch (RuntimeException e) {
-						errores.add(e.getMessage());
-					}
-				}
 				for (Ubicacion terminal : ubicacionesDeTipo("TERMINAL")) {
 					try {
-						fleteUsdTn(deposito.idUbicacion, terminal.idUbicacion, producto);
 						distanciaKm(deposito.idUbicacion, terminal.idUbicacion);
-						servicioCargaUsdTn(terminal.idUbicacion, producto);
 					} catch (RuntimeException e) {
 						errores.add(e.getMessage());
 					}
@@ -18378,19 +18889,12 @@ public class DatosEntrada implements java.io.Serializable {
 		for (TipoProducto producto : TipoProducto.values()) {
 			try {
 				capacidadTn("PLANTA", producto);
-				// La planta no factura almacenaje, pero su costo de oportunidad y su
-				// penalidad de sobrecarga son datos, no cero implicito (ADR-049).
-				storageUsdTnDia("PLANTA", producto);
-				// Consolidar en planta es un circuito posible (ADR-050): sin tarifa de
-				// estiba, sin distancia y sin flete al puerto saldria gratis.
-				servicioCargaUsdTn("PLANTA", producto);
 			} catch (RuntimeException e) {
 				errores.add(e.getMessage());
 			}
 			for (Ubicacion terminal : ubicacionesDeTipo("TERMINAL")) {
 				try {
 					distanciaKm("PLANTA", terminal.idUbicacion);
-					fleteUsdTn("PLANTA", terminal.idUbicacion, producto);
 				} catch (RuntimeException e) {
 					errores.add(e.getMessage());
 				}
@@ -18449,12 +18953,120 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.add(e.getMessage());
 		}
 		try {
-			storageUsdTnDia(idDeposito, producto);
+			distanciaKm("PLANTA", idDeposito);
 		} catch (RuntimeException e) {
 			errores.add(e.getMessage());
 		}
+		return errores;
+	}
+
+	private java.util.List<String> vigenciaInvalida(String tabla, String donde, Tarifa t) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		if (t.vigenciaHasta < t.vigenciaDesde) {
+			errores.add(tabla + ": vigencia_hasta < vigencia_desde en " + donde + ".");
+		}
+		if (t.proveedor == null || t.proveedor.trim().isEmpty()) {
+			errores.add(tabla + ": proveedor vacio en " + donde + ".");
+		}
+		return errores;
+	}
+
+	/**
+	 * Toda tarifa que la campania va a necesitar tiene que estar cubierta todos los
+	 * dias por exactamente una fila habilitada. Con tarifas mensuales, un hueco de
+	 * un dia aborta la corrida a mitad de campania y una superposicion la hace
+	 * depender del orden de carga; las dos cosas son errores de datos.
+	 */
+	private java.util.List<String> coberturaTarifas() {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+
+		int dias = escenario.duracionCampaniaDias;
+		java.util.List<Ubicacion> depositos = ubicacionesDeTipo("DEPOSITO");
+		java.util.List<Ubicacion> terminales = ubicacionesDeTipo("TERMINAL");
+
+		for (int dia = 0; dia <= dias; dia++) {
+			for (TipoProducto producto : TipoProducto.values()) {
+
+				// La planta es origen posible de despacho y sitio de estiba (ADR-050).
+				errores.addAll(unaSola(dia, "PLANTA", producto));
+
+				for (Ubicacion deposito : depositos) {
+					errores.addAll(unaSola(dia, deposito.idUbicacion, producto));
+					errores.addAll(unaSolaFlete(dia, "PLANTA", deposito.idUbicacion, producto));
+				}
+
+				for (Ubicacion terminal : terminales) {
+					errores.addAll(unaSola(dia, terminal.idUbicacion, producto));
+					errores.addAll(unaSolaFlete(dia, "PLANTA", terminal.idUbicacion, producto));
+					errores.addAll(unaSolaRoundTrip(dia, terminal.idUbicacion, "PLANTA", producto));
+
+					for (Ubicacion deposito : depositos) {
+						errores.addAll(unaSolaFlete(dia, deposito.idUbicacion, terminal.idUbicacion,
+								producto));
+						errores.addAll(unaSolaRoundTrip(dia, terminal.idUbicacion, deposito.idUbicacion,
+								producto));
+					}
+				}
+			}
+
+			// La espera es por recurso y sitio, no por producto.
+			for (Ubicacion deposito : depositos) {
+				errores.addAll(unaSolaEspera(dia, "PORTACONTENEDOR", deposito.idUbicacion));
+				errores.addAll(unaSolaEspera(dia, "CAMION_PRODUCTO", deposito.idUbicacion));
+			}
+			errores.addAll(unaSolaEspera(dia, "PORTACONTENEDOR", "PLANTA"));
+			errores.addAll(unaSolaEspera(dia, "CAMION_PRODUCTO", "PLANTA"));
+			for (Ubicacion terminal : terminales) {
+				errores.addAll(unaSolaEspera(dia, "PORTACONTENEDOR", terminal.idUbicacion));
+				errores.addAll(unaSolaEspera(dia, "CAMION_PRODUCTO", terminal.idUbicacion));
+			}
+
+			// Los errores de cobertura se repiten todos los dias del hueco: con el
+			// primer dia alcanza para corregir la fila.
+			if (!errores.isEmpty()) {
+				return errores;
+			}
+		}
+
+		return errores;
+	}
+
+	private java.util.List<String> unaSola(int dia, String idUbicacion, TipoProducto producto) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
 		try {
-			distanciaKm("PLANTA", idDeposito);
+			tarifaSitio(dia, idUbicacion, producto);
+		} catch (RuntimeException e) {
+			errores.add(e.getMessage());
+		}
+		return errores;
+	}
+
+	private java.util.List<String> unaSolaFlete(int dia, String origen, String destino,
+			TipoProducto producto) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		try {
+			tarifaFlete(dia, origen, destino, producto);
+		} catch (RuntimeException e) {
+			errores.add(e.getMessage());
+		}
+		return errores;
+	}
+
+	private java.util.List<String> unaSolaRoundTrip(int dia, String idTerminal, String sitio,
+			TipoProducto producto) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		try {
+			tarifaRoundTrip(dia, idTerminal, sitio, producto(producto).tipoContenedor);
+		} catch (RuntimeException e) {
+			errores.add(e.getMessage());
+		}
+		return errores;
+	}
+
+	private java.util.List<String> unaSolaEspera(int dia, String tipoRecurso, String idUbicacion) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		try {
+			importeEspera(dia, tipoRecurso, idUbicacion, 0);
 		} catch (RuntimeException e) {
 			errores.add(e.getMessage());
 		}
@@ -18594,6 +19206,31 @@ public class GeneradorSintetico implements java.io.Serializable {
 	// la sobrecarga se mide en tn-dia y no se disfraza de plata (ADR-048).
 	private static final double PENALIDAD_SOBRECARGA = 0;
 
+	// Flete de producto planta -> deposito. Estaban cableados en Main como
+	// costo_fijo_viaje, costo_km y costo_tn; ahora son la tarifa por viaje de la
+	// tabla, con el mismo valor, para que la migracion no mueva ningun numero
+	// (ADR-051). El componente por tonelada es la parte variable del contrato.
+	private static final double COSTO_FIJO_VIAJE = 150;
+	private static final double COSTO_KM = 1.2;
+	private static final double COSTO_VARIABLE_TN = 2.0;
+
+	private static final String TIPO_CAMION_GRANEL = "GRANEL_25";
+	private static final String PROVEEDOR = "SINTETICO";
+
+	// Tarifas reales cambian por mes (respuesta del negocio, C1): el generador
+	// emite tramos mensuales con el mismo valor, de modo que la resolucion por dia
+	// queda ejercitada sin cambiar resultados. Seis tramos cubren la campania.
+	private static final int DIAS_TRAMO = 31;
+	private static final int TRAMOS = 6;
+
+	// El ultimo tramo queda abierto: una campania mas larga no deja huecos.
+	private static final int SIN_FIN = 9999;
+
+	// Espera de camion y portacontenedor: la estructura queda cargada y en cero
+	// hasta que exista la franquicia real (C1, seccion 4.2).
+	private static final double FRANQUICIA_HORAS = 0;
+	private static final double ESPERA_USD_HORA = 0;
+
 	private static final TipoProducto[] PRODUCTOS = { TipoProducto.JUGO, TipoProducto.CASCARA, TipoProducto.ACEITE };
 
 	private static final TipoContenedor[] CONTENEDOR = {
@@ -18715,11 +19352,12 @@ public class GeneradorSintetico implements java.io.Serializable {
 				PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i], TON_OBJETIVO_LOTE[i]));
 			datos.capacidades.add(new DatosEntrada.Capacidad(
 				PLANTA, PRODUCTOS[i], CAPACIDAD_PLANTA[i] * escenario.factorCapacidadPlanta));
-			// El frio propio no se factura (storage 0) pero cuesta ocuparlo.
-			datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
-				PLANTA, PRODUCTOS[i], 0, OPORTUNIDAD_PLANTA[i], PENALIDAD_SOBRECARGA));
-			datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-				PLANTA, PRODUCTOS[i], "CONSOLIDACION", ESTIBA_PLANTA[i]));
+
+			// El frio propio no se factura (storage, in y out en cero) pero cuesta
+			// ocuparlo. El cross dock no es un servicio de la planta: se carga con la
+			// tarifa de estiba para que una consulta indebida no salga gratis.
+			tarifaSitio(datos, PLANTA, PRODUCTOS[i], 0, 0, 0, OPORTUNIDAD_PLANTA[i],
+				PENALIDAD_SOBRECARGA, ESTIBA_PLANTA[i], ESTIBA_PLANTA[i], 0, 0, 0);
 		}
 
 		for (int d = 0; d < DEPOSITOS.length; d++) {
@@ -18732,14 +19370,16 @@ public class GeneradorSintetico implements java.io.Serializable {
 			for (int p = 0; p < PRODUCTOS.length; p++) {
 				datos.capacidades.add(new DatosEntrada.Capacidad(
 					DEPOSITOS[d], PRODUCTOS[p], CAPACIDAD[d][p] * escenario.factorCapacidadDeposito));
-				datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
-					DEPOSITOS[d], PRODUCTOS[p], STORAGE[d][p] * escenario.factorStorage,
-					0, PENALIDAD_SOBRECARGA));
-				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-					DEPOSITOS[d], PRODUCTOS[p], "CONSOLIDACION", ESTIBA_DEPOSITO[d][p]));
-				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-					DEPOSITOS[d], PRODUCTOS[p], "CROSS_DOCK", CROSS_DOCK_DEPOSITO[d][p]));
+
+				// IN y OUT en cero: el deposito de hoy solo cobra almacenaje y estiba.
+				// La columna existe para poder cargar el contrato real sin tocar codigo.
+				tarifaSitio(datos, DEPOSITOS[d], PRODUCTOS[p], 0,
+					STORAGE[d][p] * escenario.factorStorage, 0, 0, PENALIDAD_SOBRECARGA,
+					ESTIBA_DEPOSITO[d][p], CROSS_DOCK_DEPOSITO[d][p], 0, 0, 0);
 			}
+
+			// Flete a granel planta -> deposito, cobrado por viaje.
+			fleteViaje(datos, PLANTA, DEPOSITOS[d], DISTANCIA[d][0], escenario.capacidadCamionTn);
 		}
 
 		for (int t = 0; t < TERMINALES.length; t++) {
@@ -18753,24 +19393,112 @@ public class GeneradorSintetico implements java.io.Serializable {
 				new DatosEntrada.Distancia(PLANTA, TERMINALES[t], DISTANCIA_PLANTA_TERMINAL[t]));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
-				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-					TERMINALES[t], PRODUCTOS[p], "CONSOLIDACION", CONSOLIDACION[t][p]));
-				datos.tarifasFlete.add(
-					new DatosEntrada.TarifaFlete(PLANTA, TERMINALES[t], PRODUCTOS[p], FLETE_PLANTA[t]));
+				// THC, costo terminal y despachante quedan en cero: son tarifas por
+				// contenedor que todavia no tenemos y que se cobran en C3 (ADR-051).
+				tarifaSitio(datos, TERMINALES[t], PRODUCTOS[p], 0, 0, 0, 0, 0,
+					CONSOLIDACION[t][p], CONSOLIDACION[t][p], 0, 0, 0);
+
+				// Flete de producto a granel hasta la terminal, en usd/tn.
+				fleteTonelada(datos, PLANTA, TERMINALES[t], PRODUCTOS[p], FLETE_PLANTA[t],
+					escenario.capacidadCamionTn);
 			}
+
+			// Round trip del portacontenedor terminal -> sitio -> terminal. El valor
+			// heredado es el que Main cobraba con la formula cableada; C3 lo reemplaza
+			// por la tarifa del proveedor.
+			roundTrip(datos, TERMINALES[t], PLANTA, DISTANCIA_PLANTA_TERMINAL[t]);
 
 			for (int d = 0; d < DEPOSITOS.length; d++) {
 
 				datos.distancias.add(
 					new DatosEntrada.Distancia(DEPOSITOS[d], TERMINALES[t], DISTANCIA[d][t + 1]));
 
+				roundTrip(datos, TERMINALES[t], DEPOSITOS[d], DISTANCIA[d][t + 1]);
+
 				for (int p = 0; p < PRODUCTOS.length; p++) {
 					// El flete producto no depende del producto en los datos de
 					// hoy; la tabla igual lo desagrega porque el Excel real si lo hace.
-					datos.tarifasFlete.add(
-						new DatosEntrada.TarifaFlete(DEPOSITOS[d], TERMINALES[t], PRODUCTOS[p], FLETE[d][t]));
+					fleteTonelada(datos, DEPOSITOS[d], TERMINALES[t], PRODUCTOS[p], FLETE[d][t],
+						escenario.capacidadCamionTn);
 				}
 			}
+		}
+
+		for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+			espera(datos, "CAMION_PRODUCTO", u.idUbicacion);
+			espera(datos, "PORTACONTENEDOR", u.idUbicacion);
+		}
+	}
+
+	/** Primer dia del tramo mensual. El ultimo queda abierto para cubrir la campania. */
+	private static int desde(int tramo) {
+		return tramo * DIAS_TRAMO;
+	}
+
+	private static int hasta(int tramo) {
+		return tramo == TRAMOS - 1 ? SIN_FIN : (tramo + 1) * DIAS_TRAMO - 1;
+	}
+
+	private static void tarifaSitio(DatosEntrada datos, String idUbicacion, TipoProducto producto,
+			double inUsdTn, double storageUsdTnDia, double outUsdTn, double oportunidadUsdTnDia,
+			double penalidadUsdTnDia, double consolidacionUsdTn, double crossDockUsdTn,
+			double thcUsdContenedor, double costoTerminalUsdContenedor, double despachanteUsdContenedor) {
+
+		for (int tramo = 0; tramo < TRAMOS; tramo++) {
+			datos.tarifasSitio.add(new DatosEntrada.TarifaSitio(idUbicacion, producto, inUsdTn,
+				storageUsdTnDia, outUsdTn, oportunidadUsdTnDia, penalidadUsdTnDia,
+				consolidacionUsdTn, DatosEntrada.Unidad.USD_TN,
+				crossDockUsdTn, DatosEntrada.Unidad.USD_TN,
+				thcUsdContenedor, costoTerminalUsdContenedor,
+				despachanteUsdContenedor, DatosEntrada.Unidad.USD_CONTENEDOR,
+				PROVEEDOR, desde(tramo), hasta(tramo), true));
+		}
+	}
+
+	private static void fleteViaje(DatosEntrada datos, String origen, String destino, double km,
+			double capacidadCamionTn) {
+
+		// Mismo valor que la formula cableada: fijo mas kilometraje por viaje, mas la
+		// parte variable por tonelada.
+		double porViaje = COSTO_FIJO_VIAJE + km * COSTO_KM;
+
+		for (int p = 0; p < PRODUCTOS.length; p++) {
+			for (int tramo = 0; tramo < TRAMOS; tramo++) {
+				datos.tarifasFlete.add(new DatosEntrada.TarifaFlete(origen, destino, PRODUCTOS[p],
+					TIPO_CAMION_GRANEL, capacidadCamionTn, DatosEntrada.Unidad.USD_VIAJE, porViaje,
+					COSTO_VARIABLE_TN, PROVEEDOR, desde(tramo), hasta(tramo), true));
+			}
+		}
+	}
+
+	private static void fleteTonelada(DatosEntrada datos, String origen, String destino,
+			TipoProducto producto, double usdTn, double capacidadCamionTn) {
+
+		for (int tramo = 0; tramo < TRAMOS; tramo++) {
+			datos.tarifasFlete.add(new DatosEntrada.TarifaFlete(origen, destino, producto,
+				TIPO_CAMION_GRANEL, capacidadCamionTn, DatosEntrada.Unidad.USD_TN, usdTn, 0,
+				PROVEEDOR, desde(tramo), hasta(tramo), true));
+		}
+	}
+
+	private static void roundTrip(DatosEntrada datos, String terminal, String sitio, double km) {
+
+		// Valor heredado de la formula cableada de Main: ida y vuelta del tramo.
+		double porContenedor = COSTO_FIJO_VIAJE + km * 2 * COSTO_KM;
+
+		for (int c = 0; c < CONTENEDOR.length; c++) {
+			for (int tramo = 0; tramo < TRAMOS; tramo++) {
+				datos.tarifasRoundTrip.add(new DatosEntrada.TarifaRoundTrip(terminal, sitio,
+					CONTENEDOR[c], porContenedor, FRANQUICIA_HORAS, ESPERA_USD_HORA,
+					PROVEEDOR, desde(tramo), hasta(tramo), true));
+			}
+		}
+	}
+
+	private static void espera(DatosEntrada datos, String tipoRecurso, String idUbicacion) {
+		for (int tramo = 0; tramo < TRAMOS; tramo++) {
+			datos.tarifasEspera.add(new DatosEntrada.TarifaEspera(tipoRecurso, idUbicacion,
+				FRANQUICIA_HORAS, ESPERA_USD_HORA, PROVEEDOR, desde(tramo), hasta(tramo), true));
 		}
 	}
 
@@ -18991,22 +19719,46 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.texto("origen"), f.texto("destino"), f.numero("distancia_km")));
 		}
 
-		for (Fila f : filas("TarifaAlmacenamiento", null, null)) {
-			datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
-					f.texto("id_ubicacion"), f.producto("producto"), f.numero("storage_usd_tn_dia"),
-					f.numero("oportunidad_usd_tn_dia"), f.numero("penalidad_sobrecarga_usd_tn_dia")));
+		// Una fila por sitio, producto y vigencia: todo lo que cobra ese sitio. Los
+		// conceptos que no aplican van en cero y no como columna ausente, para que la
+		// planilla muestre que la decision de no cobrarlos fue explicita (ADR-051).
+		for (Fila f : filas("TarifaSitio", null, null)) {
+			datos.tarifasSitio.add(new DatosEntrada.TarifaSitio(
+					f.texto("id_ubicacion"), f.producto("producto"),
+					f.numero("in_usd_tn"), f.numero("storage_usd_tn_dia"), f.numero("out_usd_tn"),
+					f.numero("oportunidad_usd_tn_dia"), f.numero("penalidad_sobrecarga_usd_tn_dia"),
+					f.numero("consolidacion_tarifa"), f.unidad("consolidacion_unidad"),
+					f.numero("cross_dock_tarifa"), f.unidad("cross_dock_unidad"),
+					f.numero("thc_usd_contenedor"), f.numero("costo_terminal_usd_contenedor"),
+					f.numero("despachante_tarifa"), f.unidad("despachante_unidad"),
+					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+					f.booleano("habilitada")));
 		}
 
 		for (Fila f : filas("TarifaFleteProducto", null, null)) {
 			datos.tarifasFlete.add(new DatosEntrada.TarifaFlete(
 					f.texto("origen"), f.texto("destino"), f.producto("producto"),
-					f.numero("tarifa_usd_tn")));
+					f.texto("tipo_camion"), f.numero("capacidad_camion_tn"), f.unidad("unidad"),
+					f.numero("tarifa"), f.numero("variable_usd_tn"),
+					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+					f.booleano("habilitada")));
 		}
 
-		for (Fila f : filas("TarifaServicioCarga", null, null)) {
-			datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
-					f.texto("id_ubicacion"), f.producto("producto"), f.texto("tipo_servicio"),
-					f.numero("tarifa_usd_tn")));
+		for (Fila f : filas("TarifaRoundTrip", null, null)) {
+			datos.tarifasRoundTrip.add(new DatosEntrada.TarifaRoundTrip(
+					f.texto("terminal"), f.texto("sitio"), f.contenedor("tipo_contenedor"),
+					f.numero("tarifa_usd_contenedor"), f.numero("horas_espera_incluidas"),
+					f.numero("tarifa_espera_usd_hora"),
+					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+					f.booleano("habilitada")));
+		}
+
+		for (Fila f : filas("TarifaEspera", null, null)) {
+			datos.tarifasEspera.add(new DatosEntrada.TarifaEspera(
+					f.texto("tipo_recurso"), f.texto("id_ubicacion"),
+					f.numero("franquicia_horas"), f.numero("usd_hora"),
+					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+					f.booleano("habilitada")));
 		}
 
 		for (Fila f : filas("ProduccionPlan", "id_escenario", idEscenario)) {
@@ -19176,6 +19928,28 @@ public class ImportadorExcel implements java.io.Serializable {
 			return v.equals("TRUE") || v.equals("SI") || v.equals("SÍ") || v.equals("1");
 		}
 
+		private DatosEntrada.Unidad unidad(String nombre) {
+			String v = texto(nombre).toUpperCase().replace("/", "_").replace(" ", "");
+			try {
+				return DatosEntrada.Unidad.valueOf(v);
+			} catch (IllegalArgumentException e) {
+				errores.add("Unidad desconocida '" + v + "' en la columna " + nombre + " de la fila "
+						+ fila + " de la hoja " + hoja + ".");
+				return DatosEntrada.Unidad.USD_TN;
+			}
+		}
+
+		private TipoContenedor contenedor(String nombre) {
+			String v = texto(nombre).toUpperCase();
+			try {
+				return TipoContenedor.valueOf(v);
+			} catch (IllegalArgumentException e) {
+				errores.add("Tipo de contenedor desconocido '" + v + "' en la fila " + fila
+						+ " de la hoja " + hoja + ".");
+				return TipoContenedor.REEFER_40;
+			}
+		}
+
 		private TipoProducto producto(String nombre) {
 			String v = texto(nombre).toUpperCase();
 			try {
@@ -19220,6 +19994,9 @@ public class Capa implements java.io.Serializable {
 			this.diaReserva = diaReserva;
 		}
 	}
+
+	/** Identidad de la capa, para que un cargo pueda apuntar a una y solo una. */
+	public long idCapa = 0;
 
 	public final int idLote;
 	public final TipoProducto producto;
@@ -19307,6 +20084,375 @@ public class Capa implements java.io.Serializable {
 		</JavaClass>
 		<!--   =========   Java Class   ========  -->
 		<JavaClass>
+			<Id>1791100000101</Id>
+			<Name><![CDATA[RegistroCostos]]></Name>
+			<Text><![CDATA[/**
+ * Registro auditable de los cargos economicos de la campania (ADR-052).
+ *
+ * Cada evento economico se anota una sola vez, con su clave de negocio, la
+ * tarifa que lo genero y su unidad. Los acumuladores de los agentes pasan a ser
+ * vistas derivadas: si un total no coincide con el registro, la corrida falla en
+ * vez de reportar un numero que nadie puede explicar.
+ *
+ * No es un tipo de agente: PLE admite 10 y el modelo ya los usa (ADR-030).
+ */
+public class RegistroCostos implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	/** Tolerancia de la reconciliacion: redondeo de punto flotante, no de negocio. */
+	public static final double EPS = 0.01;
+
+	/** Concepto facturable. Cada categoria tiene un solo devengo y un solo dueno. */
+	public enum Categoria {
+		FLETE_PRODUCTO,
+		ROUND_TRIP,
+		CONSOLIDACION,
+		CROSS_DOCK,
+		ALMACENAMIENTO,
+		IN_DEPOSITO,
+		OUT_DEPOSITO,
+		THC,
+		COSTO_TERMINAL,
+		DESPACHANTE,
+		ESPERA,
+		OPORTUNIDAD_FRIO,
+		PENALIDAD_SOBRECARGA
+	}
+
+	/**
+	 * CAJA es lo que se paga y es comparable contra una cotizacion; ECONOMICO es
+	 * lo que cuesta usar un recurso propio y no se factura (ADR-049).
+	 */
+	public enum Tipo {
+		CAJA,
+		ECONOMICO
+	}
+
+	/** Un cargo devengado: quien, cuando, por que concepto y contra que tarifa. */
+	public static class Cargo implements java.io.Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		public final long id;
+		public final double dia;
+		public final Categoria categoria;
+		public final Tipo tipo;
+
+		public final String codigoPedido;
+		public final String codigoContenedor;
+		public final String idLote;
+		public final TipoProducto producto;
+
+		public final String origen;
+		public final String destino;
+		public final String sitio;
+		public final EstrategiaLogistica estrategia;
+		public final String proveedor;
+
+		public final DatosEntrada.Unidad unidad;
+		public final double cantidad;
+		public final double tarifa;
+		public final double importe;
+
+		public final String idOperacion;
+		public final String motivo;
+
+		public Cargo(long id, double dia, Categoria categoria, Tipo tipo,
+				String codigoPedido, String codigoContenedor, String idLote, TipoProducto producto,
+				String origen, String destino, String sitio, EstrategiaLogistica estrategia,
+				String proveedor, DatosEntrada.Unidad unidad, double cantidad, double tarifa,
+				String idOperacion, String motivo) {
+			this.id = id;
+			this.dia = dia;
+			this.categoria = categoria;
+			this.tipo = tipo;
+			this.codigoPedido = codigoPedido;
+			this.codigoContenedor = codigoContenedor;
+			this.idLote = idLote;
+			this.producto = producto;
+			this.origen = origen;
+			this.destino = destino;
+			this.sitio = sitio;
+			this.estrategia = estrategia;
+			this.proveedor = proveedor;
+			this.unidad = unidad;
+			this.cantidad = cantidad;
+			this.tarifa = tarifa;
+			this.importe = cantidad * tarifa;
+			this.idOperacion = idOperacion;
+			this.motivo = motivo;
+		}
+
+		public String clave() {
+			// El motivo entra en la clave porque una tarifa puede tener dos componentes
+			// con la misma unidad (por ejemplo el flete por viaje mas su parte variable).
+			return idOperacion + "|" + categoria + "|" + unidad + "|" + motivo;
+		}
+
+		public String toString() {
+			return "Cargo[" + id + " dia=" + dia + " " + categoria + " " + tipo
+					+ " " + cantidad + " x " + tarifa + " " + unidad + " = " + importe
+					+ " op=" + idOperacion + "]";
+		}
+	}
+
+	private final java.util.List<Cargo> cargos = new java.util.ArrayList<Cargo>();
+
+	/** Clave de negocio de cada cargo ya anotado: garantiza el devengo unico. */
+	private final java.util.Set<String> claves = new java.util.HashSet<String>();
+
+	private long secuencia = 0;
+
+	/** Totales por categoria y por tipo, para no recorrer la lista en cada consulta. */
+	private final java.util.Map<Categoria, Double> porCategoria =
+			new java.util.EnumMap<Categoria, Double>(Categoria.class);
+
+	private final java.util.Map<Tipo, Double> porTipo =
+			new java.util.EnumMap<Tipo, Double>(Tipo.class);
+
+	/** Si esta en false los cargos se totalizan pero no se guardan uno por uno. */
+	public boolean guardarDetalle = true;
+
+	/**
+	 * Anota un cargo y devuelve su importe. Repetir la misma operacion, categoria
+	 * y unidad devuelve cero: el devengo doble es un error de modelo, no una
+	 * suma mas.
+	 */
+	public double registrar(double dia, Categoria categoria, Tipo tipo,
+			String codigoPedido, String codigoContenedor, String idLote, TipoProducto producto,
+			String origen, String destino, String sitio, EstrategiaLogistica estrategia,
+			String proveedor, DatosEntrada.Unidad unidad, double cantidad, double tarifa,
+			String idOperacion, String motivo) {
+
+		if (idOperacion == null || idOperacion.isEmpty()) {
+			throw new RuntimeException("Cargo sin idOperacion: " + categoria
+					+ " dia " + dia + ". Sin identificador no hay devengo unico.");
+		}
+
+		if (cantidad < 0 || tarifa < 0) {
+			throw new RuntimeException("Cargo negativo en " + categoria + " (" + idOperacion
+					+ "): cantidad " + cantidad + ", tarifa " + tarifa + ".");
+		}
+
+		Cargo cargo = new Cargo(secuencia + 1, dia, categoria, tipo,
+				codigoPedido, codigoContenedor, idLote, producto,
+				origen, destino, sitio, estrategia, proveedor,
+				unidad, cantidad, tarifa, idOperacion, motivo);
+
+		if (!claves.add(cargo.clave())) {
+			return 0;
+		}
+
+		secuencia++;
+
+		if (guardarDetalle) {
+			cargos.add(cargo);
+		}
+
+		porCategoria.put(categoria, total(categoria) + cargo.importe);
+		porTipo.put(tipo, total(tipo) + cargo.importe);
+
+		return cargo.importe;
+	}
+
+	public double total(Categoria categoria) {
+		Double valor = porCategoria.get(categoria);
+		return valor == null ? 0 : valor;
+	}
+
+	public double total(Tipo tipo) {
+		Double valor = porTipo.get(tipo);
+		return valor == null ? 0 : valor;
+	}
+
+	public double total() {
+		return total(Tipo.CAJA) + total(Tipo.ECONOMICO);
+	}
+
+	public long cantidadCargos() {
+		return secuencia;
+	}
+
+	public java.util.List<Cargo> detalle() {
+		return cargos;
+	}
+
+	/**
+	 * Suma el detalle por una clave de negocio. Solo sirve con detalle guardado:
+	 * es la vista de auditoria, no el total de la corrida.
+	 */
+	public double totalDe(Categoria categoria, String codigoPedido) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (
+				(categoria == null || cargo.categoria == categoria)
+				&& (codigoPedido == null || codigoPedido.equals(cargo.codigoPedido))
+			) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	public double totalDeEstrategia(EstrategiaLogistica estrategia, Tipo tipo) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (cargo.estrategia == estrategia && (tipo == null || cargo.tipo == tipo)) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	public double totalDeSitio(String sitio, Tipo tipo) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (sitio != null && sitio.equals(cargo.sitio) && (tipo == null || cargo.tipo == tipo)) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	public double totalDeDia(int dia) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if ((int) Math.floor(cargo.dia) == dia) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	public double totalDeProducto(TipoProducto producto, Tipo tipo) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (cargo.producto == producto && (tipo == null || cargo.tipo == tipo)) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	public double totalDeContenedor(String codigoContenedor) {
+		exigirDetalle();
+
+		double total = 0;
+
+		for (Cargo cargo : cargos) {
+			if (codigoContenedor != null && codigoContenedor.equals(cargo.codigoContenedor)) {
+				total += cargo.importe;
+			}
+		}
+
+		return total;
+	}
+
+	/**
+	 * Verifica que un acumulador coincida con el registro. Se llama todos los dias
+	 * y al cierre: un total que no se puede explicar cargo por cargo es un error.
+	 */
+	public void reconciliar(Categoria categoria, double acumulado, double dia) {
+		double registrado = total(categoria);
+
+		if (Math.abs(registrado - acumulado) > EPS) {
+			throw new RuntimeException("Reconciliacion fallida el dia " + dia + " en "
+					+ categoria + ": el registro tiene " + registrado
+					+ " y el acumulador " + acumulado
+					+ ". Los totales son vistas del registro (ADR-052).");
+		}
+	}
+
+	/** Suma de las categorias indicadas, para reconciliar totales agregados. */
+	public double totalDe(Categoria[] categorias) {
+		double total = 0;
+
+		for (Categoria categoria : categorias) {
+			total += total(categoria);
+		}
+
+		return total;
+	}
+
+	public String resumen() {
+		String texto = "Cargos: " + secuencia
+				+ " | caja " + Math.round(total(Tipo.CAJA))
+				+ " | economico " + Math.round(total(Tipo.ECONOMICO));
+
+		for (Categoria categoria : Categoria.values()) {
+			if (total(categoria) != 0) {
+				texto += "\n  " + categoria + " " + Math.round(total(categoria));
+			}
+		}
+
+		return texto;
+	}
+
+	/**
+	 * Escribe el detalle en un csv. No se llama en el barrido: una campania son cientos
+	 * de miles de cargos y el archivo solo hace falta cuando hay que auditar un numero.
+	 */
+	public void exportarCsv(String ruta) {
+		exigirDetalle();
+
+		java.io.PrintWriter salida = null;
+
+		try {
+			salida = new java.io.PrintWriter(ruta, "UTF-8");
+
+			salida.println("id,dia,categoria,tipo,pedido,contenedor,lote,producto,origen,destino,"
+					+ "sitio,estrategia,proveedor,unidad,cantidad,tarifa,importe,operacion,motivo");
+
+			for (Cargo c : cargos) {
+				salida.println(c.id + "," + c.dia + "," + c.categoria + "," + c.tipo + ","
+						+ c.codigoPedido + "," + c.codigoContenedor + "," + c.idLote + ","
+						+ c.producto + "," + c.origen + "," + c.destino + "," + c.sitio + ","
+						+ c.estrategia + "," + c.proveedor + "," + c.unidad + ","
+						+ c.cantidad + "," + c.tarifa + "," + c.importe + ","
+						+ c.idOperacion + "," + c.motivo);
+			}
+
+		} catch (java.io.IOException e) {
+			throw new RuntimeException("No se pudo escribir " + ruta + ": " + e.getMessage());
+
+		} finally {
+			if (salida != null) {
+				salida.close();
+			}
+		}
+	}
+
+	private void exigirDetalle() {
+		if (!guardarDetalle) {
+			throw new RuntimeException("El detalle de cargos esta apagado: las vistas por"
+					+ " pedido, contenedor, sitio o dia necesitan guardarDetalle en true.");
+		}
+	}
+}]]></Text>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
 			<Id>1791000000005</Id>
 			<Name><![CDATA[Inventario]]></Name>
 			<Text><![CDATA[/**
@@ -19325,6 +20471,9 @@ public class Inventario implements java.io.Serializable {
 	public static final double EPS = 0.0001;
 
 	public final java.util.List<Capa> capas = new java.util.ArrayList<Capa>();
+
+	/** Numerador de capas: dos capas pueden coincidir en todo menos en su identidad. */
+	private long secuenciaCapa = 0;
 
 	/** Orden FIFO: primero la capa que ingreso antes; los empates se rompen igual siempre. */
 	private static class PorAntiguedad
@@ -19353,6 +20502,7 @@ public class Inventario implements java.io.Serializable {
 			return null;
 		}
 		Capa capa = new Capa(idLote, producto, idUbicacion, toneladas, dia, diaProduccion);
+		capa.idCapa = ++secuenciaCapa;
 		capas.add(capa);
 		return capa;
 	}
@@ -19579,12 +20729,20 @@ public class Inventario implements java.io.Serializable {
 				continue;
 			}
 			c.toneladas -= toma;
-			nuevas.add(new Capa(c.idLote, c.producto, destino, toma, dia, c.diaProduccion));
+			nuevas.add(nuevaCapa(c, destino, toma, dia));
 			pendiente -= toma;
 		}
 		capas.addAll(nuevas);
 		limpiar();
 		return toneladas - pendiente;
+	}
+
+	/** Parte de una capa que se muda: mismo lote y misma produccion, otra identidad. */
+	private Capa nuevaCapa(Capa origen, String destino, double toneladas, double dia) {
+		Capa capa = new Capa(origen.idLote, origen.producto, destino, toneladas, dia,
+				origen.diaProduccion);
+		capa.idCapa = ++secuenciaCapa;
+		return capa;
 	}
 
 	/** Igual que mover(), pero limitado a las capas de un lote. */
@@ -19601,7 +20759,7 @@ public class Inventario implements java.io.Serializable {
 				continue;
 			}
 			c.toneladas -= toma;
-			nuevas.add(new Capa(c.idLote, c.producto, destino, toma, dia, c.diaProduccion));
+			nuevas.add(nuevaCapa(c, destino, toma, dia));
 			pendiente -= toma;
 		}
 		capas.addAll(nuevas);
