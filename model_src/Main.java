@@ -59,6 +59,11 @@ class Main extends Agent {
     double costoOportunidadFrio = 0;
     double costoPenalidadSobrecarga = 0;
     double toneladasTransferidasPreventivas = 0;
+    int viajesGranelTerminal = 0;
+    int contenedoresCircuitoPlanta = 0;
+    int contenedoresCircuitoDeposito = 0;
+    int contenedoresCircuitoCrossDock = 0;
+    int contenedoresCircuitoTerminal = 0;
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -79,6 +84,11 @@ class Main extends Agent {
     //  flotaPortacontenedores
     //  colaCamiones
     //  tomarCamion
+    //  seleccionarCircuito
+    //  viajarVacioAlOrigen
+    //  cargarGranel
+    //  viajarTerminalGranel
+    //  descargarTerminal
     //  cargarCamion
     //  viajarPuerto
     //  descargarPuerto
@@ -352,6 +362,7 @@ class Main extends Agent {
 
         pedido.puertoSalida = puerto;
         pedido.depositoAsignado = null;
+        pedido.idSitioOrigen = "";
 
         pedido.estado = EstadoPedido.PENDIENTE;
 
@@ -401,10 +412,10 @@ class Main extends Agent {
             double costoConsolidado =
                 pedido.toneladasSolicitadas
                 * (
-                    consolidaEnDeposito()
-                    ? deposito.getCostoConsolidado(pedido.producto)
-                    : pedido.puertoSalida
+                    consolidaEnTerminal()
+                    ? pedido.puertoSalida
                         .getCostoConsolidado(pedido.producto)
+                    : deposito.getCostoConsolidado(pedido.producto)
                 );
 
             double costoTotal =
@@ -419,39 +430,6 @@ class Main extends Agent {
         return mejorDeposito;
     }
 
-    boolean reservarLotesParaPedido(Pedido pedido, Deposito deposito) {
-        if (
-            pedido == null
-            || deposito == null
-            || pedido.toneladasSolicitadas <= 0
-        ) {
-            return false;
-        }
-
-        // La reserva se anota sobre las capas del deposito, tomando primero las mas
-        // antiguas (ADR-022). El lote no se parte en un segundo agente (ADR-024).
-        double reservadas =
-            inventario.reservar(
-                deposito.idUbicacion,
-                pedido.producto,
-                pedido.toneladasSolicitadas,
-                pedido.codigoPedido,
-                time()
-            );
-
-        if (reservadas + 0.0001 < pedido.toneladasSolicitadas) {
-
-            // Reserva completa o nada: se devuelve lo que se habia tomado.
-            inventario.liberarReserva(pedido.codigoPedido);
-
-            return false;
-        }
-
-        marcarLotesReservados(pedido);
-
-        return true;
-    }
-
     boolean intentarAsignarPedido(Pedido pedido) {
         if (pedido == null) {
             return false;
@@ -464,24 +442,24 @@ class Main extends Agent {
             return false;
         }
 
-        Deposito deposito =
-            seleccionarDepositoParaPedido(pedido);
+        String idSitio =
+            seleccionarSitioParaPedido(pedido);
 
-        if (deposito == null) {
+        if (idSitio == null) {
             return false;
         }
 
         boolean reservado =
             reservarLotesParaPedido(
                 pedido,
-                deposito
+                idSitio
             );
 
         if (!reservado) {
             return false;
         }
 
-        confirmarAsignacion(pedido, deposito);
+        confirmarAsignacion(pedido, idSitio);
 
         return true;
     }
@@ -520,7 +498,7 @@ class Main extends Agent {
     Envio crearEnvio(Pedido pedido, double toneladas) {
         if (
             pedido == null
-            || pedido.depositoAsignado == null
+            || pedido.idSitioOrigen.isEmpty()
             || pedido.puertoSalida == null
             || toneladas <= 0
         ) {
@@ -538,8 +516,17 @@ class Main extends Agent {
             + envio.idEnvio;
 
         envio.pedido = pedido;
+
+        envio.idSitioOrigen =
+            pedido.idSitioOrigen;
+
+        // Queda nulo cuando el pedido sale del frio propio: el deposito es un caso del
+        // origen y no el origen (ADR-050).
         envio.depositoOrigen =
             pedido.depositoAsignado;
+
+        envio.circuito =
+            pedido.estrategiaSeleccionada;
 
         envio.terminalDestino =
             pedido.puertoSalida;
@@ -556,24 +543,34 @@ class Main extends Agent {
         envio.diaCreacion =
             time();
 
+        DatosEntrada.Ubicacion origen =
+            datos.ubicacion(envio.idSitioOrigen);
+
         double distancia =
-            envio.depositoOrigen
-                .getDistanciaTerminal(
-                    envio.terminalDestino
-                );
+            datos.distanciaKm(
+                envio.idSitioOrigen,
+                envio.terminalDestino.idUbicacion
+            );
 
         double velocidadCamion = datos.escenario.velocidadCamionKmh;
 
-        // Fase 7: si el contenedor se estiba en el deposito, la carga es la
-        // consolidacion y en la terminal solo queda el ingreso.
+        boolean conPortacontenedor =
+            usaPortacontenedor(envio);
+
+        // Circuitos 1 a 3: el portacontenedor sale vacio de la terminal, se estiba en el
+        // origen y vuelve cargado. Circuito 4: el producto viaja a granel en un camion de
+        // la flota de producto y el contenedor se arma en la terminal.
+        envio.tiempoViajeVacioHoras =
+            conPortacontenedor
+            ? distancia / velocidadCamion
+            : 0;
+
         envio.tiempoCargaHoras =
-            estibaEnDeposito(pedido)
+            conPortacontenedor
             ? toneladas
-                / envio.depositoOrigen
-                    .velocidadConsolidacionTnHora
+                / origen.velocidadConsolidacionTnHora
             : toneladas
-                / envio.depositoOrigen
-                    .velocidadCargaTnHora;
+                / origen.velocidadCargaTnHora;
 
         envio.tiempoViajeIdaHoras =
             distancia / velocidadCamion;
@@ -584,25 +581,24 @@ class Main extends Agent {
                 .velocidadDescargaTnHora;
 
         envio.tiempoConsolidacionHoras =
-            estibaEnDeposito(pedido)
+            conPortacontenedor
             ? 0
             : toneladas
                 / envio.terminalDestino
                     .velocidadConsolidacionTnHora;
 
         envio.tiempoRetornoHoras =
-            distancia / velocidadCamion;
+            conPortacontenedor
+            ? distancia / velocidadCamion
+            : 0;
 
         envio.costoFleteReal =
-            150
-            + distancia * 2 * 1.20;
+            costoFijoViajePD
+            + distancia * 2 * costoKmPD;
 
         envio.costoConsolidacionReal =
             toneladas
-            * costoServicioEstibaUsdTn(
-                pedido,
-                envio.depositoOrigen
-            );
+            * costoServicioEstibaUsdTn(pedido);
 
         envio.costoTotalReal =
             envio.costoFleteReal
@@ -619,7 +615,7 @@ class Main extends Agent {
         if (
             envio == null
             || envio.pedido == null
-            || envio.depositoOrigen == null
+            || envio.idSitioOrigen.isEmpty()
             || envio.toneladas <= 0
         ) {
             return false;
@@ -627,11 +623,9 @@ class Main extends Agent {
 
         Pedido pedido = envio.pedido;
 
-        Deposito deposito = envio.depositoOrigen;
-
         double reservado =
             inventario.reservadoPedidoEn(
-                deposito.idUbicacion,
+                envio.idSitioOrigen,
                 envio.producto,
                 pedido.codigoPedido
             );
@@ -644,7 +638,7 @@ class Main extends Agent {
         // antiguas primero.
         double despachadas =
             inventario.despachar(
-                deposito.idUbicacion,
+                envio.idSitioOrigen,
                 envio.producto,
                 envio.toneladas,
                 pedido.codigoPedido
@@ -1117,6 +1111,7 @@ class Main extends Agent {
         }
 
         tomarFlotaProducto(
+            "PLANTA",
             destino.idUbicacion,
             viajesNecesariosCamion(movidas)
         );
@@ -1184,7 +1179,7 @@ class Main extends Agent {
         // ultimo va parcial. Cada uno queda asociado al lote que mas aporta a su carga.
         if (
             pedido == null
-            || pedido.depositoAsignado == null
+            || pedido.idSitioOrigen.isEmpty()
             || pedido.puertoSalida == null
             || pedido.toneladasReservadas <= 0.0001
         ) {
@@ -1201,16 +1196,21 @@ class Main extends Agent {
         pedido.capacidadContenedorTon =
             obtenerCapacidadContenedorTon(pedido.tipoContenedor);
 
-        Deposito deposito = pedido.depositoAsignado;
+        String origen = pedido.idSitioOrigen;
+
+        String sitioDeEstiba = sitioEstiba(pedido);
 
         double distancia =
-            deposito.getDistanciaTerminal(pedido.puertoSalida);
+            datos.distanciaKm(
+                origen,
+                pedido.puertoSalida.idUbicacion
+            );
 
         // Capas que este pedido tiene reservadas, en el mismo orden FIFO en que se van a
         // despachar: recorrerlas en paralelo a los contenedores da el lote de cada uno.
         java.util.List<Capa> reservadas =
             inventario.capasReservadasDe(
-                deposito.idUbicacion,
+                origen,
                 pedido.producto,
                 pedido.codigoPedido
             );
@@ -1251,16 +1251,20 @@ class Main extends Agent {
                 pedido.esCrossDock ? time() : -1;
 
             contenedor.lugarConsolidacion =
-                pedido.esCrossDock || consolidaEnDeposito()
-                ? (Agent) deposito
-                : (Agent) pedido.puertoSalida;
+                sitioDeEstiba.equals("PLANTA")
+                ? (Agent) planta
+                : (
+                    buscarDeposito(sitioDeEstiba) != null
+                    ? (Agent) buscarDeposito(sitioDeEstiba)
+                    : (Agent) pedido.puertoSalida
+                );
             contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
 
             contenedor.costoEstimado =
-                150
-                + distancia * 2 * 1.20
+                costoFijoViajePD
+                + distancia * 2 * costoKmPD
                 + carga
-                * costoServicioEstibaUsdTn(pedido, deposito);
+                * costoServicioEstibaUsdTn(pedido);
 
             double resto = carga;
             double mayorAporte = 0;
@@ -1323,22 +1327,11 @@ class Main extends Agent {
     }
 
     String sitioConsolidacion(ContenedorExportacion contenedor) {
-        // Donde se estiba el contenedor: el deposito que lo tiene reservado o la
-        // terminal de salida.
-        if (contenedor == null) {
-            return "";
-        }
-
-        if (
-            consolidaEnDeposito()
-            && contenedor.Pedido != null
-            && contenedor.Pedido.depositoAsignado != null
-        ) {
-            return contenedor.Pedido
-                .depositoAsignado.idUbicacion;
-        }
-
-        return contenedor.terminalDestino.idUbicacion;
+        // Donde se estiba el contenedor: el sitio de origen del pedido o la terminal de
+        // salida, segun el circuito (ADR-050).
+        return contenedor == null
+            ? ""
+            : sitioEstiba(contenedor.Pedido);
     }
 
     void abrirPosicionesConsolidacionDelDia() {
@@ -1346,16 +1339,11 @@ class Main extends Agent {
         // dia se abre la capacidad del sitio y lo que no entra espera al dia siguiente.
         consolidacionesDelDia.clear();
 
-        if (consolidaEnDeposito()) {
-
-            for (Deposito deposito : depositos) {
-                capacidadConsolidacionOfrecida +=
-                    datos.capacidadConsolidacionDia(
-                        deposito.idUbicacion
-                    );
-            }
-
-        } else {
+        // La capacidad se ofrece donde el escenario arma contenedores: en el circuito de
+        // terminal es el puerto y en los demas el sitio de origen. Con consolidacion en
+        // planta los depositos siguen ofreciendo capacidad porque el pedido que no entra
+        // en el frio propio se sirve desde deposito.
+        if (consolidaEnTerminal()) {
 
             for (Terminal terminal : terminales) {
                 capacidadConsolidacionOfrecida +=
@@ -1363,6 +1351,20 @@ class Main extends Agent {
                         terminal.idUbicacion
                     );
             }
+
+            return;
+        }
+
+        if (consolidaEnPlanta()) {
+            capacidadConsolidacionOfrecida +=
+                datos.capacidadConsolidacionDia("PLANTA");
+        }
+
+        for (Deposito deposito : depositos) {
+            capacidadConsolidacionOfrecida +=
+                datos.capacidadConsolidacionDia(
+                    deposito.idUbicacion
+                );
         }
     }
 
@@ -1430,6 +1432,28 @@ class Main extends Agent {
             ContenedorExportacion contenedor
             : pendientes
         ) {
+            Pedido pedido = contenedor.Pedido;
+
+            // Circuito 4: el producto viaja a granel, asi que le consume jornada a la
+            // flota de producto y no al pool de portacontenedores (ADR-050).
+            boolean granel =
+                pedido.estrategiaSeleccionada
+                == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+            if (
+                granel
+                && !flotaProductoAlcanza(
+                    pedido.idSitioOrigen,
+                    pedido.puertoSalida.idUbicacion,
+                    contenedor.cantidadAsignadaTon
+                )
+            ) {
+                contenedor.diasEsperaPosicion++;
+                esperaConsolidacionContenedorDia++;
+                contenedoresEnEspera++;
+                continue;
+            }
+
             if (
                 !contenedor.esCrossDock
                 && !tomarPosicionConsolidacion(
@@ -1441,8 +1465,6 @@ class Main extends Agent {
                 contenedoresEnEspera++;
                 continue;
             }
-
-            Pedido pedido = contenedor.Pedido;
 
             Envio envio =
                 crearEnvio(
@@ -1458,6 +1480,16 @@ class Main extends Agent {
             }
 
             envio.contenedor = contenedor;
+
+            if (granel) {
+                tomarFlotaProducto(
+                    pedido.idSitioOrigen,
+                    pedido.puertoSalida.idUbicacion,
+                    viajesNecesariosCamion(
+                        contenedor.cantidadAsignadaTon
+                    )
+                );
+            }
 
             contenedor.estado =
                 EstadoContenedor.ESPERANDO_CARGA;
@@ -1661,6 +1693,7 @@ class Main extends Agent {
 
         if (
             !flotaProductoAlcanza(
+                "PLANTA",
                 sitio.idUbicacion,
                 pedido.toneladasSolicitadas
             )
@@ -1697,7 +1730,7 @@ class Main extends Agent {
         // dock que se degrado, y se cuenta como tal.
         if (
             movidas + 0.0001 < pedido.toneladasSolicitadas
-            || !reservarLotesParaPedido(pedido, sitio)
+            || !reservarLotesParaPedido(pedido, sitio.idUbicacion)
         ) {
             crossDockDegradados++;
             return false;
@@ -1705,7 +1738,7 @@ class Main extends Agent {
 
         pedido.esCrossDock = true;
 
-        confirmarAsignacion(pedido, sitio);
+        confirmarAsignacion(pedido, sitio.idUbicacion);
 
         toneladasCrossDock += movidas;
 
@@ -1747,57 +1780,6 @@ class Main extends Agent {
         }
     }
 
-    double costoServicioEstibaUsdTn(Pedido pedido, Deposito deposito) {
-        // Quien cobra la estiba depende de donde se arma el contenedor: el deposito si
-        // es cross dock (ADR-041) o si la estrategia consolida ahi (ADR-040), y la
-        // terminal en el caso contrario.
-        if (pedido.esCrossDock) {
-            return deposito.getCostoCrossDock(pedido.producto);
-        }
-
-        return consolidaEnDeposito()
-            ? deposito.getCostoConsolidado(pedido.producto)
-            : pedido.puertoSalida.getCostoConsolidado(
-                pedido.producto
-            );
-    }
-
-    void confirmarAsignacion(Pedido pedido, Deposito deposito) {
-        pedido.depositoAsignado = deposito;
-
-        pedido.toneladasReservadas =
-            pedido.toneladasSolicitadas;
-
-        pedido.diaReserva = time();
-        pedido.estado = EstadoPedido.RESERVADO;
-
-        pedido.costoFleteEstimado =
-            pedido.toneladasSolicitadas
-            * deposito.getCostoFletePuerto(
-                pedido.puertoSalida,
-                pedido.producto
-            );
-
-        pedido.costoConsolidadoEstimado =
-            pedido.toneladasSolicitadas
-            * costoServicioEstibaUsdTn(pedido, deposito);
-
-        pedido.costoTotalEstimado =
-            pedido.costoFleteEstimado
-            + pedido.costoConsolidadoEstimado;
-
-        pedidosReservados++;
-        pedidosPendientes--;
-
-        toneladasReservadasAcumuladas +=
-            pedido.toneladasSolicitadas;
-    }
-
-    boolean estibaEnDeposito(Pedido pedido) {
-        return pedido != null
-            && (pedido.esCrossDock || consolidaEnDeposito());
-    }
-
     void aplicarEscenario() {
         // La fila del escenario describe la corrida entera (ADR-032): lo que el
         // barrido enumera es el id, no cada palanca por separado.
@@ -1806,10 +1788,22 @@ class Main extends Agent {
         duracionCampaniaDias = escenario.duracionCampaniaDias;
         habilitaCrossDock = escenario.habilitaCrossDock;
 
-        estrategiaConsolidacion =
+        if (
+            escenario.estrategiaConsolidacion.equals("CONSOLIDACION_PLANTA")
+        ) {
+            estrategiaConsolidacion =
+                EstrategiaLogistica.CONSOLIDACION_PLANTA;
+
+        } else if (
             escenario.estrategiaConsolidacion.equals("CONSOLIDACION_TERMINAL")
-            ? EstrategiaLogistica.CONSOLIDACION_TERMINAL
-            : EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
+        ) {
+            estrategiaConsolidacion =
+                EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+        } else {
+            estrategiaConsolidacion =
+                EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
+        }
 
         // La flota de portacontenedores se fija al abrir el dia: en el arranque el pool
         // todavia no leyo su capacidad y set_capacity aca se pierde.
@@ -1938,36 +1932,6 @@ class Main extends Agent {
         return flotaProductoOfrecidaHoy - flotaProductoUsadaHoy;
     }
 
-    void tomarFlotaProducto(String idDestino, int viajes) {
-        double camionDia = viajes * camionDiaViaje("PLANTA", idDestino);
-
-        flotaProductoUsadaHoy += camionDia;
-        camionDiaOcupado += camionDia;
-        viajesPlantaDeposito += viajes;
-
-        // La capacidad del dia es un limite fisico, no una preferencia: si se sobregira
-        // es que alguien movio producto sin pedir camion (V-026).
-        if (flotaProductoUsadaHoy > flotaProductoOfrecidaHoy + 0.0001) {
-            error(
-                "Dia "
-                + time()
-                + ": la flota de producto se sobregiro ("
-                + flotaProductoUsadaHoy
-                + " de "
-                + flotaProductoOfrecidaHoy
-                + " camion-dia)."
-            );
-        }
-    }
-
-    boolean flotaProductoAlcanza(String idDestino, double toneladas) {
-        // El cross dock es todo o nada: si la flota del dia no alcanza para el pedido
-        // entero, no se mueve nada (ADR-010).
-        return flotaProductoLibreHoy() + 0.0001
-            >= viajesNecesariosCamion(toneladas)
-            * camionDiaViaje("PLANTA", idDestino);
-    }
-
     double utilizacionPortacontenedor() {
         // El pool lleva la estadistica de ocupacion en tiempo continuo; muestrearlo una
         // vez por dia no veia los viajes que empiezan y terminan dentro del mismo dia.
@@ -2074,8 +2038,12 @@ class Main extends Agent {
                 inventario.libre(deposito.idUbicacion, producto);
         }
 
+        // Con consolidacion en planta la demanda se sirve del frio propio: sacarla al
+        // deposito seria pagar almacenaje para despachar desde el mismo producto.
         double porServicio =
-            max(
+            consolidaEnPlanta()
+            ? 0
+            : max(
                 0,
                 demandaProyectada(producto) - libreEnDepositos
             );
@@ -2180,6 +2148,390 @@ class Main extends Agent {
         return toneladas <= 0
             ? 0
             : costoTotalEconomico() / toneladas;
+    }
+
+    boolean consolidaEnPlanta() {
+        return estrategiaConsolidacion
+            == EstrategiaLogistica.CONSOLIDACION_PLANTA;
+    }
+
+    boolean consolidaEnTerminal() {
+        return estrategiaConsolidacion
+            == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+    }
+
+    EstrategiaLogistica circuitoDe(String idSitioOrigen, boolean crossDock) {
+        // El circuito es del pedido y no del escenario: la estrategia es la politica por
+        // defecto y el origen efectivo termina de decidirlo (ADR-050).
+        if (crossDock) {
+            return EstrategiaLogistica.CROSS_DOCK_DEPOSITO;
+        }
+
+        if ("PLANTA".equals(idSitioOrigen)) {
+            return EstrategiaLogistica.CONSOLIDACION_PLANTA;
+        }
+
+        return consolidaEnTerminal()
+            ? EstrategiaLogistica.CONSOLIDACION_TERMINAL
+            : EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
+    }
+
+    String sitioEstiba(Pedido pedido) {
+        // Donde se arma fisicamente el contenedor: el sitio de origen, salvo en el
+        // circuito de terminal, donde el producto viaja a granel y se estiba en el puerto.
+        if (pedido == null) {
+            return "";
+        }
+
+        return pedido.estrategiaSeleccionada
+            == EstrategiaLogistica.CONSOLIDACION_TERMINAL
+            ? pedido.puertoSalida.idUbicacion
+            : pedido.idSitioOrigen;
+    }
+
+    boolean usaPortacontenedor(Envio envio) {
+        // Los circuitos de planta, deposito y cross dock mandan el contenedor vacio al
+        // origen y lo traen cargado: ocupan un portacontenedor de punta a punta. El de
+        // terminal manda el producto a granel y no toca el pool.
+        return envio != null
+            && envio.circuito
+                != EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+    }
+
+    String seleccionarSitioParaPedido(Pedido pedido) {
+        if (
+            pedido == null
+            || pedido.puertoSalida == null
+            || pedido.toneladasSolicitadas <= 0
+        ) {
+            return null;
+        }
+
+        // Con consolidacion en planta el pedido se sirve del frio propio siempre que
+        // alcance: es el circuito que ahorra el tramo planta-deposito y el almacenaje.
+        if (
+            consolidaEnPlanta()
+            && !pedido.esCrossDock
+            && inventario.libre("PLANTA", pedido.producto)
+                + 0.0001
+                >= pedido.toneladasSolicitadas
+        ) {
+            return "PLANTA";
+        }
+
+        Deposito deposito =
+            seleccionarDepositoParaPedido(pedido);
+
+        return deposito == null
+            ? null
+            : deposito.idUbicacion;
+    }
+
+    void registrarEstibaEnOrigen(Envio envio) {
+        // El servicio se devenga donde se arma el contenedor (ADR-050): planta, deposito
+        // o cross dock en deposito. Cada sitio lleva su propia estadistica.
+        if (
+            envio == null
+            || envio.contenedor == null
+            || !estibaEnOrigen(envio.pedido)
+        ) {
+            return;
+        }
+
+        if (envio.circuito == EstrategiaLogistica.CONSOLIDACION_PLANTA) {
+
+            planta.toneladasConsolidadas +=
+                envio.toneladas;
+
+            planta.contenedoresConsolidados++;
+
+            planta.costoConsolidacionAcumulado +=
+                envio.costoConsolidacionReal;
+
+            return;
+        }
+
+        Deposito deposito = envio.depositoOrigen;
+
+        if (deposito == null) {
+            return;
+        }
+
+        if (envio.contenedor.esCrossDock) {
+
+            deposito.toneladasCrossDock +=
+                envio.toneladas;
+
+            deposito.contenedoresCrossDock++;
+
+            deposito.costoCrossDockAcumulado +=
+                envio.costoConsolidacionReal;
+
+        } else {
+
+            deposito.toneladasConsolidadas +=
+                envio.toneladas;
+
+            deposito.contenedoresConsolidados++;
+
+            deposito.costoConsolidacionAcumulado +=
+                envio.costoConsolidacionReal;
+        }
+    }
+
+    void registrarIngresoTerminal(Envio envio) {
+        envio.estado =
+            EstadoEnvio.DESCARGANDO;
+
+        envio.diaLlegadaTerminal =
+            time();
+
+        envio.terminalDestino
+            .toneladasRecibidas +=
+                envio.toneladas;
+
+        envio.terminalDestino
+            .cantidadEnviosRecibidos++;
+
+        if (envio.contenedor != null) {
+            envio.contenedor.estado =
+                EstadoContenedor.INGRESADO_TERMINAL;
+
+            envio.contenedor.horaIngresoTerminal = time();
+        }
+    }
+
+    void registrarConsolidacionEnTerminal(Envio envio) {
+        // Circuito 4: el producto llego a granel y el contenedor se arma en la terminal.
+        // Cross docking y consolidacion en terminal son el mismo servicio (ADR-050).
+        envio.terminalDestino
+            .toneladasConsolidadas +=
+                envio.toneladas;
+
+        envio.terminalDestino
+            .costoConsolidacionAcumulado +=
+                envio.costoConsolidacionReal;
+
+        if (envio.contenedor != null) {
+            envio.contenedor.estado =
+                EstadoContenedor.CONSOLIDANDO;
+        }
+    }
+
+    void finalizarEnvio(Envio envio) {
+        // Cierre del envio, comun a los cuatro circuitos: el contenedor de terminal sale
+        // por su propia salida y no puede tener otra contabilidad que el resto.
+        envio.estado =
+            EstadoEnvio.ENTREGADO;
+
+        envio.diaEntrega =
+            time();
+
+        Pedido pedido =
+            envio.pedido;
+
+        pedido.toneladasEntregadas +=
+            envio.toneladas;
+
+        pedido.enviosEntregados++;
+
+        pedido.costoFleteReal +=
+            envio.costoFleteReal;
+
+        pedido.costoConsolidacionReal +=
+            envio.costoConsolidacionReal;
+
+        pedido.costoLogisticoReal +=
+            envio.costoTotalReal;
+
+        if (
+            pedido.toneladasEntregadas
+            >= pedido.toneladasSolicitadas - 0.0001
+        ) {
+            pedido.estado =
+                EstadoPedido.ENTREGADO;
+
+            pedido.diaEntrega =
+                time();
+
+            pedido.diasAtraso =
+                max(
+                    0,
+                    pedido.diaEntrega
+                    - pedido.diaLimite
+                );
+        }
+
+        costoFleteDepositoPuertoReal +=
+            envio.costoFleteReal;
+
+        if (envio.pedido.esCrossDock) {
+            costoCrossDockReal +=
+                envio.costoConsolidacionReal;
+        } else {
+            costoConsolidacionReal +=
+                envio.costoConsolidacionReal;
+        }
+
+        switch (envio.circuito) {
+
+            case CONSOLIDACION_PLANTA:
+                contenedoresCircuitoPlanta++;
+                break;
+
+            case CROSS_DOCK_DEPOSITO:
+                contenedoresCircuitoCrossDock++;
+                break;
+
+            case CONSOLIDACION_TERMINAL:
+                contenedoresCircuitoTerminal++;
+                break;
+
+            default:
+                contenedoresCircuitoDeposito++;
+                break;
+        }
+
+        if (envio.contenedor != null) {
+            envio.contenedor.estado =
+                EstadoContenedor.EXPORTADO;
+
+            envio.contenedor.costoReal =
+                envio.costoTotalReal;
+        }
+    }
+
+    boolean reservarLotesParaPedido(Pedido pedido, String idSitio) {
+        if (
+            pedido == null
+            || idSitio == null
+            || pedido.toneladasSolicitadas <= 0
+        ) {
+            return false;
+        }
+
+        // La reserva se anota sobre las capas del sitio de origen, tomando primero las
+        // mas antiguas (ADR-022). El lote no se parte en un segundo agente (ADR-024).
+        double reservadas =
+            inventario.reservar(
+                idSitio,
+                pedido.producto,
+                pedido.toneladasSolicitadas,
+                pedido.codigoPedido,
+                time()
+            );
+
+        if (reservadas + 0.0001 < pedido.toneladasSolicitadas) {
+
+            // Reserva completa o nada: se devuelve lo que se habia tomado.
+            inventario.liberarReserva(pedido.codigoPedido);
+
+            return false;
+        }
+
+        marcarLotesReservados(pedido);
+
+        return true;
+    }
+
+    void confirmarAsignacion(Pedido pedido, String idSitio) {
+        pedido.idSitioOrigen = idSitio;
+
+        // Sigue habiendo deposito asignado cuando el origen es un deposito; en el
+        // circuito de planta queda nulo y el origen es el propio frio propio.
+        pedido.depositoAsignado = buscarDeposito(idSitio);
+
+        pedido.estrategiaSeleccionada =
+            circuitoDe(idSitio, pedido.esCrossDock);
+
+        pedido.toneladasReservadas =
+            pedido.toneladasSolicitadas;
+
+        pedido.diaReserva = time();
+        pedido.estado = EstadoPedido.RESERVADO;
+
+        pedido.costoFleteEstimado =
+            pedido.toneladasSolicitadas
+            * datos.fleteUsdTn(
+                idSitio,
+                pedido.puertoSalida.idUbicacion,
+                pedido.producto
+            );
+
+        pedido.costoConsolidadoEstimado =
+            pedido.toneladasSolicitadas
+            * costoServicioEstibaUsdTn(pedido);
+
+        pedido.costoTotalEstimado =
+            pedido.costoFleteEstimado
+            + pedido.costoConsolidadoEstimado;
+
+        pedidosReservados++;
+        pedidosPendientes--;
+
+        toneladasReservadasAcumuladas +=
+            pedido.toneladasSolicitadas;
+    }
+
+    double costoServicioEstibaUsdTn(Pedido pedido) {
+        // Quien cobra la estiba es el sitio donde se arma el contenedor, y el cross dock
+        // es otro servicio que la estiba desde stock (ADR-041, ADR-050).
+        String sitio = sitioEstiba(pedido);
+
+        return pedido.esCrossDock
+            ? datos.servicioCargaUsdTn(
+                sitio,
+                pedido.producto,
+                "CROSS_DOCK"
+            )
+            : datos.servicioCargaUsdTn(
+                sitio,
+                pedido.producto
+            );
+    }
+
+    boolean estibaEnOrigen(Pedido pedido) {
+        // Tres de los cuatro circuitos estiban en el origen; solo el de terminal manda el
+        // producto a granel y arma el contenedor en el puerto.
+        return pedido != null
+            && pedido.estrategiaSeleccionada
+                != EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+    }
+
+    void tomarFlotaProducto(String idOrigen, String idDestino, int viajes) {
+        double camionDia =
+            viajes * camionDiaViaje(idOrigen, idDestino);
+
+        flotaProductoUsadaHoy += camionDia;
+        camionDiaOcupado += camionDia;
+
+        if (buscarTerminal(idDestino) != null) {
+            viajesGranelTerminal += viajes;
+        } else {
+            viajesPlantaDeposito += viajes;
+        }
+
+        // La capacidad del dia es un limite fisico, no una preferencia: si se sobregira
+        // es que alguien movio producto sin pedir camion (V-026).
+        if (flotaProductoUsadaHoy > flotaProductoOfrecidaHoy + 0.0001) {
+            error(
+                "Dia "
+                + time()
+                + ": la flota de producto se sobregiro ("
+                + flotaProductoUsadaHoy
+                + " de "
+                + flotaProductoOfrecidaHoy
+                + " camion-dia)."
+            );
+        }
+    }
+
+    boolean flotaProductoAlcanza(String idOrigen, String idDestino, double toneladas) {
+        // El movimiento es todo o nada: si la flota del dia no alcanza para el pedido
+        // entero, no se mueve nada (ADR-010).
+        return flotaProductoLibreHoy() + 0.0001
+            >= viajesNecesariosCamion(toneladas)
+            * camionDiaViaje(idOrigen, idDestino);
     }
 
     // ----- Eventos -----

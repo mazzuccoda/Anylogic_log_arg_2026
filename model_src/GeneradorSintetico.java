@@ -54,6 +54,23 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 	private static final String[] TERMINALES = { "ZARATE", "T4" };
 
+	// Km de la planta a ZARATE y a T4. Consolidar en planta ahorra el tramo
+	// planta-deposito pero paga el tramo largo hasta el puerto.
+	private static final double[] DISTANCIA_PLANTA_TERMINAL = { 130, 145 };
+
+	// Usd/tn de flete de la planta a ZARATE y a T4.
+	private static final double[] FLETE_PLANTA = { 12, 13 };
+
+	// Operacion de la planta como sitio de estiba: velocidad de carga a granel,
+	// velocidad de estiba y contenedores consolidados por dia. Supuesto temporal:
+	// los valores del deposito de referencia hasta tener los reales de la planta.
+	private static final double VELOCIDAD_CARGA_PLANTA = 50;
+	private static final double VELOCIDAD_ESTIBA_PLANTA = 30;
+	private static final double CONTENEDORES_DIA_PLANTA = 4;
+
+	// Usd/tn de estiba en planta de jugo, cascara y aceite, con el mismo criterio.
+	private static final double[] ESTIBA_PLANTA = { 9, 7, 14 };
+
 	// Por terminal: capacidad diaria tn, velocidad descarga tn/h, velocidad consolidacion tn/h
 	private static final double[][] TERMINAL_OPERACION = {
 		{ 500, 60, 50 },
@@ -127,7 +144,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 	/** Escenarios del barrido. Agregar uno es agregar un caso aca, no tocar el experimento. */
 	public static final String[] ESCENARIOS = {
 		"E-00", "E-01", "E-02", "E-03", "E-04", "E-05",
-		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11", "E-12"
+		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11", "E-12", "E-13"
 	};
 
 	/**
@@ -196,6 +213,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 			e.estrategiaConsolidacion = "CONSOLIDACION_TERMINAL";
 		} else if (idEscenario.equals("E-12")) {
 			e.politicaFrioPropio = "REACTIVA";           // vaciar la planta apenas se activa
+		} else if (idEscenario.equals("E-13")) {
+			e.estrategiaConsolidacion = "CONSOLIDACION_PLANTA";
 		} else {
 			throw new RuntimeException("Escenario no definido: " + idEscenario);
 		}
@@ -223,7 +242,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 		DatosEntrada.Escenario escenario = datos.escenario;
 
-		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0));
+		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true,
+			VELOCIDAD_CARGA_PLANTA, 0, VELOCIDAD_ESTIBA_PLANTA, 0, CONTENEDORES_DIA_PLANTA, 0));
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
 			datos.productos.add(new DatosEntrada.Producto(
@@ -233,6 +253,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 			// El frio propio no se factura (storage 0) pero cuesta ocuparlo.
 			datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
 				PLANTA, PRODUCTOS[i], 0, OPORTUNIDAD_PLANTA[i], PENALIDAD_SOBRECARGA));
+			datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
+				PLANTA, PRODUCTOS[i], "CONSOLIDACION", ESTIBA_PLANTA[i]));
 		}
 
 		for (int d = 0; d < DEPOSITOS.length; d++) {
@@ -262,9 +284,14 @@ public class GeneradorSintetico implements java.io.Serializable {
 				TERMINAL_OPERACION[t][1], TERMINAL_OPERACION[t][2], TERMINAL_OPERACION[t][0],
 				CONSOLIDACION_TERMINAL[t], 0));
 
+			datos.distancias.add(
+				new DatosEntrada.Distancia(PLANTA, TERMINALES[t], DISTANCIA_PLANTA_TERMINAL[t]));
+
 			for (int p = 0; p < PRODUCTOS.length; p++) {
 				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
 					TERMINALES[t], PRODUCTOS[p], "CONSOLIDACION", CONSOLIDACION[t][p]));
+				datos.tarifasFlete.add(
+					new DatosEntrada.TarifaFlete(PLANTA, TERMINALES[t], PRODUCTOS[p], FLETE_PLANTA[t]));
 			}
 
 			for (int d = 0; d < DEPOSITOS.length; d++) {

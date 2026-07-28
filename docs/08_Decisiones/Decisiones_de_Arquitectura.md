@@ -432,6 +432,31 @@ Las decisiones de política se toman con el económico; los KPIs reportan los do
 
 **Consecuencias:** en el barrido actual el económico corre por encima del de caja de forma consistente (E-00: USD 1,57 M de caja contra USD 2,20 M económico), y esa brecha **es** el valor del frío propio que hoy no se ve en la contabilidad. Al leer el tablero hay que decir cuál de los dos se está mirando: son dos ordenamientos distintos y el de caja sigue favoreciendo retener en planta.
 
+## ADR-050 — El circuito logístico es físico y se decide por pedido
+
+**Estado:** aceptada.  
+**Fecha:** 2026-07-28  
+**Contexto:** hasta `fase-19` la cadena de bloques era única y lineal (`entradaEnvios → colaCamiones → tomarCamion → cargarCamion → viajarPuerto → descargarPuerto → consolidarCarga → retornarDeposito → liberarCamion`), sin ningún `SelectOutput`. Todos los envíos hacían el mismo recorrido y `estrategiaConsolidacion` sólo cambiaba qué tarifa se cobraba y qué cupo se consumía. Dos consecuencias concretas: `consolidarCarga` estaba **después** de `descargarPuerto`, así que "consolidación en depósito" cobraba tarifa de depósito sobre una estiba que el flujo ejecutaba en el puerto; y el portacontenedor aparecía en el origen sin haber viajado vacío desde la terminal, de modo que la utilización del pool medía medio ciclo.
+
+**Decisión:** el flujo se bifurca y cada envío lleva su propio circuito.
+
+1. `seleccionarCircuito` (`SelectOutput`, condición `usaPortacontenedor(envio)`) separa los circuitos que usan portacontenedor de los que no.
+2. Circuitos 1 a 3 (consolidación en planta, consolidación en depósito, cross docking en depósito): `colaCamiones → tomarCamion → viajarVacioAlOrigen → cargarCamion → viajarPuerto → descargarPuerto → retornarDeposito → liberarCamion`. El portacontenedor hace el **round trip** terminal → origen → terminal → origen y la estiba ocurre en `cargarCamion`, es decir en el sitio real, no en el puerto.
+3. Circuito 4 (consolidación / cross docking en terminal, que son el mismo servicio): `cargarGranel → viajarTerminalGranel → descargarTerminal → consolidarCarga`. El producto viaja **a granel** consumiendo jornada de la flota de producto, el contenedor ya está en la terminal y el pool de portacontenedores **no se toca**.
+4. El circuito deja de ser un parámetro global de la corrida: se resuelve por pedido en `circuitoDe(idSitioOrigen, esCrossDock)`, se guarda en `Pedido.estrategiaSeleccionada` y `Envio.circuito`, y `estrategiaConsolidacion` queda como **política por defecto**. Es lo que permite enchufar después el evaluador `PlanLogistico` sin volver a tocar el flujo.
+5. El origen se generaliza: `Pedido.idSitioOrigen` y `Envio.idSitioOrigen` son el `id_ubicacion` del sitio (`"PLANTA"` o el id del depósito), y reserva, despacho, distancias, fletes y tarifa de estiba se resuelven contra ese id. `depositoAsignado`/`depositoOrigen` se conservan como referencia derivada (`null` si el origen es la planta).
+
+**Alternativas:** dejar la estrategia global y sólo mover `consolidarCarga` antes del puerto (arregla el cobro pero no representa los cuatro circuitos ni el tramo vacío); modelar cada circuito con su propia cadena completa de bloques (duplica nueve bloques por circuito y en PLE se vuelve ilegible); crear un tipo de agente por circuito (no hay presupuesto: el modelo está en 10 de 10 tipos); hacer que el circuito de terminal también tome el pool (mide una ocupación que no existe, porque ahí no hay portacontenedor haciendo el viaje).
+
+**Consecuencias:** el barrido pasa a `fase-21` y suma cinco KPIs por circuito (`contenedores_circuito_planta`, `_deposito`, `_cross_dock`, `_terminal` y `viajes_granel_terminal`) más el escenario E-13 (consolidación en planta), con 14 escenarios × 30 réplicas = 420 corridas. Medias de 30 réplicas contra `fase-19`:
+
+- **El circuito de depósito no cambia de costo** (E-00: USD 1.573.338 y 124,37 USD/tn en las dos fases): la estiba ya se cobraba en el sitio, ahora además ocurre ahí. Lo que cambia es la ocupación del pool, que sube porque el tramo vacío es real (E-00 de 11 % a 13 %).
+- **Donde el pool es escaso, el round trip se paga en servicio**: E-01 (1 camión de producto, 1 portacontenedor) cae de 0,98 a 0,77 de nivel de servicio y el atraso sube de 0,49 a 2,06 días. Antes el mismo portacontenedor rendía el doble porque no viajaba vacío.
+- **El circuito de terminal deja de consumir el pool**: E-11 pasa de 11 % a 0 % de utilización de portacontenedor, con 530 viajes a granel, y el costo sube 1,1 % (USD 1.599.602 → 1.617.454) porque esas toneladas ahora pagan flete de producto hasta la terminal.
+- **E-13 (nuevo, consolidación en planta)** entrega 121,29 USD/tn contra 124,37 de E-00, pero con 0,90 de nivel de servicio: el cuello es `contenedores_por_dia` de la planta, que es un dato sintético hasta que se cargue el real.
+
+Queda un hueco declarado: el tramo vacío consume tiempo y pool pero **no** cuesta, porque la tarifa del ciclo de contenedor todavía no existe (fase 10). Los datos operativos de la planta (velocidades, `contenedores_por_dia`, distancias y tarifas planta → terminal) son sintéticos equivalentes al depósito de referencia y están marcados como supuesto en el contrato de datos.
+
 ## Plantilla para nuevas decisiones
 
 ```markdown

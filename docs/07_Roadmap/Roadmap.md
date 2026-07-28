@@ -20,17 +20,18 @@ El orden de ejecución vigente está en §16, derivado de la [Definición del pr
 | 3. Existencias físicas múltiples | Capas de inventario implementadas y verificadas en PLE | 90% |
 | 4. Transferencias parciales | Planta → depósito parcial, verificada en PLE; falta depósito → depósito | 80% |
 | 5. Reserva profesional | Reservas trazables por capa y pedido; falta compromiso y reserva parcial | 60% |
-| 6. Contenedores individuales | Contenedores reales por pedido, verificados en PLE; falta el ciclo del vacío | 70% |
-| 7. Consolidación directa | Posiciones finitas por día y estrategia del escenario, verificadas en PLE; falta consolidación en planta | 80% |
-| 8. Cross docking | Operación con cupo diario por sitio, tarifa propia y sin almacenaje, verificada en PLE; falta cross dock parcial y en terminal | 70% |
+| 6. Contenedores individuales | Contenedores reales por pedido y tramo vacío terminal → origen con round trip, verificado en PLE (ADR-050); falta el resto del ciclo del vacío y su tarifa | 85% |
+| 7. Consolidación directa | Posiciones finitas por día, circuito por pedido y consolidación en planta con flujo físico, verificado en PLE (ADR-050) | 95% |
+| 8. Cross docking | Cupo diario por sitio, tarifa propia, sin almacenaje y con paso físico por el depósito; cross dock en terminal es el circuito 4 (ADR-050); falta cross dock parcial | 85% |
 | 9. Terminal | Parcial | 20% |
 | 10. Registro de costos | Parcial; tarifas ya vienen de tablas | 35% |
 | 11. Planificador | Parcial | 25% |
 | 12. Reemplazo de Envio | Pendiente | 0% |
-| 13. KPIs y experimentos | Barrido de 13 escenarios × 30 réplicas verificado en PLE, con las dos flotas consumiéndose de verdad (ADR-044) | 85% |
+| 13. KPIs y experimentos | Barrido de 14 escenarios × 30 réplicas verificado en PLE, con las dos flotas consumiéndose de verdad y KPIs por circuito (ADR-044, ADR-050) | 90% |
 | 14. Optimización avanzada | Futuro | 0% |
 | 18. Contrato de datos del rediseño logístico | Umbrales porcentuales, forecast, política de frío propio, `contenedores_por_dia`, oportunidad y penalidad, en generador, importador y plantilla | 100% |
 | 19. Frío propio y sobrecarga sin pérdida | Planta sin descarte, métricas de sobrecarga, forecast perfecto, caja vs. económico, verificado en PLE (ADR-048, ADR-049) | 100% |
+| 21. Flujo físico con los cuatro circuitos | `SelectOutput`, tramo vacío, estiba en el sitio real, circuito por pedido, terminal sin pool, 420 corridas en PLE (ADR-050) | 100% |
 
 ## 3. Fase 0 — Respaldo
 

@@ -70,6 +70,10 @@ Reemplaza `obtenerTipoContenedor()` y `obtenerCapacidadContenedorTon()` hardcode
 
 Nota: hoy la habilitación se deriva de `capacidad > 0` (ADR-009). El contrato la separa porque un depósito puede almacenar sin poder consolidar. Si se confirma que en la práctica coinciden, se cargan iguales; el modelo no cambia.
 
+**La planta es una ubicación como cualquier otra (ADR-050).** Desde que el circuito de consolidación en planta existe físicamente, la fila `PLANTA` necesita los mismos datos operativos que un depósito: `contenedores_por_dia`, `velocidad_carga_tn_hora`, `velocidad_consolidacion_tn_hora`, tarifa de `TarifaServicioCarga`, y filas de `Distancia` y `TarifaFlete` hacia cada terminal. Hasta `fase-19` esa fila venía en cero y el circuito de planta habría salido gratis e instantáneo.
+
+**Supuesto vigente:** los valores sintéticos de la planta son equivalentes a los del depósito de referencia (estiba 9 / 7 / 14 USD/tn por producto, flete 12 y 13 USD/tn a las dos terminales, 130 y 145 km, 50 tn/h de carga, 30 tn/h de estiba, 4 contenedores/día). Están marcados como supuesto porque no son datos medidos: al cargar el Excel real hay que reemplazarlos, y el nivel de servicio de E-13 depende directamente de `contenedores_por_dia`.
+
 ### 4.3 `CapacidadUbicacion`
 
 | Columna | Tipo | Regla |

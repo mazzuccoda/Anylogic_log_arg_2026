@@ -1379,12 +1379,88 @@ cargarDatosEntrada();]]></StartupCode>
 					</Properties>
 
 				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1792000030</Id>
+					<Name><![CDATA[viajesGranelTerminal]]></Name>
+					<X>-140</X><Y>940</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000031</Id>
+					<Name><![CDATA[contenedoresCircuitoPlanta]]></Name>
+					<X>-140</X><Y>980</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000032</Id>
+					<Name><![CDATA[contenedoresCircuitoDeposito]]></Name>
+					<X>-140</X><Y>1020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000033</Id>
+					<Name><![CDATA[contenedoresCircuitoCrossDock]]></Name>
+					<X>-140</X><Y>1060</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000034</Id>
+					<Name><![CDATA[contenedoresCircuitoTerminal]]></Name>
+					<X>-140</X><Y>1100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Connectors>
 				<Connector>
 					<Id>1784595031036</Id>
 					<Name><![CDATA[connector]]></Name>
-					<X>150</X><Y>700</Y>
+					<X>220</X><Y>700</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1402,16 +1478,16 @@ cargarDatosEntrada();]]></StartupCode>
 					<TargetEmbeddedObjectReference>
 						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
 						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[entradaEnvios]]></ItemName>
+						<ItemName><![CDATA[seleccionarCircuito]]></ItemName>
 					</TargetEmbeddedObjectReference>
 					<TargetConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Enter]]></ClassName>
-						<ItemName><![CDATA[out]]></ItemName>
+						<ClassName><![CDATA[SelectOutput]]></ClassName>
+						<ItemName><![CDATA[outT]]></ItemName>
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-110</X><Y>0</Y></Point>
+						<Point><X>-70</X><Y>10</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -1450,7 +1526,7 @@ cargarDatosEntrada();]]></StartupCode>
 				<Connector>
 					<Id>1784595071851</Id>
 					<Name><![CDATA[connector2]]></Name>
-					<X>420</X><Y>700</Y>
+					<X>570</X><Y>700</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1468,11 +1544,11 @@ cargarDatosEntrada();]]></StartupCode>
 					<TargetEmbeddedObjectReference>
 						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
 						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[tomarCamion]]></ItemName>
+						<ItemName><![CDATA[viajarVacioAlOrigen]]></ItemName>
 					</TargetEmbeddedObjectReference>
 					<TargetConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Seize]]></ClassName>
+						<ClassName><![CDATA[Delay]]></ClassName>
 						<ItemName><![CDATA[out]]></ItemName>
 					</TargetConnectableItemReference>
 					<Points>
@@ -1547,39 +1623,6 @@ cargarDatosEntrada();]]></StartupCode>
 					</Points>
 				</Connector>
 				<Connector>
-					<Id>1784595086603</Id>
-					<Name><![CDATA[connector5]]></Name>
-					<X>810</X><Y>700</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<SourceEmbeddedObjectReference>
-						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
-						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[consolidarCarga]]></ItemName>
-					</SourceEmbeddedObjectReference>
-					<SourceConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Delay]]></ClassName>
-						<ItemName><![CDATA[in]]></ItemName>
-					</SourceConnectableItemReference>
-					<TargetEmbeddedObjectReference>
-						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
-						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[descargarPuerto]]></ItemName>
-					</TargetEmbeddedObjectReference>
-					<TargetConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Delay]]></ClassName>
-						<ItemName><![CDATA[out]]></ItemName>
-					</TargetConnectableItemReference>
-					<Points>
-						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-110</X><Y>0</Y></Point>
-					</Points>
-				</Connector>
-				<Connector>
 					<Id>1784595091379</Id>
 					<Name><![CDATA[connector6]]></Name>
 					<X>960</X><Y>700</Y>
@@ -1600,7 +1643,7 @@ cargarDatosEntrada();]]></StartupCode>
 					<TargetEmbeddedObjectReference>
 						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
 						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[consolidarCarga]]></ItemName>
+						<ItemName><![CDATA[descargarPuerto]]></ItemName>
 					</TargetEmbeddedObjectReference>
 					<TargetConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
@@ -1609,7 +1652,7 @@ cargarDatosEntrada();]]></StartupCode>
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-110</X><Y>0</Y></Point>
+						<Point><X>-90</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -1676,6 +1719,237 @@ cargarDatosEntrada();]]></StartupCode>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
 						<Point><X>-80</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+							<Connector>
+					<Id>1792400001</Id>
+					<Name><![CDATA[connector0001]]></Name>
+					<X>110</X><Y>710</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[seleccionarCircuito]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[SelectOutput]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[entradaEnvios]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Enter]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-70</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1792400003</Id>
+					<Name><![CDATA[connector0003]]></Name>
+					<X>440</X><Y>700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[viajarVacioAlOrigen]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[tomarCamion]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Seize]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-70</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1792400005</Id>
+					<Name><![CDATA[connector0005]]></Name>
+					<X>440</X><Y>850</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[cargarGranel]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[seleccionarCircuito]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[SelectOutput]]></ClassName>
+						<ItemName><![CDATA[outF]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-290</X><Y>-140</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1792400007</Id>
+					<Name><![CDATA[connector0007]]></Name>
+					<X>570</X><Y>850</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[viajarTerminalGranel]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[cargarGranel]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-90</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1792400009</Id>
+					<Name><![CDATA[connector0009]]></Name>
+					<X>700</X><Y>850</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[descargarTerminal]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[viajarTerminalGranel]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-90</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1792400011</Id>
+					<Name><![CDATA[connector0011]]></Name>
+					<X>830</X><Y>850</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[consolidarCarga]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[descargarTerminal]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-90</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1792400013</Id>
+					<Name><![CDATA[connector0013]]></Name>
+					<X>1240</X><Y>710</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[salidaEnvios]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Exit]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[consolidarCarga]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-370</X><Y>140</Y></Point>
 					</Points>
 				</Connector>
 			</Connectors>
@@ -2164,6 +2438,7 @@ pedido.diaEntrega = -1;
 
 pedido.puertoSalida = puerto;
 pedido.depositoAsignado = null;
+pedido.idSitioOrigen = "";
 
 pedido.estado = EstadoPedido.PENDIENTE;
 
@@ -2225,10 +2500,10 @@ for (Deposito deposito : depositos) {
     double costoConsolidado =
         pedido.toneladasSolicitadas
         * (
-            consolidaEnDeposito()
-            ? deposito.getCostoConsolidado(pedido.producto)
-            : pedido.puertoSalida
+            consolidaEnTerminal()
+            ? pedido.puertoSalida
                 .getCostoConsolidado(pedido.producto)
+            : deposito.getCostoConsolidado(pedido.producto)
         );
 
     double costoTotal =
@@ -2241,55 +2516,6 @@ for (Deposito deposito : depositos) {
 }
 
 return mejorDeposito;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1784406859528</Id>
-					<Name><![CDATA[reservarLotesParaPedido]]></Name>
-					<X>50</X><Y>-610</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[deposito]]></Name>
-						<Type><![CDATA[Deposito]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (
-    pedido == null
-    || deposito == null
-    || pedido.toneladasSolicitadas <= 0
-) {
-    return false;
-}
-
-// La reserva se anota sobre las capas del deposito, tomando primero las mas
-// antiguas (ADR-022). El lote no se parte en un segundo agente (ADR-024).
-double reservadas =
-    inventario.reservar(
-        deposito.idUbicacion,
-        pedido.producto,
-        pedido.toneladasSolicitadas,
-        pedido.codigoPedido,
-        time()
-    );
-
-if (reservadas + 0.0001 < pedido.toneladasSolicitadas) {
-
-    // Reserva completa o nada: se devuelve lo que se habia tomado.
-    inventario.liberarReserva(pedido.codigoPedido);
-
-    return false;
-}
-
-marcarLotesReservados(pedido);
-
-return true;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -2316,24 +2542,24 @@ if (
     return false;
 }
 
-Deposito deposito =
-    seleccionarDepositoParaPedido(pedido);
+String idSitio =
+    seleccionarSitioParaPedido(pedido);
 
-if (deposito == null) {
+if (idSitio == null) {
     return false;
 }
 
 boolean reservado =
     reservarLotesParaPedido(
         pedido,
-        deposito
+        idSitio
     );
 
 if (!reservado) {
     return false;
 }
 
-confirmarAsignacion(pedido, deposito);
+confirmarAsignacion(pedido, idSitio);
 
 return true;]]></Body>
 				</Function>
@@ -2424,7 +2650,7 @@ return total;]]></Body>
 					</Parameter>
 					<Body><![CDATA[if (
     pedido == null
-    || pedido.depositoAsignado == null
+    || pedido.idSitioOrigen.isEmpty()
     || pedido.puertoSalida == null
     || toneladas <= 0
 ) {
@@ -2442,8 +2668,17 @@ envio.codigoEnvio =
     + envio.idEnvio;
 
 envio.pedido = pedido;
+
+envio.idSitioOrigen =
+    pedido.idSitioOrigen;
+
+// Queda nulo cuando el pedido sale del frio propio: el deposito es un caso del
+// origen y no el origen (ADR-050).
 envio.depositoOrigen =
     pedido.depositoAsignado;
+
+envio.circuito =
+    pedido.estrategiaSeleccionada;
 
 envio.terminalDestino =
     pedido.puertoSalida;
@@ -2460,24 +2695,34 @@ envio.estado =
 envio.diaCreacion =
     time();
 
+DatosEntrada.Ubicacion origen =
+    datos.ubicacion(envio.idSitioOrigen);
+
 double distancia =
-    envio.depositoOrigen
-        .getDistanciaTerminal(
-            envio.terminalDestino
-        );
+    datos.distanciaKm(
+        envio.idSitioOrigen,
+        envio.terminalDestino.idUbicacion
+    );
 
 double velocidadCamion = datos.escenario.velocidadCamionKmh;
 
-// Fase 7: si el contenedor se estiba en el deposito, la carga es la
-// consolidacion y en la terminal solo queda el ingreso.
+boolean conPortacontenedor =
+    usaPortacontenedor(envio);
+
+// Circuitos 1 a 3: el portacontenedor sale vacio de la terminal, se estiba en el
+// origen y vuelve cargado. Circuito 4: el producto viaja a granel en un camion de
+// la flota de producto y el contenedor se arma en la terminal.
+envio.tiempoViajeVacioHoras =
+    conPortacontenedor
+    ? distancia / velocidadCamion
+    : 0;
+
 envio.tiempoCargaHoras =
-    estibaEnDeposito(pedido)
+    conPortacontenedor
     ? toneladas
-        / envio.depositoOrigen
-            .velocidadConsolidacionTnHora
+        / origen.velocidadConsolidacionTnHora
     : toneladas
-        / envio.depositoOrigen
-            .velocidadCargaTnHora;
+        / origen.velocidadCargaTnHora;
 
 envio.tiempoViajeIdaHoras =
     distancia / velocidadCamion;
@@ -2488,25 +2733,24 @@ envio.tiempoDescargaHoras =
         .velocidadDescargaTnHora;
 
 envio.tiempoConsolidacionHoras =
-    estibaEnDeposito(pedido)
+    conPortacontenedor
     ? 0
     : toneladas
         / envio.terminalDestino
             .velocidadConsolidacionTnHora;
 
 envio.tiempoRetornoHoras =
-    distancia / velocidadCamion;
+    conPortacontenedor
+    ? distancia / velocidadCamion
+    : 0;
 
 envio.costoFleteReal =
-    150
-    + distancia * 2 * 1.20;
+    costoFijoViajePD
+    + distancia * 2 * costoKmPD;
 
 envio.costoConsolidacionReal =
     toneladas
-    * costoServicioEstibaUsdTn(
-        pedido,
-        envio.depositoOrigen
-    );
+    * costoServicioEstibaUsdTn(pedido);
 
 envio.costoTotalReal =
     envio.costoFleteReal
@@ -2535,7 +2779,7 @@ return envio;]]></Body>
 					<Body><![CDATA[if (
     envio == null
     || envio.pedido == null
-    || envio.depositoOrigen == null
+    || envio.idSitioOrigen.isEmpty()
     || envio.toneladas <= 0
 ) {
     return false;
@@ -2543,11 +2787,9 @@ return envio;]]></Body>
 
 Pedido pedido = envio.pedido;
 
-Deposito deposito = envio.depositoOrigen;
-
 double reservado =
     inventario.reservadoPedidoEn(
-        deposito.idUbicacion,
+        envio.idSitioOrigen,
         envio.producto,
         pedido.codigoPedido
     );
@@ -2560,7 +2802,7 @@ if (reservado + 0.0001 < envio.toneladas) {
 // antiguas primero.
 double despachadas =
     inventario.despachar(
-        deposito.idUbicacion,
+        envio.idSitioOrigen,
         envio.producto,
         envio.toneladas,
         pedido.codigoPedido
@@ -3241,6 +3483,7 @@ if (movidas <= 0.0001) {
 }
 
 tomarFlotaProducto(
+    "PLANTA",
     destino.idUbicacion,
     viajesNecesariosCamion(movidas)
 );
@@ -3332,7 +3575,7 @@ if (lote.estado == EstadoLote.EN_PLANTA) {
 // ultimo va parcial. Cada uno queda asociado al lote que mas aporta a su carga.
 if (
     pedido == null
-    || pedido.depositoAsignado == null
+    || pedido.idSitioOrigen.isEmpty()
     || pedido.puertoSalida == null
     || pedido.toneladasReservadas <= 0.0001
 ) {
@@ -3349,16 +3592,21 @@ pedido.tipoContenedor =
 pedido.capacidadContenedorTon =
     obtenerCapacidadContenedorTon(pedido.tipoContenedor);
 
-Deposito deposito = pedido.depositoAsignado;
+String origen = pedido.idSitioOrigen;
+
+String sitioDeEstiba = sitioEstiba(pedido);
 
 double distancia =
-    deposito.getDistanciaTerminal(pedido.puertoSalida);
+    datos.distanciaKm(
+        origen,
+        pedido.puertoSalida.idUbicacion
+    );
 
 // Capas que este pedido tiene reservadas, en el mismo orden FIFO en que se van a
 // despachar: recorrerlas en paralelo a los contenedores da el lote de cada uno.
 java.util.List<Capa> reservadas =
     inventario.capasReservadasDe(
-        deposito.idUbicacion,
+        origen,
         pedido.producto,
         pedido.codigoPedido
     );
@@ -3399,16 +3647,20 @@ while (pendiente > 0.0001) {
         pedido.esCrossDock ? time() : -1;
 
     contenedor.lugarConsolidacion =
-        pedido.esCrossDock || consolidaEnDeposito()
-        ? (Agent) deposito
-        : (Agent) pedido.puertoSalida;
+        sitioDeEstiba.equals("PLANTA")
+        ? (Agent) planta
+        : (
+            buscarDeposito(sitioDeEstiba) != null
+            ? (Agent) buscarDeposito(sitioDeEstiba)
+            : (Agent) pedido.puertoSalida
+        );
     contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
 
     contenedor.costoEstimado =
-        150
-        + distancia * 2 * 1.20
+        costoFijoViajePD
+        + distancia * 2 * costoKmPD
         + carga
-        * costoServicioEstibaUsdTn(pedido, deposito);
+        * costoServicioEstibaUsdTn(pedido);
 
     double resto = carga;
     double mayorAporte = 0;
@@ -3503,22 +3755,11 @@ return cantidad;]]></Body>
 						<Name><![CDATA[contenedor]]></Name>
 						<Type><![CDATA[ContenedorExportacion]]></Type>
 					</Parameter>
-					<Body><![CDATA[// Donde se estiba el contenedor: el deposito que lo tiene reservado o la
-// terminal de salida.
-if (contenedor == null) {
-    return "";
-}
-
-if (
-    consolidaEnDeposito()
-    && contenedor.Pedido != null
-    && contenedor.Pedido.depositoAsignado != null
-) {
-    return contenedor.Pedido
-        .depositoAsignado.idUbicacion;
-}
-
-return contenedor.terminalDestino.idUbicacion;]]></Body>
+					<Body><![CDATA[// Donde se estiba el contenedor: el sitio de origen del pedido o la terminal de
+// salida, segun el circuito (ADR-050).
+return contenedor == null
+    ? ""
+    : sitioEstiba(contenedor.Pedido);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -3534,16 +3775,11 @@ return contenedor.terminalDestino.idUbicacion;]]></Body>
 // dia se abre la capacidad del sitio y lo que no entra espera al dia siguiente.
 consolidacionesDelDia.clear();
 
-if (consolidaEnDeposito()) {
-
-    for (Deposito deposito : depositos) {
-        capacidadConsolidacionOfrecida +=
-            datos.capacidadConsolidacionDia(
-                deposito.idUbicacion
-            );
-    }
-
-} else {
+// La capacidad se ofrece donde el escenario arma contenedores: en el circuito de
+// terminal es el puerto y en los demas el sitio de origen. Con consolidacion en
+// planta los depositos siguen ofreciendo capacidad porque el pedido que no entra
+// en el frio propio se sirve desde deposito.
+if (consolidaEnTerminal()) {
 
     for (Terminal terminal : terminales) {
         capacidadConsolidacionOfrecida +=
@@ -3551,6 +3787,20 @@ if (consolidaEnDeposito()) {
                 terminal.idUbicacion
             );
     }
+
+    return;
+}
+
+if (consolidaEnPlanta()) {
+    capacidadConsolidacionOfrecida +=
+        datos.capacidadConsolidacionDia("PLANTA");
+}
+
+for (Deposito deposito : depositos) {
+    capacidadConsolidacionOfrecida +=
+        datos.capacidadConsolidacionDia(
+            deposito.idUbicacion
+        );
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3638,6 +3888,28 @@ for (
     ContenedorExportacion contenedor
     : pendientes
 ) {
+    Pedido pedido = contenedor.Pedido;
+
+    // Circuito 4: el producto viaja a granel, asi que le consume jornada a la
+    // flota de producto y no al pool de portacontenedores (ADR-050).
+    boolean granel =
+        pedido.estrategiaSeleccionada
+        == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+    if (
+        granel
+        && !flotaProductoAlcanza(
+            pedido.idSitioOrigen,
+            pedido.puertoSalida.idUbicacion,
+            contenedor.cantidadAsignadaTon
+        )
+    ) {
+        contenedor.diasEsperaPosicion++;
+        esperaConsolidacionContenedorDia++;
+        contenedoresEnEspera++;
+        continue;
+    }
+
     if (
         !contenedor.esCrossDock
         && !tomarPosicionConsolidacion(
@@ -3649,8 +3921,6 @@ for (
         contenedoresEnEspera++;
         continue;
     }
-
-    Pedido pedido = contenedor.Pedido;
 
     Envio envio =
         crearEnvio(
@@ -3666,6 +3936,16 @@ for (
     }
 
     envio.contenedor = contenedor;
+
+    if (granel) {
+        tomarFlotaProducto(
+            pedido.idSitioOrigen,
+            pedido.puertoSalida.idUbicacion,
+            viajesNecesariosCamion(
+                contenedor.cantidadAsignadaTon
+            )
+        );
+    }
 
     contenedor.estado =
         EstadoContenedor.ESPERANDO_CARGA;
@@ -3977,6 +4257,7 @@ if (sitio == null) {
 
 if (
     !flotaProductoAlcanza(
+        "PLANTA",
         sitio.idUbicacion,
         pedido.toneladasSolicitadas
     )
@@ -4013,7 +4294,7 @@ double movidas =
 // dock que se degrado, y se cuenta como tal.
 if (
     movidas + 0.0001 < pedido.toneladasSolicitadas
-    || !reservarLotesParaPedido(pedido, sitio)
+    || !reservarLotesParaPedido(pedido, sitio.idUbicacion)
 ) {
     crossDockDegradados++;
     return false;
@@ -4021,7 +4302,7 @@ if (
 
 pedido.esCrossDock = true;
 
-confirmarAsignacion(pedido, sitio);
+confirmarAsignacion(pedido, sitio.idUbicacion);
 
 toneladasCrossDock += movidas;
 
@@ -4071,101 +4352,6 @@ for (Pedido pedido : candidatos) {
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1785010418</Id>
-					<Name><![CDATA[costoServicioEstibaUsdTn]]></Name>
-					<X>130</X><Y>1580</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[deposito]]></Name>
-						<Type><![CDATA[Deposito]]></Type>
-					</Parameter>
-					<Body><![CDATA[// Quien cobra la estiba depende de donde se arma el contenedor: el deposito si
-// es cross dock (ADR-041) o si la estrategia consolida ahi (ADR-040), y la
-// terminal en el caso contrario.
-if (pedido.esCrossDock) {
-    return deposito.getCostoCrossDock(pedido.producto);
-}
-
-return consolidaEnDeposito()
-    ? deposito.getCostoConsolidado(pedido.producto)
-    : pedido.puertoSalida.getCostoConsolidado(
-        pedido.producto
-    );]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1785010420</Id>
-					<Name><![CDATA[confirmarAsignacion]]></Name>
-					<X>130</X><Y>1600</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[deposito]]></Name>
-						<Type><![CDATA[Deposito]]></Type>
-					</Parameter>
-					<Body><![CDATA[pedido.depositoAsignado = deposito;
-
-pedido.toneladasReservadas =
-    pedido.toneladasSolicitadas;
-
-pedido.diaReserva = time();
-pedido.estado = EstadoPedido.RESERVADO;
-
-pedido.costoFleteEstimado =
-    pedido.toneladasSolicitadas
-    * deposito.getCostoFletePuerto(
-        pedido.puertoSalida,
-        pedido.producto
-    );
-
-pedido.costoConsolidadoEstimado =
-    pedido.toneladasSolicitadas
-    * costoServicioEstibaUsdTn(pedido, deposito);
-
-pedido.costoTotalEstimado =
-    pedido.costoFleteEstimado
-    + pedido.costoConsolidadoEstimado;
-
-pedidosReservados++;
-pedidosPendientes--;
-
-toneladasReservadasAcumuladas +=
-    pedido.toneladasSolicitadas;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1785010422</Id>
-					<Name><![CDATA[estibaEnDeposito]]></Name>
-					<X>130</X><Y>1620</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
-					</Parameter>
-					<Body><![CDATA[return pedido != null
-    && (pedido.esCrossDock || consolidaEnDeposito());]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1786000100</Id>
@@ -4182,10 +4368,22 @@ DatosEntrada.Escenario escenario = datos.escenario;
 duracionCampaniaDias = escenario.duracionCampaniaDias;
 habilitaCrossDock = escenario.habilitaCrossDock;
 
-estrategiaConsolidacion =
+if (
+    escenario.estrategiaConsolidacion.equals("CONSOLIDACION_PLANTA")
+) {
+    estrategiaConsolidacion =
+        EstrategiaLogistica.CONSOLIDACION_PLANTA;
+
+} else if (
     escenario.estrategiaConsolidacion.equals("CONSOLIDACION_TERMINAL")
-    ? EstrategiaLogistica.CONSOLIDACION_TERMINAL
-    : EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
+) {
+    estrategiaConsolidacion =
+        EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+} else {
+    estrategiaConsolidacion =
+        EstrategiaLogistica.CONSOLIDACION_DEPOSITO;
+}
 
 // La flota de portacontenedores se fija al abrir el dia: en el arranque el pool
 // todavia no leyo su capacidad y set_capacity aca se pierde.]]></Body>
@@ -4422,68 +4620,6 @@ return (int) ceil(
 					<Body><![CDATA[return flotaProductoOfrecidaHoy - flotaProductoUsadaHoy;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1795300019</Id>
-					<Name><![CDATA[tomarFlotaProducto]]></Name>
-					<X>130</X><Y>1460</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[idDestino]]></Name>
-						<Type><![CDATA[String]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[viajes]]></Name>
-						<Type><![CDATA[int]]></Type>
-					</Parameter>
-					<Body><![CDATA[double camionDia = viajes * camionDiaViaje("PLANTA", idDestino);
-
-flotaProductoUsadaHoy += camionDia;
-camionDiaOcupado += camionDia;
-viajesPlantaDeposito += viajes;
-
-// La capacidad del dia es un limite fisico, no una preferencia: si se sobregira
-// es que alguien movio producto sin pedir camion (V-026).
-if (flotaProductoUsadaHoy > flotaProductoOfrecidaHoy + 0.0001) {
-    error(
-        "Dia "
-        + time()
-        + ": la flota de producto se sobregiro ("
-        + flotaProductoUsadaHoy
-        + " de "
-        + flotaProductoOfrecidaHoy
-        + " camion-dia)."
-    );
-}]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1795300021</Id>
-					<Name><![CDATA[flotaProductoAlcanza]]></Name>
-					<X>130</X><Y>1500</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[idDestino]]></Name>
-						<Type><![CDATA[String]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[toneladas]]></Name>
-						<Type><![CDATA[double]]></Type>
-					</Parameter>
-					<Body><![CDATA[// El cross dock es todo o nada: si la flota del dia no alcanza para el pedido
-// entero, no se mueve nada (ADR-010).
-return flotaProductoLibreHoy() + 0.0001
-    >= viajesNecesariosCamion(toneladas)
-    * camionDiaViaje("PLANTA", idDestino);]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1795300023</Id>
@@ -4666,8 +4802,12 @@ for (Deposito deposito : depositos) {
         inventario.libre(deposito.idUbicacion, producto);
 }
 
+// Con consolidacion en planta la demanda se sirve del frio propio: sacarla al
+// deposito seria pagar almacenaje para despachar desde el mismo producto.
 double porServicio =
-    max(
+    consolidaEnPlanta()
+    ? 0
+    : max(
         0,
         demandaProyectada(producto) - libreEnDepositos
     );
@@ -4816,6 +4956,604 @@ return costoTotalCampania()
 return toneladas <= 0
     ? 0
     : costoTotalEconomico() / toneladas;]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792100001</Id>
+					<Name><![CDATA[consolidaEnPlanta]]></Name>
+					<X>130</X><Y>2400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[return estrategiaConsolidacion
+    == EstrategiaLogistica.CONSOLIDACION_PLANTA;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792100003</Id>
+					<Name><![CDATA[consolidaEnTerminal]]></Name>
+					<X>130</X><Y>2440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[return estrategiaConsolidacion
+    == EstrategiaLogistica.CONSOLIDACION_TERMINAL;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[EstrategiaLogistica]]></ReturnType>
+					<Id>1792100005</Id>
+					<Name><![CDATA[circuitoDe]]></Name>
+					<X>130</X><Y>2480</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idSitioOrigen]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[crossDock]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El circuito es del pedido y no del escenario: la estrategia es la politica por
+// defecto y el origen efectivo termina de decidirlo (ADR-050).
+if (crossDock) {
+    return EstrategiaLogistica.CROSS_DOCK_DEPOSITO;
+}
+
+if ("PLANTA".equals(idSitioOrigen)) {
+    return EstrategiaLogistica.CONSOLIDACION_PLANTA;
+}
+
+return consolidaEnTerminal()
+    ? EstrategiaLogistica.CONSOLIDACION_TERMINAL
+    : EstrategiaLogistica.CONSOLIDACION_DEPOSITO;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1792100007</Id>
+					<Name><![CDATA[sitioEstiba]]></Name>
+					<X>130</X><Y>2520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Donde se arma fisicamente el contenedor: el sitio de origen, salvo en el
+// circuito de terminal, donde el producto viaja a granel y se estiba en el puerto.
+if (pedido == null) {
+    return "";
+}
+
+return pedido.estrategiaSeleccionada
+    == EstrategiaLogistica.CONSOLIDACION_TERMINAL
+    ? pedido.puertoSalida.idUbicacion
+    : pedido.idSitioOrigen;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792100009</Id>
+					<Name><![CDATA[usaPortacontenedor]]></Name>
+					<X>130</X><Y>2560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Los circuitos de planta, deposito y cross dock mandan el contenedor vacio al
+// origen y lo traen cargado: ocupan un portacontenedor de punta a punta. El de
+// terminal manda el producto a granel y no toca el pool.
+return envio != null
+    && envio.circuito
+        != EstrategiaLogistica.CONSOLIDACION_TERMINAL;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1792100011</Id>
+					<Name><![CDATA[seleccionarSitioParaPedido]]></Name>
+					<X>130</X><Y>2600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[if (
+    pedido == null
+    || pedido.puertoSalida == null
+    || pedido.toneladasSolicitadas <= 0
+) {
+    return null;
+}
+
+// Con consolidacion en planta el pedido se sirve del frio propio siempre que
+// alcance: es el circuito que ahorra el tramo planta-deposito y el almacenaje.
+if (
+    consolidaEnPlanta()
+    && !pedido.esCrossDock
+    && inventario.libre("PLANTA", pedido.producto)
+        + 0.0001
+        >= pedido.toneladasSolicitadas
+) {
+    return "PLANTA";
+}
+
+Deposito deposito =
+    seleccionarDepositoParaPedido(pedido);
+
+return deposito == null
+    ? null
+    : deposito.idUbicacion;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792100013</Id>
+					<Name><![CDATA[registrarEstibaEnOrigen]]></Name>
+					<X>130</X><Y>2640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El servicio se devenga donde se arma el contenedor (ADR-050): planta, deposito
+// o cross dock en deposito. Cada sitio lleva su propia estadistica.
+if (
+    envio == null
+    || envio.contenedor == null
+    || !estibaEnOrigen(envio.pedido)
+) {
+    return;
+}
+
+if (envio.circuito == EstrategiaLogistica.CONSOLIDACION_PLANTA) {
+
+    planta.toneladasConsolidadas +=
+        envio.toneladas;
+
+    planta.contenedoresConsolidados++;
+
+    planta.costoConsolidacionAcumulado +=
+        envio.costoConsolidacionReal;
+
+    return;
+}
+
+Deposito deposito = envio.depositoOrigen;
+
+if (deposito == null) {
+    return;
+}
+
+if (envio.contenedor.esCrossDock) {
+
+    deposito.toneladasCrossDock +=
+        envio.toneladas;
+
+    deposito.contenedoresCrossDock++;
+
+    deposito.costoCrossDockAcumulado +=
+        envio.costoConsolidacionReal;
+
+} else {
+
+    deposito.toneladasConsolidadas +=
+        envio.toneladas;
+
+    deposito.contenedoresConsolidados++;
+
+    deposito.costoConsolidacionAcumulado +=
+        envio.costoConsolidacionReal;
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792100015</Id>
+					<Name><![CDATA[registrarIngresoTerminal]]></Name>
+					<X>130</X><Y>2680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[envio.estado =
+    EstadoEnvio.DESCARGANDO;
+
+envio.diaLlegadaTerminal =
+    time();
+
+envio.terminalDestino
+    .toneladasRecibidas +=
+        envio.toneladas;
+
+envio.terminalDestino
+    .cantidadEnviosRecibidos++;
+
+if (envio.contenedor != null) {
+    envio.contenedor.estado =
+        EstadoContenedor.INGRESADO_TERMINAL;
+
+    envio.contenedor.horaIngresoTerminal = time();
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792100017</Id>
+					<Name><![CDATA[registrarConsolidacionEnTerminal]]></Name>
+					<X>130</X><Y>2720</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Circuito 4: el producto llego a granel y el contenedor se arma en la terminal.
+// Cross docking y consolidacion en terminal son el mismo servicio (ADR-050).
+envio.terminalDestino
+    .toneladasConsolidadas +=
+        envio.toneladas;
+
+envio.terminalDestino
+    .costoConsolidacionAcumulado +=
+        envio.costoConsolidacionReal;
+
+if (envio.contenedor != null) {
+    envio.contenedor.estado =
+        EstadoContenedor.CONSOLIDANDO;
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792100019</Id>
+					<Name><![CDATA[finalizarEnvio]]></Name>
+					<X>130</X><Y>2760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Cierre del envio, comun a los cuatro circuitos: el contenedor de terminal sale
+// por su propia salida y no puede tener otra contabilidad que el resto.
+envio.estado =
+    EstadoEnvio.ENTREGADO;
+
+envio.diaEntrega =
+    time();
+
+Pedido pedido =
+    envio.pedido;
+
+pedido.toneladasEntregadas +=
+    envio.toneladas;
+
+pedido.enviosEntregados++;
+
+pedido.costoFleteReal +=
+    envio.costoFleteReal;
+
+pedido.costoConsolidacionReal +=
+    envio.costoConsolidacionReal;
+
+pedido.costoLogisticoReal +=
+    envio.costoTotalReal;
+
+if (
+    pedido.toneladasEntregadas
+    >= pedido.toneladasSolicitadas - 0.0001
+) {
+    pedido.estado =
+        EstadoPedido.ENTREGADO;
+
+    pedido.diaEntrega =
+        time();
+
+    pedido.diasAtraso =
+        max(
+            0,
+            pedido.diaEntrega
+            - pedido.diaLimite
+        );
+}
+
+costoFleteDepositoPuertoReal +=
+    envio.costoFleteReal;
+
+if (envio.pedido.esCrossDock) {
+    costoCrossDockReal +=
+        envio.costoConsolidacionReal;
+} else {
+    costoConsolidacionReal +=
+        envio.costoConsolidacionReal;
+}
+
+switch (envio.circuito) {
+
+    case CONSOLIDACION_PLANTA:
+        contenedoresCircuitoPlanta++;
+        break;
+
+    case CROSS_DOCK_DEPOSITO:
+        contenedoresCircuitoCrossDock++;
+        break;
+
+    case CONSOLIDACION_TERMINAL:
+        contenedoresCircuitoTerminal++;
+        break;
+
+    default:
+        contenedoresCircuitoDeposito++;
+        break;
+}
+
+if (envio.contenedor != null) {
+    envio.contenedor.estado =
+        EstadoContenedor.EXPORTADO;
+
+    envio.contenedor.costoReal =
+        envio.costoTotalReal;
+}]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792200001</Id>
+					<Name><![CDATA[reservarLotesParaPedido]]></Name>
+					<X>130</X><Y>2800</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idSitio]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[if (
+    pedido == null
+    || idSitio == null
+    || pedido.toneladasSolicitadas <= 0
+) {
+    return false;
+}
+
+// La reserva se anota sobre las capas del sitio de origen, tomando primero las
+// mas antiguas (ADR-022). El lote no se parte en un segundo agente (ADR-024).
+double reservadas =
+    inventario.reservar(
+        idSitio,
+        pedido.producto,
+        pedido.toneladasSolicitadas,
+        pedido.codigoPedido,
+        time()
+    );
+
+if (reservadas + 0.0001 < pedido.toneladasSolicitadas) {
+
+    // Reserva completa o nada: se devuelve lo que se habia tomado.
+    inventario.liberarReserva(pedido.codigoPedido);
+
+    return false;
+}
+
+marcarLotesReservados(pedido);
+
+return true;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792200003</Id>
+					<Name><![CDATA[confirmarAsignacion]]></Name>
+					<X>130</X><Y>2840</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idSitio]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[pedido.idSitioOrigen = idSitio;
+
+// Sigue habiendo deposito asignado cuando el origen es un deposito; en el
+// circuito de planta queda nulo y el origen es el propio frio propio.
+pedido.depositoAsignado = buscarDeposito(idSitio);
+
+pedido.estrategiaSeleccionada =
+    circuitoDe(idSitio, pedido.esCrossDock);
+
+pedido.toneladasReservadas =
+    pedido.toneladasSolicitadas;
+
+pedido.diaReserva = time();
+pedido.estado = EstadoPedido.RESERVADO;
+
+pedido.costoFleteEstimado =
+    pedido.toneladasSolicitadas
+    * datos.fleteUsdTn(
+        idSitio,
+        pedido.puertoSalida.idUbicacion,
+        pedido.producto
+    );
+
+pedido.costoConsolidadoEstimado =
+    pedido.toneladasSolicitadas
+    * costoServicioEstibaUsdTn(pedido);
+
+pedido.costoTotalEstimado =
+    pedido.costoFleteEstimado
+    + pedido.costoConsolidadoEstimado;
+
+pedidosReservados++;
+pedidosPendientes--;
+
+toneladasReservadasAcumuladas +=
+    pedido.toneladasSolicitadas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792200005</Id>
+					<Name><![CDATA[costoServicioEstibaUsdTn]]></Name>
+					<X>130</X><Y>2880</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Quien cobra la estiba es el sitio donde se arma el contenedor, y el cross dock
+// es otro servicio que la estiba desde stock (ADR-041, ADR-050).
+String sitio = sitioEstiba(pedido);
+
+return pedido.esCrossDock
+    ? datos.servicioCargaUsdTn(
+        sitio,
+        pedido.producto,
+        "CROSS_DOCK"
+    )
+    : datos.servicioCargaUsdTn(
+        sitio,
+        pedido.producto
+    );]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792200007</Id>
+					<Name><![CDATA[estibaEnOrigen]]></Name>
+					<X>130</X><Y>2920</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Tres de los cuatro circuitos estiban en el origen; solo el de terminal manda el
+// producto a granel y arma el contenedor en el puerto.
+return pedido != null
+    && pedido.estrategiaSeleccionada
+        != EstrategiaLogistica.CONSOLIDACION_TERMINAL;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792200009</Id>
+					<Name><![CDATA[tomarFlotaProducto]]></Name>
+					<X>130</X><Y>2960</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idOrigen]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idDestino]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[viajes]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[double camionDia =
+    viajes * camionDiaViaje(idOrigen, idDestino);
+
+flotaProductoUsadaHoy += camionDia;
+camionDiaOcupado += camionDia;
+
+if (buscarTerminal(idDestino) != null) {
+    viajesGranelTerminal += viajes;
+} else {
+    viajesPlantaDeposito += viajes;
+}
+
+// La capacidad del dia es un limite fisico, no una preferencia: si se sobregira
+// es que alguien movio producto sin pedir camion (V-026).
+if (flotaProductoUsadaHoy > flotaProductoOfrecidaHoy + 0.0001) {
+    error(
+        "Dia "
+        + time()
+        + ": la flota de producto se sobregiro ("
+        + flotaProductoUsadaHoy
+        + " de "
+        + flotaProductoOfrecidaHoy
+        + " camion-dia)."
+    );
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792200011</Id>
+					<Name><![CDATA[flotaProductoAlcanza]]></Name>
+					<X>130</X><Y>3000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idOrigen]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idDestino]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El movimiento es todo o nada: si la flota del dia no alcanza para el pedido
+// entero, no se mueve nada (ADR-010).
+return flotaProductoLibreHoy() + 0.0001
+    >= viajesNecesariosCamion(toneladas)
+    * camionDiaViaje(idOrigen, idDestino);]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -6215,7 +6953,7 @@ return toneladas <= 0
 				<EmbeddedObject>
 					<Id>1784595025582</Id>
 					<Name><![CDATA[colaCamiones]]></Name>
-					<X>150</X><Y>1380</Y>
+					<X>220</X><Y>1380</Y>
 					<Label><X>-10</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6312,7 +7050,7 @@ return toneladas <= 0
 				<EmbeddedObject>
 					<Id>1784595048406</Id>
 					<Name><![CDATA[tomarCamion]]></Name>
-					<X>290</X><Y>1380</Y>
+					<X>330</X><Y>1380</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6516,9 +7254,478 @@ return toneladas <= 0
 					</QuantityColumn>
 				</EmbeddedObject>
 				<EmbeddedObject>
+					<Id>1792300001</Id>
+					<Name><![CDATA[seleccionarCircuito]]></Name>
+					<X>110</X><Y>1390</Y>
+					<Label><X>-5</X><Y>-15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[SelectOutput]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[SelectOutput]]></ClassName>
+							<ItemName><![CDATA[1412336242931]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+					<Parameter>
+						<Name><![CDATA[conditionIsProbabilistic]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[condition]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[usaPortacontenedor((Envio) agent)]]></Code>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[probability]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onAtEnter]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onEnter]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onExitTrue]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onExitFalse]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[choiceIsVolatile]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[true]]></Code>
+						</Value>
+					</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>XYZ</InitialLocationType>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<Id>1792300002</Id>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1792300003</Id>
+					<Name><![CDATA[viajarVacioAlOrigen]]></Name>
+					<X>440</X><Y>1380</Y>
+					<Label><X>-5</X><Y>-15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[Delay]]></ClassName>
+							<ItemName><![CDATA[1412336242930]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+					<Parameter>
+						<Name><![CDATA[type]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[delayTime]]></Name>
+						<Value Class="CodeUnitValue">
+							<Code><![CDATA[((Envio) agent).tiempoViajeVacioHoras]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[capacity]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[maximumCapacity]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[true]]></Code>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[entityLocation]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[pushProtocol]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[forceStatisticsCollection]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onEnter]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[Envio envio = (Envio) agent;
+
+// El portacontenedor no aparece en el origen: sale vacio de la terminal y hace el
+// tramo hasta planta o deposito antes de poder estibar (ADR-050).
+if (envio.contenedor != null) {
+    envio.contenedor.estado =
+        EstadoContenedor.EN_TRANSITO_VACIO;
+}]]></Code>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onAtExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onRemove]]></Name>
+					</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>XYZ</InitialLocationType>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<Id>1792300004</Id>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1792300005</Id>
+					<Name><![CDATA[cargarGranel]]></Name>
+					<X>440</X><Y>1530</Y>
+					<Label><X>-5</X><Y>-15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[Delay]]></ClassName>
+							<ItemName><![CDATA[1412336242930]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+					<Parameter>
+						<Name><![CDATA[type]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[delayTime]]></Name>
+						<Value Class="CodeUnitValue">
+							<Code><![CDATA[((Envio) agent).tiempoCargaHoras]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[capacity]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[maximumCapacity]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[true]]></Code>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[entityLocation]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[pushProtocol]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[forceStatisticsCollection]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onEnter]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[Envio envio = (Envio) agent;
+
+// Circuito 4: el producto se carga a granel en el origen y el contenedor todavia
+// no existe fisicamente; se arma en la terminal.
+envio.estado = EstadoEnvio.CARGANDO;
+
+if (envio.contenedor != null) {
+    envio.contenedor.horaInicioCarga = time();
+}]]></Code>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onAtExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onRemove]]></Name>
+					</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>XYZ</InitialLocationType>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<Id>1792300006</Id>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1792300007</Id>
+					<Name><![CDATA[viajarTerminalGranel]]></Name>
+					<X>570</X><Y>1530</Y>
+					<Label><X>-5</X><Y>-15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[Delay]]></ClassName>
+							<ItemName><![CDATA[1412336242930]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+					<Parameter>
+						<Name><![CDATA[type]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[delayTime]]></Name>
+						<Value Class="CodeUnitValue">
+							<Code><![CDATA[((Envio) agent).tiempoViajeIdaHoras]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[capacity]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[maximumCapacity]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[true]]></Code>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[entityLocation]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[pushProtocol]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[forceStatisticsCollection]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onEnter]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[Envio envio = (Envio) agent;
+
+envio.estado = EstadoEnvio.EN_TRANSITO;
+envio.diaSalidaDeposito = time();
+
+if (envio.contenedor != null) {
+    envio.contenedor.horaFinCarga = time();
+}]]></Code>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onAtExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onRemove]]></Name>
+					</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>XYZ</InitialLocationType>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<Id>1792300008</Id>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1792300009</Id>
+					<Name><![CDATA[descargarTerminal]]></Name>
+					<X>700</X><Y>1530</Y>
+					<Label><X>-5</X><Y>-15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[Delay]]></ClassName>
+							<ItemName><![CDATA[1412336242930]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+					<Parameter>
+						<Name><![CDATA[type]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[delayTime]]></Name>
+						<Value Class="CodeUnitValue">
+							<Code><![CDATA[((Envio) agent).tiempoDescargaHoras]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[capacity]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[maximumCapacity]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[true]]></Code>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[entityLocation]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[pushProtocol]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[forceStatisticsCollection]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onEnter]]></Name>
+						<Value Class="CodeValue">
+							<Code><![CDATA[registrarIngresoTerminal((Envio) agent);]]></Code>
+						</Value>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onAtExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onExit]]></Name>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[onRemove]]></Name>
+					</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>XYZ</InitialLocationType>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<Id>1792300010</Id>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
 					<Id>1784595070475</Id>
 					<Name><![CDATA[cargarCamion]]></Name>
-					<X>420</X><Y>1380</Y>
+					<X>570</X><Y>1380</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6568,13 +7775,13 @@ return toneladas <= 0
 							<Value Class="CodeValue">
 								<Code><![CDATA[Envio envio = (Envio) agent;
 
+// Circuitos 1 a 3: el contenedor se estiba en el origen, con el portacontenedor
+// esperando al pie (ADR-050).
 if (envio.contenedor != null) {
     envio.contenedor.horaInicioCarga = time();
 
     envio.contenedor.estado =
-        estibaEnDeposito(envio.pedido)
-        ? EstadoContenedor.CONSOLIDANDO
-        : EstadoContenedor.ESPERANDO_CARGA;
+        EstadoContenedor.CONSOLIDANDO;
 }]]></Code>
 							</Value>
 						</Parameter>
@@ -6584,37 +7791,7 @@ if (envio.contenedor != null) {
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[Envio envio = (Envio) agent;
-
-// El contenedor se estibo en el deposito: el servicio y su costo son de ahi. El
-// cross dock se cuenta aparte porque es otro servicio y otra tarifa (ADR-041).
-if (
-    estibaEnDeposito(envio.pedido)
-    && envio.contenedor != null
-) {
-    Deposito deposito = envio.depositoOrigen;
-
-    if (envio.contenedor.esCrossDock) {
-
-        deposito.toneladasCrossDock +=
-            envio.toneladas;
-
-        deposito.contenedoresCrossDock++;
-
-        deposito.costoCrossDockAcumulado +=
-            envio.costoConsolidacionReal;
-
-    } else {
-
-        deposito.toneladasConsolidadas +=
-            envio.toneladas;
-
-        deposito.contenedoresConsolidados++;
-
-        deposito.costoConsolidacionAcumulado +=
-            envio.costoConsolidacionReal;
-    }
-}]]></Code>
+								<Code><![CDATA[registrarEstibaEnOrigen((Envio) agent);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -6649,7 +7826,7 @@ if (
 				<EmbeddedObject>
 					<Id>1784595074085</Id>
 					<Name><![CDATA[viajarPuerto]]></Name>
-					<X>550</X><Y>1380</Y>
+					<X>700</X><Y>1380</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6745,7 +7922,7 @@ if (envio.contenedor != null) {
 				<EmbeddedObject>
 					<Id>1784595080525</Id>
 					<Name><![CDATA[descargarPuerto]]></Name>
-					<X>660</X><Y>1380</Y>
+					<X>830</X><Y>1380</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6793,27 +7970,7 @@ if (envio.contenedor != null) {
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[Envio envio = (Envio) agent;
-
-envio.estado =
-    EstadoEnvio.DESCARGANDO;
-
-envio.diaLlegadaTerminal =
-    time();
-
-envio.terminalDestino
-    .toneladasRecibidas +=
-        envio.toneladas;
-
-envio.terminalDestino
-    .cantidadEnviosRecibidos++;
-
-if (envio.contenedor != null) {
-    envio.contenedor.estado =
-        EstadoContenedor.INGRESADO_TERMINAL;
-
-    envio.contenedor.horaIngresoTerminal = time();
-}]]></Code>
+								<Code><![CDATA[registrarIngresoTerminal((Envio) agent);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -6854,7 +8011,7 @@ if (envio.contenedor != null) {
 				<EmbeddedObject>
 					<Id>1784595084468</Id>
 					<Name><![CDATA[consolidarCarga]]></Name>
-					<X>810</X><Y>1380</Y>
+					<X>830</X><Y>1530</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6911,23 +8068,7 @@ envio.estado =
 						<Parameter>
 							<Name><![CDATA[onAtExit]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[Envio envio = (Envio) agent;
-
-// Con consolidacion en deposito el contenedor llega estibado: el bloque es de
-// paso, con tiempo cero, y el servicio ya se devengo en el deposito.
-if (!estibaEnDeposito(envio.pedido)) {
-
-    envio.terminalDestino
-        .toneladasConsolidadas +=
-            envio.toneladas;
-
-    envio.terminalDestino
-        .costoConsolidacionAcumulado +=
-            envio.costoConsolidacionReal;
-}
-
-envio.estado =
-    EstadoEnvio.RETORNANDO;]]></Code>
+								<Code><![CDATA[registrarConsolidacionEnTerminal((Envio) agent);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -7012,6 +8153,14 @@ envio.estado =
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[Envio envio = (Envio) agent;
+
+// El portacontenedor vuelve a quedar disponible recien cuando termina el tramo de
+// regreso: hasta entonces sigue ocupado (ADR-044).
+envio.estado =
+    EstadoEnvio.RETORNANDO;]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onAtExit]]></Name>
@@ -7051,7 +8200,7 @@ envio.estado =
 				<EmbeddedObject>
 					<Id>1784595099816</Id>
 					<Name><![CDATA[liberarCamion]]></Name>
-					<X>1120</X><Y>1380</Y>
+					<X>1090</X><Y>1380</Y>
 					<Label><X>-15</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7162,68 +8311,7 @@ envio.estado =
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[Envio envio = (Envio) agent;
-
-envio.estado =
-    EstadoEnvio.ENTREGADO;
-
-envio.diaEntrega =
-    time();
-
-Pedido pedido =
-    envio.pedido;
-
-pedido.toneladasEntregadas +=
-    envio.toneladas;
-
-pedido.enviosEntregados++;
-
-pedido.costoFleteReal +=
-    envio.costoFleteReal;
-
-pedido.costoConsolidacionReal +=
-    envio.costoConsolidacionReal;
-
-pedido.costoLogisticoReal +=
-    envio.costoTotalReal;
-    
-
-if (
-    pedido.toneladasEntregadas
-    >= pedido.toneladasSolicitadas - 0.0001
-) {
-    pedido.estado =
-        EstadoPedido.ENTREGADO;
-
-    pedido.diaEntrega =
-        time();
-
-    pedido.diasAtraso =
-        max(
-            0,
-            pedido.diaEntrega
-            - pedido.diaLimite
-        );
-}
-costoFleteDepositoPuertoReal +=
-    envio.costoFleteReal;
-
-if (envio.pedido.esCrossDock) {
-    costoCrossDockReal +=
-        envio.costoConsolidacionReal;
-} else {
-    costoConsolidacionReal +=
-        envio.costoConsolidacionReal;
-}
-
-
-if (envio.contenedor != null) {
-    envio.contenedor.estado =
-        EstadoContenedor.EXPORTADO;
-
-    envio.contenedor.costoReal =
-        envio.costoTotalReal;
-}]]></Code>
+								<Code><![CDATA[finalizarEnvio((Envio) agent);]]></Code>
 							</Value>
 						</Parameter>
 					</Parameters>
@@ -8753,6 +9841,53 @@ if (!retirado) {
 					<Alignment>LEFT</Alignment>
 				</Text>
 				<Text>
+					<Id>1792500001</Id>
+					<Name><![CDATA[panelEstibaLinea5]]></Name>
+					<X>754</X><Y>343</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Circuitos: planta " + contenedoresCircuitoPlanta
++ " · dep " + contenedoresCircuitoDeposito
++ " · x-dock " + contenedoresCircuitoCrossDock
++ " · term " + contenedoresCircuitoTerminal]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792500003</Id>
+					<Name><![CDATA[panelContenedoresLinea6]]></Name>
+					<X>384</X><Y>343</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Viajes a granel a terminal: " + viajesGranelTerminal]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
 					<Id>1785000000058</Id>
 					<Name><![CDATA[panelEstibaLinea2]]></Name>
 					<X>754</X><Y>283</Y>
@@ -9724,6 +10859,52 @@ if (!retirado) {
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
+				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1792000020</Id>
+					<Name><![CDATA[toneladasConsolidadas]]></Name>
+					<X>-140</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000021</Id>
+					<Name><![CDATA[contenedoresConsolidados]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000022</Id>
+					<Name><![CDATA[costoConsolidacionAcumulado]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
 				</Variable>
 			</Variables>
 			<Functions>
@@ -12312,6 +13493,22 @@ if (producto != null) {
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1792000001</Id>
+					<Name><![CDATA[idSitioOrigen]]></Name>
+					<X>-140</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -13962,6 +15159,52 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
+				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1792000010</Id>
+					<Name><![CDATA[idSitioOrigen]]></Name>
+					<X>-140</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000011</Id>
+					<Name><![CDATA[circuito]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[EstrategiaLogistica]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[EstrategiaLogistica.SIN_DEFINIR]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792000012</Id>
+					<Name><![CDATA[tiempoViajeVacioHoras]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
 				</Variable>
 			</Variables>
 			<AgentLinks>
@@ -15683,7 +16926,7 @@ estado = factible
 			<Name><![CDATA[Escenarios]]></Name>
 			<AdditionalClassCode><![CDATA[// Version del modelo con la que se corrio el barrido: sin esto un csv de
 // resultados no se puede volver a atar al codigo que lo produjo.
-static final String VERSION_MODELO = "fase-19";
+static final String VERSION_MODELO = "fase-21";
 
 static final int REPLICAS = 30;
 
@@ -15702,7 +16945,10 @@ static final String[] KPIS = {
 	"uso_posiciones_consolidacion", "toneladas_exportadas",
 	"excedente_final_tn", "toneladas_cross_dock", "contenedores_exportados",
 	"costo_oportunidad_frio_usd", "costo_total_economico_usd", "costo_economico_usd_tn",
-	"ton_dia_sobre_nominal", "dias_sobrecarga", "pico_ocupacion_planta_pct"
+	"ton_dia_sobre_nominal", "dias_sobrecarga", "pico_ocupacion_planta_pct",
+	"contenedores_circuito_planta", "contenedores_circuito_deposito",
+	"contenedores_circuito_cross_dock", "contenedores_circuito_terminal",
+	"viajes_granel_terminal"
 };
 
 // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -15994,7 +17240,9 @@ c.config = String.format(java.util.Locale.US, "%d/%d  x%.2f  x%.2f  %-3s %s",
 	root.datos.escenario.factorProduccion,
 	root.datos.escenario.habilitaCrossDock ? "si" : "no",
 	"CONSOLIDACION_TERMINAL".equals(root.datos.escenario.estrategiaConsolidacion)
-		? "term" : "dep");
+		? "term"
+		: ("CONSOLIDACION_PLANTA".equals(root.datos.escenario.estrategiaConsolidacion)
+			? "planta" : "dep"));
 c.replica = root.replica;
 c.semilla = root.semillaBase + root.replica;
 
@@ -16016,7 +17264,12 @@ c.kpis = new double[] {
 	root.costoEconomicoPorTonelada(),
 	root.tonDiaSobreNominalPlanta,
 	root.diasSobrecargaPlanta,
-	root.picoOcupacionPlantaPct
+	root.picoOcupacionPlantaPct,
+	root.contenedoresCircuitoPlanta,
+	root.contenedoresCircuitoDeposito,
+	root.contenedoresCircuitoCrossDock,
+	root.contenedoresCircuitoTerminal,
+	root.viajesGranelTerminal
 };
 
 corridas.add(c);]]></AfterSimulationRunCode>
@@ -16476,7 +17729,7 @@ for (int k = 0; k < KPIS.length; k++) {
 }]]></AfterExperimentCode>
 			<AllowParallelEvaluations>false</AllowParallelEvaluations>
 			<UseFreeformParameters>true</UseFreeformParameters>
-			<NumberOfRuns>390</NumberOfRuns>
+			<NumberOfRuns>420</NumberOfRuns>
 			<FreeformParamValue>	
 				<Id>1786000001</Id>
 				<Expression Class="CodeValue">
@@ -16614,7 +17867,7 @@ public class DatosEntrada implements java.io.Serializable {
 		public double ventanaDemanda;              // fraccion del horizonte con pedidos
 		public boolean habilitaCrossDock;
 		public boolean deterministico;             // sin sorteos: la replica no cambia nada
-		public String estrategiaConsolidacion;     // CONSOLIDACION_DEPOSITO | CONSOLIDACION_TERMINAL
+		public String estrategiaConsolidacion;     // CONSOLIDACION_PLANTA | CONSOLIDACION_DEPOSITO | CONSOLIDACION_TERMINAL
 		public String clienteDefault;              // identidad comercial del lote (un solo valor por ahora)
 		public String calidadDefault;              // calidad comercial del lote acumulativo
 
@@ -16990,7 +18243,8 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.add("ventana_demanda debe estar en (0, 1].");
 		}
 
-		if (!"CONSOLIDACION_DEPOSITO".equals(escenario.estrategiaConsolidacion)
+		if (!"CONSOLIDACION_PLANTA".equals(escenario.estrategiaConsolidacion)
+				&& !"CONSOLIDACION_DEPOSITO".equals(escenario.estrategiaConsolidacion)
 				&& !"CONSOLIDACION_TERMINAL".equals(escenario.estrategiaConsolidacion)) {
 			errores.add("estrategia_consolidacion invalida: " + escenario.estrategiaConsolidacion);
 		}
@@ -17127,14 +18381,28 @@ public class DatosEntrada implements java.io.Serializable {
 				// La planta no factura almacenaje, pero su costo de oportunidad y su
 				// penalidad de sobrecarga son datos, no cero implicito (ADR-049).
 				storageUsdTnDia("PLANTA", producto);
+				// Consolidar en planta es un circuito posible (ADR-050): sin tarifa de
+				// estiba, sin distancia y sin flete al puerto saldria gratis.
+				servicioCargaUsdTn("PLANTA", producto);
 			} catch (RuntimeException e) {
 				errores.add(e.getMessage());
+			}
+			for (Ubicacion terminal : ubicacionesDeTipo("TERMINAL")) {
+				try {
+					distanciaKm("PLANTA", terminal.idUbicacion);
+					fleteUsdTn("PLANTA", terminal.idUbicacion, producto);
+				} catch (RuntimeException e) {
+					errores.add(e.getMessage());
+				}
 			}
 		}
 
 		for (Ubicacion u : ubicaciones) {
-			if (u.tipo.equals("PLANTA")) {
-				continue;
+			if (u.tipo.equals("TERMINAL") && u.velocidadDescargaTnHora <= 0) {
+				errores.add("velocidad_descarga_tn_hora debe ser > 0 en " + u.idUbicacion + ".");
+			}
+			if (u.tipo.equals("PLANTA") && u.velocidadCargaTnHora <= 0) {
+				errores.add("velocidad_carga_tn_hora debe ser > 0 en " + u.idUbicacion + ".");
 			}
 			if (u.posicionesCrossDock < 0) {
 				errores.add("posiciones_cross_dock no puede ser negativo en " + u.idUbicacion + ".");
@@ -17251,6 +18519,23 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 	private static final String[] TERMINALES = { "ZARATE", "T4" };
 
+	// Km de la planta a ZARATE y a T4. Consolidar en planta ahorra el tramo
+	// planta-deposito pero paga el tramo largo hasta el puerto.
+	private static final double[] DISTANCIA_PLANTA_TERMINAL = { 130, 145 };
+
+	// Usd/tn de flete de la planta a ZARATE y a T4.
+	private static final double[] FLETE_PLANTA = { 12, 13 };
+
+	// Operacion de la planta como sitio de estiba: velocidad de carga a granel,
+	// velocidad de estiba y contenedores consolidados por dia. Supuesto temporal:
+	// los valores del deposito de referencia hasta tener los reales de la planta.
+	private static final double VELOCIDAD_CARGA_PLANTA = 50;
+	private static final double VELOCIDAD_ESTIBA_PLANTA = 30;
+	private static final double CONTENEDORES_DIA_PLANTA = 4;
+
+	// Usd/tn de estiba en planta de jugo, cascara y aceite, con el mismo criterio.
+	private static final double[] ESTIBA_PLANTA = { 9, 7, 14 };
+
 	// Por terminal: capacidad diaria tn, velocidad descarga tn/h, velocidad consolidacion tn/h
 	private static final double[][] TERMINAL_OPERACION = {
 		{ 500, 60, 50 },
@@ -17324,7 +18609,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 	/** Escenarios del barrido. Agregar uno es agregar un caso aca, no tocar el experimento. */
 	public static final String[] ESCENARIOS = {
 		"E-00", "E-01", "E-02", "E-03", "E-04", "E-05",
-		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11", "E-12"
+		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11", "E-12", "E-13"
 	};
 
 	/**
@@ -17393,6 +18678,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 			e.estrategiaConsolidacion = "CONSOLIDACION_TERMINAL";
 		} else if (idEscenario.equals("E-12")) {
 			e.politicaFrioPropio = "REACTIVA";           // vaciar la planta apenas se activa
+		} else if (idEscenario.equals("E-13")) {
+			e.estrategiaConsolidacion = "CONSOLIDACION_PLANTA";
 		} else {
 			throw new RuntimeException("Escenario no definido: " + idEscenario);
 		}
@@ -17420,7 +18707,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 		DatosEntrada.Escenario escenario = datos.escenario;
 
-		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true, 0, 0, 0, 0, 0, 0));
+		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true,
+			VELOCIDAD_CARGA_PLANTA, 0, VELOCIDAD_ESTIBA_PLANTA, 0, CONTENEDORES_DIA_PLANTA, 0));
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
 			datos.productos.add(new DatosEntrada.Producto(
@@ -17430,6 +18718,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 			// El frio propio no se factura (storage 0) pero cuesta ocuparlo.
 			datos.tarifasAlmacenamiento.add(new DatosEntrada.TarifaAlmacenamiento(
 				PLANTA, PRODUCTOS[i], 0, OPORTUNIDAD_PLANTA[i], PENALIDAD_SOBRECARGA));
+			datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
+				PLANTA, PRODUCTOS[i], "CONSOLIDACION", ESTIBA_PLANTA[i]));
 		}
 
 		for (int d = 0; d < DEPOSITOS.length; d++) {
@@ -17459,9 +18749,14 @@ public class GeneradorSintetico implements java.io.Serializable {
 				TERMINAL_OPERACION[t][1], TERMINAL_OPERACION[t][2], TERMINAL_OPERACION[t][0],
 				CONSOLIDACION_TERMINAL[t], 0));
 
+			datos.distancias.add(
+				new DatosEntrada.Distancia(PLANTA, TERMINALES[t], DISTANCIA_PLANTA_TERMINAL[t]));
+
 			for (int p = 0; p < PRODUCTOS.length; p++) {
 				datos.tarifasServicioCarga.add(new DatosEntrada.TarifaServicioCarga(
 					TERMINALES[t], PRODUCTOS[p], "CONSOLIDACION", CONSOLIDACION[t][p]));
+				datos.tarifasFlete.add(
+					new DatosEntrada.TarifaFlete(PLANTA, TERMINALES[t], PRODUCTOS[p], FLETE_PLANTA[t]));
 			}
 
 			for (int d = 0; d < DEPOSITOS.length; d++) {

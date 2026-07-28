@@ -250,6 +250,23 @@ Desde ADR-048 no hay término de merma: la planta no descarta producto, así que
 
 **Esperado:** en ningún día `flotaProductoUsadaHoy` supera `flotaProductoOfrecidaHoy`; `tomarFlotaProducto()` aborta la corrida si ocurre. Verificado en el barrido completo: 360 corridas sin abortos. La utilización de las dos flotas queda entre 0 y 1: medido 0,067..0,411 (producto) y 0,057..0,310 (portacontenedores).
 
+### V-027 Circuito físico por envío (ADR-050)
+
+**Esperado:** cada envío recorre los bloques del circuito que le corresponde y ninguno los de otro. Verificado en el barrido completo de `fase-21` (14 escenarios × 30 réplicas = 420 corridas, todas `Finished`, sin abortos ni excepciones), leyendo los contadores por circuito del CSV como medias de 30 réplicas:
+
+| Escenario | Circuito | planta | depósito | cross dock | terminal | viajes a granel | `utilizacion_portacontenedor` |
+|---|---|---:|---:|---:|---:|---:|---:|
+| E-00 | consolidación en depósito | 0 | 529,9 | 0 | 0 | 0 | 0,13 |
+| E-05 | cross docking habilitado | 0 | 235,2 | 294,8 | 0 | 0 | 0,11 |
+| E-11 | consolidación en terminal | 0 | 0 | 0 | 530,0 | 529,9 | **0,00** |
+| E-13 | consolidación en planta | 528,9 | 1,1 | 0 | 0 | 0 | 0,15 |
+
+Las dos verificaciones que exige ADR-050 se leen directamente de esa tabla: el circuito de terminal **no** consume el pool de portacontenedores (0 % de utilización con 530 contenedores exportados) y los circuitos que sí lo usan pagan el tramo vacío en ocupación (E-00 sube de 0,11 en `fase-19` a 0,13 en `fase-21`, con los mismos 494 contenedores y el mismo costo). En E-13 el 0,2 % que sale por depósito son los pedidos cuyo producto ya había sido transferido: el circuito se resuelve por el sitio real del stock, no por la política.
+
+### V-028 El round trip se paga cuando el pool es escaso (ADR-050)
+
+**Esperado:** al hacer real el tramo vacío, la capacidad efectiva del pool baja y eso se ve en servicio, no en costo. Medido sobre 30 réplicas, E-01 (1 camión de producto, 1 portacontenedor) pasa de 0,98 a 0,77 de nivel de servicio y de 0,49 a 2,06 días de atraso, con costo idéntico; los escenarios con pool holgado no se mueven. Es la evidencia de que el tramo vacío es un consumo de recurso y no un delay decorativo.
+
 ## 4.1 Validación de datos de entrada
 
 Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.

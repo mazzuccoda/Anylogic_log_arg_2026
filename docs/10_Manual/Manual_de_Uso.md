@@ -100,7 +100,7 @@ Es lo que responde las preguntas de dimensionamiento, porque corre cada escenari
 
 1. Seleccionar `Escenarios: Main` en el árbol, botón derecho → `Run` (con `F5` corre el último experimento usado, que suele ser `Simulation`).
 2. Se abre el **tablero del barrido**; apretar `Run` (▶) para arrancar las corridas.
-3. Corre **13 escenarios × 30 réplicas = 390 corridas** sin animación; tarda alrededor de un minuto. El estado final tiene que decir `Finished`.
+3. Corre **14 escenarios × 30 réplicas = 420 corridas** sin animación; tarda alrededor de diez minutos. El estado final tiene que decir `Finished`.
 4. El tablero se actualiza mientras corre: avance, medias por escenario y frente de decisión ([cómo se lee](Tablero_e_Indicadores.md#7-tablero-del-barrido-experimento-escenarios)).
 5. Al terminar imprime en la consola, por escenario y por KPI: media, desvío, mínimo, máximo, P95 y el delta contra E-00 (absoluto y porcentual).
 6. Escribe `resultados/kpis_por_corrida.csv`, una fila por corrida.

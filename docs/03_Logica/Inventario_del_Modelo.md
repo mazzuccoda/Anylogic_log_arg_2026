@@ -180,7 +180,7 @@ Contradice el contrato de datos (ADR-029) y hace que cada cambio de tarifa sea u
 
 ### H-12 — Conviven dos caminos de despacho
 
-`Envio` más el flowchart de `Main` (`colaCamiones → tomarCamion → cargarCamion → viajarPuerto → descargarPuerto → consolidarCarga → retornarDeposito → liberarCamion`) con el `ResourcePool flotaCamiones`, frente a `ContenedorExportacion`, que existe pero no tiene lógica de ejecución (0 funciones, 0 eventos).
+`Envio` más el flowchart de `Main` (`seleccionarCircuito → {colaCamiones → tomarCamion → viajarVacioAlOrigen → cargarCamion → viajarPuerto → descargarPuerto → retornarDeposito → liberarCamion | cargarGranel → viajarTerminalGranel → descargarTerminal → consolidarCarga}` (ADR-050)) con el `ResourcePool flotaCamiones`, frente a `ContenedorExportacion`, que existe pero no tiene lógica de ejecución (0 funciones, 0 eventos).
 
 El camino nuevo todavía no reemplaza nada. La migración segura exige mantener ambos hasta la comparación, pero conviene fijar el momento del retiro: retirar `Envio` y `Camion` es lo que libera los dos slots de agente que el proyecto va a necesitar.
 

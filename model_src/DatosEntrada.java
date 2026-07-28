@@ -39,7 +39,7 @@ public class DatosEntrada implements java.io.Serializable {
 		public double ventanaDemanda;              // fraccion del horizonte con pedidos
 		public boolean habilitaCrossDock;
 		public boolean deterministico;             // sin sorteos: la replica no cambia nada
-		public String estrategiaConsolidacion;     // CONSOLIDACION_DEPOSITO | CONSOLIDACION_TERMINAL
+		public String estrategiaConsolidacion;     // CONSOLIDACION_PLANTA | CONSOLIDACION_DEPOSITO | CONSOLIDACION_TERMINAL
 		public String clienteDefault;              // identidad comercial del lote (un solo valor por ahora)
 		public String calidadDefault;              // calidad comercial del lote acumulativo
 
@@ -415,7 +415,8 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.add("ventana_demanda debe estar en (0, 1].");
 		}
 
-		if (!"CONSOLIDACION_DEPOSITO".equals(escenario.estrategiaConsolidacion)
+		if (!"CONSOLIDACION_PLANTA".equals(escenario.estrategiaConsolidacion)
+				&& !"CONSOLIDACION_DEPOSITO".equals(escenario.estrategiaConsolidacion)
 				&& !"CONSOLIDACION_TERMINAL".equals(escenario.estrategiaConsolidacion)) {
 			errores.add("estrategia_consolidacion invalida: " + escenario.estrategiaConsolidacion);
 		}
@@ -552,14 +553,28 @@ public class DatosEntrada implements java.io.Serializable {
 				// La planta no factura almacenaje, pero su costo de oportunidad y su
 				// penalidad de sobrecarga son datos, no cero implicito (ADR-049).
 				storageUsdTnDia("PLANTA", producto);
+				// Consolidar en planta es un circuito posible (ADR-050): sin tarifa de
+				// estiba, sin distancia y sin flete al puerto saldria gratis.
+				servicioCargaUsdTn("PLANTA", producto);
 			} catch (RuntimeException e) {
 				errores.add(e.getMessage());
+			}
+			for (Ubicacion terminal : ubicacionesDeTipo("TERMINAL")) {
+				try {
+					distanciaKm("PLANTA", terminal.idUbicacion);
+					fleteUsdTn("PLANTA", terminal.idUbicacion, producto);
+				} catch (RuntimeException e) {
+					errores.add(e.getMessage());
+				}
 			}
 		}
 
 		for (Ubicacion u : ubicaciones) {
-			if (u.tipo.equals("PLANTA")) {
-				continue;
+			if (u.tipo.equals("TERMINAL") && u.velocidadDescargaTnHora <= 0) {
+				errores.add("velocidad_descarga_tn_hora debe ser > 0 en " + u.idUbicacion + ".");
+			}
+			if (u.tipo.equals("PLANTA") && u.velocidadCargaTnHora <= 0) {
+				errores.add("velocidad_carga_tn_hora debe ser > 0 en " + u.idUbicacion + ".");
 			}
 			if (u.posicionesCrossDock < 0) {
 				errores.add("posiciones_cross_dock no puede ser negativo en " + u.idUbicacion + ".");

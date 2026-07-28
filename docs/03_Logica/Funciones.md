@@ -120,13 +120,11 @@ Eliminada en la fase 4. Movía todo el saldo libre del lote y fijaba `ubicacionA
 
 Evalúa umbrales de planta y solicita mover el exceso respecto del stock objetivo.
 
-### `reservarLotesParaPedido(Pedido pedido, Deposito deposito)`
+### `reservarLotesParaPedido(Pedido pedido, String idSitio)`
 
-**Estado:** en revisión.
+Reserva las toneladas del pedido sobre las capas del sitio indicado, en orden FIFO y anotadas por `codigoPedido`. El sitio es un `id_ubicacion` (`"PLANTA"` o el id de un depósito), no un `Deposito`: es lo que permite despachar un pedido desde el frío propio sin pasar por un tercero (ADR-050). El despacho usa exactamente el mismo id que la reserva, así que reserva y consumo no pueden desalinearse.
 
-**Problema:** la lógica actual depende de lotes diarios y de una ubicación única.
-
-**Objetivo:** reservar toneladas de un lote comercial, potencialmente en varias ubicaciones, manteniendo trazabilidad.
+**Pendiente:** la reserva sigue siendo todo o nada y sobre un solo sitio; repartirla entre varias ubicaciones es la fase 5.
 
 ### `intentarAsignarPedido(Pedido pedido)`
 
@@ -164,7 +162,7 @@ Cuenta contenedores por estado, para los indicadores de pantalla.
 
 **Estado:** implementadas (fase 7).
 
-La estrategia de la corrida la fija el parámetro `Main.estrategiaConsolidacion` (ADR-040): con `CONSOLIDACION_DEPOSITO` el contenedor se estiba en el depósito que tiene la reserva y llega consolidado a la terminal; con `CONSOLIDACION_TERMINAL` el producto viaja a granel y se consolida en la terminal. `sitioConsolidacion()` devuelve la ubicación que corresponde, y es la que paga la tarifa y consume la posición.
+`Main.estrategiaConsolidacion` es la **política por defecto** de la corrida (ADR-040, ADR-050); el circuito efectivo se resuelve por pedido en `circuitoDe(idSitioOrigen, esCrossDock)` y queda guardado en `Pedido.estrategiaSeleccionada` y `Envio.circuito`. `sitioConsolidacion()` devuelve la ubicación donde el contenedor se estiba —planta, depósito o terminal—, que es la que paga la tarifa, consume el cupo diario y acumula el costo. `usaPortacontenedor(envio)` es la condición del `SelectOutput` `seleccionarCircuito`: los circuitos 1 a 3 toman el pool y hacen el round trip terminal → origen → terminal; el circuito 4 manda el producto a granel y no toca el pool.
 
 ### `abrirPosicionesConsolidacionDelDia()` y `tomarPosicionConsolidacion(String idUbicacion)`
 

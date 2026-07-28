@@ -27,4 +27,9 @@ class Envio extends Agent {
     TipoProducto producto = TipoProducto.JUGO;
     double toneladas = 0;
     ContenedorExportacion contenedor = null;
+
+    // ----- Variables -----
+    String idSitioOrigen = "";
+    EstrategiaLogistica circuito = EstrategiaLogistica.SIN_DEFINIR;
+    double tiempoViajeVacioHoras = 0;
 }

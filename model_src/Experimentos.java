@@ -7,7 +7,7 @@ class Simulation extends SimulationExperiment {
 }
 
 class Escenarios extends ParamVariationExperiment {
-    // corridas: 390
+    // corridas: 420
     // parámetro #1786000001 = (getCurrentIteration() - 1) % REPLICAS
     // parámetro #1791000000003 = GeneradorSintetico.ESCENARIOS[(getCurrentIteration() - 1) / REPLICAS]
 
@@ -15,7 +15,7 @@ class Escenarios extends ParamVariationExperiment {
     void additionalClassCode() {
         // Version del modelo con la que se corrio el barrido: sin esto un csv de
         // resultados no se puede volver a atar al codigo que lo produjo.
-        static final String VERSION_MODELO = "fase-19";
+        static final String VERSION_MODELO = "fase-21";
 
         static final int REPLICAS = 30;
 
@@ -34,7 +34,10 @@ class Escenarios extends ParamVariationExperiment {
         	"uso_posiciones_consolidacion", "toneladas_exportadas",
         	"excedente_final_tn", "toneladas_cross_dock", "contenedores_exportados",
         	"costo_oportunidad_frio_usd", "costo_total_economico_usd", "costo_economico_usd_tn",
-        	"ton_dia_sobre_nominal", "dias_sobrecarga", "pico_ocupacion_planta_pct"
+        	"ton_dia_sobre_nominal", "dias_sobrecarga", "pico_ocupacion_planta_pct",
+        	"contenedores_circuito_planta", "contenedores_circuito_deposito",
+        	"contenedores_circuito_cross_dock", "contenedores_circuito_terminal",
+        	"viajes_granel_terminal"
         };
 
         // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -329,7 +332,9 @@ class Escenarios extends ParamVariationExperiment {
         	root.datos.escenario.factorProduccion,
         	root.datos.escenario.habilitaCrossDock ? "si" : "no",
         	"CONSOLIDACION_TERMINAL".equals(root.datos.escenario.estrategiaConsolidacion)
-        		? "term" : "dep");
+        		? "term"
+        		: ("CONSOLIDACION_PLANTA".equals(root.datos.escenario.estrategiaConsolidacion)
+        			? "planta" : "dep"));
         c.replica = root.replica;
         c.semilla = root.semillaBase + root.replica;
 
@@ -351,7 +356,12 @@ class Escenarios extends ParamVariationExperiment {
         	root.costoEconomicoPorTonelada(),
         	root.tonDiaSobreNominalPlanta,
         	root.diasSobrecargaPlanta,
-        	root.picoOcupacionPlantaPct
+        	root.picoOcupacionPlantaPct,
+        	root.contenedoresCircuitoPlanta,
+        	root.contenedoresCircuitoDeposito,
+        	root.contenedoresCircuitoCrossDock,
+        	root.contenedoresCircuitoTerminal,
+        	root.viajesGranelTerminal
         };
 
         corridas.add(c);
