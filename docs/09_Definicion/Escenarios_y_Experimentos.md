@@ -47,13 +47,46 @@ Cada escenario es **una fila**: `GeneradorSintetico.escenario(id, semilla)` part
 | E-12 | Frío propio reactivo | `politica_frio_propio` `FLEXIBLE` → `REACTIVA` | ADR-048: cuánto compra retener en frío propio |
 | E-13 | Consolidación en planta | `estrategia_consolidacion` `CONSOLIDACION_PLANTA` | ADR-050: qué compra estibar en el frío propio |
 
-Un escenario de la propuesta original sigue sin estar en la tabla:
+### 3.1 Escenarios económicos (C5)
 
-- **Política de prioridad**: la regla de asignación es hoy única (fecha límite). El escenario se agrega cuando existan las tres políticas.
+Los escenarios E-00 a E-13 fijan el circuito por política (`FIJA_*`) y son la **regresión**: ninguno emite planes. Los que siguen contestan las preguntas económicas de la especificación de costos.
+
+**Estrategia** — qué decide el circuito de cada pedido (ADR-054):
+
+| ID | `politica_seleccion` | Pregunta que responde |
+|---|---|---|
+| E-14 | `MENOR_COSTO_INCREMENTAL_FACTIBLE`, con cross dock | Cuánto compra decidir por costo incremental en lugar de fijar el circuito |
+| E-15 | `MENOR_COSTO_END_TO_END_FACTIBLE`, con cross dock | Cuánto cambia la decisión si el costo hundido entra en la comparación |
+| E-16 | `PRIORIDAD_FRIO_PROPIO`, con cross dock | Qué pasa si la regla es "primero el frío propio" y el costo desempata |
+| E-17 | `MENOR_COSTO_INCREMENTAL_FACTIBLE`, sin cross dock | Cuánto de la mejora viene del cross dock y cuánto de elegir origen |
+
+**Sensibilidad tarifaria** — un factor sobre la tarifa, sin tocar nada más:
+
+| ID | Palanca | ID | Palanca |
+|---|---|---|---|
+| E-18 | `factor_tarifa_flete` 0,8 | E-19 | `factor_tarifa_flete` 1,2 |
+| E-20 | `factor_tarifa_round_trip` 0,8 | E-21 | `factor_tarifa_round_trip` 1,2 |
+| E-22 | `factor_tarifa_cross_dock` 0,8 | E-23 | `factor_tarifa_cross_dock` 1,2 |
+| E-24 | `factor_tarifa_terminal` 0,8 | E-25 | `factor_tarifa_terminal` 1,2 |
+
+**Permanencia** — el plazo del pedido, que es lo que fija los días en depósito:
+
+| ID | Plazo | ID | Plazo | ID | Plazo |
+|---|---|---|---|---|---|
+| E-26 | 7 días | E-32 | 15 días | E-27 | 30 días |
+| E-33 | 45 días | E-28 | 60 días | | |
+
+**Capacidad** — dónde aprieta el cuello:
+
+| ID | Palanca | ID | Palanca |
+|---|---|---|---|
+| E-29 | `factor_capacidad_planta` 0,8 | E-30 | `factor_capacidad_planta` 1,2 |
+| E-31 | `factor_consolidacion_planta` 0,5, estibando en planta | E-34 | `factor_cupo_cross_dock` 0,5, cruzando |
+| E-35 | `factor_capacidad_terminal` 0,5, estibando en terminal | | |
 
 ## 4. Diseño de experimento
 
-- **Corridas:** 14 escenarios × 30 réplicas = 420.
+- **Corridas:** 36 escenarios × 30 réplicas = 1 080.
 - **Réplicas:** 30 por escenario (`REPLICAS` en el experimento), semilla `semilla_base + replica`.
 - **Estadísticos reportados:** media, desvío, mínimo, máximo y P95 de cada KPI, impresos por escenario al terminar el barrido.
 - **Comparación:** cada escenario se reporta como delta absoluto y porcentual contra E-00.
@@ -82,13 +115,23 @@ KPIs de cierre de corrida (funciones de `Main`):
 | `dias_sobrecarga` | `diasSobrecargaPlanta` |
 | `pico_ocupacion_planta_pct` | `picoOcupacionPlantaPct` |
 
-Los tres últimos son la respuesta a "cuánto frío falta": desde la fase 19 la planta no descarta producto, así que el faltante de capacidad se lee ahí y no en el excedente.
+KPIs de decisión, agregados con el evaluador (ADR-054). En los escenarios de política fija son todos 0, y eso es la verificación de que la regresión no pasa por el evaluador:
+
+| KPI | Qué mide |
+|---|---|
+| `planes_emitidos` | Pedidos que se asignaron con un plan del evaluador |
+| `planes_tardios` | Planes cuya alternativa elegida no llegaba a la fecha límite |
+| `alternativas_evaluadas` | Alternativas generadas en toda la campaña |
+| `alternativas_descartadas` | Las que se descartaron por no factibles, con motivo escrito |
+| `pedidos_sin_alternativa_factible` | Pedidos que quedaron pendientes porque ninguna alternativa era ejecutable ese día |
+
+Los tres últimos del bloque anterior son la respuesta a "cuánto frío falta": desde la fase 19 la planta no descarta producto, así que el faltante de capacidad se lee ahí y no en el excedente.
 
 ## 5. Cómo se implementa el barrido en PLE
 
 PLE incluye Parameter Variation, así que el barrido con réplicas es viable sin licencia paga (ADR-020). Lo que PLE no ofrece es Custom Experiment, es decir, escribir código de experimento que recorra una tabla de escenarios. El experimento `Escenarios` lo resuelve así (ADR-032, ADR-042):
 
-- Modo **freeform** con `13 × REPLICAS` corridas y **dos dimensiones y sólo dos**:
+- Modo **freeform** con `36 × REPLICAS` corridas y **dos dimensiones y sólo dos**:
   - `idEscenario = GeneradorSintetico.ESCENARIOS[(getCurrentIteration() - 1) / REPLICAS]`
   - `replica = (getCurrentIteration() - 1) % REPLICAS`
 - Al arrancar, `Main.cargarDatosEntrada()` obtiene la fila del escenario y `aplicarEscenario()` fija duración, flota, cross dock y estrategia.

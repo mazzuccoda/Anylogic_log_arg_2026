@@ -104,7 +104,7 @@ Un escenario es **una fila**: cambiarlo no toca la lógica ni el experimento.
 - **Con datos sintéticos:** la fila vive en `GeneradorSintetico.ESCENARIOS` dentro del modelo (clase Java `GeneradorSintetico`). Los escenarios existentes son E-00 a E-11 y están descritos en [Escenarios y experimentos](../09_Definicion/Escenarios_y_Experimentos.md).
 - **Con Excel:** la fila vive en la hoja `Escenario` del libro. Agregar un escenario es agregar una fila con un `id_escenario` nuevo.
 
-Palancas disponibles en la fila: `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default` y `calidad_default`. El significado de cada una está en el [contrato de datos](../09_Definicion/Contrato_de_Datos.md). El tamaño del lote comercial no es una palanca del escenario: vive en `toneladas_objetivo_lote_tn` de la hoja `Producto`, porque describe al producto (ADR-047).
+Palancas disponibles en la fila: `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default`, `politica_seleccion`, `servicio_minimo_proyectado`, los cuatro `factor_tarifa_*` y los tres de capacidad (`factor_consolidacion_planta`, `factor_cupo_cross_dock`, `factor_capacidad_terminal`). El significado de cada una está en el [contrato de datos](../09_Definicion/Contrato_de_Datos.md). El tamaño del lote comercial no es una palanca del escenario: vive en `toneladas_objetivo_lote_tn` de la hoja `Producto`, porque describe al producto (ADR-047).
 
 Para correr un escenario suelto alcanza con poner su `id_escenario` en `Simulation`. Para compararlo con los demás, entra solo al barrido.
 
@@ -116,7 +116,7 @@ Es lo que responde las preguntas de dimensionamiento, porque corre cada escenari
 
 1. Seleccionar `Escenarios: Main` en el árbol, botón derecho → `Run` (con `F5` corre el último experimento usado, que suele ser `Simulation`).
 2. Se abre el **tablero del barrido**; apretar `Run` (▶) para arrancar las corridas.
-3. Corre **14 escenarios × 30 réplicas = 420 corridas** sin animación; tarda alrededor de diez minutos. El estado final tiene que decir `Finished`.
+3. Corre **36 escenarios × 30 réplicas = 1 080 corridas** sin animación; tarda alrededor de una hora. El estado final tiene que decir `Finished`.
 4. El tablero se actualiza mientras corre: avance, medias por escenario y frente de decisión ([cómo se lee](Tablero_e_Indicadores.md#7-tablero-del-barrido-experimento-escenarios)).
 5. Al terminar imprime en la consola, por escenario y por KPI: media, desvío, mínimo, máximo, P95 y el delta contra E-00 (absoluto y porcentual).
 6. Escribe `resultados/kpis_por_corrida.csv`, una fila por corrida.

@@ -51,6 +51,23 @@ public class DatosEntrada implements java.io.Serializable {
 		public double umbralObjetivoPct;           // % al que la politica REACTIVA vacia la planta
 		public int diasForecast;                   // horizonte de la transferencia preventiva
 		public String politicaFrioPropio;          // FLEXIBLE | REACTIVA
+
+		// Politica de seleccion de circuito (ADR-054). Las FIJA_* reproducen la
+		// decision por escenario; las MENOR_COSTO_* dejan decidir al evaluador
+		// pedido por pedido, que es lo que produce una estrategia mixta.
+		public String politicaSeleccion;           // ver PoliticaSeleccion
+		public double servicioMinimoProyectado;    // fraccion: alternativa que llega tarde se descarta si hay otra
+
+		// Sensibilidad tarifaria (seccion 11 de la especificacion de costos). Se
+		// aplican al resolver la tarifa y no al generarla, asi que valen igual
+		// desde el Excel que desde el generador sintetico.
+		public double factorTarifaFlete;
+		public double factorTarifaRoundTrip;
+		public double factorTarifaCrossDock;
+		public double factorTarifaTerminal;        // thc, costo terminal y despachante
+		public double factorConsolidacionPlanta;   // contenedores por dia del frio propio
+		public double factorCupoCrossDock;         // operaciones de cross dock por dia
+		public double factorCapacidadTerminal;     // contenedores por dia de la terminal
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -130,6 +147,27 @@ public class DatosEntrada implements java.io.Serializable {
 	 */
 	public enum Unidad {
 		USD_VIAJE, USD_TN, USD_CONTENEDOR, USD_TN_DIA, USD_HORA, USD_OPERACION, USD_PEDIDO
+	}
+
+	/**
+	 * Como se elige el circuito de cada pedido (seccion 10 de la especificacion de
+	 * costos). Las FIJA_* son la politica por escenario que existia antes del
+	 * evaluador; MANUAL queda declarada y sin uso porque el modelo corre sin
+	 * intervencion durante la campania.
+	 */
+	public enum PoliticaSeleccion {
+		FIJA_PLANTA, FIJA_DEPOSITO, FIJA_CROSS_DOCK_DEPOSITO, FIJA_CROSS_DOCK_TERMINAL,
+		PRIORIDAD_FRIO_PROPIO, MENOR_COSTO_INCREMENTAL_FACTIBLE,
+		MENOR_COSTO_END_TO_END_FACTIBLE, MANUAL
+	}
+
+	/** La politica del escenario, con el nombre de la columna en el mensaje de error. */
+	public PoliticaSeleccion politicaSeleccion() {
+		try {
+			return PoliticaSeleccion.valueOf(escenario.politicaSeleccion);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException("politica_seleccion invalida: " + escenario.politicaSeleccion);
+		}
 	}
 
 	/**
@@ -427,7 +465,7 @@ public class DatosEntrada implements java.io.Serializable {
 	}
 
 	public double storageUsdTnDia(int dia, String idUbicacion, TipoProducto producto) {
-		return tarifaSitio(dia, idUbicacion, producto).storageUsdTnDia;
+		return tarifaSitio(dia, idUbicacion, producto).storageUsdTnDia * escenario.factorStorage;
 	}
 
 	public double inUsdTn(int dia, String idUbicacion, TipoProducto producto) {
@@ -450,12 +488,39 @@ public class DatosEntrada implements java.io.Serializable {
 		return tarifaSitio(dia, idUbicacion, producto).penalidadSobrecargaUsdTnDia;
 	}
 
+	/** Tarifa unitaria del flete, con el factor de sensibilidad del escenario. */
+	public double fleteTarifaUnitaria(int dia, String origen, String destino,
+			TipoProducto producto) {
+		return tarifaFlete(dia, origen, destino, producto).tarifa * escenario.factorTarifaFlete;
+	}
+
+	public double fleteVariableUsdTn(int dia, String origen, String destino,
+			TipoProducto producto) {
+		return tarifaFlete(dia, origen, destino, producto).variableUsdTn
+			* escenario.factorTarifaFlete;
+	}
+
+	public double consolidacionTarifa(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).consolidacionTarifa;
+	}
+
+	public double crossDockTarifa(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).crossDockTarifa
+			* escenario.factorTarifaCrossDock;
+	}
+
+	public double despachanteTarifa(int dia, String idTerminal, TipoProducto producto) {
+		return tarifaSitio(dia, idTerminal, producto).despachanteTarifa
+			* escenario.factorTarifaTerminal;
+	}
+
 	public double thcUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
-		return tarifaSitio(dia, idTerminal, producto).thcUsdContenedor;
+		return tarifaSitio(dia, idTerminal, producto).thcUsdContenedor * escenario.factorTarifaTerminal;
 	}
 
 	public double costoTerminalUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
-		return tarifaSitio(dia, idTerminal, producto).costoTerminalUsdContenedor;
+		return tarifaSitio(dia, idTerminal, producto).costoTerminalUsdContenedor
+			* escenario.factorTarifaTerminal;
 	}
 
 	/**
@@ -473,17 +538,17 @@ public class DatosEntrada implements java.io.Serializable {
 	public double importeCrossDock(int dia, String idUbicacion, TipoProducto producto,
 			double toneladas, int contenedores) {
 		TarifaSitio t = tarifaSitio(dia, idUbicacion, producto);
-		return importe(t.crossDockUnidad, t.crossDockTarifa, toneladas, contenedores,
-				"cross dock de " + producto + " en " + idUbicacion);
+		return importe(t.crossDockUnidad, t.crossDockTarifa * escenario.factorTarifaCrossDock,
+				toneladas, contenedores, "cross dock de " + producto + " en " + idUbicacion);
 	}
 
 	public double importeDespachante(int dia, String idTerminal, TipoProducto producto,
 			int contenedores, int pedidos) {
 		TarifaSitio t = tarifaSitio(dia, idTerminal, producto);
 		if (t.despachanteUnidad == Unidad.USD_PEDIDO) {
-			return t.despachanteTarifa * pedidos;
+			return t.despachanteTarifa * escenario.factorTarifaTerminal * pedidos;
 		}
-		return t.despachanteTarifa * contenedores;
+		return t.despachanteTarifa * escenario.factorTarifaTerminal * contenedores;
 	}
 
 	private double importe(Unidad unidad, double tarifa, double toneladas, int contenedores,
@@ -527,7 +592,7 @@ public class DatosEntrada implements java.io.Serializable {
 			double toneladas, int viajes) {
 		TarifaFlete t = tarifaFlete(dia, origen, destino, producto);
 		double base = t.unidad == Unidad.USD_VIAJE ? t.tarifa * viajes : t.tarifa * toneladas;
-		return base + t.variableUsdTn * toneladas;
+		return (base + t.variableUsdTn * toneladas) * escenario.factorTarifaFlete;
 	}
 
 	public TarifaRoundTrip tarifaRoundTrip(int dia, String idTerminal, String sitio,
@@ -554,7 +619,8 @@ public class DatosEntrada implements java.io.Serializable {
 
 	public double roundTripUsdContenedor(int dia, String idTerminal, String sitio,
 			TipoContenedor tipoContenedor) {
-		return tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedor).tarifaUsdContenedor;
+		return tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedor).tarifaUsdContenedor
+			* escenario.factorTarifaRoundTrip;
 	}
 
 	/** Fila de espera vigente del recurso en el sitio. Sin fila es error de datos. */
@@ -700,6 +766,26 @@ public class DatosEntrada implements java.io.Serializable {
 		if (!"FLEXIBLE".equals(escenario.politicaFrioPropio)
 				&& !"REACTIVA".equals(escenario.politicaFrioPropio)) {
 			errores.add("politica_frio_propio invalida: " + escenario.politicaFrioPropio);
+		}
+
+		boolean politicaValida = false;
+		for (PoliticaSeleccion p : PoliticaSeleccion.values()) {
+			politicaValida = politicaValida || p.name().equals(escenario.politicaSeleccion);
+		}
+		if (!politicaValida) {
+			errores.add("politica_seleccion invalida: " + escenario.politicaSeleccion);
+		}
+
+		if (escenario.factorTarifaFlete <= 0 || escenario.factorTarifaRoundTrip <= 0
+				|| escenario.factorTarifaCrossDock <= 0 || escenario.factorTarifaTerminal <= 0
+				|| escenario.factorConsolidacionPlanta <= 0
+				|| escenario.factorCupoCrossDock <= 0
+				|| escenario.factorCapacidadTerminal <= 0) {
+			errores.add("Los factores de sensibilidad tarifaria deben ser > 0.");
+		}
+
+		if (escenario.servicioMinimoProyectado < 0 || escenario.servicioMinimoProyectado > 1) {
+			errores.add("servicio_minimo_proyectado debe estar en [0, 1].");
 		}
 
 		for (Producto p : productos) {

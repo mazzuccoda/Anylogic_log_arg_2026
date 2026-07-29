@@ -1518,6 +1518,112 @@ cargarDatosEntrada();]]></StartupCode>
 						</InitialValue>
 					</Properties>
 				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1791300000101</Id>
+					<Name><![CDATA[politicaSeleccion]]></Name>
+					<X>-140</X><Y>1900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[DatosEntrada.PoliticaSeleccion]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[DatosEntrada.PoliticaSeleccion.FIJA_DEPOSITO]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000103</Id>
+					<Name><![CDATA[siguienteIdPlan]]></Name>
+					<X>-140</X><Y>1930</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000105</Id>
+					<Name><![CDATA[planesEmitidos]]></Name>
+					<X>-140</X><Y>1960</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000107</Id>
+					<Name><![CDATA[planesTardios]]></Name>
+					<X>-140</X><Y>1990</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000109</Id>
+					<Name><![CDATA[alternativasEvaluadasTotal]]></Name>
+					<X>-140</X><Y>2020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000111</Id>
+					<Name><![CDATA[alternativasDescartadasTotal]]></Name>
+					<X>-140</X><Y>2050</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000113</Id>
+					<Name><![CDATA[pedidosSinAlternativaFactible]]></Name>
+					<X>-140</X><Y>2080</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Connectors>
 				<Connector>
@@ -2624,6 +2730,10 @@ if (
     return false;
 }
 
+if (usaEvaluador()) {
+    return asignarConEvaluador(pedido);
+}
+
 String idSitio =
     seleccionarSitioParaPedido(pedido);
 
@@ -2641,7 +2751,11 @@ if (!reservado) {
     return false;
 }
 
-confirmarAsignacion(pedido, idSitio);
+confirmarAsignacion(
+    pedido,
+    idSitio,
+    circuitoDe(idSitio, pedido.esCrossDock)
+);
 
 return true;]]></Body>
 				</Function>
@@ -3242,14 +3356,41 @@ for (DatosEntrada.PedidoPlan plan : datos.pedidosDelDia(diaActual)) {
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[for (Pedido pedido : pedidos) {
+					<Body><![CDATA[java.util.List<Pedido> pendientes =
+    new java.util.ArrayList<Pedido>();
+
+for (Pedido pedido : pedidos) {
 
     if (
         pedido.estado == EstadoPedido.PENDIENTE
         || pedido.estado == EstadoPedido.ATRASADO
     ) {
-        intentarAsignarPedido(pedido);
+        pendientes.add(pedido);
     }
+}
+
+// Con evaluador los pedidos compiten por la misma capacidad, asi que el orden decide:
+// primero el que vence antes, y el empate se rompe por codigo para que la corrida sea
+// reproducible. Sin evaluador se conserva el orden de la poblacion (regresion).
+if (usaEvaluador()) {
+
+    java.util.Collections.sort(
+        pendientes,
+        new java.util.Comparator<Pedido>() {
+
+            public int compare(Pedido a, Pedido b) {
+
+                int orden = Double.compare(a.diaLimite, b.diaLimite);
+
+                return orden != 0
+                    ? orden
+                    : a.codigoPedido.compareTo(b.codigoPedido);
+            }
+        });
+}
+
+for (Pedido pedido : pendientes) {
+    intentarAsignarPedido(pedido);
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3333,7 +3474,8 @@ for (Capa capa : inventario.capas) {
         "", "", "" + capa.idLote, capa.producto,
         capa.idUbicacion, capa.idUbicacion, capa.idUbicacion,
         EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
-        DatosEntrada.Unidad.USD_TN_DIA, facturables, tarifa.storageUsdTnDia,
+        DatosEntrada.Unidad.USD_TN_DIA, facturables,
+        datos.storageUsdTnDia(diaCampania(), capa.idUbicacion, capa.producto),
         "STO-" + diaCampania() + "-" + capa.idLote + "-" + capa.idUbicacion
             + "-" + capa.producto + "-" + capa.idCapa,
         "almacenaje del dia"
@@ -4368,7 +4510,7 @@ return toneladas - pendiente;]]></Body>
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1785010414</Id>
-					<Name><![CDATA[intentarCrossDockPedido]]></Name>
+					<Name><![CDATA[ejecutarCrossDockPedido]]></Name>
 					<X>130</X><Y>1540</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -4377,6 +4519,10 @@ return toneladas - pendiente;]]></Body>
 					<Parameter>
 						<Name><![CDATA[pedido]]></Name>
 						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[sitio]]></Name>
+						<Type><![CDATA[Deposito]]></Type>
 					</Parameter>
 					<Body><![CDATA[// El pedido se sirve con producto que todavia esta en planta: sale hoy, se
 // estiba hoy y no entra a almacenamiento (ADR-010). Si algo no da, no se mueve
@@ -4388,8 +4534,6 @@ if (
 ) {
     return false;
 }
-
-Deposito sitio = seleccionarSitioCrossDock(pedido);
 
 if (sitio == null) {
     crossDockReprogramados++;
@@ -4456,7 +4600,11 @@ if (
 
 pedido.esCrossDock = true;
 
-confirmarAsignacion(pedido, sitio.idUbicacion);
+confirmarAsignacion(
+    pedido,
+    sitio.idUbicacion,
+    EstrategiaLogistica.CROSS_DOCK_DEPOSITO
+);
 
 toneladasCrossDock += movidas;
 
@@ -4472,7 +4620,9 @@ return true;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[if (!habilitaCrossDock) {
+					<Body><![CDATA[// Con evaluador el cross dock es una alternativa mas del pedido y se decide junto
+// con las demas: adelantarlo aca seria decidir dos veces (ADR-054).
+if (!habilitaCrossDock || usaEvaluador()) {
     return;
 }
 
@@ -4521,6 +4671,7 @@ DatosEntrada.Escenario escenario = datos.escenario;
 
 duracionCampaniaDias = escenario.duracionCampaniaDias;
 habilitaCrossDock = escenario.habilitaCrossDock;
+politicaSeleccion = datos.politicaSeleccion();
 
 if (
     escenario.estrategiaConsolidacion.equals("CONSOLIDACION_PLANTA")
@@ -5660,14 +5811,19 @@ return true;]]></Body>
 						<Name><![CDATA[idSitio]]></Name>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
+					<Parameter>
+						<Name><![CDATA[circuito]]></Name>
+						<Type><![CDATA[EstrategiaLogistica]]></Type>
+					</Parameter>
 					<Body><![CDATA[pedido.idSitioOrigen = idSitio;
 
 // Sigue habiendo deposito asignado cuando el origen es un deposito; en el
 // circuito de planta queda nulo y el origen es el propio frio propio.
 pedido.depositoAsignado = buscarDeposito(idSitio);
 
-pedido.estrategiaSeleccionada =
-    circuitoDe(idSitio, pedido.esCrossDock);
+// El circuito lo decide quien asigna: la politica del escenario en las FIJA_*, y
+// el evaluador en las de costo (ADR-054).
+pedido.estrategiaSeleccionada = circuito;
 
 pedido.toneladasReservadas =
     pedido.toneladasSolicitadas;
@@ -5938,7 +6094,8 @@ if (tarifa.unidad == DatosEntrada.Unidad.USD_VIAJE) {
         RegistroCostos.Tipo.CAJA,
         codigoPedido, "", idLote, producto,
         origen, destino, origen, estrategia, tarifa.proveedor,
-        DatosEntrada.Unidad.USD_VIAJE, viajes, tarifa.tarifa,
+        DatosEntrada.Unidad.USD_VIAJE, viajes,
+        datos.fleteTarifaUnitaria(dia, origen, destino, producto),
         idOperacion, "flete por viaje"
     );
 
@@ -5950,7 +6107,8 @@ if (tarifa.unidad == DatosEntrada.Unidad.USD_VIAJE) {
         RegistroCostos.Tipo.CAJA,
         codigoPedido, "", idLote, producto,
         origen, destino, origen, estrategia, tarifa.proveedor,
-        DatosEntrada.Unidad.USD_TN, toneladas, tarifa.tarifa,
+        DatosEntrada.Unidad.USD_TN, toneladas,
+        datos.fleteTarifaUnitaria(dia, origen, destino, producto),
         idOperacion, "flete por tonelada"
     );
 }
@@ -5963,7 +6121,8 @@ if (tarifa.variableUsdTn > 0) {
         RegistroCostos.Tipo.CAJA,
         codigoPedido, "", idLote, producto,
         origen, destino, origen, estrategia, tarifa.proveedor,
-        DatosEntrada.Unidad.USD_TN, toneladas, tarifa.variableUsdTn,
+        DatosEntrada.Unidad.USD_TN, toneladas,
+        datos.fleteVariableUsdTn(dia, origen, destino, producto),
         idOperacion, "componente variable del flete"
     );
 }
@@ -6014,7 +6173,13 @@ double importe = registro.registrar(
     "", envio.producto,
     envio.idSitioOrigen, envio.terminalDestino.idUbicacion, envio.idSitioOrigen,
     envio.circuito, tarifa.proveedor,
-    DatosEntrada.Unidad.USD_CONTENEDOR, 1, tarifa.tarifaUsdContenedor,
+    DatosEntrada.Unidad.USD_CONTENEDOR, 1,
+    datos.roundTripUsdContenedor(
+        diaTarifa,
+        envio.terminalDestino.idUbicacion,
+        envio.idSitioOrigen,
+        pedido.tipoContenedor
+    ),
     "ENV-" + envio.idEnvio, "ciclo terminal -> origen -> terminal"
 );
 
@@ -6053,7 +6218,9 @@ DatosEntrada.Unidad unidad =
     cruza ? tarifa.crossDockUnidad : tarifa.consolidacionUnidad;
 
 double usd =
-    cruza ? tarifa.crossDockTarifa : tarifa.consolidacionTarifa;
+    cruza
+    ? datos.crossDockTarifa(diaTarifa, sitio, envio.producto)
+    : datos.consolidacionTarifa(diaTarifa, sitio, envio.producto);
 
 double cantidad =
     unidad == DatosEntrada.Unidad.USD_CONTENEDOR
@@ -6322,7 +6489,8 @@ double thc = registro.registrar(
     "", envio.producto,
     envio.idSitioOrigen, terminal, terminal,
     envio.circuito, tarifa.proveedor,
-    DatosEntrada.Unidad.USD_CONTENEDOR, contenedores, tarifa.thcUsdContenedor,
+    DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
+    datos.thcUsdContenedor(dia, terminal, envio.producto),
     "ENV-" + envio.idEnvio, "thc del contenedor"
 );
 
@@ -6336,7 +6504,7 @@ double terminalCargo = registro.registrar(
     envio.idSitioOrigen, terminal, terminal,
     envio.circuito, tarifa.proveedor,
     DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
-    tarifa.costoTerminalUsdContenedor,
+    datos.costoTerminalUsdContenedor(dia, terminal, envio.producto),
     "ENV-" + envio.idEnvio, "costo de terminal del contenedor"
 );
 
@@ -6390,7 +6558,7 @@ double importe = registro.registrar(
     envio.circuito, tarifa.proveedor,
     tarifa.despachanteUnidad,
     porPedido ? 1 : contenedores,
-    tarifa.despachanteTarifa,
+    datos.despachanteTarifa(dia, terminal, envio.producto),
     porPedido ? "PED-" + pedido.codigoPedido : "ENV-" + envio.idEnvio,
     "despacho de exportacion"
 );
@@ -6551,11 +6719,12 @@ if (tarifaCierre.despachanteUnidad == DatosEntrada.Unidad.USD_PEDIDO) {
 
     // Un solo cargo por pedido: lo paga el primer envio que se entrega.
     if (pedido.enviosEntregados <= 1) {
-        esperado += tarifaCierre.despachanteTarifa;
+        esperado += datos.despachanteTarifa(diaCierre, terminal, envio.producto);
     }
 
 } else {
-    esperado += tarifaCierre.despachanteTarifa * contenedores;
+    esperado +=
+        datos.despachanteTarifa(diaCierre, terminal, envio.producto) * contenedores;
 }
 
 // Egreso del deposito de origen, cuando el producto salio de almacenamiento.
@@ -6642,6 +6811,733 @@ for (LoteProducto lote : lotes) {
 }
 
 return historico;]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1791300000201</Id>
+					<Name><![CDATA[usaEvaluador]]></Name>
+					<X>130</X><Y>2100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Las politicas FIJA_* y MANUAL son la conducta previa al evaluador y quedan como
+// regresion: solo las de costo y la de frio propio generan y comparan alternativas.
+return politicaSeleccion == DatosEntrada.PoliticaSeleccion.PRIORIDAD_FRIO_PROPIO
+    || politicaSeleccion
+        == DatosEntrada.PoliticaSeleccion.MENOR_COSTO_INCREMENTAL_FACTIBLE
+    || politicaSeleccion
+        == DatosEntrada.PoliticaSeleccion.MENOR_COSTO_END_TO_END_FACTIBLE;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1791300000203</Id>
+					<Name><![CDATA[decideEndToEnd]]></Name>
+					<X>130</X><Y>2140</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// La decision tactica compara incremental; la estrategica, end-to-end (seccion 7.4).
+return politicaSeleccion
+    == DatosEntrada.PoliticaSeleccion.MENOR_COSTO_END_TO_END_FACTIBLE;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[java.util.List<AlternativaCircuito>]]></ReturnType>
+					<Id>1791300000205</Id>
+					<Name><![CDATA[generarAlternativas]]></Name>
+					<X>130</X><Y>2180</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Un pedido puede servirse de varios origenes por varios circuitos. Se enumeran todos
+// los que el flujo fisico sabe ejecutar y se agrega, descartada, la transferencia entre
+// depositos: no existe como movimiento (C7) y no se aproxima con otro circuito.
+java.util.List<AlternativaCircuito> alternativas =
+    new java.util.ArrayList<AlternativaCircuito>();
+
+double toneladas = pedido.toneladasSolicitadas;
+
+int contenedores =
+    contenedoresNecesarios(pedido.producto, toneladas);
+
+String terminal = pedido.puertoSalida.idUbicacion;
+
+alternativas.add(
+    new AlternativaCircuito(
+        "PLANTA", "PLANTA", EstrategiaLogistica.CONSOLIDACION_PLANTA,
+        false, toneladas, contenedores));
+
+alternativas.add(
+    new AlternativaCircuito(
+        "PLANTA", terminal, EstrategiaLogistica.CONSOLIDACION_TERMINAL,
+        false, toneladas, contenedores));
+
+for (Deposito deposito : depositos) {
+
+    alternativas.add(
+        new AlternativaCircuito(
+            deposito.idUbicacion, deposito.idUbicacion,
+            EstrategiaLogistica.CONSOLIDACION_DEPOSITO,
+            false, toneladas, contenedores));
+
+    alternativas.add(
+        new AlternativaCircuito(
+            deposito.idUbicacion, deposito.idUbicacion,
+            EstrategiaLogistica.CROSS_DOCK_DEPOSITO,
+            true, toneladas, contenedores));
+
+    alternativas.add(
+        new AlternativaCircuito(
+            deposito.idUbicacion, terminal,
+            EstrategiaLogistica.CONSOLIDACION_TERMINAL,
+            false, toneladas, contenedores));
+}
+
+for (AlternativaCircuito alternativa : alternativas) {
+    evaluarAlternativa(pedido, alternativa);
+}
+
+AlternativaCircuito transferencia =
+    new AlternativaCircuito(
+        "DEPOSITO", "DEPOSITO", EstrategiaLogistica.CONSOLIDACION_DEPOSITO,
+        false, toneladas, contenedores);
+
+transferencia.descartar(
+    "transferencia deposito-deposito sin movimiento fisico en el modelo (C7)");
+
+alternativas.add(transferencia);
+
+return alternativas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000207</Id>
+					<Name><![CDATA[evaluarAlternativa]]></Name>
+					<X>130</X><Y>2220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativa]]></Name>
+						<Type><![CDATA[AlternativaCircuito]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Factibilidad antes que costo: una alternativa que el flujo no puede ejecutar hoy no
+// compite, y el motivo queda escrito para poder auditar la decision (seccion 6.3).
+alternativa.factible = true;
+alternativa.motivoNoFactible = "";
+
+String terminal = pedido.puertoSalida.idUbicacion;
+
+double toneladas = alternativa.toneladas;
+
+if (alternativa.esCrossDock) {
+
+    if (!habilitaCrossDock) {
+        alternativa.descartar("cross dock deshabilitado en el escenario");
+        return;
+    }
+
+    // El cross dock cruza producto que todavia esta en planta: lo que ya entro a un
+    // deposito no vuelve a cruzar (ADR-010).
+    if (
+        inventario.libre("PLANTA", pedido.producto) + 0.0001
+        < toneladas
+    ) {
+        alternativa.descartar("sin stock libre en planta para cruzar");
+        return;
+    }
+
+    Deposito sitio = buscarDeposito(alternativa.idOrigen);
+
+    if (sitio == null || !sitio.habilitado) {
+        alternativa.descartar("deposito no habilitado");
+        return;
+    }
+
+    if (
+        capacidadCrossDockLibre(alternativa.idOrigen)
+        < alternativa.contenedores
+    ) {
+        alternativa.descartar("sin cupo de cross dock hoy");
+        return;
+    }
+
+    if (
+        sitio.getEspacioDisponible(pedido.producto) + 0.0001
+        < toneladas
+    ) {
+        alternativa.descartar("sin espacio de paso en el deposito");
+        return;
+    }
+
+    if (
+        !flotaProductoAlcanza("PLANTA", alternativa.idOrigen, toneladas)
+    ) {
+        alternativa.descartar("sin flota de producto planta-deposito");
+        return;
+    }
+
+} else {
+
+    if (
+        inventario.libre(alternativa.idOrigen, pedido.producto) + 0.0001
+        < toneladas
+    ) {
+        alternativa.descartar("sin stock libre en " + alternativa.idOrigen);
+        return;
+    }
+
+    if (
+        alternativa.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL
+        && !flotaProductoAlcanza(alternativa.idOrigen, terminal, toneladas)
+    ) {
+        alternativa.descartar("sin flota de producto para el granel a terminal");
+        return;
+    }
+}
+
+// El contenedor se arma en algun lado: sin capacidad declarada el circuito no puede
+// ejecutarse ningun dia, no solo hoy.
+if (
+    !alternativa.esCrossDock
+    && datos.ubicacion(alternativa.sitioEstiba).contenedoresPorDia <= 0
+) {
+    alternativa.descartar("sin capacidad de estiba en " + alternativa.sitioEstiba);
+    return;
+}
+
+costearAlternativa(pedido, alternativa);
+
+// Un dia para armar y programar el contenedor mas el ciclo fisico del circuito.
+alternativa.diaEntregaEstimado =
+    time() + 1 + horasCicloAlternativa(pedido, alternativa) / 24.0;
+
+alternativa.llegaATiempo =
+    alternativa.diaEntregaEstimado <= pedido.diaLimite + 0.0001;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000209</Id>
+					<Name><![CDATA[costearAlternativa]]></Name>
+					<X>130</X><Y>2260</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativa]]></Name>
+						<Type><![CDATA[AlternativaCircuito]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Gemelo ex ante de costoEsperadoCircuito(): las mismas tarifas, unidades y reglas de
+// contenedor completo, con la diferencia de que aca todavia no existe el envio. Si los
+// dos difieren, el evaluador esta decidiendo con un costo que despues no se cobra.
+int dia = diaCampania();
+
+String terminal = pedido.puertoSalida.idUbicacion;
+
+double toneladas = alternativa.toneladas;
+
+int contenedores = alternativa.contenedores;
+
+boolean granel =
+    alternativa.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+alternativa.costoFleteProducto = 0;
+
+if (alternativa.esCrossDock) {
+
+    // Tramo previo: el producto sale hoy de planta y cruza sin guardarse.
+    alternativa.costoFleteProducto +=
+        datos.importeFlete(
+            dia, "PLANTA", alternativa.idOrigen, pedido.producto,
+            toneladas, viajesNecesariosCamion(toneladas));
+}
+
+if (granel) {
+
+    alternativa.costoFleteProducto +=
+        datos.importeFlete(
+            dia, alternativa.idOrigen, terminal, pedido.producto,
+            toneladas, viajesNecesariosCamion(toneladas));
+
+    alternativa.costoRoundTrip = 0;
+
+} else {
+
+    alternativa.costoRoundTrip =
+        datos.roundTripUsdContenedor(
+            dia, terminal, alternativa.idOrigen, pedido.tipoContenedor)
+        * contenedores;
+}
+
+alternativa.costoEstiba =
+    alternativa.esCrossDock
+    ? datos.importeCrossDock(
+        dia, alternativa.sitioEstiba, pedido.producto, toneladas, contenedores)
+    : datos.importeConsolidacion(
+        dia, alternativa.sitioEstiba, pedido.producto, toneladas, contenedores);
+
+// El egreso lo paga lo que estaba almacenado: el cross dock no entra ni sale, y la
+// planta no factura deposito (ADR-053).
+alternativa.costoOut =
+    alternativa.esCrossDock || "PLANTA".equals(alternativa.idOrigen)
+    ? 0
+    : datos.outUsdTn(dia, alternativa.idOrigen, pedido.producto) * toneladas;
+
+alternativa.costoTHC =
+    datos.thcUsdContenedor(dia, terminal, pedido.producto) * contenedores;
+
+alternativa.costoTerminal =
+    datos.costoTerminalUsdContenedor(dia, terminal, pedido.producto) * contenedores;
+
+DatosEntrada.TarifaSitio tarifa =
+    datos.tarifaSitio(dia, terminal, pedido.producto);
+
+alternativa.costoDespachante =
+    tarifa.despachanteUnidad == DatosEntrada.Unidad.USD_PEDIDO
+    ? datos.despachanteTarifa(dia, terminal, pedido.producto)
+    : datos.despachanteTarifa(dia, terminal, pedido.producto) * contenedores;
+
+costearHundidoAlternativa(pedido, alternativa);
+
+alternativa.totalizar();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000211</Id>
+					<Name><![CDATA[costearHundidoAlternativa]]></Name>
+					<X>130</X><Y>2300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativa]]></Name>
+						<Type><![CDATA[AlternativaCircuito]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Lo que el stock ya pago por estar donde esta. No entra en la vista incremental
+// (seccion 7.1) y por eso se guarda aparte: sirve para explicar la comparacion
+// estrategica, no para decidir la tactica.
+alternativa.costoInHundido = 0;
+alternativa.costoAlmacenajeHundido = 0;
+alternativa.costoFleteHundido = 0;
+
+if (alternativa.esCrossDock || "PLANTA".equals(alternativa.idOrigen)) {
+    return;
+}
+
+int dia = diaCampania();
+
+double toneladas = alternativa.toneladas;
+
+alternativa.costoInHundido =
+    datos.inUsdTn(dia, alternativa.idOrigen, pedido.producto) * toneladas;
+
+alternativa.costoFleteHundido =
+    datos.importeFlete(
+        dia, "PLANTA", alternativa.idOrigen, pedido.producto,
+        toneladas, viajesNecesariosCamion(toneladas));
+
+alternativa.costoAlmacenajeHundido =
+    datos.storageUsdTnDia(dia, alternativa.idOrigen, pedido.producto)
+    * toneladaDiaEnStock(alternativa.idOrigen, pedido.producto, toneladas);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000213</Id>
+					<Name><![CDATA[toneladaDiaEnStock]]></Name>
+					<X>130</X><Y>2340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Tonelada-dia acumulada por las capas FIFO que serviria la alternativa: es el
+// almacenaje que ese stock ya devengo, y depende de cual se consume, no del promedio.
+double pendiente = toneladas;
+
+double acumulado = 0;
+
+for (Capa capa : inventario.fifo(idUbicacion, producto)) {
+
+    if (pendiente <= 0.0001) {
+        break;
+    }
+
+    double toma = Math.min(capa.libres(), pendiente);
+
+    if (toma <= 0) {
+        continue;
+    }
+
+    acumulado += toma * Math.max(0, time() - capa.diaIngreso);
+
+    pendiente -= toma;
+}
+
+return acumulado;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000215</Id>
+					<Name><![CDATA[horasCicloAlternativa]]></Name>
+					<X>130</X><Y>2380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativa]]></Name>
+						<Type><![CDATA[AlternativaCircuito]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Mismo ciclo fisico que arma crearEnvio(), estimado antes de que el envio exista.
+boolean granel =
+    alternativa.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+String terminal = pedido.puertoSalida.idUbicacion;
+
+double toneladas = alternativa.toneladas;
+
+double velocidad = datos.escenario.velocidadCamionKmh;
+
+DatosEntrada.Ubicacion origen = datos.ubicacion(alternativa.idOrigen);
+
+DatosEntrada.Ubicacion puerto = datos.ubicacion(terminal);
+
+double distancia = datos.distanciaKm(alternativa.idOrigen, terminal);
+
+double horas = 0;
+
+if (alternativa.esCrossDock) {
+    horas += datos.distanciaKm("PLANTA", alternativa.idOrigen) / velocidad;
+}
+
+horas +=
+    granel
+    ? toneladas / origen.velocidadCargaTnHora
+    : toneladas / origen.velocidadConsolidacionTnHora;
+
+// Circuitos 1 a 3: el portacontenedor sale vacio de la terminal antes de cargar.
+horas += granel ? 0 : distancia / velocidad;
+
+horas += distancia / velocidad;
+
+horas += toneladas / puerto.velocidadDescargaTnHora;
+
+horas += granel ? toneladas / puerto.velocidadConsolidacionTnHora : 0;
+
+return horas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[java.util.List<AlternativaCircuito>]]></ReturnType>
+					<Id>1791300000217</Id>
+					<Name><![CDATA[ordenarAlternativas]]></Name>
+					<X>130</X><Y>2420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativas]]></Name>
+						<Type><![CDATA[java.util.List<AlternativaCircuito>]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Ranking de lo factible. El orden es la politica: primero servicio, despues el
+// criterio de costo, y el desempate por clave para que dos corridas iguales decidan
+// igual (seccion 6.8).
+final boolean endToEnd = decideEndToEnd();
+
+final boolean frioPropio =
+    politicaSeleccion == DatosEntrada.PoliticaSeleccion.PRIORIDAD_FRIO_PROPIO;
+
+final boolean exigeServicio =
+    datos.escenario.servicioMinimoProyectado > 0;
+
+java.util.List<AlternativaCircuito> factibles =
+    new java.util.ArrayList<AlternativaCircuito>();
+
+for (AlternativaCircuito alternativa : alternativas) {
+
+    if (alternativa.factible) {
+        factibles.add(alternativa);
+    }
+}
+
+java.util.Collections.sort(
+    factibles,
+    new java.util.Comparator<AlternativaCircuito>() {
+
+        public int compare(AlternativaCircuito a, AlternativaCircuito b) {
+
+            // Ninguna diferencia de costo compra una entrega tarde mientras exista una
+            // alternativa que llega a tiempo.
+            if (exigeServicio && a.llegaATiempo != b.llegaATiempo) {
+                return a.llegaATiempo ? -1 : 1;
+            }
+
+            if (frioPropio) {
+
+                boolean pa = "PLANTA".equals(a.idOrigen) && !a.esCrossDock;
+                boolean pb = "PLANTA".equals(b.idOrigen) && !b.esCrossDock;
+
+                if (pa != pb) {
+                    return pa ? -1 : 1;
+                }
+            }
+
+            int orden =
+                Double.compare(a.costoSegun(endToEnd), b.costoSegun(endToEnd));
+
+            return orden != 0 ? orden : a.clave().compareTo(b.clave());
+        }
+    });
+
+return factibles;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1791300000219</Id>
+					<Name><![CDATA[ejecutarAlternativa]]></Name>
+					<X>130</X><Y>2460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativa]]></Name>
+						<Type><![CDATA[AlternativaCircuito]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El plan se ejecuta con el flujo fisico que ya existe: reservar contra el origen
+// elegido, o cruzar por el deposito elegido. El evaluador no mueve producto por su
+// cuenta, asi no puede prometer algo que la cadena no hace.
+if (alternativa.esCrossDock) {
+
+    Deposito sitio = buscarDeposito(alternativa.idOrigen);
+
+    return sitio != null && ejecutarCrossDockPedido(pedido, sitio);
+}
+
+if (!reservarLotesParaPedido(pedido, alternativa.idOrigen)) {
+    return false;
+}
+
+confirmarAsignacion(pedido, alternativa.idOrigen, alternativa.circuito);
+
+return true;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1791300000221</Id>
+					<Name><![CDATA[asignarConEvaluador]]></Name>
+					<X>130</X><Y>2500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// C6: generar, descartar, costear, ordenar, ejecutar y dejar constancia. Se recorre el
+// ranking porque tomar capacidad puede fallar contra otro pedido del mismo dia; lo que
+// no se pudo tomar queda descartado con su motivo, no elegido en silencio.
+java.util.List<AlternativaCircuito> alternativas =
+    generarAlternativas(pedido);
+
+java.util.List<AlternativaCircuito> ranking =
+    ordenarAlternativas(pedido, alternativas);
+
+for (AlternativaCircuito elegida : ranking) {
+
+    if (!ejecutarAlternativa(pedido, elegida)) {
+        elegida.descartar("el flujo no pudo tomarla al ejecutar");
+        continue;
+    }
+
+    registrarPlan(pedido, alternativas, elegida);
+
+    return true;
+}
+
+pedidosSinAlternativaFactible++;
+
+return false;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000223</Id>
+					<Name><![CDATA[registrarPlan]]></Name>
+					<X>130</X><Y>2540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativas]]></Name>
+						<Type><![CDATA[java.util.List<AlternativaCircuito>]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[elegida]]></Name>
+						<Type><![CDATA[AlternativaCircuito]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El plan es la constancia de la decision: que se eligio, contra que se lo comparo y
+// con que numeros. PlanLogistico existia desde el primer dia del proyecto sin ninguna
+// referencia; esta es la funcion que lo pone a vivir (ADR-054).
+PlanLogistico plan = add_planes();
+
+plan.idPlan = "PL-" + siguienteIdPlan;
+siguienteIdPlan++;
+
+plan.pedido = pedido;
+plan.terminal = pedido.puertoSalida;
+plan.politica = "" + politicaSeleccion;
+plan.diaDecision = time();
+plan.alternativas = alternativas;
+plan.alternativasEvaluadas = alternativas.size();
+
+int descartadas = 0;
+
+for (AlternativaCircuito alternativa : alternativas) {
+
+    if (!alternativa.factible) {
+        descartadas++;
+    }
+}
+
+plan.alternativasDescartadas = descartadas;
+
+alternativasEvaluadasTotal += alternativas.size();
+alternativasDescartadasTotal += descartadas;
+
+plan.estrategia = elegida.circuito;
+plan.idOrigen = elegida.idOrigen;
+plan.idSitioEstiba = elegida.sitioEstiba;
+plan.toneladas = elegida.toneladas;
+plan.cantidadContenedores = elegida.contenedores;
+plan.diaEntregaEstimado = elegida.diaEntregaEstimado;
+plan.llegaATiempo = elegida.llegaATiempo;
+plan.tiempoEstimado = horasCicloAlternativa(pedido, elegida);
+plan.factible = true;
+plan.estado = EstadoPlanLogistico.SELECCIONADO;
+
+plan.origenProducto =
+    "PLANTA".equals(elegida.idOrigen)
+    ? (Agent) planta
+    : (Agent) buscarDeposito(elegida.idOrigen);
+
+plan.lugarConsolidacion =
+    elegida.sitioEstiba.equals(elegida.idOrigen)
+    ? plan.origenProducto
+    : (Agent) pedido.puertoSalida;
+
+// La descomposicion viaja al plan concepto por concepto: el total no se copia, lo
+// recalcula el propio plan y despues se exige que coincida.
+plan.costoFleteGuarda = elegida.costoFleteHundido;
+plan.costoAlmacenajeIn = elegida.costoInHundido;
+plan.costoAlmacenajeDiario = elegida.costoAlmacenajeHundido;
+plan.costoAlmacenajeOut = elegida.costoOut;
+plan.costoFleteCrossDock = elegida.costoFleteProducto;
+plan.costoCicloContenedor = elegida.costoRoundTrip;
+plan.costoConsolidacion = elegida.esCrossDock ? 0 : elegida.costoEstiba;
+plan.costoCrossDock = elegida.esCrossDock ? elegida.costoEstiba : 0;
+plan.costoTerminal = elegida.costoTerminal;
+plan.costoTHC = elegida.costoTHC;
+plan.costoDespachante = elegida.costoDespachante;
+
+plan.recalcularCostos();
+
+exigirIgual(
+    plan.costoTotalEndToEnd,
+    elegida.costoEndToEnd,
+    "plan " + plan.idPlan + " contra la alternativa elegida");
+
+plan.motivoSeleccion =
+    (decideEndToEnd() ? "menor costo end-to-end factible" : "menor costo incremental factible")
+    + " USD " + Math.round(elegida.costoSegun(decideEndToEnd()))
+    + " entre " + (alternativas.size() - descartadas) + " factibles"
+    + (elegida.llegaATiempo ? "" : " (ninguna llega a tiempo)");
+
+planesEmitidos++;
+
+if (!elegida.llegaATiempo) {
+    planesTardios++;
+}]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1791300000225</Id>
+					<Name><![CDATA[intentarCrossDockPedido]]></Name>
+					<X>130</X><Y>2580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Sin evaluador, el sitio de cruce lo elige la heuristica de costo de siempre.
+return ejecutarCrossDockPedido(pedido, seleccionarSitioCrossDock(pedido));]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -6811,6 +7707,124 @@ return historico;]]></Body>
 					<InitializationType>SPECIFIED_NUMBER</InitializationType>
 					<InitializationDatabaseTableQuery>
 						<Id>1784253407427</Id>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1791200000301</Id>
+					<Name><![CDATA[planes]]></Name>
+					<X>280</X><Y>-780</Y>
+					<Label><X>-60</X><Y>-35</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[PlanLogistico]]></ClassName>
+					</ActiveObjectClass>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[idPlan]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pedido]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[estrategia]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[origenProducto]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[lugarConsolidacion]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[terminal]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[estado]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[factible]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[motivoNoFactible]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[cantidadContenedores]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[tiempoEstimado]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[parameter5]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoFleteGuarda]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoAlmacenajeIn]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoAlmacenajeDiario]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoAlmacenajeOut]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoFleteCrossDock]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoCicloContenedor]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoConsolidacion]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoCrossDock]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoTerminal]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoTHC]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoDespachante]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoHistorico]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoIncremental]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoTotalEndToEnd]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>true</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InEnvironment>true</InEnvironment>
+					<InitialLocationType>XYZ</InitialLocationType>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<Id>1791200000302</Id>
 						<TableReference>
 						</TableReference>
 					</InitializationDatabaseTableQuery>
@@ -17730,6 +18744,172 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1791200000311</Id>
+					<Name><![CDATA[idOrigen]]></Name>
+					<X>-140</X><Y>500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000313</Id>
+					<Name><![CDATA[idSitioEstiba]]></Name>
+					<X>-140</X><Y>530</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000315</Id>
+					<Name><![CDATA[toneladas]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000317</Id>
+					<Name><![CDATA[diaDecision]]></Name>
+					<X>-140</X><Y>590</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000319</Id>
+					<Name><![CDATA[diaEntregaEstimado]]></Name>
+					<X>-140</X><Y>620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000321</Id>
+					<Name><![CDATA[llegaATiempo]]></Name>
+					<X>-140</X><Y>650</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000323</Id>
+					<Name><![CDATA[politica]]></Name>
+					<X>-140</X><Y>680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000325</Id>
+					<Name><![CDATA[motivoSeleccion]]></Name>
+					<X>-140</X><Y>710</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000327</Id>
+					<Name><![CDATA[alternativasEvaluadas]]></Name>
+					<X>-140</X><Y>740</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000329</Id>
+					<Name><![CDATA[alternativasDescartadas]]></Name>
+					<X>-140</X><Y>770</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000331</Id>
+					<Name><![CDATA[alternativas]]></Name>
+					<X>-140</X><Y>800</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.List<AlternativaCircuito>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.ArrayList<AlternativaCircuito>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -18005,7 +19185,7 @@ estado = factible
 			<Name><![CDATA[Escenarios]]></Name>
 			<AdditionalClassCode><![CDATA[// Version del modelo con la que se corrio el barrido: sin esto un csv de
 // resultados no se puede volver a atar al codigo que lo produjo.
-static final String VERSION_MODELO = "fase-22";
+static final String VERSION_MODELO = "fase-23";
 
 static final int REPLICAS = 30;
 
@@ -18031,7 +19211,9 @@ static final String[] KPIS = {
 	"costo_flete_producto_usd", "costo_round_trip_usd", "costo_consolidacion_usd",
 	"costo_cross_dock_usd", "costo_almacenamiento_usd", "costo_in_usd",
 	"costo_out_usd", "costo_thc_usd", "costo_terminal_usd", "costo_despachante_usd",
-	"costo_espera_usd"
+	"costo_espera_usd",
+	"planes_emitidos", "planes_tardios", "alternativas_evaluadas",
+	"alternativas_descartadas", "pedidos_sin_alternativa_factible"
 };
 
 // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -18320,7 +19502,7 @@ root.reconciliarCostos();
 Corrida c = new Corrida();
 
 c.idEscenario = root.idEscenario;
-c.config = String.format(java.util.Locale.US, "%d/%d  x%.2f  x%.2f  %-3s %s",
+c.config = String.format(java.util.Locale.US, "%d/%d  x%.2f  x%.2f  %-3s %s  %s",
 	root.datos.escenario.camionesProducto,
 	root.datos.escenario.camionesPortacontenedor,
 	root.datos.escenario.factorCapacidadDeposito,
@@ -18329,7 +19511,8 @@ c.config = String.format(java.util.Locale.US, "%d/%d  x%.2f  x%.2f  %-3s %s",
 	"CONSOLIDACION_TERMINAL".equals(root.datos.escenario.estrategiaConsolidacion)
 		? "term"
 		: ("CONSOLIDACION_PLANTA".equals(root.datos.escenario.estrategiaConsolidacion)
-			? "planta" : "dep"));
+			? "planta" : "dep"),
+	root.datos.escenario.politicaSeleccion);
 c.replica = root.replica;
 c.semilla = root.semillaBase + root.replica;
 
@@ -18368,7 +19551,12 @@ c.kpis = new double[] {
 	root.registro.total(RegistroCostos.Categoria.COSTO_TERMINAL),
 	root.registro.total(RegistroCostos.Categoria.DESPACHANTE),
 	root.registro.total(RegistroCostos.Categoria.ESPERA_CAMION_PRODUCTO)
-		+ root.registro.total(RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR)
+		+ root.registro.total(RegistroCostos.Categoria.ESPERA_PORTACONTENEDOR),
+	root.planesEmitidos,
+	root.planesTardios,
+	root.alternativasEvaluadasTotal,
+	root.alternativasDescartadasTotal,
+	root.pedidosSinAlternativaFactible
 };
 
 corridas.add(c);]]></AfterSimulationRunCode>
@@ -18828,7 +20016,7 @@ for (int k = 0; k < KPIS.length; k++) {
 }]]></AfterExperimentCode>
 			<AllowParallelEvaluations>false</AllowParallelEvaluations>
 			<UseFreeformParameters>true</UseFreeformParameters>
-			<NumberOfRuns>420</NumberOfRuns>
+			<NumberOfRuns>1080</NumberOfRuns>
 			<FreeformParamValue>	
 				<Id>1786000001</Id>
 				<Expression Class="CodeValue">
@@ -18957,6 +20145,23 @@ public class DatosEntrada implements java.io.Serializable {
 		public double umbralObjetivoPct;           // % al que la politica REACTIVA vacia la planta
 		public int diasForecast;                   // horizonte de la transferencia preventiva
 		public String politicaFrioPropio;          // FLEXIBLE | REACTIVA
+
+		// Politica de seleccion de circuito (ADR-054). Las FIJA_* reproducen la
+		// decision por escenario; las MENOR_COSTO_* dejan decidir al evaluador
+		// pedido por pedido, que es lo que produce una estrategia mixta.
+		public String politicaSeleccion;           // ver PoliticaSeleccion
+		public double servicioMinimoProyectado;    // fraccion: alternativa que llega tarde se descarta si hay otra
+
+		// Sensibilidad tarifaria (seccion 11 de la especificacion de costos). Se
+		// aplican al resolver la tarifa y no al generarla, asi que valen igual
+		// desde el Excel que desde el generador sintetico.
+		public double factorTarifaFlete;
+		public double factorTarifaRoundTrip;
+		public double factorTarifaCrossDock;
+		public double factorTarifaTerminal;        // thc, costo terminal y despachante
+		public double factorConsolidacionPlanta;   // contenedores por dia del frio propio
+		public double factorCupoCrossDock;         // operaciones de cross dock por dia
+		public double factorCapacidadTerminal;     // contenedores por dia de la terminal
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -19036,6 +20241,27 @@ public class DatosEntrada implements java.io.Serializable {
 	 */
 	public enum Unidad {
 		USD_VIAJE, USD_TN, USD_CONTENEDOR, USD_TN_DIA, USD_HORA, USD_OPERACION, USD_PEDIDO
+	}
+
+	/**
+	 * Como se elige el circuito de cada pedido (seccion 10 de la especificacion de
+	 * costos). Las FIJA_* son la politica por escenario que existia antes del
+	 * evaluador; MANUAL queda declarada y sin uso porque el modelo corre sin
+	 * intervencion durante la campania.
+	 */
+	public enum PoliticaSeleccion {
+		FIJA_PLANTA, FIJA_DEPOSITO, FIJA_CROSS_DOCK_DEPOSITO, FIJA_CROSS_DOCK_TERMINAL,
+		PRIORIDAD_FRIO_PROPIO, MENOR_COSTO_INCREMENTAL_FACTIBLE,
+		MENOR_COSTO_END_TO_END_FACTIBLE, MANUAL
+	}
+
+	/** La politica del escenario, con el nombre de la columna en el mensaje de error. */
+	public PoliticaSeleccion politicaSeleccion() {
+		try {
+			return PoliticaSeleccion.valueOf(escenario.politicaSeleccion);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException("politica_seleccion invalida: " + escenario.politicaSeleccion);
+		}
 	}
 
 	/**
@@ -19333,7 +20559,7 @@ public class DatosEntrada implements java.io.Serializable {
 	}
 
 	public double storageUsdTnDia(int dia, String idUbicacion, TipoProducto producto) {
-		return tarifaSitio(dia, idUbicacion, producto).storageUsdTnDia;
+		return tarifaSitio(dia, idUbicacion, producto).storageUsdTnDia * escenario.factorStorage;
 	}
 
 	public double inUsdTn(int dia, String idUbicacion, TipoProducto producto) {
@@ -19356,12 +20582,39 @@ public class DatosEntrada implements java.io.Serializable {
 		return tarifaSitio(dia, idUbicacion, producto).penalidadSobrecargaUsdTnDia;
 	}
 
+	/** Tarifa unitaria del flete, con el factor de sensibilidad del escenario. */
+	public double fleteTarifaUnitaria(int dia, String origen, String destino,
+			TipoProducto producto) {
+		return tarifaFlete(dia, origen, destino, producto).tarifa * escenario.factorTarifaFlete;
+	}
+
+	public double fleteVariableUsdTn(int dia, String origen, String destino,
+			TipoProducto producto) {
+		return tarifaFlete(dia, origen, destino, producto).variableUsdTn
+			* escenario.factorTarifaFlete;
+	}
+
+	public double consolidacionTarifa(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).consolidacionTarifa;
+	}
+
+	public double crossDockTarifa(int dia, String idUbicacion, TipoProducto producto) {
+		return tarifaSitio(dia, idUbicacion, producto).crossDockTarifa
+			* escenario.factorTarifaCrossDock;
+	}
+
+	public double despachanteTarifa(int dia, String idTerminal, TipoProducto producto) {
+		return tarifaSitio(dia, idTerminal, producto).despachanteTarifa
+			* escenario.factorTarifaTerminal;
+	}
+
 	public double thcUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
-		return tarifaSitio(dia, idTerminal, producto).thcUsdContenedor;
+		return tarifaSitio(dia, idTerminal, producto).thcUsdContenedor * escenario.factorTarifaTerminal;
 	}
 
 	public double costoTerminalUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
-		return tarifaSitio(dia, idTerminal, producto).costoTerminalUsdContenedor;
+		return tarifaSitio(dia, idTerminal, producto).costoTerminalUsdContenedor
+			* escenario.factorTarifaTerminal;
 	}
 
 	/**
@@ -19379,17 +20632,17 @@ public class DatosEntrada implements java.io.Serializable {
 	public double importeCrossDock(int dia, String idUbicacion, TipoProducto producto,
 			double toneladas, int contenedores) {
 		TarifaSitio t = tarifaSitio(dia, idUbicacion, producto);
-		return importe(t.crossDockUnidad, t.crossDockTarifa, toneladas, contenedores,
-				"cross dock de " + producto + " en " + idUbicacion);
+		return importe(t.crossDockUnidad, t.crossDockTarifa * escenario.factorTarifaCrossDock,
+				toneladas, contenedores, "cross dock de " + producto + " en " + idUbicacion);
 	}
 
 	public double importeDespachante(int dia, String idTerminal, TipoProducto producto,
 			int contenedores, int pedidos) {
 		TarifaSitio t = tarifaSitio(dia, idTerminal, producto);
 		if (t.despachanteUnidad == Unidad.USD_PEDIDO) {
-			return t.despachanteTarifa * pedidos;
+			return t.despachanteTarifa * escenario.factorTarifaTerminal * pedidos;
 		}
-		return t.despachanteTarifa * contenedores;
+		return t.despachanteTarifa * escenario.factorTarifaTerminal * contenedores;
 	}
 
 	private double importe(Unidad unidad, double tarifa, double toneladas, int contenedores,
@@ -19433,7 +20686,7 @@ public class DatosEntrada implements java.io.Serializable {
 			double toneladas, int viajes) {
 		TarifaFlete t = tarifaFlete(dia, origen, destino, producto);
 		double base = t.unidad == Unidad.USD_VIAJE ? t.tarifa * viajes : t.tarifa * toneladas;
-		return base + t.variableUsdTn * toneladas;
+		return (base + t.variableUsdTn * toneladas) * escenario.factorTarifaFlete;
 	}
 
 	public TarifaRoundTrip tarifaRoundTrip(int dia, String idTerminal, String sitio,
@@ -19460,7 +20713,8 @@ public class DatosEntrada implements java.io.Serializable {
 
 	public double roundTripUsdContenedor(int dia, String idTerminal, String sitio,
 			TipoContenedor tipoContenedor) {
-		return tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedor).tarifaUsdContenedor;
+		return tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedor).tarifaUsdContenedor
+			* escenario.factorTarifaRoundTrip;
 	}
 
 	/** Fila de espera vigente del recurso en el sitio. Sin fila es error de datos. */
@@ -19606,6 +20860,26 @@ public class DatosEntrada implements java.io.Serializable {
 		if (!"FLEXIBLE".equals(escenario.politicaFrioPropio)
 				&& !"REACTIVA".equals(escenario.politicaFrioPropio)) {
 			errores.add("politica_frio_propio invalida: " + escenario.politicaFrioPropio);
+		}
+
+		boolean politicaValida = false;
+		for (PoliticaSeleccion p : PoliticaSeleccion.values()) {
+			politicaValida = politicaValida || p.name().equals(escenario.politicaSeleccion);
+		}
+		if (!politicaValida) {
+			errores.add("politica_seleccion invalida: " + escenario.politicaSeleccion);
+		}
+
+		if (escenario.factorTarifaFlete <= 0 || escenario.factorTarifaRoundTrip <= 0
+				|| escenario.factorTarifaCrossDock <= 0 || escenario.factorTarifaTerminal <= 0
+				|| escenario.factorConsolidacionPlanta <= 0
+				|| escenario.factorCupoCrossDock <= 0
+				|| escenario.factorCapacidadTerminal <= 0) {
+			errores.add("Los factores de sensibilidad tarifaria deben ser > 0.");
+		}
+
+		if (escenario.servicioMinimoProyectado < 0 || escenario.servicioMinimoProyectado > 1) {
+			errores.add("servicio_minimo_proyectado debe estar en [0, 1].");
 		}
 
 		for (Producto p : productos) {
@@ -20157,7 +21431,15 @@ public class GeneradorSintetico implements java.io.Serializable {
 	/** Escenarios del barrido. Agregar uno es agregar un caso aca, no tocar el experimento. */
 	public static final String[] ESCENARIOS = {
 		"E-00", "E-01", "E-02", "E-03", "E-04", "E-05",
-		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11", "E-12", "E-13"
+		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11", "E-12", "E-13",
+		// Estrategia: quien decide el circuito (seccion 11 de la especificacion).
+		"E-14", "E-15", "E-16", "E-17",
+		// Sensibilidad tarifaria: flete, round trip, cross dock y terminal.
+		"E-18", "E-19", "E-20", "E-21", "E-22", "E-23", "E-24", "E-25",
+		// Permanencia: plazo del pedido, que es lo que fija los dias en deposito.
+		"E-26", "E-27", "E-28", "E-32", "E-33",
+		// Capacidad: frio propio, consolidacion, cross dock y terminal.
+		"E-29", "E-30", "E-31", "E-34", "E-35"
 	};
 
 	/**
@@ -20195,6 +21477,15 @@ public class GeneradorSintetico implements java.io.Serializable {
 		e.umbralObjetivoPct = 50;
 		e.diasForecast = 7;
 		e.politicaFrioPropio = "FLEXIBLE";
+		e.politicaSeleccion = "FIJA_DEPOSITO";
+		e.servicioMinimoProyectado = 0.95;
+		e.factorTarifaFlete = 1;
+		e.factorTarifaRoundTrip = 1;
+		e.factorTarifaCrossDock = 1;
+		e.factorTarifaTerminal = 1;
+		e.factorConsolidacionPlanta = 1;
+		e.factorCupoCrossDock = 1;
+		e.factorCapacidadTerminal = 1;
 
 		if (idEscenario.equals("E-00")) {
 			return e;                                    // caso base
@@ -20210,6 +21501,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 			e.factorCapacidadDeposito = 2;               // depositos al doble
 		} else if (idEscenario.equals("E-05")) {
 			e.habilitaCrossDock = true;                  // cross dock
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_DEPOSITO";
 		} else if (idEscenario.equals("E-06")) {
 			e.factorProduccion = 1.3;                    // campania alta
 		} else if (idEscenario.equals("E-07")) {
@@ -20224,10 +21516,69 @@ public class GeneradorSintetico implements java.io.Serializable {
 			e.factorStorage = 2;                         // almacenaje caro
 		} else if (idEscenario.equals("E-11")) {
 			e.estrategiaConsolidacion = "CONSOLIDACION_TERMINAL";
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_TERMINAL";
 		} else if (idEscenario.equals("E-12")) {
 			e.politicaFrioPropio = "REACTIVA";           // vaciar la planta apenas se activa
 		} else if (idEscenario.equals("E-13")) {
 			e.estrategiaConsolidacion = "CONSOLIDACION_PLANTA";
+			e.politicaSeleccion = "FIJA_PLANTA";
+		} else if (idEscenario.equals("E-14")) {
+			e.politicaSeleccion = "MENOR_COSTO_INCREMENTAL_FACTIBLE";  // estrategia mixta
+			e.habilitaCrossDock = true;
+		} else if (idEscenario.equals("E-15")) {
+			e.politicaSeleccion = "MENOR_COSTO_END_TO_END_FACTIBLE";
+			e.habilitaCrossDock = true;
+		} else if (idEscenario.equals("E-16")) {
+			e.politicaSeleccion = "PRIORIDAD_FRIO_PROPIO";
+			e.habilitaCrossDock = true;
+		} else if (idEscenario.equals("E-17")) {
+			e.politicaSeleccion = "MENOR_COSTO_INCREMENTAL_FACTIBLE";  // mixto sin cross dock
+		} else if (idEscenario.equals("E-18")) {
+			e.factorTarifaFlete = 0.8;
+		} else if (idEscenario.equals("E-19")) {
+			e.factorTarifaFlete = 1.2;
+		} else if (idEscenario.equals("E-20")) {
+			e.factorTarifaRoundTrip = 0.8;
+		} else if (idEscenario.equals("E-21")) {
+			e.factorTarifaRoundTrip = 1.2;
+		} else if (idEscenario.equals("E-22")) {
+			e.factorTarifaCrossDock = 0.8;
+			e.habilitaCrossDock = true;
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_DEPOSITO";
+		} else if (idEscenario.equals("E-23")) {
+			e.factorTarifaCrossDock = 1.2;
+			e.habilitaCrossDock = true;
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_DEPOSITO";
+		} else if (idEscenario.equals("E-24")) {
+			e.factorTarifaTerminal = 0.8;
+		} else if (idEscenario.equals("E-25")) {
+			e.factorTarifaTerminal = 1.2;
+		} else if (idEscenario.equals("E-26")) {
+			e.plazoPedidoDias = 7;                       // permanencia corta
+		} else if (idEscenario.equals("E-27")) {
+			e.plazoPedidoDias = 30;
+		} else if (idEscenario.equals("E-28")) {
+			e.plazoPedidoDias = 60;                      // permanencia larga
+		} else if (idEscenario.equals("E-29")) {
+			e.factorCapacidadPlanta = 0.8;               // frio propio -20 %
+		} else if (idEscenario.equals("E-30")) {
+			e.factorCapacidadPlanta = 1.2;               // frio propio +20 %
+		} else if (idEscenario.equals("E-31")) {
+			e.estrategiaConsolidacion = "CONSOLIDACION_PLANTA";
+			e.politicaSeleccion = "FIJA_PLANTA";
+			e.factorConsolidacionPlanta = 0.5;           // consolidacion de planta reducida
+		} else if (idEscenario.equals("E-32")) {
+			e.plazoPedidoDias = 15;                      // permanencia media
+		} else if (idEscenario.equals("E-33")) {
+			e.plazoPedidoDias = 45;
+		} else if (idEscenario.equals("E-34")) {
+			e.habilitaCrossDock = true;                  // cupo de cross dock reducido
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_DEPOSITO";
+			e.factorCupoCrossDock = 0.5;
+		} else if (idEscenario.equals("E-35")) {
+			e.estrategiaConsolidacion = "CONSOLIDACION_TERMINAL";
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_TERMINAL";
+			e.factorCapacidadTerminal = 0.5;             // terminal restringida
 		} else {
 			throw new RuntimeException("Escenario no definido: " + idEscenario);
 		}
@@ -20256,7 +21607,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 		DatosEntrada.Escenario escenario = datos.escenario;
 
 		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true,
-			VELOCIDAD_CARGA_PLANTA, 0, VELOCIDAD_ESTIBA_PLANTA, 0, CONTENEDORES_DIA_PLANTA, 0));
+			VELOCIDAD_CARGA_PLANTA, 0, VELOCIDAD_ESTIBA_PLANTA, 0,
+			CONTENEDORES_DIA_PLANTA * escenario.factorConsolidacionPlanta, 0));
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
 			datos.productos.add(new DatosEntrada.Producto(
@@ -20275,7 +21627,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 				DEPOSITOS[d], "DEPOSITO", true, 50, 0, CONSOLIDACION_DEPOSITO[d][0], 0,
-				CONSOLIDACION_DEPOSITO[d][1], CONSOLIDACION_DEPOSITO[d][2]));
+				CONSOLIDACION_DEPOSITO[d][1],
+				CONSOLIDACION_DEPOSITO[d][2] * escenario.factorCupoCrossDock));
 			datos.distancias.add(new DatosEntrada.Distancia(PLANTA, DEPOSITOS[d], DISTANCIA[d][0]));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
@@ -20286,7 +21639,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 				// egreso. IN y OUT son valores de referencia (supuesto): el cross dock
 				// no los paga porque el producto no entra al almacenamiento (ADR-053).
 				tarifaSitio(datos, DEPOSITOS[d], PRODUCTOS[p], IN_DEPOSITO[p],
-					STORAGE[d][p] * escenario.factorStorage, OUT_DEPOSITO[p], 0,
+					STORAGE[d][p], OUT_DEPOSITO[p], 0,
 					PENALIDAD_SOBRECARGA,
 					ESTIBA_DEPOSITO[d][p], CROSS_DOCK_DEPOSITO[d][p], 0, 0, 0);
 			}
@@ -20300,7 +21653,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 				TERMINALES[t], "TERMINAL", true, 0,
 				TERMINAL_OPERACION[t][1], TERMINAL_OPERACION[t][2], TERMINAL_OPERACION[t][0],
-				CONSOLIDACION_TERMINAL[t], 0));
+				CONSOLIDACION_TERMINAL[t] * escenario.factorCapacidadTerminal, 0));
 
 			datos.distancias.add(
 				new DatosEntrada.Distancia(PLANTA, TERMINALES[t], DISTANCIA_PLANTA_TERMINAL[t]));
@@ -20613,6 +21966,15 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.umbralObjetivoPct = f.numero("umbral_objetivo_pct");
 			e.diasForecast = f.entero("dias_forecast");
 			e.politicaFrioPropio = f.texto("politica_frio_propio");
+			e.politicaSeleccion = f.texto("politica_seleccion");
+			e.servicioMinimoProyectado = f.numero("servicio_minimo_proyectado");
+			e.factorTarifaFlete = f.numero("factor_tarifa_flete");
+			e.factorTarifaRoundTrip = f.numero("factor_tarifa_round_trip");
+			e.factorTarifaCrossDock = f.numero("factor_tarifa_cross_dock");
+			e.factorTarifaTerminal = f.numero("factor_tarifa_terminal");
+			e.factorConsolidacionPlanta = f.numero("factor_consolidacion_planta");
+			e.factorCupoCrossDock = f.numero("factor_cupo_cross_dock");
+			e.factorCapacidadTerminal = f.numero("factor_capacidad_terminal");
 			datos.escenario = e;
 		}
 
@@ -21011,6 +22373,101 @@ public class Capa implements java.io.Serializable {
 		return "Capa[lote=" + idLote + " " + producto + " " + idUbicacion
 				+ " dia=" + diaIngreso + " tn=" + toneladas
 				+ " reservadas=" + reservadas() + "]";
+	}
+}]]></Text>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
+			<Id>1791200000201</Id>
+			<Name><![CDATA[AlternativaCircuito]]></Name>
+			<Text><![CDATA[/**
+ * Una alternativa de circuito para un pedido: de donde sale el producto, donde
+ * se arma el contenedor, si llega a tiempo y cuanto cuesta (ADR-054).
+ *
+ * Es un dato y no un agente: PLE admite 10 tipos y el modelo ya los usa
+ * (ADR-030). El plan seleccionado si se materializa como PlanLogistico, que es
+ * el agente que el proyecto ya tenia reservado para eso.
+ */
+public class AlternativaCircuito implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	public String idOrigen = "";              // sitio del que sale el producto
+	public String sitioEstiba = "";           // donde se arma el contenedor
+	public EstrategiaLogistica circuito = EstrategiaLogistica.SIN_DEFINIR;
+	public boolean esCrossDock = false;
+
+	public double toneladas = 0;
+	public int contenedores = 0;
+
+	public boolean factible = false;
+	public String motivoNoFactible = "";
+
+	public double diaEntregaEstimado = 0;
+	public boolean llegaATiempo = false;
+
+	// Descomposicion del incremental: el evaluador no compara un numero opaco, y
+	// cada componente es el mismo concepto que despues se devenga en el registro.
+	public double costoFleteProducto = 0;
+	public double costoRoundTrip = 0;
+	public double costoEstiba = 0;            // consolidacion o cross dock, segun el circuito
+	public double costoOut = 0;
+	public double costoTHC = 0;
+	public double costoTerminal = 0;
+	public double costoDespachante = 0;
+
+	// Descomposicion del hundido: lo que el stock ya pago para estar donde esta.
+	public double costoInHundido = 0;
+	public double costoAlmacenajeHundido = 0;
+	public double costoFleteHundido = 0;
+
+	/** Costo hundido del stock que consumiria: no debe decidir nada (seccion 7.1). */
+	public double costoHistorico = 0;
+
+	/** Lo que agrega la decision desde hoy: la vista tactica (seccion 7.2). */
+	public double costoIncremental = 0;
+
+	/** Historico mas incremental: la vista estrategica (seccion 7.3). */
+	public double costoEndToEnd = 0;
+
+	public AlternativaCircuito(String idOrigen, String sitioEstiba, EstrategiaLogistica circuito,
+			boolean esCrossDock, double toneladas, int contenedores) {
+		this.idOrigen = idOrigen;
+		this.sitioEstiba = sitioEstiba;
+		this.circuito = circuito;
+		this.esCrossDock = esCrossDock;
+		this.toneladas = toneladas;
+		this.contenedores = contenedores;
+	}
+
+	/** Suma las componentes: el total no se carga aparte para que no puedan diferir. */
+	public void totalizar() {
+		costoIncremental = costoFleteProducto + costoRoundTrip + costoEstiba + costoOut
+			+ costoTHC + costoTerminal + costoDespachante;
+		costoHistorico = costoInHundido + costoAlmacenajeHundido + costoFleteHundido;
+		costoEndToEnd = costoHistorico + costoIncremental;
+	}
+
+	public void descartar(String motivo) {
+		factible = false;
+		motivoNoFactible = motivo;
+	}
+
+	public double costoSegun(boolean endToEnd) {
+		return endToEnd ? costoEndToEnd : costoIncremental;
+	}
+
+	/** Clave estable para desempatar: dos alternativas iguales no dependen del orden. */
+	public String clave() {
+		return circuito + "|" + idOrigen + "|" + sitioEstiba;
+	}
+
+	public String descripcion() {
+		return circuito + " desde " + idOrigen
+			+ " (estiba en " + sitioEstiba + ")"
+			+ " | incremental USD " + Math.round(costoIncremental)
+			+ " | end-to-end USD " + Math.round(costoEndToEnd)
+			+ (factible ? (llegaATiempo ? " | a tiempo" : " | tarde") : " | descartada: " + motivoNoFactible);
 	}
 }]]></Text>
 		</JavaClass>

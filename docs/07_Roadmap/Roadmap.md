@@ -229,6 +229,19 @@ Implementado en el modelo y verificado en PLE (ADR-053), versión `fase-22`.
 - [x] Verificado en PLE: build limpio, campaña completa de 183 días sin excepciones, 420 corridas `Finished` con CSV etiquetado `fase-22`, y los KPIs físicos y de servicio idénticos a `fase-21` fila por fila. El costo sube entre 11,8 % y 37,2 % según escenario.
 - [ ] Pendiente: V-COST-06 (transferencia depósito → depósito) queda documentado sin movimiento físico, por decisión del usuario. Los valores de IN, OUT, THC, costo terminal y despachante son supuestos (`SUPUESTO_C3`) hasta que se carguen los reales.
 
+## 11h. C5 y C6 — Escenarios económicos y evaluador de circuitos
+
+Implementado en el modelo y verificado en PLE (ADR-054), versión `fase-23`.
+
+- [x] `politica_seleccion` en el contrato: las `FIJA_*` y `MANUAL` reproducen la conducta previa y quedan como regresión; `PRIORIDAD_FRIO_PROPIO`, `MENOR_COSTO_INCREMENTAL_FACTIBLE` y `MENOR_COSTO_END_TO_END_FACTIBLE` activan el evaluador.
+- [x] `servicio_minimo_proyectado`, cuatro factores de sensibilidad tarifaria y tres de capacidad (`factor_consolidacion_planta`, `factor_cupo_cross_dock`, `factor_capacidad_terminal`), por generador sintético, validación, importador de Excel, `tools/VolcarDatos.java` y plantilla.
+- [x] `AlternativaCircuito` (clase Java plana) y `PlanLogistico` poblado: origen, sitio de estiba, circuito, factibilidad con motivo, fecha estimada, servicio proyectado y costo por componente, con las vistas incremental, histórica y end-to-end.
+- [x] Evaluador en `Main`: genera alternativas desde el stock real, verifica factibilidad **sin mutar inventario**, costea, ordena por servicio y después por costo, y ejecuta la elegida con el flujo físico que ya existía.
+- [x] Cinco KPIs de decisión en el CSV (`planes_emitidos`, `planes_tardios`, `alternativas_evaluadas`, `alternativas_descartadas`, `pedidos_sin_alternativa_factible`), en 0 cuando la política es fija.
+- [x] 22 escenarios nuevos (E-14 a E-35): estrategia, sensibilidad tarifaria, permanencia y capacidad; el barrido pasa a 36 × 30 = 1 080 corridas.
+- [x] Verificado en PLE: build limpio, 1 080 corridas `Finished` con CSV `fase-23`, los 14 escenarios de política fija idénticos a `fase-22` fila por fila, y la corrida desde Excel idéntica a la sintética.
+- [ ] Pendiente en C7: la alternativa depósito → depósito se genera siempre descartada, porque el movimiento físico no existe.
+
 ## 12. Fase 9 — Terminal
 
 - [ ] Entrega de vacíos.

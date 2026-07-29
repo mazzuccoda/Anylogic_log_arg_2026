@@ -271,9 +271,13 @@ stateDiagram-v2
 
 ### Rol
 
-Representar una alternativa sin ejecutarla.
+Guardar la decisión de un pedido: qué alternativas se evaluaron, cuáles se descartaron y por qué, cuál se eligió y con qué costo. Desde ADR-054 se emite uno por pedido cuando la política del escenario es económica; con política fija no se emite ninguno.
 
 ### Contenido
+
+Del plan: pedido, origen elegido, sitio de estiba, toneladas, día de decisión, día de entrega estimado, si llega a tiempo, política, motivo de selección, alternativas evaluadas y descartadas, y la lista completa de `AlternativaCircuito`.
+
+De cada alternativa (`AlternativaCircuito`, clase Java plana):
 
 - origen del producto;
 - lugar de consolidación;

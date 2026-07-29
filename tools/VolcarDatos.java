@@ -27,7 +27,10 @@ public class VolcarDatos {
 				+ "\tfactor_storage\tventana_demanda\thabilita_cross_dock\tdeterministico"
 				+ "\testrategia_consolidacion\tcliente_default\tcalidad_default"
 				+ "\tumbral_alerta_pct\tumbral_sobrecarga_pct\tumbral_objetivo_pct\tdias_forecast"
-				+ "\tpolitica_frio_propio");
+				+ "\tpolitica_frio_propio\tpolitica_seleccion\tservicio_minimo_proyectado"
+				+ "\tfactor_tarifa_flete\tfactor_tarifa_round_trip\tfactor_tarifa_cross_dock"
+				+ "\tfactor_tarifa_terminal\tfactor_consolidacion_planta"
+				+ "\tfactor_cupo_cross_dock\tfactor_capacidad_terminal");
 		for (String id : GeneradorSintetico.ESCENARIOS) {
 			DatosEntrada.Escenario e = GeneradorSintetico.escenario(id, semilla);
 			System.out.println(e.idEscenario
@@ -57,7 +60,16 @@ public class VolcarDatos {
 					+ "\t" + e.umbralSobrecargaPct
 					+ "\t" + e.umbralObjetivoPct
 					+ "\t" + e.diasForecast
-					+ "\t" + e.politicaFrioPropio);
+					+ "\t" + e.politicaFrioPropio
+					+ "\t" + e.politicaSeleccion
+					+ "\t" + e.servicioMinimoProyectado
+					+ "\t" + e.factorTarifaFlete
+					+ "\t" + e.factorTarifaRoundTrip
+					+ "\t" + e.factorTarifaCrossDock
+					+ "\t" + e.factorTarifaTerminal
+					+ "\t" + e.factorConsolidacionPlanta
+					+ "\t" + e.factorCupoCrossDock
+					+ "\t" + e.factorCapacidadTerminal);
 		}
 
 		hoja("Producto", "producto\ttipo_contenedor\tcapacidad_contenedor_tn\ttoneladas_objetivo_lote_tn");

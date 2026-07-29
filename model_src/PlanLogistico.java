@@ -32,6 +32,19 @@ class PlanLogistico extends Agent {
     double costoIncremental = 0;
     double costoTotalEndToEnd = 0;
 
+    // ----- Variables -----
+    String idOrigen = "";
+    String idSitioEstiba = "";
+    double toneladas = 0;
+    double diaDecision = -1;
+    double diaEntregaEstimado = -1;
+    boolean llegaATiempo = false;
+    String politica = "";
+    String motivoSeleccion = "";
+    int alternativasEvaluadas = 0;
+    int alternativasDescartadas = 0;
+    java.util.List<AlternativaCircuito> alternativas = new java.util.ArrayList<AlternativaCircuito>();
+
     // ----- Funciones -----
 
     void recalcularCostos() {

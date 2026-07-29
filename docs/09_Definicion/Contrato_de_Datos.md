@@ -220,6 +220,15 @@ Los datos operativos de la planta (velocidades, `contenedores_por_dia`, tarifa d
 | `dias_forecast` | int | >= 0. Horizonte del forecast de producción, default 7 (ADR-048) |
 | `politica_frio_propio` | texto | `FLEXIBLE` o `REACTIVA` (ADR-048) |
 | `habilita_cross_dock` | bool | |
+| `politica_seleccion` | enum | Quién elige el circuito de cada pedido (ADR-054): `FIJA_PLANTA`, `FIJA_DEPOSITO`, `FIJA_CROSS_DOCK_DEPOSITO`, `FIJA_CROSS_DOCK_TERMINAL`, `MANUAL` reproducen la conducta previa al evaluador; `PRIORIDAD_FRIO_PROPIO`, `MENOR_COSTO_INCREMENTAL_FACTIBLE` y `MENOR_COSTO_END_TO_END_FACTIBLE` lo activan |
+| `servicio_minimo_proyectado` | double | 0..1. Por encima de 0, ninguna alternativa tardía se elige mientras haya una que llega a tiempo (default 0,95) |
+| `factor_tarifa_flete` | double | > 0. Sensibilidad sobre la tarifa de flete de producto, en la cotización **y** en el devengo |
+| `factor_tarifa_round_trip` | double | > 0. Ídem sobre el ciclo del portacontenedor |
+| `factor_tarifa_cross_dock` | double | > 0. Ídem sobre el servicio de cross dock |
+| `factor_tarifa_terminal` | double | > 0. Ídem sobre THC, costo de terminal y despachante |
+| `factor_consolidacion_planta` | double | > 0. Multiplica `contenedores_por_dia` de la planta |
+| `factor_cupo_cross_dock` | double | > 0. Multiplica el cupo diario de cross dock de cada depósito |
+| `factor_capacidad_terminal` | double | > 0. Multiplica `contenedores_por_dia` de la terminal |
 | `politica_prioridad` | enum | `FECHA_LIMITE`, `FIFO`, `MAYOR_VOLUMEN` |
 | `tipo_cambio_ars_usd` | double | Para tarifas en ARS |
 
@@ -286,7 +295,7 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 
 | Hoja | Columnas |
 |---|---|
-| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default`, `umbral_alerta_pct`, `umbral_sobrecarga_pct`, `umbral_objetivo_pct`, `dias_forecast`, `politica_frio_propio` |
+| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default`, `umbral_alerta_pct`, `umbral_sobrecarga_pct`, `umbral_objetivo_pct`, `dias_forecast`, `politica_frio_propio`, `politica_seleccion`, `servicio_minimo_proyectado`, `factor_tarifa_flete`, `factor_tarifa_round_trip`, `factor_tarifa_cross_dock`, `factor_tarifa_terminal`, `factor_consolidacion_planta`, `factor_cupo_cross_dock`, `factor_capacidad_terminal` |
 | `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn`, `toneladas_objetivo_lote_tn` |
 | `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `contenedores_por_dia`, `posiciones_cross_dock` |
 | `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |

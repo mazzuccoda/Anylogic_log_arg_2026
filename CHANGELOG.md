@@ -6,6 +6,23 @@ Formato: una entrada por cambio relevante del modelo o de las definiciones. Las 
 
 ### Agregado
 
+- Modelo, evaluador de circuitos por pedido (C5+C6, ADR-054), versión `fase-23`. `PlanLogistico` deja de estar muerto: con una política económica, cada pedido genera alternativas a partir del stock real —consolidación en el sitio donde está el producto, cross dock por depósito habilitado y circuito de terminal—, se descartan las no factibles con motivo escrito, se costean por componente y se elige la mejor por servicio y después por costo. La elegida se ejecuta con el flujo físico que ya existía, no con un camino paralelo.
+- `AlternativaCircuito`: clase Java plana (el modelo sigue en 10 de 10 tipos de agente de PLE) con origen, sitio de estiba, circuito, factibilidad, motivo, fecha estimada, servicio proyectado y los componentes de costo, más las vistas `costoIncremental`, `costoHistorico` y `costoEndToEnd`.
+- `Main.asignarConEvaluador`, `evaluarAlternativa`, `costearAlternativa`, `costearHundidoAlternativa`, `horasCicloAlternativa`, `ordenarAlternativas`, `ejecutarAlternativa` y `registrarPlan`. La factibilidad **no muta inventario**: evaluar no reserva.
+- `politica_seleccion` y `servicio_minimo_proyectado` en el contrato de datos. Las políticas `FIJA_*` y `MANUAL` reproducen la conducta previa al evaluador y son la regresión; `PRIORIDAD_FRIO_PROPIO`, `MENOR_COSTO_INCREMENTAL_FACTIBLE` y `MENOR_COSTO_END_TO_END_FACTIBLE` lo activan.
+- Siete factores de escenario nuevos: `factor_tarifa_flete`, `factor_tarifa_round_trip`, `factor_tarifa_cross_dock`, `factor_tarifa_terminal`, `factor_consolidacion_planta`, `factor_cupo_cross_dock` y `factor_capacidad_terminal`, todos con default 1.
+- 22 escenarios (E-14 a E-35): estrategia de decisión, sensibilidad tarifaria ±20 %, permanencia de 7/15/30/45/60 días y capacidad reducida de frío propio, consolidación en planta, cross dock y terminal. El barrido pasa de 420 a 1 080 corridas.
+- Cinco KPIs de decisión en `resultados/kpis_por_corrida.csv`: `planes_emitidos`, `planes_tardios`, `alternativas_evaluadas`, `alternativas_descartadas` y `pedidos_sin_alternativa_factible`, más la política de selección en la configuración que el barrido imprime por escenario.
+- ADR-054 y los diez casos de validación V-DEC-01 a V-DEC-10.
+
+### Corregido
+
+- Los factores de sensibilidad tarifaria se aplicaban en la cotización pero no en el devengo: el cobro leía el campo crudo de la fila de tarifa mientras la auditoría por envío leía el accesor con el factor, así que con cualquier factor distinto de 1 la corrida abortaba (E-20: round trip devengado 390,0 contra 312,0 cotizado). El devengo pasa a usar los mismos accesores que la auditoría, de modo que los ocho escenarios de sensibilidad miden lo que dicen medir.
+
+### Cambiado
+
+- Con el evaluador activo los pedidos pendientes se ordenan por fecha límite y código antes de asignarse, para que la decisión no dependa del orden de población de la lista. Con política fija el orden anterior se conserva intacto.
+
 - Modelo, contrato de costos con unidad, proveedor y vigencia mensual (C1, ADR-051). Cuatro tablas —`TarifaFleteProducto`, `TarifaRoundTrip`, `TarifaSitio` y `TarifaEspera`— reemplazan a `TarifaAlmacenamiento`, `TarifaServicioCarga`, `TarifaCicloContenedor`, `TarifaTerminal`, `TarifaTHC` y `TarifaDespachante`. Toda tarifa lleva `proveedor`, `vigencia_desde`, `vigencia_hasta` y `habilitada`, y las consultas `DatosEntrada.tarifaFlete/tarifaRoundTrip/tarifaSitio/tarifaEspera` resuelven por **día de campaña**: si no hay fila vigente, o hay dos para la misma clave, la corrida aborta con la clave y el día en el mensaje, en lugar de devolver un cero silencioso.
 - `DatosEntrada.importe(unidad, tarifa, toneladas, contenedores, motivo)` y los envoltorios `importeFlete`, `importeConsolidacion`, `importeCrossDock` y `roundTripUsdContenedor`: la unidad de la fila (`USD_VIAJE`, `USD_TN`, `USD_CONTENEDOR`, `USD_TN_DIA`, `USD_HORA`, `USD_OPERACION`, `USD_PEDIDO`) decide la base de cálculo. El flete de producto acepta las dos unidades en la misma tabla, con `variable_usd_tn` opcional junto a la tarifa por viaje.
 - Modelo, registro auditable de cargos (C2, ADR-052). `RegistroCostos` (clase Java, no un tipo de agente: el modelo sigue en 10 de 10 de PLE) guarda un `Cargo` inmutable por evento económico, con identidad, día, categoría, tipo (`CAJA` o `ECONOMICO`), pedido, contenedor, lote, producto, origen, destino, sitio, estrategia, proveedor, unidad, cantidad, tarifa e importe **calculado** como `cantidad × tarifa`. `registrar()` es idempotente por operación, categoría, unidad y motivo, y devuelve lo que efectivamente entró al registro.

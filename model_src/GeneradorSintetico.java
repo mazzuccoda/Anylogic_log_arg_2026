@@ -186,7 +186,15 @@ public class GeneradorSintetico implements java.io.Serializable {
 	/** Escenarios del barrido. Agregar uno es agregar un caso aca, no tocar el experimento. */
 	public static final String[] ESCENARIOS = {
 		"E-00", "E-01", "E-02", "E-03", "E-04", "E-05",
-		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11", "E-12", "E-13"
+		"E-06", "E-07", "E-08", "E-09", "E-10", "E-11", "E-12", "E-13",
+		// Estrategia: quien decide el circuito (seccion 11 de la especificacion).
+		"E-14", "E-15", "E-16", "E-17",
+		// Sensibilidad tarifaria: flete, round trip, cross dock y terminal.
+		"E-18", "E-19", "E-20", "E-21", "E-22", "E-23", "E-24", "E-25",
+		// Permanencia: plazo del pedido, que es lo que fija los dias en deposito.
+		"E-26", "E-27", "E-28", "E-32", "E-33",
+		// Capacidad: frio propio, consolidacion, cross dock y terminal.
+		"E-29", "E-30", "E-31", "E-34", "E-35"
 	};
 
 	/**
@@ -224,6 +232,15 @@ public class GeneradorSintetico implements java.io.Serializable {
 		e.umbralObjetivoPct = 50;
 		e.diasForecast = 7;
 		e.politicaFrioPropio = "FLEXIBLE";
+		e.politicaSeleccion = "FIJA_DEPOSITO";
+		e.servicioMinimoProyectado = 0.95;
+		e.factorTarifaFlete = 1;
+		e.factorTarifaRoundTrip = 1;
+		e.factorTarifaCrossDock = 1;
+		e.factorTarifaTerminal = 1;
+		e.factorConsolidacionPlanta = 1;
+		e.factorCupoCrossDock = 1;
+		e.factorCapacidadTerminal = 1;
 
 		if (idEscenario.equals("E-00")) {
 			return e;                                    // caso base
@@ -239,6 +256,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 			e.factorCapacidadDeposito = 2;               // depositos al doble
 		} else if (idEscenario.equals("E-05")) {
 			e.habilitaCrossDock = true;                  // cross dock
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_DEPOSITO";
 		} else if (idEscenario.equals("E-06")) {
 			e.factorProduccion = 1.3;                    // campania alta
 		} else if (idEscenario.equals("E-07")) {
@@ -253,10 +271,69 @@ public class GeneradorSintetico implements java.io.Serializable {
 			e.factorStorage = 2;                         // almacenaje caro
 		} else if (idEscenario.equals("E-11")) {
 			e.estrategiaConsolidacion = "CONSOLIDACION_TERMINAL";
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_TERMINAL";
 		} else if (idEscenario.equals("E-12")) {
 			e.politicaFrioPropio = "REACTIVA";           // vaciar la planta apenas se activa
 		} else if (idEscenario.equals("E-13")) {
 			e.estrategiaConsolidacion = "CONSOLIDACION_PLANTA";
+			e.politicaSeleccion = "FIJA_PLANTA";
+		} else if (idEscenario.equals("E-14")) {
+			e.politicaSeleccion = "MENOR_COSTO_INCREMENTAL_FACTIBLE";  // estrategia mixta
+			e.habilitaCrossDock = true;
+		} else if (idEscenario.equals("E-15")) {
+			e.politicaSeleccion = "MENOR_COSTO_END_TO_END_FACTIBLE";
+			e.habilitaCrossDock = true;
+		} else if (idEscenario.equals("E-16")) {
+			e.politicaSeleccion = "PRIORIDAD_FRIO_PROPIO";
+			e.habilitaCrossDock = true;
+		} else if (idEscenario.equals("E-17")) {
+			e.politicaSeleccion = "MENOR_COSTO_INCREMENTAL_FACTIBLE";  // mixto sin cross dock
+		} else if (idEscenario.equals("E-18")) {
+			e.factorTarifaFlete = 0.8;
+		} else if (idEscenario.equals("E-19")) {
+			e.factorTarifaFlete = 1.2;
+		} else if (idEscenario.equals("E-20")) {
+			e.factorTarifaRoundTrip = 0.8;
+		} else if (idEscenario.equals("E-21")) {
+			e.factorTarifaRoundTrip = 1.2;
+		} else if (idEscenario.equals("E-22")) {
+			e.factorTarifaCrossDock = 0.8;
+			e.habilitaCrossDock = true;
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_DEPOSITO";
+		} else if (idEscenario.equals("E-23")) {
+			e.factorTarifaCrossDock = 1.2;
+			e.habilitaCrossDock = true;
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_DEPOSITO";
+		} else if (idEscenario.equals("E-24")) {
+			e.factorTarifaTerminal = 0.8;
+		} else if (idEscenario.equals("E-25")) {
+			e.factorTarifaTerminal = 1.2;
+		} else if (idEscenario.equals("E-26")) {
+			e.plazoPedidoDias = 7;                       // permanencia corta
+		} else if (idEscenario.equals("E-27")) {
+			e.plazoPedidoDias = 30;
+		} else if (idEscenario.equals("E-28")) {
+			e.plazoPedidoDias = 60;                      // permanencia larga
+		} else if (idEscenario.equals("E-29")) {
+			e.factorCapacidadPlanta = 0.8;               // frio propio -20 %
+		} else if (idEscenario.equals("E-30")) {
+			e.factorCapacidadPlanta = 1.2;               // frio propio +20 %
+		} else if (idEscenario.equals("E-31")) {
+			e.estrategiaConsolidacion = "CONSOLIDACION_PLANTA";
+			e.politicaSeleccion = "FIJA_PLANTA";
+			e.factorConsolidacionPlanta = 0.5;           // consolidacion de planta reducida
+		} else if (idEscenario.equals("E-32")) {
+			e.plazoPedidoDias = 15;                      // permanencia media
+		} else if (idEscenario.equals("E-33")) {
+			e.plazoPedidoDias = 45;
+		} else if (idEscenario.equals("E-34")) {
+			e.habilitaCrossDock = true;                  // cupo de cross dock reducido
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_DEPOSITO";
+			e.factorCupoCrossDock = 0.5;
+		} else if (idEscenario.equals("E-35")) {
+			e.estrategiaConsolidacion = "CONSOLIDACION_TERMINAL";
+			e.politicaSeleccion = "FIJA_CROSS_DOCK_TERMINAL";
+			e.factorCapacidadTerminal = 0.5;             // terminal restringida
 		} else {
 			throw new RuntimeException("Escenario no definido: " + idEscenario);
 		}
@@ -285,7 +362,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 		DatosEntrada.Escenario escenario = datos.escenario;
 
 		datos.ubicaciones.add(new DatosEntrada.Ubicacion(PLANTA, "PLANTA", true,
-			VELOCIDAD_CARGA_PLANTA, 0, VELOCIDAD_ESTIBA_PLANTA, 0, CONTENEDORES_DIA_PLANTA, 0));
+			VELOCIDAD_CARGA_PLANTA, 0, VELOCIDAD_ESTIBA_PLANTA, 0,
+			CONTENEDORES_DIA_PLANTA * escenario.factorConsolidacionPlanta, 0));
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
 			datos.productos.add(new DatosEntrada.Producto(
@@ -304,7 +382,8 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 				DEPOSITOS[d], "DEPOSITO", true, 50, 0, CONSOLIDACION_DEPOSITO[d][0], 0,
-				CONSOLIDACION_DEPOSITO[d][1], CONSOLIDACION_DEPOSITO[d][2]));
+				CONSOLIDACION_DEPOSITO[d][1],
+				CONSOLIDACION_DEPOSITO[d][2] * escenario.factorCupoCrossDock));
 			datos.distancias.add(new DatosEntrada.Distancia(PLANTA, DEPOSITOS[d], DISTANCIA[d][0]));
 
 			for (int p = 0; p < PRODUCTOS.length; p++) {
@@ -315,7 +394,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 				// egreso. IN y OUT son valores de referencia (supuesto): el cross dock
 				// no los paga porque el producto no entra al almacenamiento (ADR-053).
 				tarifaSitio(datos, DEPOSITOS[d], PRODUCTOS[p], IN_DEPOSITO[p],
-					STORAGE[d][p] * escenario.factorStorage, OUT_DEPOSITO[p], 0,
+					STORAGE[d][p], OUT_DEPOSITO[p], 0,
 					PENALIDAD_SOBRECARGA,
 					ESTIBA_DEPOSITO[d][p], CROSS_DOCK_DEPOSITO[d][p], 0, 0, 0);
 			}
@@ -329,7 +408,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 				TERMINALES[t], "TERMINAL", true, 0,
 				TERMINAL_OPERACION[t][1], TERMINAL_OPERACION[t][2], TERMINAL_OPERACION[t][0],
-				CONSOLIDACION_TERMINAL[t], 0));
+				CONSOLIDACION_TERMINAL[t] * escenario.factorCapacidadTerminal, 0));
 
 			datos.distancias.add(
 				new DatosEntrada.Distancia(PLANTA, TERMINALES[t], DISTANCIA_PLANTA_TERMINAL[t]));

@@ -73,6 +73,15 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.umbralObjetivoPct = f.numero("umbral_objetivo_pct");
 			e.diasForecast = f.entero("dias_forecast");
 			e.politicaFrioPropio = f.texto("politica_frio_propio");
+			e.politicaSeleccion = f.texto("politica_seleccion");
+			e.servicioMinimoProyectado = f.numero("servicio_minimo_proyectado");
+			e.factorTarifaFlete = f.numero("factor_tarifa_flete");
+			e.factorTarifaRoundTrip = f.numero("factor_tarifa_round_trip");
+			e.factorTarifaCrossDock = f.numero("factor_tarifa_cross_dock");
+			e.factorTarifaTerminal = f.numero("factor_tarifa_terminal");
+			e.factorConsolidacionPlanta = f.numero("factor_consolidacion_planta");
+			e.factorCupoCrossDock = f.numero("factor_cupo_cross_dock");
+			e.factorCapacidadTerminal = f.numero("factor_capacidad_terminal");
 			datos.escenario = e;
 		}
 
