@@ -39,16 +39,21 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Detectar exceso sobre stock objetivo] --> B[Seleccionar lote con saldo libre]
-    B --> C[Determinar cantidad parcial]
-    C --> D[Seleccionar depósito compatible]
-    D --> E{Capacidad suficiente?}
-    E -->|No| F[Buscar otra alternativa o detener]
-    E -->|Sí| G[Retirar saldo de planta]
-    G --> H[Registrar saldo en depósito]
-    H --> I[Aplicar flete e IN]
-    I --> J[Registrar fecha de ingreso]
+    A[Calcular tn a sacar: max de desborde, servicio y preventivo] --> B[Seleccionar depósito factible no agotado]
+    B --> C{Hay candidato?}
+    C -->|No| D[Registrar transferencia incompleta y conservar el saldo en planta]
+    C -->|Sí| E[Mover lo que ese depósito acepte]
+    E --> F[Aplicar flete e IN y registrar fecha de ingreso]
+    F --> G{Queda pendiente?}
+    G -->|Sí| H[Marcar el depósito como agotado del día] --> B
+    G -->|No| I[Fin]
 ```
+
+La cantidad a sacar combina **tres componentes con `max`, no con suma** (ADR-056): desborde sobre la capacidad nominal, servicio (lo que los pedidos van a necesitar desde depósito) y preventivo (bajar del umbral de alerta al objetivo, mirando el forecast de producción). Con política `REACTIVA` el componente preventivo no existe.
+
+El objetivo se **reparte**: una transferencia de 300 tn no se detiene porque en el primer depósito entren 100. El bucle marca ese destino como agotado por hoy y sigue con el siguiente factible hasta cubrir el objetivo, agotar el stock libre o agotar los candidatos. Lo que queda sin mover se cuenta en `transferencias_incompletas`, que es la lectura de falta de espacio en la red.
+
+Cuando la planta está en **sobrecarga crítica** cambia la prioridad del destino —espacio disponible primero, costo como desempate— y **no** el volumen: sumar un cuarto componente sería contar dos veces las mismas toneladas. La producción nunca se bloquea, el producto no se pierde y la penalidad del día se sigue devengando.
 
 Reglas:
 
@@ -73,15 +78,24 @@ Reglas:
 
 ```mermaid
 flowchart TD
-    A[Pedido con lote] --> B[Obtener ubicaciones y saldos libres]
-    B --> C[Ordenar según regla]
-    C --> D[Reservar cantidad por ubicación]
-    D --> E{Cubre pedido?}
-    E -->|Sí| F[Pedido RESERVADO]
-    E -->|No| G[Revertir o dejar pendiente según política]
+    A[Pedido con saldo pendiente de asignar] --> B[Ordenar orígenes factibles según la política]
+    B --> C[Reservar en el primero lo que tenga libre]
+    C --> D[Crear AsignacionPedido con clave pedido-asignacion]
+    D --> E{Cubre el pedido?}
+    E -->|No, y hay candidatos| B
+    E -->|No, sin candidatos| F[Conservar lo reservado: el saldo sigue siendo demanda]
+    E -->|Sí| G[Pedido con reserva completa]
 ```
 
-La política inicial recomendada es reserva atómica: si no puede cubrirse toda la cantidad, se revierte. Una política parcial puede agregarse después.
+La reserva **no es atómica** (ADR-055): se reserva lo que cada origen pueda dar y se conserva. Un pedido de 500 tn puede quedar cubierto por tres asignaciones de tres sitios distintos, en el mismo día o a lo largo de varios, y cada una tiene su clave de reserva `codigoPedido|idAsignacion`, su circuito y su condición de cross dock. El saldo no cubierto vuelve a competir al día siguiente en lugar de rechazar el pedido.
+
+Las políticas `FIJA_*` conservan su orden de candidatos: lo único que cambia es que aceptan lo que hay en vez de exigir el pedido completo. Las políticas económicas ordenan con el evaluador (ADR-054).
+
+### 5.1 Contenedorización, despacho y entrega
+
+Los contenedores se crean **por asignación y progresivamente**: mientras la reserva viva alcanza para uno completo se arma uno. El último parcial se difiere, porque en el contrato paga como uno lleno, y sólo se arma si el pedido ya está completamente asignado, venció o terminó la campaña.
+
+El despacho consume la reserva **por clave**, así que dos asignaciones del mismo pedido en el mismo sitio no se pisan. La entrega acumula en el pedido y en la asignación; el pedido pasa a `ENTREGADO` sólo cuando el total está cubierto. Si vence con saldo queda `ATRASADO` **conservando** lo entregado, las asignaciones vivas y el origen de cada fracción.
 
 ## 6. Consolidación en planta
 

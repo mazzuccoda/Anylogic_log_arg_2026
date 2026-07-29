@@ -112,8 +112,9 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [ ] Comenzar por lote solicitado.
 - [ ] Localizar saldos físicos.
 - [x] Definir orden de consumo: FIFO por `diaIngreso` (ADR-022).
-- [x] Reserva incremental sobre capas (ADR-024); retirado `crearLoteReservadoDesdeDivision` (H-05). Falta el compromiso sobre producción futura y la aceptación de reserva parcial: hoy la reserva sigue siendo todo o nada.
-- [x] Asociar reservas al pedido: cada reserva de capa guarda `codigoPedido` y `diaReserva`.
+- [x] Reserva incremental sobre capas (ADR-024); retirado `crearLoteReservadoDesdeDivision` (H-05).
+- [x] **Reserva parcial y multi-origen (ADR-055):** `reservarParcialPedido()` conserva lo que consiguió y `asignarParcialPedido()` recorre orígenes hasta cubrir el pedido. Falta el compromiso sobre producción futura.
+- [x] Asociar reservas al pedido: cada reserva de capa guarda la clave `pedido|asignación`, el `codigoPedido` y `diaReserva`.
 - [x] Liberar reservas canceladas (`Inventario.liberarReserva(codigoPedido)`).
 - [ ] Validar V-008 y V-009.
 
@@ -122,7 +123,7 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [x] Crear tipo de agente.
 - [x] Definir variables iniciales.
 - [x] Crear prueba técnica de un contenedor. Reemplazada por la lógica real: se eliminaron `Main.pruebaCrearContenedor()`, `Pedido.probarCalculoContenedores()` y el botón de prueba.
-- [x] Crear N por pedido (`Main.crearContenedoresParaPedido()`).
+- [x] Crear N por asignación (`Main.crearContenedoresParaAsignacion()`, ADR-055; antes `crearContenedoresParaPedido()`).
 - [x] Distribuir toneladas con la capacidad del tipo de contenedor del producto.
 - [x] Manejar último parcial.
 - [x] Asociar lote y reserva: cada contenedor guarda el lote que más aporta a su carga, tomado de las capas reservadas del pedido en orden FIFO.
@@ -150,7 +151,7 @@ Corregido tras el inventario (hallazgo H-03): las listas por ubicación figuraba
 - [x] Gestionar reprogramación (sin cupo, sin camión o sin stock en planta el pedido no se cruza y compite de nuevo al día siguiente).
 - [x] Exención de almacenaje para lo que cruza (ADR-010).
 - [ ] Colas independientes: el contenedor de cross dock usa el mismo flujo que el resto, con prioridad de despacho.
-- [ ] Cross dock parcial: requiere reserva parcial (fase 5), hoy el pedido se cruza entero o no se cruza.
+- [x] Cross dock parcial: `esCrossDock` pasa de ser un atributo del pedido a serlo de la asignación y del envío, así que una fracción puede cruzarse y otra almacenarse (ADR-055).
 - [ ] Cross dock en terminal (`CROSS_DOCK_TERMINAL`).
 - [ ] Validar V-013.
 
@@ -241,6 +242,23 @@ Implementado en el modelo y verificado en PLE (ADR-054), versión `fase-23`.
 - [x] 22 escenarios nuevos (E-14 a E-35): estrategia, sensibilidad tarifaria, permanencia y capacidad; el barrido pasa a 36 × 30 = 1 080 corridas.
 - [x] Verificado en PLE: build limpio, 1 080 corridas `Finished` con CSV `fase-23`, los 14 escenarios de política fija idénticos a `fase-22` fila por fila, y la corrida desde Excel idéntica a la sintética.
 - [ ] Pendiente en C7: la alternativa depósito → depósito se genera siempre descartada, porque el movimiento físico no existe.
+
+## 11i. MOD — Pedidos parciales y transferencia preventiva
+
+Implementado en el modelo y verificado en PLE (ADR-055/056), versión `fase-24`.
+
+- [x] `AsignacionPedido` (clase Java plana): el compromiso deja de ser el pedido y pasa a ser la asignación, con su propio ciclo de vida en toneladas y su clave de reserva `codigoPedido|idAsignacion`.
+- [x] Reserva parcial que **conserva** lo conseguido, y cobertura del pedido desde varios orígenes en uno o varios días, tanto con política económica como con política fija.
+- [x] Contenedorización progresiva con último parcial condicionado (pedido completamente asignado, vencido o fin de campaña), para no despachar a medio llenar pagando contenedor completo.
+- [x] Despacho y entrega por clave de reserva; `ATRASADO` conserva lo entregado y el origen de cada fracción.
+- [x] Almacenaje por clave de reserva: un pedido con una fracción que cruza y otra almacenada paga por la segunda.
+- [x] Componente preventivo alerta/objetivo dentro de `FLEXIBLE`, combinado con `max` y no con suma; `toneladasASacarReactiva()` sin cambios.
+- [x] Reparto de la transferencia entre todos los depósitos factibles, con prioridad de espacio cuando la planta está en sobrecarga crítica y sin agregar volumen.
+- [x] Diagnóstico de descartes con una única función compartida con la selección, y `debugPlanificacion` para pedidos y depósitos.
+- [x] Trece KPIs nuevos en el CSV y las validaciones diarias C-01 (identidad del pedido) y C-02 (nada de lo producido se pierde).
+- [x] Verificado en PLE: build limpio, campaña completa sin excepciones y 1 080 corridas `Finished` con CSV `fase-24`.
+- [ ] Pendiente: no hay reoptimización ni cancelación de asignaciones vivas; una reserva parcial retiene stock que otro pedido podría usar mejor.
+- [ ] Pendiente, y bloqueante para los datos reales: un viaje que no cabe en una jornada no puede empezar. La flota de producto se consume como capacidad diaria (ADR-044) y un viaje redondo de 1 200 km cuesta 3,43 camión-día, así que con 3 camiones el destino es inalcanzable y el diagnóstico responde `SIN_FLOTA` siempre. En `datos/entrada_ejemplo.xlsx` eso deja las 12 031 tn de cáscara encerradas en planta, porque su única capacidad de depósito está a 1 200 km. Hay que permitir que un viaje ocupe un camión durante varios días.
 
 ## 12. Fase 9 — Terminal
 

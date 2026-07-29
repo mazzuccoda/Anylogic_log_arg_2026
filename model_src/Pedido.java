@@ -42,10 +42,13 @@ class Pedido extends Agent {
     double costoEstimado = 0;
     double costoReal = 0;
     boolean planificacionNuevaActiva = false;
+    ArrayList<AsignacionPedido> asignaciones = new ArrayList<AsignacionPedido>();
 
     // ----- Variables -----
     boolean esCrossDock = false;
     String idSitioOrigen = "";
+    boolean tuvoReservaParcial = false;
+    boolean tuvoEntregaParcial = false;
 
     // ----- Funciones -----
 
@@ -61,5 +64,122 @@ class Pedido extends Agent {
         return (int) Math.ceil(
             toneladasSolicitadas / capacidadContenedorTon
         );
+    }
+
+    double toneladasAsignadasAcumuladas() {
+        // Todo lo que el pedido llego a comprometer, en todos sus origenes (ADR-055). Las
+        // asignaciones canceladas no cuentan: lo suyo volvio a estar por asignar.
+        double total = 0;
+
+        for (AsignacionPedido asignacion : asignaciones) {
+
+            if (!asignacion.cancelada) {
+                total += asignacion.toneladasAsignadas;
+            }
+        }
+
+        return total;
+    }
+
+    double toneladasReservadasActivas() {
+        // Reserva viva sobre las capas: lo comprometido que todavia no salio fisicamente.
+        double total = 0;
+
+        for (AsignacionPedido asignacion : asignaciones) {
+
+            if (!asignacion.cancelada) {
+                total += asignacion.toneladasReservadasActivas;
+            }
+        }
+
+        return total;
+    }
+
+    double toneladasContenerizadas() {
+        double total = 0;
+
+        for (AsignacionPedido asignacion : asignaciones) {
+
+            if (!asignacion.cancelada) {
+                total += asignacion.toneladasContenerizadas;
+            }
+        }
+
+        return total;
+    }
+
+    double toneladasEnProceso() {
+        // Despachado y no entregado: ya consumio la reserva y todavia no llego. Es la
+        // definicion que hace cerrar la identidad del pedido (C-01).
+        double total = 0;
+
+        for (AsignacionPedido asignacion : asignaciones) {
+
+            if (!asignacion.cancelada) {
+                total += asignacion.toneladasEnProceso();
+            }
+        }
+
+        return total;
+    }
+
+    double toneladasPendientesAsignar() {
+        // Lo que falta comprometer. Es el saldo con el que trabaja el evaluador: un pedido
+        // parcialmente reservado sigue siendo demanda por la diferencia (ADR-055).
+        return max(
+            0,
+            toneladasSolicitadas - toneladasAsignadasAcumuladas()
+        );
+    }
+
+    double toneladasPendientesEntregar() {
+        return max(0, toneladasSolicitadas - toneladasEntregadas);
+    }
+
+    boolean estaCompleto() {
+        return toneladasEntregadas >= toneladasSolicitadas - 0.0001;
+    }
+
+    int cantidadOrigenes() {
+        // Cuantos sitios distintos sirvieron al pedido: uno es el caso de siempre y mas de
+        // uno es lo que este MOD hace posible.
+        java.util.List<String> sitios = new java.util.ArrayList<String>();
+
+        for (AsignacionPedido asignacion : asignaciones) {
+
+            if (
+                !asignacion.cancelada
+                && !sitios.contains(asignacion.idSitioOrigen)
+            ) {
+                sitios.add(asignacion.idSitioOrigen);
+            }
+        }
+
+        return sitios.size();
+    }
+
+    java.util.List<AsignacionPedido> asignacionesActivas() {
+        java.util.List<AsignacionPedido> activas =
+            new java.util.ArrayList<AsignacionPedido>();
+
+        for (AsignacionPedido asignacion : asignaciones) {
+
+            if (asignacion.activa()) {
+                activas.add(asignacion);
+            }
+        }
+
+        return activas;
+    }
+
+    AsignacionPedido buscarAsignacion(String idAsignacion) {
+        for (AsignacionPedido asignacion : asignaciones) {
+
+            if (asignacion.idAsignacion.equals(idAsignacion)) {
+                return asignacion;
+            }
+        }
+
+        return null;
     }
 }

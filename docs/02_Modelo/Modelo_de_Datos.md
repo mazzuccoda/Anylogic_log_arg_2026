@@ -34,6 +34,35 @@ Definir variables, relaciones, unidades y reglas de integridad. Los nombres se b
 | `contenedores` | List | — | Actual | Entidades individuales |
 | `planesEvaluados` | List | — | Actual | Alternativas |
 | `planSeleccionado` | PlanLogistico | — | Actual | Nulo hasta selección |
+| `asignaciones` | List\<AsignacionPedido\> | — | Actual | **Fuente de verdad** del compromiso (ADR-055) |
+| `tuvoReservaParcial` | boolean | — | Actual | Marca histórica para KPIs |
+| `tuvoEntregaParcial` | boolean | — | Actual | Marca histórica para KPIs |
+
+`toneladasReservadas`, `idSitioOrigen` y `esCrossDock` quedan como campos **legacy**: sirven para pantalla y compatibilidad, no como saldo. Lo que vale se calcula sobre las asignaciones: `toneladasAsignadasAcumuladas()`, `toneladasReservadasActivas()`, `toneladasEnProceso()`, `toneladasPendientesAsignar()`, `toneladasPendientesEntregar()` y `estaCompleto()`.
+
+### 2.1 AsignacionPedido (ADR-055)
+
+Clase Java plana serializable, no un tipo de agente: el modelo está en 10 de 10 de PLE. Es la unidad de compromiso: un pedido puede tener varias, de distintos orígenes y con distinto circuito.
+
+| Campo | Tipo | Unidad | Regla |
+|---|---|---|---|
+| `idAsignacion` | String | — | Único; `ASG-0001`, `ASG-0002`… |
+| `codigoPedido` | String | — | Pedido comercial al que pertenece |
+| `idSitioOrigen` | String | — | `"PLANTA"` o `idUbicacion` del depósito |
+| `producto` | TipoProducto | — | El del pedido |
+| `circuito` | EstrategiaLogistica | — | Circuito físico de esta fracción |
+| `esCrossDock` | boolean | — | Por fracción, no por pedido |
+| `toneladasAsignadas` | double | tn | > 0 al crearse |
+| `toneladasReservadasActivas` | double | tn | Reserva viva sobre las capas |
+| `toneladasContenerizadas` | double | tn | <= asignadas |
+| `toneladasDespachadas` | double | tn | <= asignadas |
+| `toneladasEntregadas` | double | tn | <= despachadas |
+| `diaAsignacion` / `diaPrimerDespacho` / `diaUltimaEntrega` | double | día simulado | -1 si no ocurrió |
+| `cerrada` / `cancelada` | boolean | — | Excluyentes |
+| `motivoAsignacion` | String | — | Por qué se eligió este origen |
+| `costoIncrementalEstimado` / `costoEndToEndEstimado` | double | USD | Del evaluador (ADR-054) |
+
+**Clave de reserva:** `claveReserva() = codigoPedido + "|" + idAsignacion`. Es la clave con la que se reservan y se consumen las capas, y la que llevan el contenedor y el envío. Dos asignaciones del mismo pedido en el mismo sitio no se pisan.
 
 ## 3. LoteProducto
 
@@ -74,7 +103,7 @@ La colección es única y vive en `Main.inventario`, no en cada lote: `Inventari
 | `idUbicacion` | String | `"PLANTA"` o `idUbicacion` del depósito; no vacío |
 | `diaIngreso` | double | día simulado del ingreso a esa ubicación; define el orden FIFO |
 | `toneladas` | double | > 0; la capa se elimina al llegar a 0 |
-| `reservas` | List\<Reserva\> | `(codigoPedido, toneladas, diaReserva)`; su suma no puede superar `toneladas` |
+| `reservas` | List\<Reserva\> | `(clave, codigoPedido, toneladas, diaReserva)`; su suma no puede superar `toneladas` |
 | `costoAlmacenamiento` | double | almacenaje devengado por esa capa |
 
 Invariantes, verificados cada día por `Inventario.validar()`: no puede haber dos capas del mismo lote con la misma ubicación y el mismo `diaIngreso` (se acumulan en una sola); `toneladas` nunca es negativa; lo reservado nunca supera el saldo físico.
@@ -200,8 +229,22 @@ Disponible físico total = suma(toneladasPorUbicacion)
 ### Pedido
 
 ```text
-entregado <= despachado <= reservado <= solicitado
+entregado <= despachado <= asignado <= solicitado
 ```
+
+**C-01, verificado todos los días** (`validarBalancePedidos()`, tolerancia 0,0001 tn):
+
+```text
+solicitado = pendiente de asignar + reserva activa + despachado no entregado + entregado
+```
+
+**C-02, verificado todos los días** (`validarBalanceProducido()`):
+
+```text
+producido = stock en planta + stock en depósitos + en proceso + entregado
+```
+
+La reserva de la capa lleva **dos** identificadores y no uno: la `clave` (`pedido|asignación`) define qué reserva consume un despacho, y el `codigoPedido` sigue existiendo porque hay reglas que son del pedido y no de la fracción —el cross dock que no paga almacenaje es la principal—.
 
 ### Costos
 

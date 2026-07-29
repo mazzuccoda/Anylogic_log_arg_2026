@@ -562,6 +562,30 @@ public class DatosEntrada implements java.io.Serializable {
 		throw new RuntimeException("Unidad " + unidad + " no valida para la " + concepto + ".");
 	}
 
+	/**
+	 * Si existe una tarifa de flete vigente, sin abortar la corrida. Sirve para el
+	 * diagnostico de descartes: querer saber si un destino es alcanzable no es lo mismo
+	 * que cobrarle un flete que no esta en las tablas (ADR-056).
+	 */
+	public boolean hayTarifaFlete(int dia, String origen, String destino, TipoProducto producto) {
+		try {
+			tarifaFlete(dia, origen, destino, producto);
+			return true;
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
+	/** Si existe una tarifa de sitio vigente, sin abortar la corrida. */
+	public boolean hayTarifaSitio(int dia, String idUbicacion, TipoProducto producto) {
+		try {
+			tarifaSitio(dia, idUbicacion, producto);
+			return true;
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
 	public TarifaFlete tarifaFlete(int dia, String origen, String destino, TipoProducto producto) {
 		TarifaFlete encontrada = null;
 		for (TarifaFlete t : tarifasFlete) {
