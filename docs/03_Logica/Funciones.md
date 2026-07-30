@@ -276,6 +276,18 @@ La flota planta→depósito es capacidad diaria, igual que las posiciones de con
 
 `transferirToneladasLote()` acota lo que mueve a los viajes que todavía entran hoy y llama a `tomarFlotaProducto()`, que descuenta la capacidad y aborta la corrida si se sobregira. El cross dock, que es todo o nada, pregunta antes con `flotaProductoAlcanza()`: si la flota del día no da para el pedido entero, el pedido no se cruza y se cuenta en `crossDockReprogramados`.
 
+### Stock inicial: `cargarStockInicial()` y `validarStockInicial()`
+
+**Estado:** implementadas (ADR-057).
+
+`cargarStockInicial()` corre en el arranque del agente `Main`, inmediatamente después de `cargarDatosEntrada()` y antes del primer `pasoDiario_accion()`, así que el inventario preexistente está disponible para los pedidos del día 0. Recorre `datos.stockInicial`, crea un `LoteProducto` por identidad histórica (`codigo_lote + producto + cliente + calidad`) con `add_lotes()` y una **capa real** por fila con `inventario.ingresar(...)`, la misma función que usa la producción. No pasa por `crearLoteEnPlanta()`, que busca lote comercial abierto, fecha con `time()` y fuerza `PLANTA`.
+
+Los lotes históricos quedan con `esStockInicial = true`, `codigoLoteExterno`, `estadoComercial = CERRADO` y `toneladasObjetivo = 0`, así que no reciben producción de campaña ni se cierran por objetivo; `toneladasIniciales` acumula el total histórico cargado y `diaProduccion` retiene el mínimo de sus capas. La carga **no devenga ningún costo pasado**: ni flete, ni IN, ni almacenaje anterior al día 0. Cierra con `actualizarUbicacionLote()` por lote y con `validarInventario()`.
+
+`validarStockInicial()` valida la **capacidad efectiva** —lo que las validaciones del contrato no pueden hacer, porque los factores del escenario recién están aplicados a los agentes en este punto—: en un depósito exceder la capacidad por producto es error de datos y aborta el arranque con la lista completa (ADR-037); en la planta queda como advertencia por consola, porque la capacidad nominal del frío propio es un umbral de lectura y no un tope (ADR-048). Identidad, fechas, cantidad y ubicación se validan antes, en `DatosEntrada.validar()`.
+
+KPIs asociados: `stockInicialCargadoTn`, `stockInicialRemanenteTn()` (lo que queda físicamente de los lotes con `esStockInicial`), `stockInicialConsumidoTn()`, `produccionCampaniaTn()`, `disponibilidadTotalTn()`, `demandaPlanificadaTn()` y `deficitEstructuralTn()`.
+
 ### `aplicarEscenario()`
 
 **Estado:** implementada (fase 13).

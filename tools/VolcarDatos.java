@@ -160,6 +160,17 @@ public class VolcarDatos {
 					+ "\t" + p.diaLimite + "\t" + p.producto + "\t" + p.toneladasSolicitadas
 					+ "\t" + p.terminal);
 		}
+
+		// Stock inicial (ADR-057): la plantilla trae la hoja aunque el escenario sintetico
+		// no tenga inventario previo, para que cargarlo sea llenar filas y no crear la hoja.
+		hoja("StockInicial", "id_escenario\tid_stock\tcodigo_lote\tproducto\tid_ubicacion"
+				+ "\ttoneladas\tdia_produccion\tdia_ingreso\tcliente\tcalidad");
+		for (DatosEntrada.StockInicial s : d.stockInicial) {
+			System.out.println(idEscenario + "\t" + s.idStock + "\t" + s.codigoLote
+					+ "\t" + s.producto + "\t" + s.idUbicacion + "\t" + s.toneladas
+					+ "\t" + s.diaProduccion + "\t" + s.diaIngreso
+					+ "\t" + s.cliente + "\t" + s.calidad);
+		}
 	}
 
 	private static void hoja(String nombre, String encabezados) {

@@ -22,6 +22,10 @@ class LoteProducto extends Agent {
     double toneladasObjetivo = 0;
     EstadoComercialLote estadoComercial = EstadoComercialLote.ABIERTO;
 
+    // ----- Variables -----
+    String codigoLoteExterno = "";
+    boolean esStockInicial = false;
+
     // ----- Funciones -----
 
     double getToneladasLibres() {
