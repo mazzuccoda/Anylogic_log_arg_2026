@@ -173,17 +173,9 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.producto("producto"), f.numero("toneladas_solicitadas"), f.texto("terminal")));
 		}
 
-		// La hoja es opcional: un libro sin StockInicial corre con inventario inicial
-		// cero, para no invalidar los libros anteriores a ADR-057.
-		if (hojas().contains("StockInicial")) {
-			for (Fila f : filas("StockInicial", "id_escenario", idEscenario)) {
-				datos.stockInicial.add(new DatosEntrada.StockInicial(
-						f.texto("id_stock"), f.texto("codigo_lote"), f.producto("producto"),
-						f.texto("id_ubicacion"), f.numero("toneladas"),
-						f.numero("dia_produccion"), f.numero("dia_ingreso"),
-						f.texto("cliente"), f.texto("calidad")));
-			}
-		}
+		// La hoja es opcional: un libro sin stock inicial corre con inventario
+		// inicial cero, para no invalidar los libros anteriores a ADR-057.
+		leerStockInicial(datos, idEscenario);
 
 		if (!errores.isEmpty()) {
 			String detalle = "";
@@ -195,6 +187,294 @@ public class ImportadorExcel implements java.io.Serializable {
 		}
 
 		return datos;
+	}
+
+	/**
+	 * Stock inicial (ADR-057). Es la unica hoja que se arma a mano fuera del
+	 * volcado del modelo, asi que se lee de forma tolerante: nombre de hoja con
+	 * erratas, encabezados alternativos, ubicaciones escritas como en el negocio
+	 * ("RUTA 9", "DODERO BARRACAS") y columnas de identidad y fechas opcionales.
+	 * Lo que no se puede resolver se informa como error de datos: nada se adivina.
+	 */
+	private void leerStockInicial(DatosEntrada datos, String idEscenario) {
+		String hoja = hojaStockInicial();
+
+		if (hoja == null) {
+			return;
+		}
+
+		java.util.Map<String, Integer> encabezados = new java.util.HashMap<String, Integer>();
+		int columnas = libro.getLastCellNum(hoja, 1);
+
+		for (int c = 1; c <= columnas; c++) {
+			if (libro.cellExists(hoja, 1, c)) {
+				String nombre = normalizar(libro.getCellStringValue(hoja, 1, c));
+				if (nombre.length() > 0 && !encabezados.containsKey(nombre)) {
+					encabezados.put(nombre, Integer.valueOf(c));
+				}
+			}
+		}
+
+		int cEscenario = columnaAlias(encabezados, new String[] {"id_escenario", "escenario"});
+		int cProducto = columnaAlias(encabezados, new String[] {"producto", "tipo_producto"});
+		int cUbicacion = columnaAlias(encabezados,
+				new String[] {"id_ubicacion", "ubicacion", "deposito", "sitio", "lugar"});
+		int cToneladas = columnaAlias(encabezados, new String[] {"toneladas", "toneladas_tn",
+				"inicial", "stock_inicial", "stock_inicial_tn", "stock", "stock_tn", "tn"});
+		int cIdStock = columnaAlias(encabezados, new String[] {"id_stock"});
+		int cLote = columnaAlias(encabezados, new String[] {"codigo_lote", "lote"});
+		int cDiaProduccion = columnaAlias(encabezados,
+				new String[] {"dia_produccion", "dia_elaboracion"});
+		int cDiaIngreso = columnaAlias(encabezados, new String[] {"dia_ingreso"});
+		int cCliente = columnaAlias(encabezados, new String[] {"cliente"});
+		int cCalidad = columnaAlias(encabezados, new String[] {"calidad"});
+
+		// Producto, ubicacion y toneladas son el minimo irreducible: lo demas tiene
+		// un default explicito y auditable.
+		if (cProducto < 0 || cUbicacion < 0 || cToneladas < 0) {
+			errores.add("La hoja " + hoja + " de stock inicial necesita al menos las columnas de"
+					+ " producto, ubicacion (id_ubicacion, ubicacion o deposito) y toneladas"
+					+ " (toneladas o inicial). Encabezados encontrados: " + encabezados.keySet()
+					+ ".");
+			return;
+		}
+
+		int ultima = libro.getLastRowNum(hoja);
+
+		for (int f = 2; f <= ultima; f++) {
+			String textoProducto = celda(hoja, f, cProducto);
+			String textoUbicacion = celda(hoja, f, cUbicacion);
+
+			if (textoProducto.length() == 0 && textoUbicacion.length() == 0) {
+				continue;
+			}
+
+			if (cEscenario >= 0 && !idEscenario.equals(celda(hoja, f, cEscenario))) {
+				continue;
+			}
+
+			// La hoja lista la grilla completa producto x deposito, asi que la
+			// mayoria de las celdas esta en cero: cero no es stock, es ausencia.
+			double toneladas = celdaNumero(hoja, f, cToneladas,
+					"La celda de toneladas de la fila " + f + " de la hoja " + hoja);
+
+			if (toneladas <= 0) {
+				continue;
+			}
+
+			TipoProducto producto = productoDe(textoProducto, hoja, f);
+			String idUbicacion = ubicacionDe(datos, textoUbicacion, hoja, f);
+
+			if (producto == null || idUbicacion == null) {
+				continue;
+			}
+
+			String idStock = cIdStock >= 0 ? celda(hoja, f, cIdStock) : "";
+
+			if (idStock.length() == 0) {
+				idStock = "SI-" + f;
+			}
+
+			// Sin codigo de lote, la fila ES el lote: dos filas del mismo producto y
+			// deposito son dos partidas distintas, no una sola.
+			String codigoLote = cLote >= 0 ? celda(hoja, f, cLote) : "";
+
+			if (codigoLote.length() == 0) {
+				codigoLote = "SI-" + producto + "-" + idUbicacion + "-" + f;
+			}
+
+			String cliente = cCliente >= 0 ? celda(hoja, f, cCliente) : "";
+
+			if (cliente.length() == 0) {
+				cliente = datos.escenario.clienteDefault;
+			}
+
+			String calidad = cCalidad >= 0 ? celda(hoja, f, cCalidad) : "";
+
+			if (calidad.length() == 0) {
+				calidad = datos.escenario.calidadDefault;
+			}
+
+			// Sin fechas historicas el stock se fecha en el dia 0: no se inventa
+			// antiguedad, y el FIFO igual lo saca antes que la produccion de campania
+			// porque los lotes iniciales se crean antes y desempatan por idLote.
+			double diaProduccion = cDiaProduccion < 0 ? 0
+					: celdaNumero(hoja, f, cDiaProduccion,
+							"La celda dia_produccion de la fila " + f + " de la hoja " + hoja);
+			double diaIngreso = cDiaIngreso < 0 ? 0
+					: celdaNumero(hoja, f, cDiaIngreso,
+							"La celda dia_ingreso de la fila " + f + " de la hoja " + hoja);
+
+			datos.stockInicial.add(new DatosEntrada.StockInicial(idStock, codigoLote, producto,
+					idUbicacion, toneladas, diaProduccion, diaIngreso, cliente, calidad));
+		}
+	}
+
+	/**
+	 * Nombre real de la hoja de stock inicial. Se acepta cualquier hoja cuyo
+	 * nombre normalizado empiece con STOCK y contenga INICIAL, porque la hoja la
+	 * escribe una persona y una errata de tipeo no deberia leerse como "no hay
+	 * stock inicial", que es el silencio mas caro posible.
+	 */
+	private String hojaStockInicial() {
+		for (int i = 1; i <= libro.getNumberOfSheets(); i++) {
+			String nombre = libro.getSheetName(i);
+			String n = normalizar(nombre);
+
+			if (n.startsWith("STOCK") && n.indexOf("INICIAL") >= 0) {
+				return nombre;
+			}
+		}
+
+		return null;
+	}
+
+	/** Texto comparable: mayusculas, sin acentos y solo letras y digitos. */
+	private String normalizar(String texto) {
+		if (texto == null) {
+			return "";
+		}
+
+		String limpio = texto.toUpperCase().replace("\u00c1", "A").replace("\u00c9", "E")
+				.replace("\u00cd", "I").replace("\u00d3", "O").replace("\u00da", "U")
+				.replace("\u00d1", "N");
+		StringBuilder comparable = new StringBuilder();
+
+		for (int i = 0; i < limpio.length(); i++) {
+			char c = limpio.charAt(i);
+			if (Character.isLetterOrDigit(c)) {
+				comparable.append(c);
+			}
+		}
+
+		return comparable.toString();
+	}
+
+	/** Primera columna presente entre varios nombres posibles; -1 si no hay ninguna. */
+	private int columnaAlias(java.util.Map<String, Integer> encabezados, String[] alias) {
+		for (String nombre : alias) {
+			Integer c = encabezados.get(normalizar(nombre));
+			if (c != null) {
+				return c.intValue();
+			}
+		}
+
+		return -1;
+	}
+
+	private TipoProducto productoDe(String texto, String hoja, int fila) {
+		String n = normalizar(texto);
+
+		for (TipoProducto producto : TipoProducto.values()) {
+			if (normalizar(producto.name()).equals(n)) {
+				return producto;
+			}
+		}
+
+		errores.add("Producto desconocido '" + texto + "' en la fila " + fila + " de la hoja "
+				+ hoja + ".");
+		return null;
+	}
+
+	/**
+	 * Ubicacion escrita como en el negocio. Se acepta el id exacto y, si no hay
+	 * coincidencia, un unico id que sea prefijo del nombre comercial: "RUTA 9" es
+	 * RUTA9 y "DODERO BARRACAS" es DODERO. Si el nombre es ambiguo se informa con
+	 * los candidatos en vez de elegir uno.
+	 */
+	private String ubicacionDe(DatosEntrada datos, String texto, String hoja, int fila) {
+		String n = normalizar(texto);
+		String donde = " en la fila " + fila + " de la hoja " + hoja;
+
+		if (n.length() == 0) {
+			errores.add("Falta la ubicacion" + donde + ".");
+			return null;
+		}
+
+		for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+			if (normalizar(u.idUbicacion).equals(n)) {
+				return u.idUbicacion;
+			}
+		}
+
+		java.util.List<String> candidatos = new java.util.ArrayList<String>();
+
+		for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+			String id = normalizar(u.idUbicacion);
+			if (id.length() >= 3 && n.startsWith(id)) {
+				candidatos.add(u.idUbicacion);
+			}
+		}
+
+		if (candidatos.size() == 1) {
+			return candidatos.get(0);
+		}
+
+		if (candidatos.size() > 1) {
+			errores.add("La ubicacion '" + texto + "'" + donde + " es ambigua: coincide con "
+					+ candidatos + ".");
+			return null;
+		}
+
+		java.util.List<String> ids = new java.util.ArrayList<String>();
+
+		for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+			ids.add(u.idUbicacion);
+		}
+
+		errores.add("La ubicacion '" + texto + "'" + donde + " no coincide con ninguna de " + ids
+				+ ".");
+		return null;
+	}
+
+	/** Celda como texto, con el mismo criterio de tipos que Fila.comoTexto. */
+	private String celda(String hoja, int fila, int columna) {
+		if (columna < 0 || !libro.cellExists(hoja, fila, columna)) {
+			return "";
+		}
+
+		org.apache.poi.ss.usermodel.CellType tipo = libro.getCellType(hoja, fila, columna);
+
+		if (tipo == com.anylogic.engine.connectivity.ExcelFile.CELL_TYPE_NUMERIC) {
+			double v = libro.getCellNumericValue(hoja, fila, columna);
+			return v == Math.rint(v) ? String.valueOf((long) v) : String.valueOf(v);
+		}
+
+		if (tipo == com.anylogic.engine.connectivity.ExcelFile.CELL_TYPE_BOOLEAN) {
+			return String.valueOf(libro.getCellBooleanValue(hoja, fila, columna));
+		}
+
+		if (tipo == com.anylogic.engine.connectivity.ExcelFile.CELL_TYPE_BLANK) {
+			return "";
+		}
+
+		String v = libro.getCellStringValue(hoja, fila, columna);
+		return v == null ? "" : v.trim();
+	}
+
+	/** Celda como numero. Una celda vacia es cero; un texto que no es numero, error. */
+	private double celdaNumero(String hoja, int fila, int columna, String donde) {
+		if (columna < 0 || !libro.cellExists(hoja, fila, columna)) {
+			return 0;
+		}
+
+		if (libro.getCellType(hoja, fila, columna)
+				== com.anylogic.engine.connectivity.ExcelFile.CELL_TYPE_NUMERIC) {
+			return libro.getCellNumericValue(hoja, fila, columna);
+		}
+
+		String v = celda(hoja, fila, columna);
+
+		if (v.length() == 0) {
+			return 0;
+		}
+
+		try {
+			return Double.parseDouble(v.replace(",", "."));
+		} catch (NumberFormatException e) {
+			errores.add(donde + " no es un numero: '" + v + "'.");
+			return 0;
+		}
 	}
 
 	/**

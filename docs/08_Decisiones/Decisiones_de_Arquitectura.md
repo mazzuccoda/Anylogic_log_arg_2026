@@ -598,6 +598,25 @@ Queda un hueco declarado: el tramo vacío consume tiempo y pool pero **no** cues
 
 **Consecuencias:** la disponibilidad de campaña pasa a ser stock inicial más producción, y siete KPIs nuevos la hacen legible (`stock_inicial_tn`, `stock_inicial_consumido_tn`, `stock_inicial_remanente_tn`, `produccion_campania_tn`, `disponibilidad_total_tn`, `demanda_planificada_tn`, `deficit_estructural_tn`), con el déficit estructural calculado sobre los datos de entrada: si la demanda supera stock inicial más producción planificada, ningún dimensionamiento llega al 100 % de servicio y el modelo lo dice antes de correr. Con la hoja ausente o vacía el barrido sintético da idéntico a `fase-24` en las 55 columnas anteriores, así que la regresión es verificable. El único cambio que afecta a las corridas sin stock inicial es el acotamiento de la antigüedad, que con `dia_ingreso >= 0` es la identidad. El CSV pasa a `fase-25`.
 
+## ADR-058 — La hoja de stock inicial se lee tolerante al formato, no al contenido
+
+**Estado:** aceptada  
+**Fecha:** 2026-07-24  
+**Contexto:** todas las hojas del libro de entrada salen del volcado del propio modelo (`tools/generar_excel_ejemplo.py` corre `GeneradorSintetico`), así que sus nombres de hoja y de columna son exactos por construcción. La hoja de stock inicial es la excepción: es un relevamiento de existencias que escribe una persona, y en la práctica llega con la grilla `producto × depósito` que se usa para contar —tres columnas, sin fechas ni identidad de lote—, con el nombre de hoja tipeado con una errata (`StockcInicial`), con encabezados del negocio (`DEPOSITO`, `Inicial`) y con los depósitos escritos como se los nombra (`RUTA 9`, `DODERO BARRACAS`, `NORRY `). Con la lectura estricta de ADR-038 eso equivale a "no hay stock inicial", y como la hoja es opcional (ADR-057) el modelo arranca en cero **sin avisar nada**: el silencio más caro posible, porque el dimensionamiento sale mal y nada falla.
+
+**Decisión:** sólo para esta hoja, `ImportadorExcel.leerStockInicial()` tolera el **formato** y sigue siendo estricto con el **contenido**.
+
+1. **Nombre de hoja** por coincidencia normalizada: cualquier hoja cuyo nombre en mayúsculas, sin acentos ni separadores, empiece con `STOCK` y contenga `INICIAL`.
+2. **Encabezados con alias**, comparados normalizados: la ubicación acepta `id_ubicacion`, `ubicacion`, `deposito`, `sitio` o `lugar`; las toneladas aceptan `toneladas`, `inicial`, `stock`, `stock_inicial`, `stock_tn` o `tn`.
+3. **Columnas opcionales con default explícito**: sin `id_escenario` todas las filas aplican al escenario que se importa; sin `id_stock` la fila se identifica por su número; sin `codigo_lote` **la fila es el lote** (dos filas del mismo producto y depósito son dos partidas, no una); sin `cliente` o `calidad` se usan los defaults del escenario; sin fechas el stock se fecha en el día 0.
+4. **Ubicaciones escritas como en el negocio**: id exacto y, si no coincide, el único id que sea prefijo del nombre comercial. Si hay más de un candidato se informa la ambigüedad con la lista.
+5. **Una fila en cero se ignora**: la grilla lista todas las combinaciones y la mayoría está vacía; cero es ausencia de stock, no un dato inválido.
+6. **Nada se adivina**: producto, ubicación y toneladas siguen siendo obligatorios, y un encabezado mínimo faltante, un producto desconocido, una ubicación que no resuelve o un texto que no es número son errores de datos que abortan el arranque con la hoja y la fila (ADR-037).
+
+**Alternativas:** exigir el formato canónico y documentarlo (es lo que hacía la primera versión: el libro real cargaba cero en silencio, y pedirle a una persona que reescriba un relevamiento a otro formato en cada actualización garantiza que alguna vez se cargue mal); convertir el libro con un script externo (agrega un paso manual entre el dato y el modelo, y el `.xlsx` del repositorio deja de ser la fuente); extender la tolerancia a todas las hojas (las demás las escribe el modelo, así que la tolerancia sólo taparía errores de las herramientas); inferir fechas históricas para dar antigüedad (inventa datos que después se leen como reales).
+
+**Consecuencias:** el libro que mantiene el negocio se puede cargar sin reformatear y sin tocar el modelo, y la forma agregada `producto × depósito` es un caso soportado del contrato (§6.4). Sin `dia_ingreso` no hay antigüedad que imputar y el stock queda fechado el día 0; el FIFO igual lo saca antes que la producción de campaña, porque los lotes iniciales se crean primero y el desempate final es por `idLote`. Como contrapartida, un depósito nuevo cuyo nombre comercial no empiece con su id no resuelve por prefijo y hay que escribir el id o agregar la columna `id_ubicacion`: el error lo dice con la lista de ids válidos. La tolerancia queda acotada a esta hoja para no debilitar ADR-038.
+
 ## Plantilla para nuevas decisiones
 
 ```markdown

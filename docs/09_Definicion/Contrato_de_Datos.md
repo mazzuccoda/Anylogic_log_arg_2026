@@ -268,24 +268,33 @@ Si la tabla trae una sola fila por producto sin `dia`, se interpreta como media 
 
 Inventario físico preexistente al día 0. Reemplaza a la tabla `LoteInicial` que este documento proyectaba: no lleva `toneladas_objetivo` porque un lote histórico está cerrado y no recibe producción de campaña.
 
-| Columna | Tipo | Regla |
-|---|---|---|
-| `id_escenario` | texto | |
-| `id_stock` | texto | No vacío, único por escenario. Identifica la fila, no el lote |
-| `codigo_lote` | texto | No vacío. Puede repetirse: el mismo lote puede estar en varias ubicaciones |
-| `producto` | enum | Un `codigo_lote` no puede tener dos productos |
-| `id_ubicacion` | texto | FK `Ubicacion`, habilitada, tipo `PLANTA` o `DEPOSITO`. Nunca `TERMINAL` |
-| `toneladas` | double | > 0 |
-| `dia_produccion` | double | <= 0. Día relativo al inicio de campaña |
-| `dia_ingreso` | double | <= 0 y >= `dia_produccion` |
-| `cliente` | texto | Un `codigo_lote` no puede tener dos clientes |
-| `calidad` | texto | Un `codigo_lote` no puede tener dos calidades |
+| Columna | Tipo | Obligatoria | Regla |
+|---|---|---|---|
+| `id_escenario` | texto | no | Si falta, todas las filas aplican al escenario que se importa |
+| `id_stock` | texto | no | Único por escenario. Identifica la fila, no el lote. Si falta: `SI-<fila>` |
+| `codigo_lote` | texto | no | Puede repetirse: el mismo lote puede estar en varias ubicaciones. Si falta: `SI-<producto>-<ubicacion>-<fila>`, o sea una partida por fila |
+| `producto` | enum | **sí** | Un `codigo_lote` no puede tener dos productos |
+| `id_ubicacion` | texto | **sí** | FK `Ubicacion`, habilitada, tipo `PLANTA` o `DEPOSITO`. Nunca `TERMINAL` |
+| `toneladas` | double | **sí** | > 0. Una fila en cero se ignora: cero no es stock, es ausencia |
+| `dia_produccion` | double | no | <= 0, día relativo al inicio de campaña. Si falta: 0 |
+| `dia_ingreso` | double | no | <= 0 y >= `dia_produccion`. Si falta: 0 |
+| `cliente` | texto | no | Un `codigo_lote` no puede tener dos clientes. Si falta: `cliente_default` del escenario |
+| `calidad` | texto | no | Un `codigo_lote` no puede tener dos calidades. Si falta: `calidad_default` del escenario |
 
 La identidad del lote histórico es `codigo_lote + producto + cliente + calidad`: las filas que la comparten son capas del mismo lote en distintos sitios.
 
 Las fechas son negativas porque el FIFO ordena por `dia_ingreso` y después por `dia_produccion`: el stock histórico sale antes que la producción de la campaña. La antigüedad anterior al día 0 **no** se factura ni se imputa en el costeo (ADR-057).
 
-La hoja es **opcional**: un libro sin `StockInicial` se interpreta como inventario inicial cero, para que los libros anteriores a esta versión sigan corriendo. La plantilla que genera `tools/generar_excel_ejemplo.py` la incluye con encabezados aunque el escenario sintético no tenga stock previo.
+La hoja es **opcional**: un libro sin stock inicial se interpreta como inventario inicial cero, para que los libros anteriores a esta versión sigan corriendo. La plantilla que genera `tools/generar_excel_ejemplo.py` la incluye con encabezados aunque el escenario sintético no tenga stock previo.
+
+Es también la única hoja que se escribe a mano fuera del volcado del modelo, así que se lee de forma tolerante. Es la excepción a la regla general de nombres exactos y sólo aplica a esta hoja:
+
+- **Nombre de la hoja**: cualquiera que normalizado empiece con `STOCK` y contenga `INICIAL` (`StockInicial`, `Stock Inicial`, `StockcInicial`). Una errata de tipeo no puede leerse como "no hay stock inicial", que es el silencio más caro posible.
+- **Encabezados alternativos**: `id_ubicacion` acepta `ubicacion`, `deposito`, `sitio` o `lugar`; `toneladas` acepta `inicial`, `stock`, `stock_inicial`, `stock_tn` o `tn`. La comparación ignora mayúsculas, acentos, espacios y guiones bajos.
+- **Ubicaciones escritas como en el negocio**: se acepta el id exacto y, si no coincide, un único id que sea prefijo del nombre comercial (`RUTA 9` → `RUTA9`, `DODERO BARRACAS` → `DODERO`, `NORRY ` → `NORRY`). Un nombre ambiguo se informa con los candidatos en vez de elegir uno.
+- Faltar producto, ubicación o toneladas, un producto desconocido, una ubicación que no resuelve o un texto que no es número siguen siendo **errores de datos** que abortan el arranque con la fila. La tolerancia es de formato, no de contenido.
+
+Esta lectura permite la forma agregada que se usa en la práctica —una grilla `producto × depósito` con la tenencia inicial, sin fechas ni identidad de lote— donde cada fila con toneladas es una partida y el stock queda fechado el día 0. Sin `dia_ingreso` no hay antigüedad que imputar, y el FIFO igual saca el stock inicial antes que la producción de campaña porque sus lotes se crean primero y el desempate final es por `idLote`.
 
 Capacidad: la suma del stock inicial por ubicación y producto se compara contra la capacidad efectiva del escenario. En un **depósito** excederla es error de datos y aborta el arranque; en la **planta** queda como advertencia en la consola, porque la capacidad nominal del frío propio es un umbral de lectura y no un tope (ADR-048), y arrancar la campaña en sobrecarga es un caso real que el modelo mide (`ton_dia_sobre_nominal`, `pico_ocupacion_planta_pct`, penalidad).
 
