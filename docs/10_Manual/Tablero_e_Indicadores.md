@@ -179,6 +179,24 @@ Las once categorías suman exactamente `costo_total_usd`: es la descomposición 
 - `costo_espera_usd` es 0 en todo el barrido: con las velocidades sintéticas la carga tarda menos de una hora y no se supera la franquicia de 3 h. No significa que no se cobre.
 - Las series de costo anteriores a `fase-22` no son comparables: C3 agrega cargos que antes no existían. Lo que sí es comparable es la parte física y de servicio, idéntica a `fase-21`. `fase-23` sí es comparable con `fase-22` en los escenarios de política fija: da idéntico fila por fila.
 - El tablero de `Main` no muestra los planes del evaluador. Los cinco KPIs de decisión (`planes_emitidos`, `planes_tardios`, `alternativas_evaluadas`, `alternativas_descartadas`, `pedidos_sin_alternativa_factible`) se leen en el CSV del barrido; el detalle de las alternativas descartadas y su motivo vive en `PlanLogistico` y todavía no se exporta.
+- **`fase-23` no es comparable en costo con `fase-24`** (ADR-055/056): los pedidos parciales mueven todos los escenarios y el componente preventivo cambia cuánto se transfiere. La parte física sí se sostiene: toneladas exportadas y stock final coinciden.
+- El tablero de `Main` tampoco muestra las asignaciones por pedido. El origen de cada fracción, el día de primer despacho y el de última entrega viven en `Pedido.asignaciones` y se ven con `debugPlanificacion` (`diagnosticoPedido()`), no en pantalla.
+
+### Indicadores de pedidos parciales y transferencias (ADR-055/056)
+
+En `resultados/kpis_por_corrida.csv`, trece columnas nuevas:
+
+| KPI | Qué responde |
+|---|---|
+| `pedidos_parcialmente_reservados` | Cuántos pedidos estuvieron comprometidos a medias en algún momento. Es una **marca histórica**: al cierre de campaña los pedidos cerraron, así que el estado final daría 0 siempre |
+| `pedidos_multi_origen` | Cuántos se sirvieron desde más de un sitio. Si es 0 en un escenario con capacidad concentrada, el reparto no está actuando |
+| `pedidos_parcialmente_entregados` | Cuántos recibieron una entrega que no los completó |
+| `pedidos_atrasados_entrega_parcial` | Atrasados que **sí** entregaron algo. Antes figuraban igual que los que no entregaron nada |
+| `asignaciones_creadas` / `asignaciones_parciales` | Granularidad del compromiso; comparar contra la cantidad de pedidos |
+| `toneladas_pendientes_asignar` / `toneladas_pendientes_entregar` | Deben ser 0 al cierre: un saldo distinto de 0 es demanda que quedó huérfana |
+| `toneladas_transferidas_preventivas` | Lo que se movió **antes** de necesitarlo. Es el precio de la política preventiva: sube el almacenaje de terceros |
+| `toneladas_transferidas_desborde` / `_servicio` / `_criticas` | Motivo de cada transferencia. No se suman entre sí por construcción: los componentes se combinan con `max` |
+| `transferencias_incompletas` | Días en que, agotados los depósitos factibles, quedó saldo sin mover. Es el indicador de falta de espacio en la red, no un error del reparto |
 
 ---
 

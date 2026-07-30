@@ -15,7 +15,7 @@ class Escenarios extends ParamVariationExperiment {
     void additionalClassCode() {
         // Version del modelo con la que se corrio el barrido: sin esto un csv de
         // resultados no se puede volver a atar al codigo que lo produjo.
-        static final String VERSION_MODELO = "fase-23";
+        static final String VERSION_MODELO = "fase-24";
 
         static final int REPLICAS = 30;
 
@@ -43,7 +43,14 @@ class Escenarios extends ParamVariationExperiment {
         	"costo_out_usd", "costo_thc_usd", "costo_terminal_usd", "costo_despachante_usd",
         	"costo_espera_usd",
         	"planes_emitidos", "planes_tardios", "alternativas_evaluadas",
-        	"alternativas_descartadas", "pedidos_sin_alternativa_factible"
+        	"alternativas_descartadas", "pedidos_sin_alternativa_factible",
+        	"pedidos_parcialmente_reservados", "pedidos_multi_origen",
+        	"pedidos_parcialmente_entregados", "pedidos_atrasados_entrega_parcial",
+        	"asignaciones_creadas", "asignaciones_parciales",
+        	"toneladas_pendientes_asignar", "toneladas_pendientes_entregar",
+        	"toneladas_transferidas_preventivas", "toneladas_transferidas_desborde",
+        	"toneladas_transferidas_servicio", "toneladas_transferidas_criticas",
+        	"transferencias_incompletas"
         };
 
         // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -389,7 +396,20 @@ class Escenarios extends ParamVariationExperiment {
         	root.planesTardios,
         	root.alternativasEvaluadasTotal,
         	root.alternativasDescartadasTotal,
-        	root.pedidosSinAlternativaFactible
+        	root.pedidosSinAlternativaFactible,
+        	root.pedidosParcialmenteReservados(),
+        	root.pedidosMultiOrigen,
+        	root.pedidosParcialmenteEntregados(),
+        	root.pedidosAtrasadosConEntregaParcial,
+        	root.asignacionesCreadas,
+        	root.asignacionesParciales,
+        	root.toneladasPendientesAsignarTotal(),
+        	root.toneladasPendientesEntregarTotal(),
+        	root.toneladasTransferidasPreventivas,
+        	root.toneladasTransferidasDesborde,
+        	root.toneladasTransferidasServicio,
+        	root.toneladasTransferidasCriticas,
+        	root.transferenciasIncompletas
         };
 
         corridas.add(c);

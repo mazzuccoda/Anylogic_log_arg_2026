@@ -1217,6 +1217,426 @@ cargarDatosEntrada();]]></StartupCode>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000301</Id>
+					<Name><![CDATA[costoInDeposito]]></Name>
+					<X>-140</X><Y>540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000303</Id>
+					<Name><![CDATA[costoOutDeposito]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000305</Id>
+					<Name><![CDATA[costoThcReal]]></Name>
+					<X>-140</X><Y>580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000307</Id>
+					<Name><![CDATA[costoTerminalReal]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000309</Id>
+					<Name><![CDATA[costoDespachanteReal]]></Name>
+					<X>-140</X><Y>620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000311</Id>
+					<Name><![CDATA[costoEsperaCamionProducto]]></Name>
+					<X>-140</X><Y>640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000313</Id>
+					<Name><![CDATA[costoEsperaPortacontenedor]]></Name>
+					<X>-140</X><Y>660</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000315</Id>
+					<Name><![CDATA[costoFleteGranelTerminal]]></Name>
+					<X>-140</X><Y>680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000101</Id>
+					<Name><![CDATA[politicaSeleccion]]></Name>
+					<X>-140</X><Y>1900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[DatosEntrada.PoliticaSeleccion]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[DatosEntrada.PoliticaSeleccion.FIJA_DEPOSITO]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000103</Id>
+					<Name><![CDATA[siguienteIdPlan]]></Name>
+					<X>-140</X><Y>1930</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000105</Id>
+					<Name><![CDATA[planesEmitidos]]></Name>
+					<X>-140</X><Y>1960</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000107</Id>
+					<Name><![CDATA[planesTardios]]></Name>
+					<X>-140</X><Y>1990</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000109</Id>
+					<Name><![CDATA[alternativasEvaluadasTotal]]></Name>
+					<X>-140</X><Y>2020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000111</Id>
+					<Name><![CDATA[alternativasDescartadasTotal]]></Name>
+					<X>-140</X><Y>2050</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000113</Id>
+					<Name><![CDATA[pedidosSinAlternativaFactible]]></Name>
+					<X>-140</X><Y>2080</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400001001</Id>
+					<Name><![CDATA[siguienteIdAsignacion]]></Name>
+					<X>1400</X><Y>1300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400001003</Id>
+					<Name><![CDATA[ultimaAsignacionCreada]]></Name>
+					<X>1400</X><Y>1340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[AsignacionPedido]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[null]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400001005</Id>
+					<Name><![CDATA[asignacionesCreadas]]></Name>
+					<X>1400</X><Y>1380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400001007</Id>
+					<Name><![CDATA[asignacionesParciales]]></Name>
+					<X>1400</X><Y>1420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400001009</Id>
+					<Name><![CDATA[pedidosMultiOrigen]]></Name>
+					<X>1400</X><Y>1460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400001011</Id>
+					<Name><![CDATA[pedidosAtrasadosConEntregaParcial]]></Name>
+					<X>1400</X><Y>1500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400003001</Id>
+					<Name><![CDATA[toneladasTransferidasDesborde]]></Name>
+					<X>-140</X><Y>460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400003003</Id>
+					<Name><![CDATA[toneladasTransferidasServicio]]></Name>
+					<X>-140</X><Y>480</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400003005</Id>
+					<Name><![CDATA[toneladasTransferidasCriticas]]></Name>
+					<X>-140</X><Y>500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400003007</Id>
+					<Name><![CDATA[transferenciasIncompletas]]></Name>
+					<X>-140</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400003009</Id>
+					<Name><![CDATA[componentePorDesborde]]></Name>
+					<X>-140</X><Y>540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400003011</Id>
+					<Name><![CDATA[componentePorServicio]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400003013</Id>
+					<Name><![CDATA[componentePreventivo]]></Name>
+					<X>-140</X><Y>580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1791000000113</Id>
 					<Name><![CDATA[origenDatos]]></Name>
@@ -1361,6 +1781,30 @@ cargarDatosEntrada();]]></StartupCode>
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+				<Variable Class="Parameter">
+					<Id>1792400001013</Id>
+					<Name><![CDATA[debugPlanificacion]]></Name>
+					<X>1400</X><Y>1540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[boolean]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1792400001014</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
 				<Variable Class="CollectionVariable">
 					<Id>1791000000020</Id>
 					<Name><![CDATA[terminales]]></Name>
@@ -1396,233 +1840,6 @@ cargarDatosEntrada();]]></StartupCode>
 						</CollectionInitializer>
 					</Properties>
 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1791300000301</Id>
-					<Name><![CDATA[costoInDeposito]]></Name>
-					<X>-140</X><Y>540</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000303</Id>
-					<Name><![CDATA[costoOutDeposito]]></Name>
-					<X>-140</X><Y>560</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000305</Id>
-					<Name><![CDATA[costoThcReal]]></Name>
-					<X>-140</X><Y>580</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000307</Id>
-					<Name><![CDATA[costoTerminalReal]]></Name>
-					<X>-140</X><Y>600</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000309</Id>
-					<Name><![CDATA[costoDespachanteReal]]></Name>
-					<X>-140</X><Y>620</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000311</Id>
-					<Name><![CDATA[costoEsperaCamionProducto]]></Name>
-					<X>-140</X><Y>640</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000313</Id>
-					<Name><![CDATA[costoEsperaPortacontenedor]]></Name>
-					<X>-140</X><Y>660</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000315</Id>
-					<Name><![CDATA[costoFleteGranelTerminal]]></Name>
-					<X>-140</X><Y>680</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1791300000101</Id>
-					<Name><![CDATA[politicaSeleccion]]></Name>
-					<X>-140</X><Y>1900</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[DatosEntrada.PoliticaSeleccion]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[DatosEntrada.PoliticaSeleccion.FIJA_DEPOSITO]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000103</Id>
-					<Name><![CDATA[siguienteIdPlan]]></Name>
-					<X>-140</X><Y>1930</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[1]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000105</Id>
-					<Name><![CDATA[planesEmitidos]]></Name>
-					<X>-140</X><Y>1960</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000107</Id>
-					<Name><![CDATA[planesTardios]]></Name>
-					<X>-140</X><Y>1990</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000109</Id>
-					<Name><![CDATA[alternativasEvaluadasTotal]]></Name>
-					<X>-140</X><Y>2020</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000111</Id>
-					<Name><![CDATA[alternativasDescartadasTotal]]></Name>
-					<X>-140</X><Y>2050</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791300000113</Id>
-					<Name><![CDATA[pedidosSinAlternativaFactible]]></Name>
-					<X>-140</X><Y>2080</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<Connectors>
@@ -2171,6 +2388,8 @@ devengarOportunidadFrioPropio();         // 10b. devengar el uso del frio propio
 registrarOcupacionPlanta();              // 10c. medir la sobrecarga del dia
 registrarAtrasos();                      // 11. registrar indicadores del dia
 validarInventario();              // invariantes de las capas (ADR-023)
+validarBalancePedidos();          // C-01: el pedido cierra por partes (ADR-055)
+validarBalanceProducido();        // C-02: nada de lo producido se pierde (ADR-048)
 reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)]]></Action>
 				</Event>
 			</Events>
@@ -2344,12 +2563,28 @@ return datos.importeFlete(
 						<Name><![CDATA[toneladas]]></Name>
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
-					<Body><![CDATA[Deposito mejorDeposito = null;
+					<Parameter>
+						<Name><![CDATA[priorizarEspacio]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[excluidos]]></Name>
+						<Type><![CDATA[java.util.Set<String>]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Con la planta en sobrecarga critica el criterio deja de ser el costo y pasa a ser que
+// el producto salga: gana el destino donde entra mas, y el costo desempata (ADR-056). El
+// volumen a transferir no cambia por estar en sobrecarga; cambia el orden de los destinos.
+Deposito mejorDeposito = null;
 double menorCostoPorTonelada = Double.POSITIVE_INFINITY;
+double mayorEspacio = 0;
 
 for (Deposito deposito : depositos) {
 
-    if (!deposito.habilitado) {
+    if (excluidos != null && excluidos.contains(deposito.idUbicacion)) {
+        continue;
+    }
+
+    if (!motivoDescarteDeposito(deposito, producto, 0).isEmpty()) {
         continue;
     }
 
@@ -2372,7 +2607,19 @@ for (Deposito deposito : depositos) {
 
     double costoPorTonelada = costoEstimado / posible;
 
-    if (costoPorTonelada < menorCostoPorTonelada) {
+    boolean mejor =
+        priorizarEspacio
+        ? (
+            posible > mayorEspacio + 0.0001
+            || (
+                abs(posible - mayorEspacio) <= 0.0001
+                && costoPorTonelada < menorCostoPorTonelada
+            )
+        )
+        : costoPorTonelada < menorCostoPorTonelada;
+
+    if (mejor) {
+        mayorEspacio = posible;
         menorCostoPorTonelada = costoPorTonelada;
         mejorDeposito = deposito;
     }
@@ -2415,7 +2662,7 @@ for (LoteProducto lote : lotes) {
 return seleccionado;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784385540267</Id>
 					<Name><![CDATA[transferirProductoADepositos]]></Name>
@@ -2432,7 +2679,20 @@ return seleccionado;]]></Body>
 						<Name><![CDATA[toneladasObjetivo]]></Name>
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
-					<Body><![CDATA[double pendiente = toneladasObjetivo;
+					<Parameter>
+						<Name><![CDATA[priorizarEspacio]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El objetivo se reparte entre todos los depositos que puedan recibir: que en el primero
+// entren 100 de 300 no termina la transferencia, sigue con el siguiente (ADR-056). Un
+// destino que no pudo recibir queda descartado por hoy y no vuelve a intentarse, asi el
+// recorrido termina siempre.
+double pendiente = toneladasObjetivo;
+
+java.util.Set<String> agotados =
+    new java.util.HashSet<String>();
+
+double movidasTotal = 0;
 
 while (pendiente > 0.0001) {
 
@@ -2449,23 +2709,44 @@ while (pendiente > 0.0001) {
     );
 
     Deposito destino =
-        seleccionarDeposito(producto, aMover);
+        seleccionarDeposito(producto, aMover, priorizarEspacio, agotados);
 
     if (destino == null) {
         break;
     }
 
     // Si en el deposito elegido no entra todo, se manda lo que entra y el resto sale
-    // en la vuelta siguiente, posiblemente a otro deposito.
+    // en la vuelta siguiente, a otro deposito.
     double movidas =
         transferirToneladasLote(lote, destino, aMover, false);
 
     if (movidas <= 0.0001) {
-        break;
+        agotados.add(destino.idUbicacion);
+        continue;
+    }
+
+    if (movidas + 0.0001 < aMover) {
+        agotados.add(destino.idUbicacion);
     }
 
     pendiente -= movidas;
-}]]></Body>
+    movidasTotal += movidas;
+}
+
+if (pendiente > 0.0001) {
+
+    transferenciasIncompletas++;
+
+    if (debugPlanificacion) {
+        traceln(
+            "[dia " + (int) floor(time()) + "] " + producto
+            + " quedaron sin destino " + Math.round(pendiente) + " tn"
+        );
+        traceln(diagnosticoDepositos(producto, pendiente));
+    }
+}
+
+return movidasTotal;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2477,11 +2758,10 @@ while (pendiente > 0.0001) {
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[// Politica de frio propio (ADR-048). El frio de la planta es propio y no se
-// factura, asi que el default es retener: el producto sale solo si el forecast
-// proyecta pasar la capacidad nominal o si un pedido no se puede servir desde
-// deposito. La politica REACTIVA conserva la regla anterior (vaciar la planta
-// al llegar al umbral de alerta) y queda como escenario de comparacion.
+					<Body><![CDATA[// Politica de frio propio (ADR-048, ADR-056). El frio de la planta es propio y no se
+// factura, asi que el default es retener: el producto sale por desborde proyectado, por
+// servicio o por prevencion. La politica REACTIVA conserva la regla anterior (vaciar la
+// planta al llegar al umbral de alerta) y queda como escenario de comparacion.
 boolean flexible =
     "FLEXIBLE".equals(datos.escenario.politicaFrioPropio);
 
@@ -2491,11 +2771,52 @@ for (TipoProducto producto : TipoProducto.values()) {
         ? toneladasASacarDePlanta(producto)
         : toneladasASacarReactiva(producto);
 
+    boolean critica = plantaEnSobrecargaCritica(producto);
+
+    if (debugPlanificacion && (toneladas > 0.0001 || critica)) {
+
+        traceln(
+            "[dia " + (int) floor(time()) + "] " + producto
+            + " politica=" + datos.escenario.politicaFrioPropio
+            + " stock=" + Math.round(planta.getStock(producto))
+            + " libre=" + Math.round(inventario.libre("PLANTA", producto))
+            + " forecast="
+            + Math.round(forecastProduccion(producto, datos.escenario.diasForecast))
+            + " capacidad=" + Math.round(planta.getCapacidad(producto))
+            + " desborde=" + Math.round(componentePorDesborde)
+            + " servicio=" + Math.round(componentePorServicio)
+            + " preventiva=" + Math.round(componentePreventivo)
+            + " critica=" + (critica ? "si" : "no")
+            + " objetivo=" + Math.round(toneladas)
+        );
+
+        traceln(diagnosticoDepositos(producto, toneladas));
+    }
+
     if (toneladas <= 0.0001) {
         continue;
     }
 
-    transferirProductoADepositos(producto, toneladas);
+    double movidas =
+        transferirProductoADepositos(producto, toneladas, critica);
+
+    if (debugPlanificacion) {
+        traceln(
+            "[dia " + (int) floor(time()) + "] " + producto
+            + " transferido=" + Math.round(movidas)
+            + " de " + Math.round(toneladas)
+        );
+    }
+
+    if (critica) {
+        toneladasTransferidasCriticas += movidas;
+    } else if (componentePorDesborde >= max(componentePorServicio, componentePreventivo)) {
+        toneladasTransferidasDesborde += movidas;
+    } else if (componentePorServicio >= componentePreventivo) {
+        toneladasTransferidasServicio += movidas;
+    } else {
+        toneladasTransferidasPreventivas += movidas;
+    }
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -2634,79 +2955,6 @@ return pedido;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[Deposito]]></ReturnType>
-					<Id>1784398293831</Id>
-					<Name><![CDATA[seleccionarDepositoParaPedido]]></Name>
-					<X>50</X><Y>-670</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (
-    pedido == null
-    || pedido.puertoSalida == null
-    || pedido.toneladasSolicitadas <= 0
-) {
-    return null;
-}
-
-Deposito mejorDeposito = null;
-double menorCosto = Double.POSITIVE_INFINITY;
-
-for (Deposito deposito : depositos) {
-
-    if (
-        !deposito.puedeReservar(
-            pedido.producto,
-            pedido.toneladasSolicitadas
-        )
-    ) {
-        continue;
-    }
-
-    int contenedores =
-        contenedoresNecesarios(
-            pedido.producto,
-            pedido.toneladasSolicitadas
-        );
-
-    double costoFlete =
-        deposito.getImporteFletePuerto(
-            pedido.puertoSalida,
-            pedido.producto,
-            pedido.toneladasSolicitadas
-        );
-
-    double costoConsolidado =
-        consolidaEnTerminal()
-        ? pedido.puertoSalida.getImporteConsolidacion(
-            pedido.producto,
-            pedido.toneladasSolicitadas,
-            contenedores
-        )
-        : deposito.getImporteConsolidacion(
-            pedido.producto,
-            pedido.toneladasSolicitadas,
-            contenedores
-        );
-
-    double costoTotal =
-        costoFlete + costoConsolidado;
-
-    if (costoTotal < menorCosto) {
-        menorCosto = costoTotal;
-        mejorDeposito = deposito;
-    }
-}
-
-return mejorDeposito;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1784406914228</Id>
 					<Name><![CDATA[intentarAsignarPedido]]></Name>
@@ -2719,45 +2967,20 @@ return mejorDeposito;]]></Body>
 						<Name><![CDATA[pedido]]></Name>
 						<Type><![CDATA[Pedido]]></Type>
 					</Parameter>
-					<Body><![CDATA[if (pedido == null) {
+					<Body><![CDATA[// Un pedido sigue siendo asignable mientras le quede saldo: parcialmente reservado o
+// parcialmente en preparacion, la diferencia sigue siendo demanda (ADR-055).
+if (pedido == null || pedido.toneladasPendientesAsignar() <= 0.0001) {
     return false;
 }
 
 if (
-    pedido.estado != EstadoPedido.PENDIENTE
-    && pedido.estado != EstadoPedido.ATRASADO
+    pedido.estado == EstadoPedido.ENTREGADO
+    || pedido.estado == EstadoPedido.CANCELADO
 ) {
     return false;
 }
 
-if (usaEvaluador()) {
-    return asignarConEvaluador(pedido);
-}
-
-String idSitio =
-    seleccionarSitioParaPedido(pedido);
-
-if (idSitio == null) {
-    return false;
-}
-
-boolean reservado =
-    reservarLotesParaPedido(
-        pedido,
-        idSitio
-    );
-
-if (!reservado) {
-    return false;
-}
-
-confirmarAsignacion(
-    pedido,
-    idSitio,
-    circuitoDe(idSitio, pedido.esCrossDock)
-);
-
-return true;]]></Body>
+return asignarParcialPedido(pedido) > 0.0001;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -2841,12 +3064,19 @@ return total;]]></Body>
 						<Type><![CDATA[Pedido]]></Type>
 					</Parameter>
 					<Parameter>
+						<Name><![CDATA[asignacion]]></Name>
+						<Type><![CDATA[AsignacionPedido]]></Type>
+					</Parameter>
+					<Parameter>
 						<Name><![CDATA[toneladas]]></Name>
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
-					<Body><![CDATA[if (
+					<Body><![CDATA[// El envio es de una asignacion, no del pedido: de ahi salen el origen, el circuito y la
+// clave de reserva contra la que se va a despachar (ADR-055).
+if (
     pedido == null
-    || pedido.idSitioOrigen.isEmpty()
+    || asignacion == null
+    || asignacion.idSitioOrigen.isEmpty()
     || pedido.puertoSalida == null
     || toneladas <= 0
 ) {
@@ -2865,16 +3095,20 @@ envio.codigoEnvio =
 
 envio.pedido = pedido;
 
+envio.idAsignacionPedido = asignacion.idAsignacion;
+envio.claveReserva = asignacion.claveReserva();
+envio.esCrossDock = asignacion.esCrossDock;
+
 envio.idSitioOrigen =
-    pedido.idSitioOrigen;
+    asignacion.idSitioOrigen;
 
 // Queda nulo cuando el pedido sale del frio propio: el deposito es un caso del
 // origen y no el origen (ADR-050).
 envio.depositoOrigen =
-    pedido.depositoAsignado;
+    buscarDeposito(asignacion.idSitioOrigen);
 
 envio.circuito =
-    pedido.estrategiaSeleccionada;
+    asignacion.circuito;
 
 envio.terminalDestino =
     pedido.puertoSalida;
@@ -2963,7 +3197,13 @@ envio.costoFleteReal =
 
 envio.costoConsolidacionReal =
     importeServicioEstiba(
-        pedido,
+        sitioEstiba(
+            envio.idSitioOrigen,
+            envio.circuito,
+            envio.terminalDestino
+        ),
+        envio.esCrossDock,
+        envio.producto,
         toneladas,
         contenedoresNecesarios(pedido.producto, toneladas)
     );
@@ -2992,10 +3232,13 @@ return envio;]]></Body>
 						<Name><![CDATA[envio]]></Name>
 						<Type><![CDATA[Envio]]></Type>
 					</Parameter>
-					<Body><![CDATA[if (
+					<Body><![CDATA[// El producto sale contra la reserva de su asignacion y no contra el codigo del pedido:
+// dos asignaciones del mismo pedido en el mismo sitio no se pisan (ADR-055).
+if (
     envio == null
     || envio.pedido == null
     || envio.idSitioOrigen.isEmpty()
+    || envio.claveReserva.isEmpty()
     || envio.toneladas <= 0
 ) {
     return false;
@@ -3003,25 +3246,31 @@ return envio;]]></Body>
 
 Pedido pedido = envio.pedido;
 
+AsignacionPedido asignacion = asignacionDeEnvio(envio);
+
+if (asignacion == null) {
+    return false;
+}
+
 double reservado =
-    inventario.reservadoPedidoEn(
+    inventario.reservadoClaveEn(
         envio.idSitioOrigen,
         envio.producto,
-        pedido.codigoPedido
+        envio.claveReserva
     );
 
 if (reservado + 0.0001 < envio.toneladas) {
     return false;
 }
 
-// Sale exactamente lo que este pedido tenia reservado, de las capas mas
+// Sale exactamente lo que esta asignacion tenia reservado, de las capas mas
 // antiguas primero.
 double despachadas =
     inventario.despachar(
         envio.idSitioOrigen,
         envio.producto,
         envio.toneladas,
-        pedido.codigoPedido
+        envio.claveReserva
     );
 
 if (despachadas + 0.0001 < envio.toneladas) {
@@ -3034,6 +3283,15 @@ actualizarEstadoLotesVacios();
 // (ADR-053).
 envio.costoCargosReal +=
     registrarOutDeposito(envio);
+
+asignacion.toneladasReservadasActivas =
+    max(0, asignacion.toneladasReservadasActivas - envio.toneladas);
+
+asignacion.toneladasDespachadas += envio.toneladas;
+
+if (asignacion.diaPrimerDespacho < 0) {
+    asignacion.diaPrimerDespacho = time();
+}
 
 pedido.toneladasDespachadas +=
     envio.toneladas;
@@ -3359,11 +3617,14 @@ for (DatosEntrada.PedidoPlan plan : datos.pedidosDelDia(diaActual)) {
 					<Body><![CDATA[java.util.List<Pedido> pendientes =
     new java.util.ArrayList<Pedido>();
 
+// Con asignacion parcial la cola no son los pedidos sin reserva sino los que tienen
+// saldo: uno reservado a medias vuelve todos los dias hasta completarse (ADR-055).
 for (Pedido pedido : pedidos) {
 
     if (
-        pedido.estado == EstadoPedido.PENDIENTE
-        || pedido.estado == EstadoPedido.ATRASADO
+        pedido.estado != EstadoPedido.ENTREGADO
+        && pedido.estado != EstadoPedido.CANCELADO
+        && pedido.toneladasPendientesAsignar() > 0.0001
     ) {
         pendientes.add(pedido);
     }
@@ -3403,17 +3664,29 @@ for (Pedido pedido : pendientes) {
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[for (Pedido pedido : pedidos) {
+					<Body><![CDATA[// Se arman los contenedores de cada asignacion activa, no del pedido: una fraccion ya
+// reservada no espera a que el pedido este completo para empezar a viajar (ADR-055).
+for (Pedido pedido : pedidos) {
 
     if (
-        pedido.estado == EstadoPedido.RESERVADO
-        && pedido.contenedores.isEmpty()
+        pedido.estado == EstadoPedido.ENTREGADO
+        || pedido.estado == EstadoPedido.CANCELADO
+        || pedido.asignaciones.isEmpty()
     ) {
+        continue;
+    }
 
-        if (crearContenedoresParaPedido(pedido) > 0) {
-            pedido.estado =
-                EstadoPedido.EN_PREPARACION;
-        }
+    int creados = 0;
+
+    for (AsignacionPedido asignacion : pedido.asignaciones) {
+        creados += crearContenedoresParaAsignacion(pedido, asignacion);
+    }
+
+    if (
+        creados > 0
+        && pedido.estado != EstadoPedido.ATRASADO
+    ) {
+        pedido.estado = EstadoPedido.EN_PREPARACION;
     }
 }]]></Body>
 				</Function>
@@ -3431,15 +3704,20 @@ for (Pedido pedido : pendientes) {
 // es lo que tiene ubicacion y dia de ingreso propios, y se imputa al lote y al
 // deposito en el mismo recorrido, sin doble conteo.
 //
-// Lo comprometido por un pedido de cross dock no paga almacenaje: cruza el sitio
-// sin ingresar al stock (ADR-010).
+// Lo comprometido por una asignacion de cross dock no paga almacenaje: cruza el sitio
+// sin ingresar al stock (ADR-010). Se identifica por la clave de la reserva y no por el
+// codigo del pedido, porque el mismo pedido puede cruzar una fraccion y guardar otra
+// (ADR-055).
 java.util.HashSet<String> cruzados =
     new java.util.HashSet<String>();
 
 for (Pedido pedido : pedidos) {
 
-    if (pedido.esCrossDock) {
-        cruzados.add(pedido.codigoPedido);
+    for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+        if (asignacion.esCrossDock) {
+            cruzados.add(asignacion.claveReserva());
+        }
     }
 }
 
@@ -3455,7 +3733,7 @@ for (Capa capa : inventario.capas) {
 
     for (Capa.Reserva reserva : capa.reservas) {
 
-        if (cruzados.contains(reserva.codigoPedido)) {
+        if (cruzados.contains(reserva.clave)) {
             facturables -= reserva.toneladas;
         }
     }
@@ -3502,7 +3780,20 @@ for (Capa capa : inventario.capas) {
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[for (Pedido pedido : pedidos) {
+					<Body><![CDATA[// Un pedido vencido queda atrasado aunque ya tenga parte reservada, contenerizada o
+// entregada: lo que decide es el saldo sin entregar (ADR-055).
+for (Pedido pedido : pedidos) {
+
+    // Marca historica de entrega parcial: se evalua al cierre del dia y no al llegar cada
+    // envio, porque un pedido se despacha en varios contenedores y el saldo de media
+    // jornada no es un pedido servido a medias.
+    if (
+        pedido.toneladasEntregadas > 0.0001
+        && !pedido.estaCompleto()
+        && pedido.estado != EstadoPedido.CANCELADO
+    ) {
+        pedido.tuvoEntregaParcial = true;
+    }
 
     if (
         time() > pedido.diaLimite
@@ -3512,8 +3803,13 @@ for (Capa capa : inventario.capas) {
         pedido.diasAtraso =
             time() - pedido.diaLimite;
 
-        if (pedido.estado == EstadoPedido.PENDIENTE) {
+        if (pedido.estado != EstadoPedido.ATRASADO) {
+
             pedido.estado = EstadoPedido.ATRASADO;
+
+            if (pedido.toneladasEntregadas > 0.0001) {
+                pedidosAtrasadosConEntregaParcial++;
+            }
         }
     }
 }]]></Body>
@@ -3834,147 +4130,6 @@ if (lote.estado == EstadoLote.EN_PLANTA) {
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[int]]></ReturnType>
-					<Id>9601</Id>
-					<Name><![CDATA[crearContenedoresParaPedido]]></Name>
-					<X>130</X><Y>1220</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
-					</Parameter>
-					<Body><![CDATA[// Fase 6: la unidad de exportacion pasa a ser el contenedor. Se crean tantos como haga
-// falta para lo reservado, con la capacidad del tipo de contenedor del producto, y el
-// ultimo va parcial. Cada uno queda asociado al lote que mas aporta a su carga.
-if (
-    pedido == null
-    || pedido.idSitioOrigen.isEmpty()
-    || pedido.puertoSalida == null
-    || pedido.toneladasReservadas <= 0.0001
-) {
-    return 0;
-}
-
-if (!pedido.contenedores.isEmpty()) {
-    return pedido.contenedores.size();
-}
-
-pedido.tipoContenedor =
-    obtenerTipoContenedor(pedido.producto);
-
-pedido.capacidadContenedorTon =
-    obtenerCapacidadContenedorTon(pedido.tipoContenedor);
-
-String origen = pedido.idSitioOrigen;
-
-String sitioDeEstiba = sitioEstiba(pedido);
-
-// Capas que este pedido tiene reservadas, en el mismo orden FIFO en que se van a
-// despachar: recorrerlas en paralelo a los contenedores da el lote de cada uno.
-java.util.List<Capa> reservadas =
-    inventario.capasReservadasDe(
-        origen,
-        pedido.producto,
-        pedido.codigoPedido
-    );
-
-int indiceCapa = 0;
-
-double saldoCapa =
-    reservadas.isEmpty()
-    ? 0
-    : reservadas.get(0).reservadasDe(pedido.codigoPedido);
-
-double pendiente = pedido.toneladasReservadas;
-int numero = 0;
-
-while (pendiente > 0.0001) {
-
-    double carga =
-        min(pedido.capacidadContenedorTon, pendiente);
-
-    numero++;
-
-    ContenedorExportacion contenedor =
-        add_contenedoresExportacion();
-
-    contenedor.idContenedor =
-        pedido.codigoPedido + "-C" + numero;
-
-    contenedor.Pedido = pedido;
-    contenedor.producto = pedido.producto;
-    contenedor.tipoContenedor = pedido.tipoContenedor;
-    contenedor.capacidadTon = pedido.capacidadContenedorTon;
-    contenedor.cantidadAsignadaTon = carga;
-    contenedor.terminalDestino = pedido.puertoSalida;
-
-    contenedor.esCrossDock = pedido.esCrossDock;
-
-    contenedor.diaProgramadoCrossDock =
-        pedido.esCrossDock ? time() : -1;
-
-    contenedor.lugarConsolidacion =
-        sitioDeEstiba.equals("PLANTA")
-        ? (Agent) planta
-        : (
-            buscarDeposito(sitioDeEstiba) != null
-            ? (Agent) buscarDeposito(sitioDeEstiba)
-            : (Agent) pedido.puertoSalida
-        );
-    contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
-
-    contenedor.costoEstimado =
-        datos.roundTripUsdContenedor(
-            diaCampania(),
-            pedido.puertoSalida.idUbicacion,
-            origen,
-            pedido.tipoContenedor
-        )
-        + importeServicioEstiba(pedido, carga, 1);
-
-    double resto = carga;
-    double mayorAporte = 0;
-
-    while (resto > 0.0001 && indiceCapa < reservadas.size()) {
-
-        double toma = min(resto, saldoCapa);
-
-        if (toma > mayorAporte) {
-            mayorAporte = toma;
-            contenedor.lote =
-                buscarLote(
-                    reservadas.get(indiceCapa).idLote
-                );
-        }
-
-        resto -= toma;
-        saldoCapa -= toma;
-
-        if (saldoCapa <= 0.0001) {
-            indiceCapa++;
-
-            saldoCapa =
-                indiceCapa < reservadas.size()
-                ? reservadas.get(indiceCapa)
-                    .reservadasDe(pedido.codigoPedido)
-                : 0;
-        }
-    }
-
-    pedido.contenedores.add(contenedor);
-
-    pendiente -= carga;
-}
-
-pedido.cantidadContenedores = numero;
-
-return numero;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>9603</Id>
 					<Name><![CDATA[contarContenedores]]></Name>
 					<X>130</X><Y>1280</Y>
@@ -4027,11 +4182,15 @@ return cantidad;]]></Body>
 						<Name><![CDATA[contenedor]]></Name>
 						<Type><![CDATA[ContenedorExportacion]]></Type>
 					</Parameter>
-					<Body><![CDATA[// Donde se estiba el contenedor: el sitio de origen del pedido o la terminal de
-// salida, segun el circuito (ADR-050).
+					<Body><![CDATA[// Donde se estiba el contenedor: su sitio de origen o la terminal de salida, segun su
+// circuito (ADR-050). Es del contenedor y no del pedido, que puede tener varios (ADR-055).
 return contenedor == null
     ? ""
-    : sitioEstiba(contenedor.Pedido);]]></Body>
+    : sitioEstiba(
+        contenedor.idSitioOrigen,
+        contenedor.circuito,
+        contenedor.terminalDestino
+    );]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -4146,10 +4305,15 @@ java.util.Collections.sort(
                 return a.esCrossDock ? -1 : 1;
             }
 
-            return Double.compare(
-                a.Pedido.diaLimite,
-                b.Pedido.diaLimite
-            );
+            int orden =
+                Double.compare(
+                    a.Pedido.diaLimite,
+                    b.Pedido.diaLimite
+                );
+
+            return orden != 0
+                ? orden
+                : a.idContenedor.compareTo(b.idContenedor);
         }
     }
 );
@@ -4162,16 +4326,29 @@ for (
 ) {
     Pedido pedido = contenedor.Pedido;
 
+    // El origen y el circuito son del contenedor, que los hereda de su asignacion: el
+    // mismo pedido puede tener contenedores de dos circuitos distintos (ADR-055).
+    AsignacionPedido asignacion =
+        asignacionDe(pedido, contenedor.idAsignacionPedido);
+
+    if (asignacion == null) {
+        error(
+            "El contenedor "
+            + contenedor.idContenedor
+            + " no tiene asignacion viva"
+        );
+    }
+
     // Circuito 4: el producto viaja a granel, asi que le consume jornada a la
     // flota de producto y no al pool de portacontenedores (ADR-050).
     boolean granel =
-        pedido.estrategiaSeleccionada
+        contenedor.circuito
         == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
 
     if (
         granel
         && !flotaProductoAlcanza(
-            pedido.idSitioOrigen,
+            contenedor.idSitioOrigen,
             pedido.puertoSalida.idUbicacion,
             contenedor.cantidadAsignadaTon
         )
@@ -4197,6 +4374,7 @@ for (
     Envio envio =
         crearEnvio(
             pedido,
+            asignacion,
             contenedor.cantidadAsignadaTon
         );
 
@@ -4211,7 +4389,7 @@ for (
 
     if (granel) {
         tomarFlotaProducto(
-            pedido.idSitioOrigen,
+            contenedor.idSitioOrigen,
             pedido.puertoSalida.idUbicacion,
             viajesNecesariosCamion(
                 contenedor.cantidadAsignadaTon
@@ -4384,14 +4562,23 @@ return (int) ceil(toneladas / capacidad - 0.0001);]]></Body>
 						<Name><![CDATA[pedido]]></Name>
 						<Type><![CDATA[Pedido]]></Type>
 					</Parameter>
-					<Body><![CDATA[Deposito mejorSitio = null;
-double menorCosto = Double.POSITIVE_INFINITY;
+					<Body><![CDATA[// Deposito de cruce mas barato entre los que pueden recibir hoy aunque sea una parte
+// del saldo pendiente: con reserva parcial ya no hace falta que entre todo (ADR-055).
+Deposito mejorSitio = null;
+double menorCostoPorTonelada = Double.POSITIVE_INFINITY;
 
-int necesarios =
-    contenedoresNecesarios(
-        pedido.producto,
-        pedido.toneladasSolicitadas
+double capacidadContenedor =
+    obtenerCapacidadContenedorTon(obtenerTipoContenedor(pedido.producto));
+
+double pendiente =
+    min(
+        pedido.toneladasPendientesAsignar(),
+        inventario.libre("PLANTA", pedido.producto)
     );
+
+if (pendiente <= 0.0001) {
+    return null;
+}
 
 for (Deposito deposito : depositos) {
 
@@ -4399,22 +4586,21 @@ for (Deposito deposito : depositos) {
         continue;
     }
 
-    if (
-        capacidadCrossDockLibre(deposito.idUbicacion)
-        < necesarios
-    ) {
+    double posible =
+        min(
+            pendiente,
+            min(
+                deposito.getEspacioDisponible(pedido.producto),
+                capacidadCrossDockLibre(deposito.idUbicacion) * capacidadContenedor
+            )
+        );
+
+    if (posible <= 0.0001) {
         continue;
     }
 
-    // El producto pasa por el deposito, asi que tiene que entrar aunque no se
-    // quede: la capacidad se libera el mismo dia, al salir el contenedor.
-    if (
-        deposito.getEspacioDisponible(pedido.producto)
-        + 0.0001
-        < pedido.toneladasSolicitadas
-    ) {
-        continue;
-    }
+    int contenedores =
+        contenedoresNecesarios(pedido.producto, posible);
 
     // Sin almacenaje en el costo: no guardar es justamente el punto del
     // cross dock (ADR-010).
@@ -4422,24 +4608,23 @@ for (Deposito deposito : depositos) {
         calcularCostoPlantaDeposito(
             deposito,
             pedido.producto,
-            pedido.toneladasSolicitadas
+            posible
         )
         + deposito.getImporteFletePuerto(
             pedido.puertoSalida,
             pedido.producto,
-            pedido.toneladasSolicitadas
+            posible
         )
         + deposito.getImporteCrossDock(
             pedido.producto,
-            pedido.toneladasSolicitadas,
-            contenedoresNecesarios(
-                pedido.producto,
-                pedido.toneladasSolicitadas
-            )
+            posible,
+            contenedores
         );
 
-    if (costo < menorCosto) {
-        menorCosto = costo;
+    double costoPorTonelada = costo / posible;
+
+    if (costoPorTonelada < menorCostoPorTonelada) {
+        menorCostoPorTonelada = costoPorTonelada;
         mejorSitio = deposito;
     }
 }
@@ -4508,7 +4693,7 @@ return toneladas - pendiente;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785010414</Id>
 					<Name><![CDATA[ejecutarCrossDockPedido]]></Name>
 					<X>130</X><Y>1540</Y>
@@ -4524,38 +4709,54 @@ return toneladas - pendiente;]]></Body>
 						<Name><![CDATA[sitio]]></Name>
 						<Type><![CDATA[Deposito]]></Type>
 					</Parameter>
-					<Body><![CDATA[// El pedido se sirve con producto que todavia esta en planta: sale hoy, se
-// estiba hoy y no entra a almacenamiento (ADR-010). Si algo no da, no se mueve
-// nada y el pedido sigue el camino normal.
-if (
-    inventario.libre("PLANTA", pedido.producto)
-    + 0.0001
-    < pedido.toneladasSolicitadas
-) {
-    return false;
+					<Parameter>
+						<Name><![CDATA[toneladasObjetivo]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El pedido se sirve con producto que todavia esta en planta: sale hoy, se estiba hoy y
+// no entra a almacenamiento (ADR-010). Devuelve las toneladas cruzadas, que pueden ser
+// una fraccion del saldo pendiente (ADR-055).
+if (pedido == null) {
+    return 0;
 }
 
 if (sitio == null) {
     crossDockReprogramados++;
-    return false;
+    return 0;
+}
+
+double capacidadContenedor =
+    obtenerCapacidadContenedorTon(obtenerTipoContenedor(pedido.producto));
+
+double toneladas =
+    min(
+        min(toneladasObjetivo, pedido.toneladasPendientesAsignar()),
+        min(
+            inventario.libre("PLANTA", pedido.producto),
+            min(
+                sitio.getEspacioDisponible(pedido.producto),
+                capacidadCrossDockLibre(sitio.idUbicacion) * capacidadContenedor
+            )
+        )
+    );
+
+if (toneladas <= 0.0001) {
+    return 0;
 }
 
 if (
     !flotaProductoAlcanza(
         "PLANTA",
         sitio.idUbicacion,
-        pedido.toneladasSolicitadas
+        toneladas
     )
 ) {
     crossDockReprogramados++;
-    return false;
+    return 0;
 }
 
 int necesarios =
-    contenedoresNecesarios(
-        pedido.producto,
-        pedido.toneladasSolicitadas
-    );
+    contenedoresNecesarios(pedido.producto, toneladas);
 
 if (
     !tomarPosicionesCrossDock(
@@ -4564,51 +4765,54 @@ if (
     )
 ) {
     crossDockReprogramados++;
-    return false;
+    return 0;
 }
 
 double movidas =
     transferirLotesADeposito(
         pedido.producto,
         sitio,
-        pedido.toneladasSolicitadas,
+        toneladas,
         true
     );
 
-// Si el producto se movio pero el pedido no se puede armar, lo movido queda en
-// el deposito como stock normal y devenga almacenaje: es una operacion de cross
-// dock que se degrado, y se cuenta como tal.
-if (
-    movidas + 0.0001 < pedido.toneladasSolicitadas
-    || !reservarLotesParaPedido(pedido, sitio.idUbicacion)
-) {
+if (movidas <= 0.0001) {
+    crossDockReprogramados++;
+    return 0;
+}
+
+double reservadas =
+    reservarParcialPedido(
+        pedido,
+        sitio.idUbicacion,
+        movidas,
+        EstrategiaLogistica.CROSS_DOCK_DEPOSITO,
+        true,
+        "cross dock por " + sitio.idUbicacion
+    );
+
+// Lo que se movio y no se pudo comprometer queda en el deposito como stock normal y
+// devenga ingreso y almacenaje: es una operacion de cross dock que se degrado, y se
+// cuenta como tal. El cargo va sin lote porque puede venir de varios (ADR-053).
+double degradadas = max(0, movidas - reservadas);
+
+if (degradadas > 0.0001) {
+
     crossDockDegradados++;
 
-    // Lo movido queda como stock normal: desde aca paga ingreso y almacenaje. El
-    // cargo va sin lote porque puede venir de varios (ADR-053).
     registrarInDeposito(
         sitio.idUbicacion,
         pedido.producto,
-        movidas,
+        degradadas,
         "",
         pedido.codigoPedido,
         "INX-" + diaCampania() + "-" + pedido.codigoPedido
     );
-
-    return false;
 }
 
-pedido.esCrossDock = true;
+toneladasCrossDock += reservadas;
 
-confirmarAsignacion(
-    pedido,
-    sitio.idUbicacion,
-    EstrategiaLogistica.CROSS_DOCK_DEPOSITO
-);
-
-toneladasCrossDock += movidas;
-
-return true;]]></Body>
+return reservadas;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -4629,11 +4833,14 @@ if (!habilitaCrossDock || usaEvaluador()) {
 java.util.List<Pedido> candidatos =
     new java.util.ArrayList<Pedido>();
 
+// Cruza el saldo sin asignar, en cualquier estado abierto: un pedido reservado a medias
+// puede cruzar el resto (ADR-055).
 for (Pedido pedido : pedidos) {
 
     if (
-        pedido.estado == EstadoPedido.PENDIENTE
-        || pedido.estado == EstadoPedido.ATRASADO
+        pedido.estado != EstadoPedido.ENTREGADO
+        && pedido.estado != EstadoPedido.CANCELADO
+        && pedido.toneladasPendientesAsignar() > 0.0001
     ) {
         candidatos.add(pedido);
     }
@@ -5039,22 +5246,20 @@ return total;]]></Body>
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[// Toneladas comprometidas y todavia no reservadas. Un pedido ya recibido es una
-// obligacion: se cuenta completo aunque su fecha limite caiga despues del
-// horizonte, porque sacarlo de planta toma dias de flota y esperar al ultimo
-// momento es lo que hace perder el pedido.
+					<Body><![CDATA[// Toneladas comprometidas y todavia no asignadas. Un pedido ya recibido es una
+// obligacion: se cuenta completo aunque su fecha limite caiga despues del horizonte,
+// porque sacarlo de planta toma dias de flota y esperar al ultimo momento es lo que hace
+// perder el pedido. Con asignacion parcial lo que falta es el saldo, no el pedido entero.
 double total = 0;
 
 for (Pedido pedido : pedidos) {
 
     if (
         pedido.producto == producto
-        && (
-            pedido.estado == EstadoPedido.PENDIENTE
-            || pedido.estado == EstadoPedido.ATRASADO
-        )
+        && pedido.estado != EstadoPedido.ENTREGADO
+        && pedido.estado != EstadoPedido.CANCELADO
     ) {
-        total += pedido.toneladasSolicitadas;
+        total += pedido.toneladasPendientesAsignar();
     }
 }
 
@@ -5074,18 +5279,25 @@ return total;]]></Body>
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[// Dos motivos, y solo dos, para gastar frio de terceros:
+					<Body><![CDATA[// Tres motivos, y solo tres, para gastar frio de terceros:
 //
 //   1. desborde proyectado: con la produccion de los proximos dias la planta
 //      pasa su capacidad nominal;
 //   2. servicio: los pedidos con fecha limite dentro del horizonte no se pueden
-//      cubrir con lo que ya esta libre en deposito.
+//      cubrir con lo que ya esta libre en deposito;
+//   3. prevencion: el stock proyectado toca el umbral de alerta y conviene bajar al
+//      objetivo antes de estar contra la capacidad (ADR-056).
 //
-// Si no se cumple ninguno, el producto se queda en el frio propio.
+// Los tres se combinan con un maximo y no con una suma: son lecturas distintas del
+// mismo stock, y sumarlas transferiria dos veces las mismas toneladas.
 int horizonte = datos.escenario.diasForecast;
 
 double stockPlanta =
     inventario.libre("PLANTA", producto);
+
+componentePorDesborde = 0;
+componentePorServicio = 0;
+componentePreventivo = 0;
 
 if (stockPlanta <= 0.0001) {
     return 0;
@@ -5095,7 +5307,7 @@ double proyectado =
     planta.getStock(producto)
     + forecastProduccion(producto, horizonte);
 
-double porDesborde =
+componentePorDesborde =
     max(0, proyectado - planta.getCapacidad(producto));
 
 double libreEnDepositos = 0;
@@ -5107,7 +5319,7 @@ for (Deposito deposito : depositos) {
 
 // Con consolidacion en planta la demanda se sirve del frio propio: sacarla al
 // deposito seria pagar almacenaje para despachar desde el mismo producto.
-double porServicio =
+componentePorServicio =
     consolidaEnPlanta()
     ? 0
     : max(
@@ -5115,7 +5327,13 @@ double porServicio =
         demandaProyectada(producto) - libreEnDepositos
     );
 
-return min(stockPlanta, max(porDesborde, porServicio));]]></Body>
+componentePreventivo =
+    toneladasASacarPreventivamente(producto);
+
+return min(
+    stockPlanta,
+    max(componentePorDesborde, max(componentePorServicio, componentePreventivo))
+);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -5352,19 +5570,23 @@ return consolidaEnTerminal()
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
+						<Name><![CDATA[idSitioOrigen]]></Name>
+						<Type><![CDATA[String]]></Type>
 					</Parameter>
-					<Body><![CDATA[// Donde se arma fisicamente el contenedor: el sitio de origen, salvo en el
-// circuito de terminal, donde el producto viaja a granel y se estiba en el puerto.
-if (pedido == null) {
-    return "";
-}
-
-return pedido.estrategiaSeleccionada
-    == EstrategiaLogistica.CONSOLIDACION_TERMINAL
-    ? pedido.puertoSalida.idUbicacion
-    : pedido.idSitioOrigen;]]></Body>
+					<Parameter>
+						<Name><![CDATA[circuito]]></Name>
+						<Type><![CDATA[EstrategiaLogistica]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[puerto]]></Name>
+						<Type><![CDATA[Terminal]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Donde se arma fisicamente el contenedor: el sitio de origen, salvo en el circuito de
+// terminal, donde el producto viaja a granel y se estiba en el puerto. Es por asignacion
+// y no por pedido: un pedido puede armar contenedores en dos sitios distintos (ADR-055).
+return circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL
+    ? (puerto == null ? "" : puerto.idUbicacion)
+    : idSitioOrigen;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -5388,47 +5610,6 @@ return envio != null
         != EstrategiaLogistica.CONSOLIDACION_TERMINAL;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[String]]></ReturnType>
-					<Id>1792100011</Id>
-					<Name><![CDATA[seleccionarSitioParaPedido]]></Name>
-					<X>130</X><Y>2600</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (
-    pedido == null
-    || pedido.puertoSalida == null
-    || pedido.toneladasSolicitadas <= 0
-) {
-    return null;
-}
-
-// Con consolidacion en planta el pedido se sirve del frio propio siempre que
-// alcance: es el circuito que ahorra el tramo planta-deposito y el almacenaje.
-if (
-    consolidaEnPlanta()
-    && !pedido.esCrossDock
-    && inventario.libre("PLANTA", pedido.producto)
-        + 0.0001
-        >= pedido.toneladasSolicitadas
-) {
-    return "PLANTA";
-}
-
-Deposito deposito =
-    seleccionarDepositoParaPedido(pedido);
-
-return deposito == null
-    ? null
-    : deposito.idUbicacion;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792100013</Id>
@@ -5447,7 +5628,7 @@ return deposito == null
 if (
     envio == null
     || envio.contenedor == null
-    || !estibaEnOrigen(envio.pedido)
+    || !estibaEnOrigen(envio)
 ) {
     return;
 }
@@ -5647,10 +5828,19 @@ pedido.toneladasEntregadas +=
 
 pedido.enviosEntregados++;
 
-if (
-    pedido.toneladasEntregadas
-    >= pedido.toneladasSolicitadas - 0.0001
-) {
+AsignacionPedido asignacion = asignacionDeEnvio(envio);
+
+if (asignacion != null) {
+
+    asignacion.toneladasEntregadas += envio.toneladas;
+    asignacion.diaUltimaEntrega = time();
+    asignacion.cerrarSiCompleta();
+}
+
+// El pedido se entrega cuando se completa, no cuando llega un envio: una entrega parcial
+// deja el pedido abierto con su saldo (ADR-055).
+if (pedido.estaCompleto()) {
+
     pedido.estado =
         EstadoPedido.ENTREGADO;
 
@@ -5674,7 +5864,7 @@ envio.costoCargosReal += roundTrip;
 
 double estiba = registrarServicioEstiba(envio);
 
-if (envio.pedido.esCrossDock) {
+if (envio.esCrossDock) {
     costoCrossDockReal += estiba;
 } else {
     costoConsolidacionReal += estiba;
@@ -5745,55 +5935,6 @@ if (envio.contenedor != null) {
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1792200001</Id>
-					<Name><![CDATA[reservarLotesParaPedido]]></Name>
-					<X>130</X><Y>2800</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[idSitio]]></Name>
-						<Type><![CDATA[String]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (
-    pedido == null
-    || idSitio == null
-    || pedido.toneladasSolicitadas <= 0
-) {
-    return false;
-}
-
-// La reserva se anota sobre las capas del sitio de origen, tomando primero las
-// mas antiguas (ADR-022). El lote no se parte en un segundo agente (ADR-024).
-double reservadas =
-    inventario.reservar(
-        idSitio,
-        pedido.producto,
-        pedido.toneladasSolicitadas,
-        pedido.codigoPedido,
-        time()
-    );
-
-if (reservadas + 0.0001 < pedido.toneladasSolicitadas) {
-
-    // Reserva completa o nada: se devuelve lo que se habia tomado.
-    inventario.liberarReserva(pedido.codigoPedido);
-
-    return false;
-}
-
-marcarLotesReservados(pedido);
-
-return true;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792200003</Id>
@@ -5808,58 +5949,66 @@ return true;]]></Body>
 						<Type><![CDATA[Pedido]]></Type>
 					</Parameter>
 					<Parameter>
-						<Name><![CDATA[idSitio]]></Name>
-						<Type><![CDATA[String]]></Type>
+						<Name><![CDATA[asignacion]]></Name>
+						<Type><![CDATA[AsignacionPedido]]></Type>
 					</Parameter>
-					<Parameter>
-						<Name><![CDATA[circuito]]></Name>
-						<Type><![CDATA[EstrategiaLogistica]]></Type>
-					</Parameter>
-					<Body><![CDATA[pedido.idSitioOrigen = idSitio;
+					<Body><![CDATA[// Anota una asignacion nueva en el pedido. Los campos de un solo origen se conservan
+// como vista del primero conseguido (tablero y compatibilidad); la fuente de verdad de
+// origen y circuito son las asignaciones y, por envio, el contenedor (ADR-055).
+if (pedido.idSitioOrigen.isEmpty()) {
+    pedido.idSitioOrigen = asignacion.idSitioOrigen;
+    pedido.depositoAsignado = buscarDeposito(asignacion.idSitioOrigen);
+    pedido.estrategiaSeleccionada = asignacion.circuito;
+    pedido.esCrossDock = asignacion.esCrossDock;
+}
 
-// Sigue habiendo deposito asignado cuando el origen es un deposito; en el
-// circuito de planta queda nulo y el origen es el propio frio propio.
-pedido.depositoAsignado = buscarDeposito(idSitio);
+boolean primera = pedido.diaReserva < 0;
 
-// El circuito lo decide quien asigna: la politica del escenario en las FIJA_*, y
-// el evaluador en las de costo (ADR-054).
-pedido.estrategiaSeleccionada = circuito;
+if (primera) {
+    pedido.diaReserva = time();
+    pedidosReservados++;
+    pedidosPendientes--;
+}
 
 pedido.toneladasReservadas =
-    pedido.toneladasSolicitadas;
+    pedido.toneladasAsignadasAcumuladas();
 
-pedido.diaReserva = time();
-pedido.estado = EstadoPedido.RESERVADO;
+// Un pedido vencido sigue vencido aunque hoy consiga stock: el estado lo maneja
+// registrarAtrasos() y no la asignacion.
+if (pedido.estado == EstadoPedido.PENDIENTE) {
+    pedido.estado = EstadoPedido.RESERVADO;
+}
 
-pedido.costoFleteEstimado =
+double toneladas = asignacion.toneladasAsignadas;
+
+pedido.costoFleteEstimado +=
     datos.importeFlete(
         diaCampania(),
-        idSitio,
+        asignacion.idSitioOrigen,
         pedido.puertoSalida.idUbicacion,
         pedido.producto,
-        pedido.toneladasSolicitadas,
-        viajesNecesariosCamion(pedido.toneladasSolicitadas)
+        toneladas,
+        viajesNecesariosCamion(toneladas)
     );
 
-pedido.costoConsolidadoEstimado =
+pedido.costoConsolidadoEstimado +=
     importeServicioEstiba(
-        pedido,
-        pedido.toneladasSolicitadas,
-        contenedoresNecesarios(
-            pedido.producto,
-            pedido.toneladasSolicitadas
-        )
+        sitioEstiba(
+            asignacion.idSitioOrigen,
+            asignacion.circuito,
+            pedido.puertoSalida
+        ),
+        asignacion.esCrossDock,
+        pedido.producto,
+        toneladas,
+        contenedoresNecesarios(pedido.producto, toneladas)
     );
 
 pedido.costoTotalEstimado =
     pedido.costoFleteEstimado
     + pedido.costoConsolidadoEstimado;
 
-pedidosReservados++;
-pedidosPendientes--;
-
-toneladasReservadasAcumuladas +=
-    pedido.toneladasSolicitadas;]]></Body>
+toneladasReservadasAcumuladas += toneladas;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -5872,8 +6021,16 @@ toneladasReservadasAcumuladas +=
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
+						<Name><![CDATA[sitio]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cruza]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
 					<Parameter>
 						<Name><![CDATA[toneladas]]></Name>
@@ -5886,13 +6043,11 @@ toneladasReservadasAcumuladas +=
 					<Body><![CDATA[// Quien cobra la estiba es el sitio donde se arma el contenedor, y el cross dock es
 // otro servicio que la estiba desde stock (ADR-041, ADR-050). La unidad de la tarifa
 // decide si se cobra por tonelada o por contenedor completo (ADR-051).
-String sitio = sitioEstiba(pedido);
-
 int dia = diaCampania();
 
-return pedido.esCrossDock
-    ? datos.importeCrossDock(dia, sitio, pedido.producto, toneladas, contenedores)
-    : datos.importeConsolidacion(dia, sitio, pedido.producto, toneladas, contenedores);]]></Body>
+return cruza
+    ? datos.importeCrossDock(dia, sitio, producto, toneladas, contenedores)
+    : datos.importeConsolidacion(dia, sitio, producto, toneladas, contenedores);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -5905,13 +6060,14 @@ return pedido.esCrossDock
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
 					</Parameter>
 					<Body><![CDATA[// Tres de los cuatro circuitos estiban en el origen; solo el de terminal manda el
-// producto a granel y arma el contenedor en el puerto.
-return pedido != null
-    && pedido.estrategiaSeleccionada
+// producto a granel y arma el contenedor en el puerto. Se lee del envio, que lleva el
+// circuito de su asignacion (ADR-055).
+return envio != null
+    && envio.circuito
         != EstrategiaLogistica.CONSOLIDACION_TERMINAL;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -6207,12 +6363,13 @@ int diaTarifa = (int) Math.floor(envio.diaCreacion);
 
 Pedido pedido = envio.pedido;
 
-String sitio = sitioEstiba(pedido);
+String sitio =
+    sitioEstiba(envio.idSitioOrigen, envio.circuito, envio.terminalDestino);
 
 DatosEntrada.TarifaSitio tarifa =
     datos.tarifaSitio(diaTarifa, sitio, envio.producto);
 
-boolean cruza = pedido.esCrossDock;
+boolean cruza = envio.esCrossDock;
 
 DatosEntrada.Unidad unidad =
     cruza ? tarifa.crossDockUnidad : tarifa.consolidacionUnidad;
@@ -6335,7 +6492,6 @@ registro.reconciliar(
 registro.reconciliar(
     RegistroCostos.Categoria.PENALIDAD_SOBRECARGA, costoPenalidadSobrecarga, dia);]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
@@ -6405,10 +6561,11 @@ return importe;]]></Body>
 						<Type><![CDATA[Envio]]></Type>
 					</Parameter>
 					<Body><![CDATA[// Solo paga egreso el producto que estuvo almacenado en un deposito de terceros: no
-// lo paga lo que sale del frio propio ni lo que cruza en cross dock (ADR-053).
+// lo paga lo que sale del frio propio ni lo que cruza en cross dock (ADR-053). Se lee
+// del envio: en el mismo pedido puede haber una fraccion que cruza y otra que no.
 return envio != null
     && envio.pedido != null
-    && !envio.pedido.esCrossDock
+    && !envio.esCrossDock
     && buscarDeposito(envio.idSitioOrigen) != null;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -6658,7 +6815,8 @@ Pedido pedido = envio.pedido;
 
 String terminal = envio.terminalDestino.idUbicacion;
 
-String sitio = sitioEstiba(pedido);
+String sitio =
+    sitioEstiba(envio.idSitioOrigen, envio.circuito, envio.terminalDestino);
 
 int diaSalida = (int) Math.floor(envio.diaCreacion);
 
@@ -6697,7 +6855,7 @@ if (usaPortacontenedor(envio)) {
 }
 
 // Armado del contenedor, en el sitio donde ocurre.
-esperado += pedido.esCrossDock
+esperado += envio.esCrossDock
     ? datos.importeCrossDock(
         diaSalida, sitio, envio.producto, envio.toneladas, contenedores)
     : datos.importeConsolidacion(
@@ -6812,7 +6970,6 @@ for (LoteProducto lote : lotes) {
 
 return historico;]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
@@ -6862,45 +7019,43 @@ return politicaSeleccion
 					<Body><![CDATA[// Un pedido puede servirse de varios origenes por varios circuitos. Se enumeran todos
 // los que el flujo fisico sabe ejecutar y se agrega, descartada, la transferencia entre
 // depositos: no existe como movimiento (C7) y no se aproxima con otro circuito.
+//
+// Lo que se evalua es el saldo pendiente y no el pedido entero, y cada alternativa se
+// acota a lo que su origen puede dar hoy: asi una que resuelve una parte compite en vez
+// de quedar descartada por no alcanzar para todo (ADR-055).
 java.util.List<AlternativaCircuito> alternativas =
     new java.util.ArrayList<AlternativaCircuito>();
 
-double toneladas = pedido.toneladasSolicitadas;
-
-int contenedores =
-    contenedoresNecesarios(pedido.producto, toneladas);
+double pendiente = pedido.toneladasPendientesAsignar();
 
 String terminal = pedido.puertoSalida.idUbicacion;
 
 alternativas.add(
-    new AlternativaCircuito(
-        "PLANTA", "PLANTA", EstrategiaLogistica.CONSOLIDACION_PLANTA,
-        false, toneladas, contenedores));
+    alternativaPara(
+        pedido, pendiente, "PLANTA", "PLANTA",
+        EstrategiaLogistica.CONSOLIDACION_PLANTA, false));
 
 alternativas.add(
-    new AlternativaCircuito(
-        "PLANTA", terminal, EstrategiaLogistica.CONSOLIDACION_TERMINAL,
-        false, toneladas, contenedores));
+    alternativaPara(
+        pedido, pendiente, "PLANTA", terminal,
+        EstrategiaLogistica.CONSOLIDACION_TERMINAL, false));
 
 for (Deposito deposito : depositos) {
 
     alternativas.add(
-        new AlternativaCircuito(
-            deposito.idUbicacion, deposito.idUbicacion,
-            EstrategiaLogistica.CONSOLIDACION_DEPOSITO,
-            false, toneladas, contenedores));
+        alternativaPara(
+            pedido, pendiente, deposito.idUbicacion, deposito.idUbicacion,
+            EstrategiaLogistica.CONSOLIDACION_DEPOSITO, false));
 
     alternativas.add(
-        new AlternativaCircuito(
-            deposito.idUbicacion, deposito.idUbicacion,
-            EstrategiaLogistica.CROSS_DOCK_DEPOSITO,
-            true, toneladas, contenedores));
+        alternativaPara(
+            pedido, pendiente, deposito.idUbicacion, deposito.idUbicacion,
+            EstrategiaLogistica.CROSS_DOCK_DEPOSITO, true));
 
     alternativas.add(
-        new AlternativaCircuito(
-            deposito.idUbicacion, terminal,
-            EstrategiaLogistica.CONSOLIDACION_TERMINAL,
-            false, toneladas, contenedores));
+        alternativaPara(
+            pedido, pendiente, deposito.idUbicacion, terminal,
+            EstrategiaLogistica.CONSOLIDACION_TERMINAL, false));
 }
 
 for (AlternativaCircuito alternativa : alternativas) {
@@ -6908,9 +7063,9 @@ for (AlternativaCircuito alternativa : alternativas) {
 }
 
 AlternativaCircuito transferencia =
-    new AlternativaCircuito(
-        "DEPOSITO", "DEPOSITO", EstrategiaLogistica.CONSOLIDACION_DEPOSITO,
-        false, toneladas, contenedores);
+    alternativaPara(
+        pedido, pendiente, "DEPOSITO", "DEPOSITO",
+        EstrategiaLogistica.CONSOLIDACION_DEPOSITO, false);
 
 transferencia.descartar(
     "transferencia deposito-deposito sin movimiento fisico en el modelo (C7)");
@@ -6945,6 +7100,16 @@ alternativa.motivoNoFactible = "";
 String terminal = pedido.puertoSalida.idUbicacion;
 
 double toneladas = alternativa.toneladas;
+
+// Con asignacion parcial el volumen ya viene acotado a lo posible: si quedo en cero, el
+// origen no tiene nada que ofrecer hoy (ADR-055).
+if (toneladas <= 0.0001) {
+    alternativa.descartar(
+        alternativa.esCrossDock
+        ? "sin stock, espacio o cupo para cruzar por " + alternativa.idOrigen
+        : "sin stock libre en " + alternativa.idOrigen);
+    return;
+}
 
 if (alternativa.esCrossDock) {
 
@@ -7333,7 +7498,9 @@ java.util.Collections.sort(
             }
 
             int orden =
-                Double.compare(a.costoSegun(endToEnd), b.costoSegun(endToEnd));
+                Double.compare(
+                            a.costoUnitarioSegun(endToEnd),
+                            b.costoUnitarioSegun(endToEnd));
 
             return orden != 0 ? orden : a.clave().compareTo(b.clave());
         }
@@ -7343,7 +7510,7 @@ return factibles;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000219</Id>
 					<Name><![CDATA[ejecutarAlternativa]]></Name>
 					<X>130</X><Y>2460</Y>
@@ -7361,25 +7528,32 @@ return factibles;]]></Body>
 					</Parameter>
 					<Body><![CDATA[// El plan se ejecuta con el flujo fisico que ya existe: reservar contra el origen
 // elegido, o cruzar por el deposito elegido. El evaluador no mueve producto por su
-// cuenta, asi no puede prometer algo que la cadena no hace.
+// cuenta, asi no puede prometer algo que la cadena no hace. Devuelve las toneladas
+// efectivamente tomadas, que pueden ser menos de las evaluadas (ADR-055).
+if (!alternativa.factible) {
+    return 0;
+}
+
 if (alternativa.esCrossDock) {
 
     Deposito sitio = buscarDeposito(alternativa.idOrigen);
 
-    return sitio != null && ejecutarCrossDockPedido(pedido, sitio);
+    return sitio == null
+        ? 0
+        : ejecutarCrossDockPedido(pedido, sitio, alternativa.toneladas);
 }
 
-if (!reservarLotesParaPedido(pedido, alternativa.idOrigen)) {
-    return false;
-}
-
-confirmarAsignacion(pedido, alternativa.idOrigen, alternativa.circuito);
-
-return true;]]></Body>
+return reservarParcialPedido(
+    pedido,
+    alternativa.idOrigen,
+    alternativa.toneladas,
+    alternativa.circuito,
+    false,
+    "evaluador: " + alternativa.clave());]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000221</Id>
 					<Name><![CDATA[asignarConEvaluador]]></Name>
 					<X>130</X><Y>2500</Y>
@@ -7394,27 +7568,56 @@ return true;]]></Body>
 					<Body><![CDATA[// C6: generar, descartar, costear, ordenar, ejecutar y dejar constancia. Se recorre el
 // ranking porque tomar capacidad puede fallar contra otro pedido del mismo dia; lo que
 // no se pudo tomar queda descartado con su motivo, no elegido en silencio.
-java.util.List<AlternativaCircuito> alternativas =
-    generarAlternativas(pedido);
+//
+// Con asignacion parcial la vuelta se repite mientras quede saldo: cada iteracion vuelve
+// a generar alternativas porque tomar stock cambia lo que el resto puede prometer. El
+// tope de vueltas es la cantidad de origenes posibles (ADR-055).
+double asignadas = 0;
 
-java.util.List<AlternativaCircuito> ranking =
-    ordenarAlternativas(pedido, alternativas);
+int vueltas = 0;
 
-for (AlternativaCircuito elegida : ranking) {
+int maxVueltas = 2 + 2 * depositos.size();
 
-    if (!ejecutarAlternativa(pedido, elegida)) {
-        elegida.descartar("el flujo no pudo tomarla al ejecutar");
-        continue;
+while (
+    pedido.toneladasPendientesAsignar() > 0.0001
+    && vueltas < maxVueltas
+) {
+    vueltas++;
+
+    java.util.List<AlternativaCircuito> alternativas =
+        generarAlternativas(pedido);
+
+    java.util.List<AlternativaCircuito> ranking =
+        ordenarAlternativas(pedido, alternativas);
+
+    double tomadas = 0;
+
+    for (AlternativaCircuito elegida : ranking) {
+
+        tomadas = ejecutarAlternativa(pedido, elegida);
+
+        if (tomadas <= 0.0001) {
+            elegida.descartar("el flujo no pudo tomarla al ejecutar");
+            continue;
+        }
+
+        registrarPlan(pedido, alternativas, elegida, tomadas);
+
+        break;
     }
 
-    registrarPlan(pedido, alternativas, elegida);
+    if (tomadas <= 0.0001) {
+        break;
+    }
 
-    return true;
+    asignadas += tomadas;
 }
 
-pedidosSinAlternativaFactible++;
+if (asignadas <= 0.0001) {
+    pedidosSinAlternativaFactible++;
+}
 
-return false;]]></Body>
+return asignadas;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -7437,6 +7640,10 @@ return false;]]></Body>
 					<Parameter>
 						<Name><![CDATA[elegida]]></Name>
 						<Type><![CDATA[AlternativaCircuito]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladasAsignadas]]></Name>
+						<Type><![CDATA[double]]></Type>
 					</Parameter>
 					<Body><![CDATA[// El plan es la constancia de la decision: que se eligio, contra que se lo comparo y
 // con que numeros. PlanLogistico existia desde el primer dia del proyecto sin ninguna
@@ -7470,7 +7677,7 @@ alternativasDescartadasTotal += descartadas;
 plan.estrategia = elegida.circuito;
 plan.idOrigen = elegida.idOrigen;
 plan.idSitioEstiba = elegida.sitioEstiba;
-plan.toneladas = elegida.toneladas;
+plan.toneladas = toneladasAsignadas;
 plan.cantidadContenedores = elegida.contenedores;
 plan.diaEntregaEstimado = elegida.diaEntregaEstimado;
 plan.llegaATiempo = elegida.llegaATiempo;
@@ -7521,10 +7728,9 @@ if (!elegida.llegaATiempo) {
     planesTardios++;
 }]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000225</Id>
 					<Name><![CDATA[intentarCrossDockPedido]]></Name>
 					<X>130</X><Y>2580</Y>
@@ -7537,7 +7743,1094 @@ if (!elegida.llegaATiempo) {
 						<Type><![CDATA[Pedido]]></Type>
 					</Parameter>
 					<Body><![CDATA[// Sin evaluador, el sitio de cruce lo elige la heuristica de costo de siempre.
-return ejecutarCrossDockPedido(pedido, seleccionarSitioCrossDock(pedido));]]></Body>
+return ejecutarCrossDockPedido(
+    pedido,
+    seleccionarSitioCrossDock(pedido),
+    pedido.toneladasPendientesAsignar()
+);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[AsignacionPedido]]></ReturnType>
+					<Id>1792400001101</Id>
+					<Name><![CDATA[crearAsignacion]]></Name>
+					<X>1700</X><Y>1300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idSitio]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[circuito]]></Name>
+						<Type><![CDATA[EstrategiaLogistica]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cruza]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[motivo]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Una asignacion es una parte del pedido servida desde un origen (ADR-055). El pedido
+// deja de tener un origen y pasa a tener una lista.
+AsignacionPedido asignacion =
+    new AsignacionPedido(
+        "ASG-" + siguienteIdAsignacion,
+        pedido.codigoPedido,
+        idSitio,
+        pedido.producto,
+        circuito,
+        cruza,
+        time()
+    );
+
+siguienteIdAsignacion++;
+
+asignacion.motivoAsignacion = motivo == null ? "" : motivo;
+asignacion.prioridad = pedido.asignaciones.size() + 1;
+
+pedido.asignaciones.add(asignacion);
+
+asignacionesCreadas++;
+
+return asignacion;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400001103</Id>
+					<Name><![CDATA[reservarParcialPedido]]></Name>
+					<X>1700</X><Y>1300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idSitio]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladasObjetivo]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[circuito]]></Name>
+						<Type><![CDATA[EstrategiaLogistica]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cruza]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[motivo]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Reserva lo que el sitio pueda dar y conserva lo reservado aunque no alcance para el
+// pedido completo (ADR-055). Es la operacion que reemplaza al todo-o-nada: antes, un
+// pedido de 500 tn con 300 disponibles no reservaba nada y devolvia las 300.
+ultimaAsignacionCreada = null;
+
+if (
+    pedido == null
+    || idSitio == null
+    || idSitio.isEmpty()
+    || toneladasObjetivo <= 0.0001
+) {
+    return 0;
+}
+
+double pendiente =
+    min(toneladasObjetivo, pedido.toneladasPendientesAsignar());
+
+if (pendiente <= 0.0001) {
+    return 0;
+}
+
+double aReservar =
+    min(pendiente, inventario.libre(idSitio, pedido.producto));
+
+if (aReservar <= 0.0001) {
+    return 0;
+}
+
+AsignacionPedido asignacion =
+    crearAsignacion(pedido, idSitio, circuito, cruza, motivo);
+
+double reservadas =
+    inventario.reservar(
+        idSitio,
+        pedido.producto,
+        aReservar,
+        asignacion.claveReserva(),
+        pedido.codigoPedido,
+        time()
+    );
+
+if (reservadas <= 0.0001) {
+
+    // Nada que anotar: la asignacion no existe si no reservo.
+    pedido.asignaciones.remove(asignacion);
+    asignacionesCreadas--;
+
+    return 0;
+}
+
+asignacion.toneladasAsignadas = reservadas;
+asignacion.toneladasReservadasActivas = reservadas;
+
+if (reservadas + 0.0001 < pedido.toneladasSolicitadas) {
+    asignacionesParciales++;
+}
+
+ultimaAsignacionCreada = asignacion;
+
+confirmarAsignacion(pedido, asignacion);
+
+marcarLotesReservados(pedido);
+
+return reservadas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400001105</Id>
+					<Name><![CDATA[asignarParcialPedido]]></Name>
+					<X>1700</X><Y>1300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Un pedido se cubre con los origenes que hagan falta, en uno o varios dias. Devuelve
+// las toneladas asignadas hoy; el saldo sigue siendo demanda para los dias siguientes.
+if (pedido == null || pedido.toneladasPendientesAsignar() <= 0.0001) {
+    return 0;
+}
+
+double antes = pedido.cantidadOrigenes();
+
+double asignadas =
+    usaEvaluador()
+    ? asignarConEvaluador(pedido)
+    : asignarConPoliticaFija(pedido);
+
+if (antes <= 1 && pedido.cantidadOrigenes() > 1) {
+    pedidosMultiOrigen++;
+}
+
+// Marca historica: el estado final no alcanza para medir por donde paso el pedido, porque
+// al cierre de campania un pedido completo no se distingue de uno que nunca fue parcial.
+if (
+    !pedido.asignaciones.isEmpty()
+    && pedido.toneladasPendientesAsignar() > 0.0001
+) {
+    pedido.tuvoReservaParcial = true;
+}
+
+if (debugPlanificacion && asignadas > 0.0001) {
+    traceln(diagnosticoPedido(pedido));
+}
+
+return asignadas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400001107</Id>
+					<Name><![CDATA[asignarConPoliticaFija]]></Name>
+					<X>1700</X><Y>1300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Conducta previa al evaluador (ADR-054), ahora con reserva parcial: el orden de los
+// candidatos es el de siempre y lo unico que cambia es que se acepta lo que cada uno
+// pueda dar en vez de exigir el pedido completo.
+double asignadas = 0;
+
+java.util.List<String> candidatos =
+    new java.util.ArrayList<String>();
+
+if (consolidaEnPlanta()) {
+    candidatos.add("PLANTA");
+}
+
+for (Deposito deposito : depositosOrdenadosParaPedido(pedido)) {
+    candidatos.add(deposito.idUbicacion);
+}
+
+for (String idSitio : candidatos) {
+
+    if (pedido.toneladasPendientesAsignar() <= 0.0001) {
+        break;
+    }
+
+    asignadas +=
+        reservarParcialPedido(
+            pedido,
+            idSitio,
+            pedido.toneladasPendientesAsignar(),
+            circuitoDe(idSitio, false),
+            false,
+            "politica " + politicaSeleccion
+        );
+}
+
+return asignadas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[java.util.List<Deposito>]]></ReturnType>
+					<Id>1792400001109</Id>
+					<Name><![CDATA[depositosOrdenadosParaPedido]]></Name>
+					<X>1700</X><Y>1300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Los depositos con stock libre del producto, del mas barato al mas caro para este
+// pedido. Es el mismo criterio de seleccionarDepositoParaPedido(), pero devuelve la lista
+// completa: con reserva parcial el segundo candidato tambien sirve.
+java.util.List<Deposito> candidatos =
+    new java.util.ArrayList<Deposito>();
+
+for (Deposito deposito : depositos) {
+
+    if (
+        deposito.habilitado
+        && inventario.libre(deposito.idUbicacion, pedido.producto) > 0.0001
+    ) {
+        candidatos.add(deposito);
+    }
+}
+
+final Pedido delPedido = pedido;
+
+java.util.Collections.sort(
+    candidatos,
+    new java.util.Comparator<Deposito>() {
+
+        public int compare(Deposito a, Deposito b) {
+
+            int orden =
+                Double.compare(
+                    costoEstimadoDesde(delPedido, a),
+                    costoEstimadoDesde(delPedido, b)
+                );
+
+            return orden != 0
+                ? orden
+                : a.idUbicacion.compareTo(b.idUbicacion);
+        }
+    }
+);
+
+return candidatos;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400001111</Id>
+					<Name><![CDATA[costoEstimadoDesde]]></Name>
+					<X>1700</X><Y>1300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[deposito]]></Name>
+						<Type><![CDATA[Deposito]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Costo estimado de servir el saldo pendiente del pedido desde un deposito: flete al
+// puerto mas estiba, con la unidad de la tarifa. Solo se usa para ordenar candidatos.
+double toneladas =
+    min(
+        pedido.toneladasPendientesAsignar(),
+        inventario.libre(deposito.idUbicacion, pedido.producto)
+    );
+
+if (toneladas <= 0.0001) {
+    return Double.POSITIVE_INFINITY;
+}
+
+int contenedores =
+    contenedoresNecesarios(pedido.producto, toneladas);
+
+double flete =
+    deposito.getImporteFletePuerto(
+        pedido.puertoSalida,
+        pedido.producto,
+        toneladas
+    );
+
+double estiba =
+    consolidaEnTerminal()
+    ? pedido.puertoSalida.getImporteConsolidacion(
+        pedido.producto,
+        toneladas,
+        contenedores
+    )
+    : deposito.getImporteConsolidacion(
+        pedido.producto,
+        toneladas,
+        contenedores
+    );
+
+return (flete + estiba) / toneladas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400001113</Id>
+					<Name><![CDATA[toneladasDisponiblesParaAlternativa]]></Name>
+					<X>1700</X><Y>1300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idOrigen]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cruza]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Cuanto puede prometer hoy un candidato: stock libre en el origen, o para el cross
+// dock lo que hay libre en planta acotado por el espacio de paso y el cupo del dia.
+if (!cruza) {
+    return inventario.libre(idOrigen, producto);
+}
+
+Deposito sitio = buscarDeposito(idOrigen);
+
+if (sitio == null || !sitio.habilitado) {
+    return 0;
+}
+
+double capacidadContenedor =
+    obtenerCapacidadContenedorTon(obtenerTipoContenedor(producto));
+
+return min(
+    inventario.libre("PLANTA", producto),
+    min(
+        sitio.getEspacioDisponible(producto),
+        capacidadCrossDockLibre(idOrigen) * capacidadContenedor
+    )
+);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[AlternativaCircuito]]></ReturnType>
+					<Id>1792400001115</Id>
+					<Name><![CDATA[alternativaPara]]></Name>
+					<X>1700</X><Y>1400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[pendiente]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idOrigen]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[sitioEstiba]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[circuito]]></Name>
+						<Type><![CDATA[EstrategiaLogistica]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cruza]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Una alternativa por el volumen que su origen puede resolver hoy, acotado por el saldo
+// pendiente del pedido. Cero toneladas es una alternativa que existe y se descarta con
+// motivo, no una que desaparece.
+double toneladas =
+    min(
+        pendiente,
+        toneladasDisponiblesParaAlternativa(idOrigen, pedido.producto, cruza)
+    );
+
+toneladas = max(0, toneladas);
+
+return new AlternativaCircuito(
+    idOrigen,
+    sitioEstiba,
+    circuito,
+    cruza,
+    toneladas,
+    contenedoresNecesarios(pedido.producto, toneladas)
+);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[AsignacionPedido]]></ReturnType>
+					<Id>1792400002101</Id>
+					<Name><![CDATA[asignacionDe]]></Name>
+					<X>1700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idAsignacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// La asignacion de un envio o contenedor. Es la que dice de donde salio el producto y
+// por que circuito, que con varios origenes ya no puede leerse del pedido (ADR-055).
+if (pedido == null || idAsignacion == null || idAsignacion.isEmpty()) {
+    return null;
+}
+
+for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+    if (asignacion.idAsignacion.equals(idAsignacion)) {
+        return asignacion;
+    }
+}
+
+return null;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[AsignacionPedido]]></ReturnType>
+					<Id>1792400002103</Id>
+					<Name><![CDATA[asignacionDeEnvio]]></Name>
+					<X>1700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[return envio == null
+    ? null
+    : asignacionDe(envio.pedido, envio.idAsignacionPedido);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792400002105</Id>
+					<Name><![CDATA[permitirUltimoParcial]]></Name>
+					<X>1700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El contenedor que no se llena se arma solo cuando ya no hay nada que esperar: el
+// pedido esta completamente asignado, vencio, o la campania se termina. Armarlo apenas
+// aparece una asignacion parcial seria despachar medio contenedor por una demora de un
+// dia y pagarlo como si estuviera lleno (ADR-055).
+if (pedido == null) {
+    return false;
+}
+
+return pedido.toneladasPendientesAsignar() <= 0.0001
+    || time() >= pedido.diaLimite
+    || time() >= duracionCampaniaDias - 1;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792400002107</Id>
+					<Name><![CDATA[crearContenedoresParaAsignacion]]></Name>
+					<X>1700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[asignacion]]></Name>
+						<Type><![CDATA[AsignacionPedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Contenerizacion progresiva (ADR-055): se arman contenedores completos con lo que la
+// asignacion tiene reservado y todavia no contenerizado, y el parcial solo cuando ya no
+// puede completarse. Cada contenedor pertenece a una asignacion y a una reserva.
+if (
+    pedido == null
+    || asignacion == null
+    || !asignacion.activa()
+    || pedido.puertoSalida == null
+) {
+    return 0;
+}
+
+pedido.tipoContenedor =
+    obtenerTipoContenedor(pedido.producto);
+
+pedido.capacidadContenedorTon =
+    obtenerCapacidadContenedorTon(pedido.tipoContenedor);
+
+double disponible =
+    min(
+        asignacion.toneladasReservadasActivas,
+        asignacion.toneladasPorContenerizar()
+    );
+
+if (disponible <= 0.0001) {
+    return 0;
+}
+
+String origen = asignacion.idSitioOrigen;
+
+String sitioDeEstiba =
+    sitioEstiba(origen, asignacion.circuito, pedido.puertoSalida);
+
+// Capas que esta asignacion tiene reservadas, en el mismo orden FIFO en que se van a
+// despachar: recorrerlas en paralelo a los contenedores da el lote de cada uno.
+java.util.List<Capa> reservadas =
+    inventario.capasReservadasDe(
+        origen,
+        pedido.producto,
+        asignacion.claveReserva()
+    );
+
+int indiceCapa = 0;
+
+double saldoCapa =
+    reservadas.isEmpty()
+    ? 0
+    : reservadas.get(0).reservadasDe(asignacion.claveReserva());
+
+boolean ultimoParcial = permitirUltimoParcial(pedido);
+
+int creados = 0;
+
+while (disponible > 0.0001) {
+
+    boolean completo =
+        disponible + 0.0001 >= pedido.capacidadContenedorTon;
+
+    if (!completo && !ultimoParcial) {
+        break;
+    }
+
+    double carga =
+        min(pedido.capacidadContenedorTon, disponible);
+
+    pedido.cantidadContenedores++;
+
+    ContenedorExportacion contenedor =
+        add_contenedoresExportacion();
+
+    contenedor.idContenedor =
+        pedido.codigoPedido + "-C" + pedido.cantidadContenedores;
+
+    contenedor.Pedido = pedido;
+    contenedor.producto = pedido.producto;
+    contenedor.tipoContenedor = pedido.tipoContenedor;
+    contenedor.capacidadTon = pedido.capacidadContenedorTon;
+    contenedor.cantidadAsignadaTon = carga;
+    contenedor.terminalDestino = pedido.puertoSalida;
+
+    contenedor.idAsignacionPedido = asignacion.idAsignacion;
+    contenedor.claveReserva = asignacion.claveReserva();
+    contenedor.idSitioOrigen = origen;
+    contenedor.circuito = asignacion.circuito;
+    contenedor.esCrossDock = asignacion.esCrossDock;
+
+    contenedor.diaProgramadoCrossDock =
+        asignacion.esCrossDock ? time() : -1;
+
+    contenedor.lugarConsolidacion =
+        sitioDeEstiba.equals("PLANTA")
+        ? (Agent) planta
+        : (
+            buscarDeposito(sitioDeEstiba) != null
+            ? (Agent) buscarDeposito(sitioDeEstiba)
+            : (Agent) pedido.puertoSalida
+        );
+
+    contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
+
+    contenedor.costoEstimado =
+        datos.roundTripUsdContenedor(
+            diaCampania(),
+            pedido.puertoSalida.idUbicacion,
+            origen,
+            pedido.tipoContenedor
+        )
+        + importeServicioEstiba(
+            sitioDeEstiba,
+            asignacion.esCrossDock,
+            pedido.producto,
+            carga,
+            1
+        );
+
+    double resto = carga;
+    double mayorAporte = 0;
+
+    while (resto > 0.0001 && indiceCapa < reservadas.size()) {
+
+        double toma = min(resto, saldoCapa);
+
+        if (toma > mayorAporte) {
+            mayorAporte = toma;
+            contenedor.lote =
+                buscarLote(reservadas.get(indiceCapa).idLote);
+        }
+
+        resto -= toma;
+        saldoCapa -= toma;
+
+        if (saldoCapa <= 0.0001) {
+            indiceCapa++;
+
+            saldoCapa =
+                indiceCapa < reservadas.size()
+                ? reservadas.get(indiceCapa)
+                    .reservadasDe(asignacion.claveReserva())
+                : 0;
+        }
+    }
+
+    pedido.contenedores.add(contenedor);
+
+    asignacion.toneladasContenerizadas += carga;
+
+    disponible -= carga;
+    creados++;
+}
+
+return creados;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1792400002109</Id>
+					<Name><![CDATA[diagnosticoPedido]]></Name>
+					<X>1700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Estado del pedido en una linea, para poder auditar la asignacion parcial (seccion 13).
+if (pedido == null) {
+    return "";
+}
+
+return "[dia " + (int) floor(time()) + "] " + pedido.codigoPedido
+    + " " + pedido.producto
+    + " estado=" + pedido.estado
+    + " solicitado=" + Math.round(pedido.toneladasSolicitadas)
+    + " entregado=" + Math.round(pedido.toneladasEntregadas)
+    + " en_proceso=" + Math.round(pedido.toneladasEnProceso())
+    + " reserva_activa=" + Math.round(pedido.toneladasReservadasActivas())
+    + " pend_asignar=" + Math.round(pedido.toneladasPendientesAsignar())
+    + " pend_entregar=" + Math.round(pedido.toneladasPendientesEntregar())
+    + " origenes=" + pedido.cantidadOrigenes();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400002111</Id>
+					<Name><![CDATA[validarBalancePedidos]]></Name>
+					<X>1700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// C-01: lo solicitado se explica siempre por lo entregado, lo que viaja, lo reservado y
+// lo que falta asignar. Si no cierra, alguna transicion perdio toneladas (seccion 16).
+for (Pedido pedido : pedidos) {
+
+    if (pedido.estado == EstadoPedido.CANCELADO) {
+        continue;
+    }
+
+    double suma =
+        pedido.toneladasEntregadas
+        + pedido.toneladasEnProceso()
+        + pedido.toneladasReservadasActivas()
+        + pedido.toneladasPendientesAsignar();
+
+    if (abs(suma - pedido.toneladasSolicitadas) > 0.0001) {
+        error(
+            "Balance del pedido " + pedido.codigoPedido
+            + " el dia " + (int) floor(time())
+            + ": solicitado " + pedido.toneladasSolicitadas
+            + " contra " + suma
+            + " (" + diagnosticoPedido(pedido) + ")"
+        );
+    }
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400003101</Id>
+					<Name><![CDATA[toneladasASacarPreventivamente]]></Name>
+					<X>1700</X><Y>2000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Componente preventivo de la politica FLEXIBLE (ADR-056): con el stock proyectado a
+// la vista, si se va a tocar el umbral de alerta conviene bajar hasta el objetivo antes
+// de estar contra la capacidad, porque sacar producto toma dias de flota.
+//
+// No es la politica REACTIVA: REACTIVA mira el stock de hoy y aca se mira el proyectado
+// con el forecast, y sigue conviviendo con los motivos de desborde y de servicio.
+double capacidad = planta.getCapacidad(producto);
+
+if (capacidad <= 0) {
+    return 0;
+}
+
+double alerta =
+    capacidad * datos.escenario.umbralAlertaPct / 100;
+
+double objetivo =
+    capacidad * datos.escenario.umbralObjetivoPct / 100;
+
+double proyectado =
+    planta.getStock(producto)
+    + forecastProduccion(producto, datos.escenario.diasForecast);
+
+// Debajo de la alerta el frio propio no cuesta nada: no hay motivo para gastar frio
+// de terceros.
+if (proyectado < alerta) {
+    return 0;
+}
+
+return max(0, proyectado - objetivo);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792400003103</Id>
+					<Name><![CDATA[plantaEnSobrecargaCritica]]></Name>
+					<X>1700</X><Y>2000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Sobre el umbral de sobrecarga la planta esta en riesgo: no se transfiere mas volumen
+// (ya lo cubre el componente de desborde, que compara contra el 100 %), pero la eleccion
+// del destino deja de priorizar el costo y prioriza que el producto salga (ADR-056).
+double capacidad = planta.getCapacidad(producto);
+
+return capacidad > 0
+    && planta.getStock(producto)
+        > capacidad * datos.escenario.umbralSobrecargaPct / 100 + 0.0001;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1792400003105</Id>
+					<Name><![CDATA[motivoDescarteDeposito]]></Name>
+					<X>1700</X><Y>2000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[deposito]]></Name>
+						<Type><![CDATA[Deposito]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Por que un deposito no puede recibir hoy. Vacio significa que puede: es el motivo que
+// necesita el diagnostico para no tener que adivinar cual filtro lo descarto (seccion 13.4).
+if (deposito == null) {
+    return "INEXISTENTE";
+}
+
+if (!deposito.habilitado) {
+    return "NO_HABILITADO";
+}
+
+if (deposito.getCapacidad(producto) <= 0.0001) {
+    return "SIN_CAPACIDAD_PRODUCTO";
+}
+
+if (deposito.getEspacioDisponible(producto) <= 0.0001) {
+    return "SIN_ESPACIO";
+}
+
+int dia = diaCampania();
+
+if (!datos.hayTarifaFlete(dia, "PLANTA", deposito.idUbicacion, producto)) {
+    return "TARIFA_INEXISTENTE";
+}
+
+if (!datos.hayTarifaSitio(dia, deposito.idUbicacion, producto)) {
+    return "TARIFA_SITIO_INEXISTENTE";
+}
+
+if (toneladas > 0.0001 && !flotaProductoAlcanza("PLANTA", deposito.idUbicacion, toneladas)) {
+    return "SIN_FLOTA";
+}
+
+return "";]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1792400003107</Id>
+					<Name><![CDATA[diagnosticoDepositos]]></Name>
+					<X>1700</X><Y>2000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Una linea por deposito con lo que decide la distribucion: capacidad, stock, espacio,
+// tarifas, costo estimado y motivo de descarte (seccion 13.4). Es la unica forma de
+// explicar por que un destino con lugar no se usa.
+StringBuilder texto = new StringBuilder();
+
+texto.append(
+    "[dia " + (int) floor(time()) + "] destinos para " + producto
+    + " objetivo " + Math.round(toneladas) + " tn"
+    + (plantaEnSobrecargaCritica(producto) ? " (planta en sobrecarga critica)" : "")
+);
+
+for (Deposito deposito : depositos) {
+
+    String motivo =
+        motivoDescarteDeposito(deposito, producto, 0);
+
+    double posible =
+        min(toneladas, deposito.getEspacioDisponible(producto));
+
+    double costo =
+        motivo.isEmpty() && posible > 0.0001
+        ? calcularCostoPlantaDeposito(deposito, producto, posible)
+            + posible
+                * deposito.getTarifaAlmacenamiento(producto)
+                * diasEstimadosAlmacenamiento
+        : Double.NaN;
+
+    texto.append(
+        "\n  " + deposito.idUbicacion
+        + " capacidad=" + Math.round(deposito.getCapacidad(producto))
+        + " stock=" + Math.round(inventario.stock(deposito.idUbicacion, producto))
+        + " espacio=" + Math.round(deposito.getEspacioDisponible(producto))
+        + " tarifa_flete="
+        + (datos.hayTarifaFlete(diaCampania(), "PLANTA", deposito.idUbicacion, producto)
+            ? "si" : "no")
+        + " costo_estimado=" + (Double.isNaN(costo) ? "-" : "" + Math.round(costo))
+        + " elegible=" + (motivo.isEmpty() ? "si" : "no")
+        + " motivo=" + (motivo.isEmpty() ? "-" : motivo)
+    );
+}
+
+return texto.toString();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792400003109</Id>
+					<Name><![CDATA[pedidosParcialmenteReservados]]></Name>
+					<X>1700</X><Y>2000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Pedidos que en algun momento quedaron comprometidos a medias: parte reservada y parte
+// todavia sin asignar (ADR-055). Se cuenta la marca historica, no el estado final.
+int cantidad = 0;
+
+for (Pedido pedido : pedidos) {
+
+    if (pedido.tuvoReservaParcial) {
+        cantidad++;
+    }
+}
+
+return cantidad;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792400003111</Id>
+					<Name><![CDATA[pedidosParcialmenteEntregados]]></Name>
+					<X>1700</X><Y>2000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Idem: pedidos que recibieron una entrega que no los completo, aunque despues cerraran.
+int cantidad = 0;
+
+for (Pedido pedido : pedidos) {
+
+    if (pedido.tuvoEntregaParcial) {
+        cantidad++;
+    }
+}
+
+return cantidad;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400003113</Id>
+					<Name><![CDATA[toneladasPendientesAsignarTotal]]></Name>
+					<X>1700</X><Y>2000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[double total = 0;
+
+for (Pedido pedido : pedidos) {
+
+    if (pedido.estado != EstadoPedido.CANCELADO) {
+        total += pedido.toneladasPendientesAsignar();
+    }
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400003115</Id>
+					<Name><![CDATA[toneladasPendientesEntregarTotal]]></Name>
+					<X>1700</X><Y>2000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[double total = 0;
+
+for (Pedido pedido : pedidos) {
+
+    if (pedido.estado != EstadoPedido.CANCELADO) {
+        total += pedido.toneladasPendientesEntregar();
+    }
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400003117</Id>
+					<Name><![CDATA[validarBalanceProducido]]></Name>
+					<X>1700</X><Y>2000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// C-02: todo lo producido esta en algun lado. Sin perdida de producto (ADR-048), lo
+// producido es lo que hay en planta, en depositos, viajando y ya entregado.
+double producido =
+    planta.produccionAcumuladaJugo
+    + planta.produccionAcumuladaCascara
+    + planta.produccionAcumuladaAceite;
+
+double enStock = 0;
+
+for (TipoProducto producto : TipoProducto.values()) {
+    enStock += inventario.stockProducto(producto);
+}
+
+double enProceso = 0;
+
+for (Pedido pedido : pedidos) {
+    enProceso += pedido.toneladasEnProceso();
+}
+
+double entregado = 0;
+
+for (Pedido pedido : pedidos) {
+    entregado += pedido.toneladasEntregadas;
+}
+
+if (abs(producido - (enStock + enProceso + entregado)) > 0.001) {
+    error(
+        "Balance de producto el dia " + (int) floor(time())
+        + ": producido " + producido
+        + " contra stock " + enStock
+        + " + en proceso " + enProceso
+        + " + entregado " + entregado
+    );
+}]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -7726,6 +9019,13 @@ return ejecutarCrossDockPedido(pedido, seleccionarSitioCrossDock(pedido));]]></B
 						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
 						<ClassName><![CDATA[PlanLogistico]]></ClassName>
 					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+							<ClassName><![CDATA[PlanLogistico]]></ClassName>
+							<ItemName><![CDATA[1784762888962]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
 					<Parameters>
 						<Parameter>
 							<Name><![CDATA[idPlan]]></Name>
@@ -8577,6 +9877,9 @@ return ejecutarCrossDockPedido(pedido, seleccionarSitioCrossDock(pedido));]]></B
 						<Parameter>
 							<Name><![CDATA[planificacionNuevaActiva]]></Name>
 						</Parameter>
+						<Parameter>
+							<Name><![CDATA[asignaciones]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>true</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -9059,6 +10362,9 @@ return ejecutarCrossDockPedido(pedido, seleccionarSitioCrossDock(pedido));]]></B
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[entityLocation]]></Name>
@@ -14691,6 +15997,36 @@ if (producto != null) {
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400005001</Id>
+					<Name><![CDATA[tuvoReservaParcial]]></Name>
+					<X>-140</X><Y>460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400005003</Id>
+					<Name><![CDATA[tuvoEntregaParcial]]></Name>
+					<X>-140</X><Y>480</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1784396835308</Id>
 					<Name><![CDATA[idPedido]]></Name>
@@ -15580,6 +16916,30 @@ if (producto != null) {
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+				<Variable Class="Parameter">
+					<Id>1792400000201</Id>
+					<Name><![CDATA[asignaciones]]></Name>
+					<X>300</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[ArrayList<AsignacionPedido>]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[new ArrayList<AsignacionPedido>()]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1792400000202</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -15603,6 +16963,207 @@ if (producto != null) {
 return (int) Math.ceil(
     toneladasSolicitadas / capacidadContenedorTon
 );]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400000301</Id>
+					<Name><![CDATA[toneladasAsignadasAcumuladas]]></Name>
+					<X>560</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Todo lo que el pedido llego a comprometer, en todos sus origenes (ADR-055). Las
+// asignaciones canceladas no cuentan: lo suyo volvio a estar por asignar.
+double total = 0;
+
+for (AsignacionPedido asignacion : asignaciones) {
+
+    if (!asignacion.cancelada) {
+        total += asignacion.toneladasAsignadas;
+    }
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400000303</Id>
+					<Name><![CDATA[toneladasReservadasActivas]]></Name>
+					<X>560</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Reserva viva sobre las capas: lo comprometido que todavia no salio fisicamente.
+double total = 0;
+
+for (AsignacionPedido asignacion : asignaciones) {
+
+    if (!asignacion.cancelada) {
+        total += asignacion.toneladasReservadasActivas;
+    }
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400000305</Id>
+					<Name><![CDATA[toneladasContenerizadas]]></Name>
+					<X>560</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[double total = 0;
+
+for (AsignacionPedido asignacion : asignaciones) {
+
+    if (!asignacion.cancelada) {
+        total += asignacion.toneladasContenerizadas;
+    }
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400000307</Id>
+					<Name><![CDATA[toneladasEnProceso]]></Name>
+					<X>560</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Despachado y no entregado: ya consumio la reserva y todavia no llego. Es la
+// definicion que hace cerrar la identidad del pedido (C-01).
+double total = 0;
+
+for (AsignacionPedido asignacion : asignaciones) {
+
+    if (!asignacion.cancelada) {
+        total += asignacion.toneladasEnProceso();
+    }
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400000309</Id>
+					<Name><![CDATA[toneladasPendientesAsignar]]></Name>
+					<X>560</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Lo que falta comprometer. Es el saldo con el que trabaja el evaluador: un pedido
+// parcialmente reservado sigue siendo demanda por la diferencia (ADR-055).
+return max(
+    0,
+    toneladasSolicitadas - toneladasAsignadasAcumuladas()
+);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792400000311</Id>
+					<Name><![CDATA[toneladasPendientesEntregar]]></Name>
+					<X>560</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[return max(0, toneladasSolicitadas - toneladasEntregadas);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792400000313</Id>
+					<Name><![CDATA[estaCompleto]]></Name>
+					<X>560</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[return toneladasEntregadas >= toneladasSolicitadas - 0.0001;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792400000315</Id>
+					<Name><![CDATA[cantidadOrigenes]]></Name>
+					<X>560</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Cuantos sitios distintos sirvieron al pedido: uno es el caso de siempre y mas de
+// uno es lo que este MOD hace posible.
+java.util.List<String> sitios = new java.util.ArrayList<String>();
+
+for (AsignacionPedido asignacion : asignaciones) {
+
+    if (
+        !asignacion.cancelada
+        && !sitios.contains(asignacion.idSitioOrigen)
+    ) {
+        sitios.add(asignacion.idSitioOrigen);
+    }
+}
+
+return sitios.size();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[java.util.List<AsignacionPedido>]]></ReturnType>
+					<Id>1792400000317</Id>
+					<Name><![CDATA[asignacionesActivas]]></Name>
+					<X>560</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[java.util.List<AsignacionPedido> activas =
+    new java.util.ArrayList<AsignacionPedido>();
+
+for (AsignacionPedido asignacion : asignaciones) {
+
+    if (asignacion.activa()) {
+        activas.add(asignacion);
+    }
+}
+
+return activas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[AsignacionPedido]]></ReturnType>
+					<Id>1792400000319</Id>
+					<Name><![CDATA[buscarAsignacion]]></Name>
+					<X>560</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idAsignacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[for (AsignacionPedido asignacion : asignaciones) {
+
+    if (asignacion.idAsignacion.equals(idAsignacion)) {
+        return asignacion;
+    }
+}
+
+return null;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -16750,6 +18311,81 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000321</Id>
+					<Name><![CDATA[costoCargosReal]]></Name>
+					<X>-140</X><Y>340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791300000323</Id>
+					<Name><![CDATA[diaCargosTerminal]]></Name>
+					<X>-140</X><Y>360</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400000401</Id>
+					<Name><![CDATA[idAsignacionPedido]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400000403</Id>
+					<Name><![CDATA[claveReserva]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400000405</Id>
+					<Name><![CDATA[esCrossDock]]></Name>
+					<X>-140</X><Y>640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1784590396486</Id>
 					<Name><![CDATA[estado]]></Name>
@@ -17276,38 +18912,6 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1791300000321</Id>
-					<Name><![CDATA[costoCargosReal]]></Name>
-					<X>-140</X><Y>340</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1791300000323</Id>
-					<Name><![CDATA[diaCargosTerminal]]></Name>
-					<X>-140</X><Y>360</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[-1]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
 			</Variables>
 			<AgentLinks>
 				<AgentLink>
@@ -17480,6 +19084,66 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 						<Type><![CDATA[int]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400000501</Id>
+					<Name><![CDATA[idAsignacionPedido]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400000503</Id>
+					<Name><![CDATA[claveReserva]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400000505</Id>
+					<Name><![CDATA[idSitioOrigen]]></Name>
+					<X>-140</X><Y>640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792400000507</Id>
+					<Name><![CDATA[circuito]]></Name>
+					<X>-140</X><Y>680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[EstrategiaLogistica]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[EstrategiaLogistica.SIN_DEFINIR]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -18122,6 +19786,171 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 			<CurrentLevel>1784762888963</CurrentLevel>
 			<ConnectionsId>1784762888958</ConnectionsId>
 			<Variables>
+				<Variable Class="PlainVariable">
+					<Id>1791200000311</Id>
+					<Name><![CDATA[idOrigen]]></Name>
+					<X>-140</X><Y>500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000313</Id>
+					<Name><![CDATA[idSitioEstiba]]></Name>
+					<X>-140</X><Y>530</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000315</Id>
+					<Name><![CDATA[toneladas]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000317</Id>
+					<Name><![CDATA[diaDecision]]></Name>
+					<X>-140</X><Y>590</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000319</Id>
+					<Name><![CDATA[diaEntregaEstimado]]></Name>
+					<X>-140</X><Y>620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000321</Id>
+					<Name><![CDATA[llegaATiempo]]></Name>
+					<X>-140</X><Y>650</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000323</Id>
+					<Name><![CDATA[politica]]></Name>
+					<X>-140</X><Y>680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000325</Id>
+					<Name><![CDATA[motivoSeleccion]]></Name>
+					<X>-140</X><Y>710</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000327</Id>
+					<Name><![CDATA[alternativasEvaluadas]]></Name>
+					<X>-140</X><Y>740</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000329</Id>
+					<Name><![CDATA[alternativasDescartadas]]></Name>
+					<X>-140</X><Y>770</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791200000331</Id>
+					<Name><![CDATA[alternativas]]></Name>
+					<X>-140</X><Y>800</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.List<AlternativaCircuito>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.ArrayList<AlternativaCircuito>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1784762911280</Id>
 					<Name><![CDATA[idPlan]]></Name>
@@ -18744,172 +20573,6 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1791200000311</Id>
-					<Name><![CDATA[idOrigen]]></Name>
-					<X>-140</X><Y>500</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791200000313</Id>
-					<Name><![CDATA[idSitioEstiba]]></Name>
-					<X>-140</X><Y>530</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791200000315</Id>
-					<Name><![CDATA[toneladas]]></Name>
-					<X>-140</X><Y>560</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791200000317</Id>
-					<Name><![CDATA[diaDecision]]></Name>
-					<X>-140</X><Y>590</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[-1]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791200000319</Id>
-					<Name><![CDATA[diaEntregaEstimado]]></Name>
-					<X>-140</X><Y>620</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[-1]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791200000321</Id>
-					<Name><![CDATA[llegaATiempo]]></Name>
-					<X>-140</X><Y>650</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[boolean]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[false]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791200000323</Id>
-					<Name><![CDATA[politica]]></Name>
-					<X>-140</X><Y>680</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791200000325</Id>
-					<Name><![CDATA[motivoSeleccion]]></Name>
-					<X>-140</X><Y>710</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791200000327</Id>
-					<Name><![CDATA[alternativasEvaluadas]]></Name>
-					<X>-140</X><Y>740</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791200000329</Id>
-					<Name><![CDATA[alternativasDescartadas]]></Name>
-					<X>-140</X><Y>770</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1791200000331</Id>
-					<Name><![CDATA[alternativas]]></Name>
-					<X>-140</X><Y>800</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.List<AlternativaCircuito>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new java.util.ArrayList<AlternativaCircuito>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -19037,6 +20700,21 @@ estado = factible
 				</AgentLink>
 			</AgentLinks>
 
+			<ContainerLinks>
+				<ContainerLink>
+					<Id>1785358948664</Id>
+					<Name><![CDATA[main]]></Name>
+					<X>50</X><Y>-100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+					</ActiveObjectClass>
+				</ContainerLink>
+			</ContainerLinks>
 
 			<Presentation>
 				<Level>
@@ -19161,6 +20839,9 @@ estado = factible
 				<Parameter>
 					<ParameterName><![CDATA[semillaBase]]></ParameterName>
 				</Parameter>
+				<Parameter>
+					<ParameterName><![CDATA[debugPlanificacion]]></ParameterName>
+				</Parameter>
 			</Parameters>
 			<PresentationProperties>
 				<EnableZoomAndPanning>true</EnableZoomAndPanning>
@@ -19185,7 +20866,7 @@ estado = factible
 			<Name><![CDATA[Escenarios]]></Name>
 			<AdditionalClassCode><![CDATA[// Version del modelo con la que se corrio el barrido: sin esto un csv de
 // resultados no se puede volver a atar al codigo que lo produjo.
-static final String VERSION_MODELO = "fase-23";
+static final String VERSION_MODELO = "fase-24";
 
 static final int REPLICAS = 30;
 
@@ -19213,7 +20894,14 @@ static final String[] KPIS = {
 	"costo_out_usd", "costo_thc_usd", "costo_terminal_usd", "costo_despachante_usd",
 	"costo_espera_usd",
 	"planes_emitidos", "planes_tardios", "alternativas_evaluadas",
-	"alternativas_descartadas", "pedidos_sin_alternativa_factible"
+	"alternativas_descartadas", "pedidos_sin_alternativa_factible",
+	"pedidos_parcialmente_reservados", "pedidos_multi_origen",
+	"pedidos_parcialmente_entregados", "pedidos_atrasados_entrega_parcial",
+	"asignaciones_creadas", "asignaciones_parciales",
+	"toneladas_pendientes_asignar", "toneladas_pendientes_entregar",
+	"toneladas_transferidas_preventivas", "toneladas_transferidas_desborde",
+	"toneladas_transferidas_servicio", "toneladas_transferidas_criticas",
+	"transferencias_incompletas"
 };
 
 // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -19556,7 +21244,20 @@ c.kpis = new double[] {
 	root.planesTardios,
 	root.alternativasEvaluadasTotal,
 	root.alternativasDescartadasTotal,
-	root.pedidosSinAlternativaFactible
+	root.pedidosSinAlternativaFactible,
+	root.pedidosParcialmenteReservados(),
+	root.pedidosMultiOrigen,
+	root.pedidosParcialmenteEntregados(),
+	root.pedidosAtrasadosConEntregaParcial,
+	root.asignacionesCreadas,
+	root.asignacionesParciales,
+	root.toneladasPendientesAsignarTotal(),
+	root.toneladasPendientesEntregarTotal(),
+	root.toneladasTransferidasPreventivas,
+	root.toneladasTransferidasDesborde,
+	root.toneladasTransferidasServicio,
+	root.toneladasTransferidasCriticas,
+	root.transferenciasIncompletas
 };
 
 corridas.add(c);]]></AfterSimulationRunCode>
@@ -20041,6 +21742,9 @@ for (int k = 0; k < KPIS.length; k++) {
 			<FreeformParamValue>	
 				<Id>1791000000115</Id>
 			</FreeformParamValue>
+			<FreeformParamValue>	
+				<Id>1792400001013</Id>
+			</FreeformParamValue>
 			<RangeVariationParamValue>	
 				<Id>1786000001</Id>
 				<Type>FIXED</Type>
@@ -20063,6 +21767,10 @@ for (int k = 0; k < KPIS.length; k++) {
 			</RangeVariationParamValue>
 			<RangeVariationParamValue>	
 				<Id>1791000000115</Id>
+				<Type>FIXED</Type>
+			</RangeVariationParamValue>
+			<RangeVariationParamValue>	
+				<Id>1792400001013</Id>
 				<Type>FIXED</Type>
 			</RangeVariationParamValue>
 			<ModelTimeProperties>
@@ -20654,6 +22362,30 @@ public class DatosEntrada implements java.io.Serializable {
 			return tarifa * toneladas;
 		}
 		throw new RuntimeException("Unidad " + unidad + " no valida para la " + concepto + ".");
+	}
+
+	/**
+	 * Si existe una tarifa de flete vigente, sin abortar la corrida. Sirve para el
+	 * diagnostico de descartes: querer saber si un destino es alcanzable no es lo mismo
+	 * que cobrarle un flete que no esta en las tablas (ADR-056).
+	 */
+	public boolean hayTarifaFlete(int dia, String origen, String destino, TipoProducto producto) {
+		try {
+			tarifaFlete(dia, origen, destino, producto);
+			return true;
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
+	/** Si existe una tarifa de sitio vigente, sin abortar la corrida. */
+	public boolean hayTarifaSitio(int dia, String idUbicacion, TipoProducto producto) {
+		try {
+			tarifaSitio(dia, idUbicacion, producto);
+			return true;
+		} catch (RuntimeException e) {
+			return false;
+		}
 	}
 
 	public TarifaFlete tarifaFlete(int dia, String origen, String destino, TipoProducto producto) {
@@ -22273,16 +24005,22 @@ public class Capa implements java.io.Serializable {
 
 	public static final double EPS = 0.0001;
 
-	/** Reserva trazable: que pedido comprometio cuantas toneladas de esta capa. */
+	/**
+	 * Reserva trazable sobre la capa. Lleva dos identidades y no una: la clave es la
+	 * unidad de despacho (una asignacion de un pedido, ADR-055) y el codigo de pedido es
+	 * la identidad comercial, que es la que consultan el almacenaje y los KPIs.
+	 */
 	public static class Reserva implements java.io.Serializable {
 
 		private static final long serialVersionUID = 1L;
 
+		public final String clave;
 		public final String codigoPedido;
 		public final double diaReserva;
 		public double toneladas;
 
-		public Reserva(String codigoPedido, double toneladas, double diaReserva) {
+		public Reserva(String clave, String codigoPedido, double toneladas, double diaReserva) {
+			this.clave = clave;
 			this.codigoPedido = codigoPedido;
 			this.toneladas = toneladas;
 			this.diaReserva = diaReserva;
@@ -22322,7 +24060,19 @@ public class Capa implements java.io.Serializable {
 		return total;
 	}
 
-	public double reservadasDe(String codigoPedido) {
+	/** Reservado por una clave, que es una asignacion concreta de un pedido. */
+	public double reservadasDe(String clave) {
+		double total = 0;
+		for (Reserva r : reservas) {
+			if (r.clave.equals(clave)) {
+				total += r.toneladas;
+			}
+		}
+		return total;
+	}
+
+	/** Reservado por un pedido, sumando todas sus asignaciones. */
+	public double reservadasDePedido(String codigoPedido) {
 		double total = 0;
 		for (Reserva r : reservas) {
 			if (r.codigoPedido.equals(codigoPedido)) {
@@ -22336,23 +24086,23 @@ public class Capa implements java.io.Serializable {
 		return Math.max(0, toneladas - reservadas());
 	}
 
-	public void reservar(String codigoPedido, double toneladas, double dia) {
+	public void reservar(String clave, String codigoPedido, double toneladas, double dia) {
 		for (Reserva r : reservas) {
-			if (r.codigoPedido.equals(codigoPedido)) {
+			if (r.clave.equals(clave)) {
 				r.toneladas += toneladas;
 				return;
 			}
 		}
-		reservas.add(new Reserva(codigoPedido, toneladas, dia));
+		reservas.add(new Reserva(clave, codigoPedido, toneladas, dia));
 	}
 
-	/** Quita toneladas reservadas por un pedido; devuelve lo efectivamente quitado. */
-	public double quitarReserva(String codigoPedido, double toneladas) {
+	/** Quita toneladas reservadas por una clave; devuelve lo efectivamente quitado. */
+	public double quitarReserva(String clave, double toneladas) {
 		double pendiente = toneladas;
 		java.util.Iterator<Reserva> it = reservas.iterator();
 		while (it.hasNext() && pendiente > EPS) {
 			Reserva r = it.next();
-			if (!r.codigoPedido.equals(codigoPedido)) {
+			if (!r.clave.equals(clave)) {
 				continue;
 			}
 			double quita = Math.min(pendiente, r.toneladas);
@@ -22373,6 +24123,111 @@ public class Capa implements java.io.Serializable {
 		return "Capa[lote=" + idLote + " " + producto + " " + idUbicacion
 				+ " dia=" + diaIngreso + " tn=" + toneladas
 				+ " reservadas=" + reservadas() + "]";
+	}
+}]]></Text>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
+			<Id>1792400000101</Id>
+			<Name><![CDATA[AsignacionPedido]]></Name>
+			<Text><![CDATA[/**
+ * Una parte de un pedido servida desde un origen por un circuito (ADR-055). Un pedido
+ * puede tener varias, creadas en dias distintos, y cada una lleva su propia reserva:
+ * la fraccion que ya se pudo comprometer no espera al resto del pedido.
+ *
+ * Es un dato y no un agente: PLE admite 10 tipos y el modelo ya los usa (ADR-030),
+ * igual que Capa y AlternativaCircuito.
+ */
+public class AsignacionPedido implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	public static final double EPS = 0.0001;
+
+	public String idAsignacion = "";
+	public String codigoPedido = "";
+	public String idSitioOrigen = "";
+
+	public TipoProducto producto = TipoProducto.JUGO;
+	public EstrategiaLogistica circuito = EstrategiaLogistica.SIN_DEFINIR;
+	public boolean esCrossDock = false;
+
+	/** Lo comprometido por esta asignacion: reserva viva mas lo ya despachado. */
+	public double toneladasAsignadas = 0;
+
+	/** Lo que sigue reservado en las capas del origen y todavia no salio. */
+	public double toneladasReservadasActivas = 0;
+
+	/** Lo que ya tiene contenedor creado, despachado o no. */
+	public double toneladasContenerizadas = 0;
+
+	public double toneladasDespachadas = 0;
+	public double toneladasEntregadas = 0;
+
+	public double diaAsignacion = -1;
+	public double diaPrimerDespacho = -1;
+	public double diaUltimaEntrega = -1;
+
+	public boolean cerrada = false;
+	public boolean cancelada = false;
+
+	public String motivoAsignacion = "";
+
+	public double costoIncrementalEstimado = 0;
+	public double costoEndToEndEstimado = 0;
+
+	/** Orden en que se fue armando el pedido: 1 es el primer origen que se consiguio. */
+	public int prioridad = 0;
+
+	public AsignacionPedido(String idAsignacion, String codigoPedido, String idSitioOrigen,
+			TipoProducto producto, EstrategiaLogistica circuito, boolean esCrossDock,
+			double diaAsignacion) {
+		this.idAsignacion = idAsignacion;
+		this.codigoPedido = codigoPedido;
+		this.idSitioOrigen = idSitioOrigen;
+		this.producto = producto;
+		this.circuito = circuito;
+		this.esCrossDock = esCrossDock;
+		this.diaAsignacion = diaAsignacion;
+	}
+
+	/**
+	 * Identidad de la reserva en el inventario. Es la clave que hace posible el despacho
+	 * parcial: dos asignaciones del mismo pedido en el mismo sitio no se pisan.
+	 */
+	public String claveReserva() {
+		return codigoPedido + "|" + idAsignacion;
+	}
+
+	/** Lo asignado que todavia no tiene contenedor. */
+	public double toneladasPorContenerizar() {
+		return Math.max(0, toneladasAsignadas - toneladasContenerizadas);
+	}
+
+	/** Despachado y no entregado: viajando, sin reserva y sin estar en destino. */
+	public double toneladasEnProceso() {
+		return Math.max(0, toneladasDespachadas - toneladasEntregadas);
+	}
+
+	public boolean activa() {
+		return !cancelada && !cerrada;
+	}
+
+	/** Se cierra cuando entrego todo lo que habia comprometido. */
+	public void cerrarSiCompleta() {
+		if (!cancelada && toneladasEntregadas >= toneladasAsignadas - EPS) {
+			cerrada = true;
+		}
+	}
+
+	public String descripcion() {
+		return idAsignacion + " " + codigoPedido + " desde " + idSitioOrigen
+				+ " por " + circuito
+				+ " | asignadas " + toneladasAsignadas
+				+ " reserva " + toneladasReservadasActivas
+				+ " despachadas " + toneladasDespachadas
+				+ " entregadas " + toneladasEntregadas
+				+ (cancelada ? " | cancelada" : (cerrada ? " | cerrada" : " | activa"));
 	}
 }]]></Text>
 		</JavaClass>
@@ -22455,6 +24310,16 @@ public class AlternativaCircuito implements java.io.Serializable {
 
 	public double costoSegun(boolean endToEnd) {
 		return endToEnd ? costoEndToEnd : costoIncremental;
+	}
+
+	/**
+	 * Costo por tonelada. Con asignacion parcial dos alternativas pueden ofrecer volumenes
+	 * distintos, y comparar totales premiaria a la que menos toneladas resuelve (ADR-055).
+	 */
+	public double costoUnitarioSegun(boolean endToEnd) {
+		return toneladas <= 0.0001
+			? Double.POSITIVE_INFINITY
+			: costoSegun(endToEnd) / toneladas;
 	}
 
 	/** Clave estable para desempatar: dos alternativas iguales no dependen del orden. */
@@ -23063,7 +24928,7 @@ public class Inventario implements java.io.Serializable {
 		double total = 0;
 		for (Capa c : capas) {
 			if (c.idLote == idLote) {
-				total += c.reservadasDe(codigoPedido);
+				total += c.reservadasDePedido(codigoPedido);
 			}
 		}
 		return total;
@@ -23072,7 +24937,7 @@ public class Inventario implements java.io.Serializable {
 	public double reservadoPedido(String codigoPedido) {
 		double total = 0;
 		for (Capa c : capas) {
-			total += c.reservadasDe(codigoPedido);
+			total += c.reservadasDePedido(codigoPedido);
 		}
 		return total;
 	}
@@ -23082,7 +24947,18 @@ public class Inventario implements java.io.Serializable {
 		double total = 0;
 		for (Capa c : capas) {
 			if (c.producto == producto && c.idUbicacion.equals(idUbicacion)) {
-				total += c.reservadasDe(codigoPedido);
+				total += c.reservadasDePedido(codigoPedido);
+			}
+		}
+		return total;
+	}
+
+	/** Reservado por una asignacion concreta: es contra esto que se despacha (ADR-055). */
+	public double reservadoClaveEn(String idUbicacion, TipoProducto producto, String clave) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto && c.idUbicacion.equals(idUbicacion)) {
+				total += c.reservadasDe(clave);
 			}
 		}
 		return total;
@@ -23169,12 +25045,12 @@ public class Inventario implements java.io.Serializable {
 		return mejor;
 	}
 
-	/** Capas de una ubicacion con reserva viva de un pedido, de la mas antigua a la mas nueva. */
+	/** Capas de una ubicacion con reserva viva de una asignacion, de la mas antigua a la mas nueva. */
 	public java.util.List<Capa> capasReservadasDe(String idUbicacion, TipoProducto producto,
-			String codigoPedido) {
+			String clave) {
 		java.util.List<Capa> sel = new java.util.ArrayList<Capa>();
 		for (Capa c : fifo(idUbicacion, producto)) {
-			if (c.reservadasDe(codigoPedido) > EPS) {
+			if (c.reservadasDe(clave) > EPS) {
 				sel.add(c);
 			}
 		}
@@ -23255,9 +25131,12 @@ public class Inventario implements java.io.Serializable {
 
 	// ---------------------------------------------------------------- reservas
 
-	/** Reserva para un pedido, FIFO. Devuelve lo reservado, que puede ser menos. */
+	/**
+	 * Reserva para una asignacion de un pedido, FIFO. Devuelve lo reservado, que puede ser
+	 * menos: la reserva parcial es valida y se conserva (ADR-055).
+	 */
 	public double reservar(String idUbicacion, TipoProducto producto, double toneladas,
-			String codigoPedido, double dia) {
+			String clave, String codigoPedido, double dia) {
 		double pendiente = toneladas;
 		for (Capa c : fifo(idUbicacion, producto)) {
 			if (pendiente <= EPS) {
@@ -23267,44 +25146,44 @@ public class Inventario implements java.io.Serializable {
 			if (toma <= EPS) {
 				continue;
 			}
-			c.reservar(codigoPedido, toma, dia);
+			c.reservar(clave, codigoPedido, toma, dia);
 			pendiente -= toma;
 		}
 		return toneladas - pendiente;
 	}
 
-	public double liberarReserva(String codigoPedido) {
+	public double liberarReserva(String clave) {
 		double total = 0;
 		for (Capa c : capas) {
-			total += c.quitarReserva(codigoPedido, c.reservadasDe(codigoPedido));
+			total += c.quitarReserva(clave, c.reservadasDe(clave));
 		}
 		return total;
 	}
 
-	public double liberarReserva(String codigoPedido, double toneladas) {
+	public double liberarReserva(String clave, double toneladas) {
 		double pendiente = toneladas;
 		for (Capa c : capas) {
 			if (pendiente <= EPS) {
 				break;
 			}
-			pendiente -= c.quitarReserva(codigoPedido, pendiente);
+			pendiente -= c.quitarReserva(clave, pendiente);
 		}
 		return toneladas - pendiente;
 	}
 
-	/** Saca fisicamente toneladas ya reservadas por un pedido, FIFO. Devuelve lo despachado. */
+	/** Saca fisicamente toneladas ya reservadas por una asignacion, FIFO. Devuelve lo despachado. */
 	public double despachar(String idUbicacion, TipoProducto producto, double toneladas,
-			String codigoPedido) {
+			String clave) {
 		double pendiente = toneladas;
 		for (Capa c : fifo(idUbicacion, producto)) {
 			if (pendiente <= EPS) {
 				break;
 			}
-			double toma = Math.min(pendiente, Math.min(c.reservadasDe(codigoPedido), c.toneladas));
+			double toma = Math.min(pendiente, Math.min(c.reservadasDe(clave), c.toneladas));
 			if (toma <= EPS) {
 				continue;
 			}
-			c.quitarReserva(codigoPedido, toma);
+			c.quitarReserva(clave, toma);
 			c.toneladas -= toma;
 			pendiente -= toma;
 		}
@@ -23342,6 +25221,9 @@ public class Inventario implements java.io.Serializable {
 				}
 				if (r.codigoPedido == null || r.codigoPedido.length() == 0) {
 					errores.add("Reserva sin pedido en " + c + ".");
+				}
+				if (r.clave == null || r.clave.length() == 0) {
+					errores.add("Reserva sin clave de asignacion en " + c + ".");
 				}
 			}
 		}

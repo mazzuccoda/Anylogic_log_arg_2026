@@ -426,6 +426,88 @@ Los casos que siguen se verificaron sobre el barrido `fase-23`: 36 escenarios ×
 
 **Medido:** E-00 corrido desde `datos/entrada_ejemplo.xlsx` da 1 970 450 USD de costo de campaña, 11 921 tn exportadas, 494 contenedores, 1 048 viajes y almacenaje 1 109 754 USD, exactamente los mismos valores que la corrida sintética de la misma réplica.
 
+## 4.4 Pedidos parciales y transferencia preventiva (ADR-055/056)
+
+Los casos P, T, E y C se verifican **dentro de la corrida**, no a mano: C-01 y C-02 son invariantes diarios que abortan la campaña si se rompen, y los demás se leen en los KPIs por corrida del barrido `fase-24` (1 080 corridas, 36 escenarios × 30 réplicas).
+
+### P-01 a P-04 Un pedido se cubre con varios orígenes
+
+**Esperado:** un pedido que no cabe en ningún sitio individual se sirve desde varios, con una asignación por origen, y se entrega completo.
+
+**Medido:** `pedidos_multi_origen` y `asignaciones_parciales` son > 0 en los 36 escenarios; en E-05 (cross dock) hay 16,2 pedidos multi-origen y 53,4 asignaciones parciales por corrida, y en E-34 78,5 asignaciones para 40 pedidos. Las toneladas exportadas y `excedente_final_tn` no cambian respecto de `fase-23` en E-00, E-05, E-12 y E-14: el producto no se duplica ni se pierde, cambia de dónde sale.
+
+### P-02 El saldo no cubierto sigue siendo demanda
+
+**Esperado:** reservar lo que hay y conservarlo, no liberar la reserva porque falte el resto.
+
+**Medido:** `pedidos_parcialmente_reservados` cuenta los pedidos que estuvieron comprometidos a medias en algún momento (marca histórica: al cierre de campaña todos los pedidos cerraron, así que el estado final no lo mide). `toneladas_pendientes_asignar` es 0 al cierre en todos los escenarios: ningún saldo queda huérfano.
+
+### E-01 El último contenedor parcial es condicionado
+
+**Esperado:** un pedido de 62 tn con contenedores de 25 tn arma 25 + 25 y el parcial de 12 sólo cuando el pedido está completamente asignado, venció o terminó la campaña.
+
+**Medido:** `contenedores_exportados` no cambia respecto de `fase-23` en los escenarios de política fija, es decir que la contenedorización progresiva no genera contenedores extra a medio llenar. Es la regla que hace que el cambio no encarezca el despacho: en el contrato un parcial paga como uno lleno (ADR-053).
+
+### E-02 Vencimiento con entrega parcial
+
+**Esperado:** un pedido con parte entregada al llegar la fecha límite queda `ATRASADO` con el saldo pendiente, conservando lo entregado y el origen de cada fracción.
+
+**Medido:** `pedidos_atrasados_entrega_parcial` es 0,4 por corrida en E-00 y 10,2 en E-31 (capacidad de frío reducida), donde antes esos pedidos figuraban atrasados sin ninguna entrega. El atraso promedio de E-31 **baja** de 33,5 a 30,0 días: la entrega parcial adelanta parte del pedido.
+
+### C-01 Identidad del pedido
+
+**Esperado:** `solicitado = pendiente de asignar + reserva activa + despachado no entregado + entregado`, tolerancia 0,0001 tn.
+
+**Medido:** `validarBalancePedidos()` corre todos los días de las 1 080 corridas y aborta si difiere. Las 1 080 terminaron `Finished`.
+
+### C-02 Nada de lo producido se pierde
+
+**Esperado:** `producido = stock en planta + stock en depósitos + en proceso + entregado`.
+
+**Medido:** `validarBalanceProducido()` corre todos los días sobre la producción acumulada de la planta. Las 1 080 corridas pasan.
+
+### T-01 y T-02 Componente preventivo
+
+**Esperado:** con el proyectado sobre el umbral de alerta, transferir hasta el objetivo; debajo de la alerta, cero.
+
+**Medido:** `toneladas_transferidas_preventivas` es > 0 en los 35 escenarios con política `FLEXIBLE` (23 181 tn por corrida en E-00) y exactamente **0 en E-12**, el escenario `REACTIVA`, que no tiene componente preventivo.
+
+### T-03 El objetivo se reparte entre depósitos
+
+**Esperado:** una transferencia de 300 tn no se detiene porque en el primer depósito entren 100.
+
+**Medido:** el stock final se reparte entre varios depósitos en la misma corrida (E-00: FRINOA 7 000, RUTA9 5 456, DODERO 625 tn), lo que antes no ocurría en un mismo día. `transferencias_incompletas` cuenta los días en que, agotados los candidatos, quedó saldo sin mover: 32,1 por corrida en E-00 y 161 en E-01, que es la lectura de que la red no tiene espacio, no de que el reparto se cortó solo.
+
+### T-04 y T-05 Diagnóstico de destinos
+
+**Esperado:** poder responder por qué no se usó un depósito.
+
+**Medido:** con `debugPlanificacion` activo, `diagnosticoDepositos()` imprime una línea por depósito con capacidad, stock, espacio, existencia de tarifa, costo estimado, elegibilidad y motivo de descarte (`NO_HABILITADO`, `SIN_CAPACIDAD_PRODUCTO`, `SIN_ESPACIO`, `TARIFA_INEXISTENTE`, `TARIFA_SITIO_INEXISTENTE`, `SIN_FLOTA`). La selección usa **la misma** función que el diagnóstico, así que el motivo informado es el motivo real.
+
+### T-06 REACTIVA no cambia
+
+**Esperado:** la política REACTIVA se comporta igual que antes del MOD.
+
+**Medido, y con una salvedad honesta:** `toneladasASacarReactiva()` es **idéntica carácter por carácter** a la de `fase-23`, y E-12 no transfiere una sola tonelada por el componente preventivo. Su costo por tonelada se mueve **+0,1 %** (162,90 → 163,05 USD/tn) y el servicio de 0,922 a 0,927: la diferencia no viene de la política de transferencia sino del otro cambio del mismo MOD, los pedidos parciales, que afectan a todos los escenarios. La igualdad bit a bit que pedía el criterio original no es alcanzable con los dos cambios en la misma versión; lo que sí se puede afirmar es que la política de transferencia reactiva no fue modificada.
+
+### T-07 Sobrecarga crítica
+
+**Esperado:** no bloquea la producción, no duplica volumen y no borra la penalidad.
+
+**Medido:** `toneladas_transferidas_criticas` no se suma a `toneladas_transferidas_desborde` —los tres componentes se combinan con `max`—, `ton_dia_sobre_nominal` y `dias_sobrecarga` siguen devengando la penalidad en el costo económico, y las toneladas exportadas no bajan en ningún escenario.
+
+### X-24 Corrida desde el Excel actualizado
+
+**Esperado:** la campaña completa desde `datos/entrada_ejemplo.xlsx` termina sin excepciones y los balances cierran.
+
+**Medido:** E-00 desde Excel corre los 364 días de campaña (365 de reloj) sin abortos, con C-01 y C-02 en verde todos los días. Antes hacía falta corregir la capacidad de `colaCamiones`: con la capacidad por default de la librería (100 agentes) la corrida moría en el día 162 con "An agent was not able to leave the port root.entradaEnvios.out". Esa cola es la lista de espera de envíos por portacontenedor, no una restricción física, así que pasa a capacidad ilimitada; la restricción sigue siendo la flota.
+
+La corrida deja tres lecturas que son de los **datos**, no del modelo, y que conviene revisar antes de usar sus KPIs como respuesta de negocio:
+
+1. **La demanda de JUGO excede la producción**: `PedidoPlan` pide 20 870 tn y `ProduccionPlan` produce 17 175 tn en la campaña. El faltante estructural es 3 694 tn, así que ningún dimensionamiento de flota o de depósito puede dar 100 % de servicio.
+2. **La producción arranca el día 88** y hay pedidos desde el día 1 con plazo de 31 días: los primeros pedidos vencen antes de que exista producto. De ahí los atrasos tempranos.
+3. **CASCARA queda encerrada en planta.** Su única capacidad de depósito está en RUTA9, a 1 200 km, y un viaje redondo consume `2 × 1200 / 70 / 10 = 3,43` camión-día mientras el escenario ofrece 3 camión-día por día. `flotaProductoAlcanza()` nunca da verdadero y el diagnóstico responde `SIN_FLOTA` todos los días: las 12 031 tn de cáscara se producen y no salen nunca (pico de ocupación de planta 668 %). Es una limitación conocida del modelo de flota como capacidad diaria (ADR-044): un viaje que no cabe en una jornada no puede empezar. Queda declarada como pendiente; para representar distancias de 1 200 km hay que permitir que un viaje ocupe un camión durante varios días.
+
 ## 4.1 Validación de datos de entrada
 
 Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.
@@ -466,7 +548,21 @@ Después de cada cambio ejecutar al menos:
 - creación de contenedor;
 - corrida corta sin excepciones.
 
-### Regresión de C5/C6 (fase-23)
+### Regresión de la fase 24
+
+**Ejecutado:** 2026-07-31 en AnyLogic PLE 8.9.9, modelo `fase-24`.
+
+| Comprobación | Resultado |
+|---|---|
+| Build | `Build completed successfully`, 0 errores |
+| Campaña completa sintética | 365 días de reloj sin excepciones, C-01 y C-02 diarios en verde, servicio 100 %, 0 atrasados |
+| Barrido | 1 080 corridas (36 escenarios × 30 réplicas) `Finished`, CSV etiquetado `fase-24` |
+| Excel | E-00 desde `datos/entrada_ejemplo.xlsx` corre la campaña completa sin abortos (ver X-24) |
+| Corrección de la cola | El barrido posterior al cambio de `colaCamiones` da idéntico al anterior en las 1 080 filas y todas las columnas: la corrección sólo destraba la carga desde Excel |
+| REACTIVA | `toneladas_transferidas_preventivas` = 0 en E-12 y función sin modificar |
+| Saldos huérfanos | `toneladas_pendientes_asignar` y `toneladas_pendientes_entregar` = 0 al cierre en los 36 escenarios |
+
+### Regresión de la fase 23
 
 **Ejecutado:** 2026-07-29 en AnyLogic PLE 8.9.9, modelo `fase-23`.
 

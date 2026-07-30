@@ -78,6 +78,16 @@ public class AlternativaCircuito implements java.io.Serializable {
 		return endToEnd ? costoEndToEnd : costoIncremental;
 	}
 
+	/**
+	 * Costo por tonelada. Con asignacion parcial dos alternativas pueden ofrecer volumenes
+	 * distintos, y comparar totales premiaria a la que menos toneladas resuelve (ADR-055).
+	 */
+	public double costoUnitarioSegun(boolean endToEnd) {
+		return toneladas <= 0.0001
+			? Double.POSITIVE_INFINITY
+			: costoSegun(endToEnd) / toneladas;
+	}
+
 	/** Clave estable para desempatar: dos alternativas iguales no dependen del orden. */
 	public String clave() {
 		return circuito + "|" + idOrigen + "|" + sitioEstiba;

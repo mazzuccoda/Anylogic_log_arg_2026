@@ -13,16 +13,22 @@ public class Capa implements java.io.Serializable {
 
 	public static final double EPS = 0.0001;
 
-	/** Reserva trazable: que pedido comprometio cuantas toneladas de esta capa. */
+	/**
+	 * Reserva trazable sobre la capa. Lleva dos identidades y no una: la clave es la
+	 * unidad de despacho (una asignacion de un pedido, ADR-055) y el codigo de pedido es
+	 * la identidad comercial, que es la que consultan el almacenaje y los KPIs.
+	 */
 	public static class Reserva implements java.io.Serializable {
 
 		private static final long serialVersionUID = 1L;
 
+		public final String clave;
 		public final String codigoPedido;
 		public final double diaReserva;
 		public double toneladas;
 
-		public Reserva(String codigoPedido, double toneladas, double diaReserva) {
+		public Reserva(String clave, String codigoPedido, double toneladas, double diaReserva) {
+			this.clave = clave;
 			this.codigoPedido = codigoPedido;
 			this.toneladas = toneladas;
 			this.diaReserva = diaReserva;
@@ -62,7 +68,19 @@ public class Capa implements java.io.Serializable {
 		return total;
 	}
 
-	public double reservadasDe(String codigoPedido) {
+	/** Reservado por una clave, que es una asignacion concreta de un pedido. */
+	public double reservadasDe(String clave) {
+		double total = 0;
+		for (Reserva r : reservas) {
+			if (r.clave.equals(clave)) {
+				total += r.toneladas;
+			}
+		}
+		return total;
+	}
+
+	/** Reservado por un pedido, sumando todas sus asignaciones. */
+	public double reservadasDePedido(String codigoPedido) {
 		double total = 0;
 		for (Reserva r : reservas) {
 			if (r.codigoPedido.equals(codigoPedido)) {
@@ -76,23 +94,23 @@ public class Capa implements java.io.Serializable {
 		return Math.max(0, toneladas - reservadas());
 	}
 
-	public void reservar(String codigoPedido, double toneladas, double dia) {
+	public void reservar(String clave, String codigoPedido, double toneladas, double dia) {
 		for (Reserva r : reservas) {
-			if (r.codigoPedido.equals(codigoPedido)) {
+			if (r.clave.equals(clave)) {
 				r.toneladas += toneladas;
 				return;
 			}
 		}
-		reservas.add(new Reserva(codigoPedido, toneladas, dia));
+		reservas.add(new Reserva(clave, codigoPedido, toneladas, dia));
 	}
 
-	/** Quita toneladas reservadas por un pedido; devuelve lo efectivamente quitado. */
-	public double quitarReserva(String codigoPedido, double toneladas) {
+	/** Quita toneladas reservadas por una clave; devuelve lo efectivamente quitado. */
+	public double quitarReserva(String clave, double toneladas) {
 		double pendiente = toneladas;
 		java.util.Iterator<Reserva> it = reservas.iterator();
 		while (it.hasNext() && pendiente > EPS) {
 			Reserva r = it.next();
-			if (!r.codigoPedido.equals(codigoPedido)) {
+			if (!r.clave.equals(clave)) {
 				continue;
 			}
 			double quita = Math.min(pendiente, r.toneladas);

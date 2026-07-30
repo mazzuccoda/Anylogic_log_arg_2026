@@ -34,4 +34,7 @@ class Envio extends Agent {
     double tiempoViajeVacioHoras = 0;
     double costoCargosReal = 0;
     double diaCargosTerminal = -1;
+    String idAsignacionPedido = "";
+    String claveReserva = "";
+    boolean esCrossDock = false;
 }

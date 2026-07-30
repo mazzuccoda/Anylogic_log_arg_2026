@@ -98,19 +98,27 @@ Todas devuelven las toneladas efectivamente movidas, reservadas o despachadas, d
 
 **Regla:** `ubicacionActual` pasa a ser la ubicación donde el lote tiene más saldo (`Inventario.ubicacionPrincipalDeLote`), porque con transferencia parcial el lote está en varios lugares a la vez. `estado` acompaña: `EN_PLANTA` mientras el grueso siga en planta, `EN_DEPOSITO` cuando ya no. Ninguno de los dos es un saldo: el saldo se le pregunta siempre al inventario.
 
-### `transferirProductoADepositos(TipoProducto producto, double toneladasObjetivo)`
+### `transferirProductoADepositos(TipoProducto producto, double toneladasObjetivo, boolean priorizarEspacio)`
 
-**Estado:** implementada; transfiere por toneladas (fase 4).
+**Estado:** implementada; devuelve las toneladas realmente movidas (ADR-056).
 
-**Regla:** toma el lote más antiguo **con saldo libre en planta** —no el más antiguo "en estado EN_PLANTA", para que un lote transferido a medias pueda terminar de salir— y le manda `min(saldo libre, pendiente)`. Si en el depósito elegido no entra todo, se manda lo que entra y el resto sale en la vuelta siguiente, posiblemente a otro depósito.
+**Regla:** toma el lote más antiguo **con saldo libre en planta** —no el más antiguo "en estado EN_PLANTA", para que un lote transferido a medias pueda terminar de salir— y le manda `min(saldo libre, pendiente)`. El objetivo se reparte entre **todos** los depósitos que puedan recibir: que en el primero entren 100 de 300 no termina la transferencia. Un destino que no pudo recibir (o que recibió menos de lo pedido) queda descartado por hoy y no se reintenta, así el recorrido siempre termina. Si al agotar los candidatos queda saldo, incrementa `transferencias_incompletas` y, con `debugPlanificacion`, imprime el diagnóstico de destinos.
 
-**Problema resuelto:** antes, un lote más grande que el pendiente cortaba el ciclo (`if (toneladasLote > pendiente) break;`), así que la planta se sobrellenaba y generaba excedente con depósitos vacíos.
+**Problema resuelto:** antes, cualquier depósito que recibiera menos de lo pedido cortaba el ciclo con `break`, así que el resto del objetivo se quedaba en planta aunque hubiera espacio en otros sitios. Con las capacidades concentradas del Excel real (CASCARA sólo en RUTA9) eso dejaba producto retenido con espacio libre en la red.
 
-### `seleccionarDeposito(TipoProducto producto, double toneladas)`
+### `seleccionarDeposito(TipoProducto producto, double toneladas, boolean priorizarEspacio, Set<String> excluidos)`
 
-**Estado:** implementada; criterio por costo unitario (fase 4).
+**Estado:** implementada; criterio por costo unitario, o por espacio en sobrecarga crítica (ADR-056).
 
-**Regla:** entre los depósitos habilitados con espacio, elige el de menor costo estimado **por tonelada** de `min(toneladas, espacio disponible)`. Antes descartaba todo depósito donde no entrara la carga completa, lo que dejaba producto en planta con capacidad libre repartida.
+**Regla:** entre los depósitos que pasan `motivoDescarteDeposito()` y no están en `excluidos`, elige el de menor costo estimado **por tonelada** de `min(toneladas, espacio disponible)`. Con `priorizarEspacio` —la planta sobre el umbral de sobrecarga— el criterio se invierte: gana el destino donde entra **más**, y el costo sólo desempata. El volumen a transferir no cambia por estar en sobrecarga; cambia el orden de los destinos.
+
+### `motivoDescarteDeposito(Deposito deposito, TipoProducto producto, double toneladas)`
+
+Devuelve el string vacío si el depósito puede recibir hoy y, si no, el motivo: `NO_HABILITADO`, `SIN_CAPACIDAD_PRODUCTO`, `SIN_ESPACIO`, `TARIFA_INEXISTENTE`, `TARIFA_SITIO_INEXISTENTE` o `SIN_FLOTA`. Es la única fuente del filtro: la selección y el diagnóstico usan la misma función, así que el diagnóstico no puede mentir sobre por qué se descartó un destino.
+
+### `diagnosticoDepositos(TipoProducto producto, double toneladas)`
+
+Una línea por depósito con capacidad, stock, espacio, existencia de tarifa de flete, costo estimado, si es elegible y el motivo de descarte. Se imprime con `debugPlanificacion` activo. Responde "por qué no se usó RUTA9" sin tener que instrumentar el modelo.
 
 ### Antes: `transferirLoteCompleto(LoteProducto lote, Deposito destino)`
 
@@ -120,11 +128,17 @@ Eliminada en la fase 4. Movía todo el saldo libre del lote y fijaba `ubicacionA
 
 Evalúa umbrales de planta y solicita mover el exceso respecto del stock objetivo.
 
-### `reservarLotesParaPedido(Pedido pedido, String idSitio)`
+### `reservarParcialPedido(Pedido pedido, String idSitio, double toneladasObjetivo, EstrategiaLogistica circuito, boolean cruza, String motivo)`
 
-Reserva las toneladas del pedido sobre las capas del sitio indicado, en orden FIFO y anotadas por `codigoPedido`. El sitio es un `id_ubicacion` (`"PLANTA"` o el id de un depósito), no un `Deposito`: es lo que permite despachar un pedido desde el frío propio sin pasar por un tercero (ADR-050). El despacho usa exactamente el mismo id que la reserva, así que reserva y consumo no pueden desalinearse.
+**Estado:** implementada (ADR-055). Reemplaza a `reservarLotesParaPedido()`, que era todo o nada.
 
-**Pendiente:** la reserva sigue siendo todo o nada y sobre un solo sitio; repartirla entre varias ubicaciones es la fase 5.
+**Retorno:** `double`, las toneladas **realmente** reservadas.
+
+**Regla:** reserva `min(objetivo, saldo pendiente del pedido, stock libre del sitio)` y **conserva** lo reservado aunque no alcance para el pedido completo. Crea una `AsignacionPedido` con identidad propia y reserva las capas con la clave `codigoPedido + "|" + idAsignacion`, no con el código del pedido: dos asignaciones del mismo pedido en el mismo sitio no se pisan. Si el inventario no entregó nada, la asignación se descarta y no queda rastro. El sitio es un `id_ubicacion` (`"PLANTA"` o el id de un depósito), y el despacho usa exactamente la misma clave, así que reserva y consumo no pueden desalinearse.
+
+### `asignarParcialPedido(Pedido pedido)` y `asignarConPoliticaFija(Pedido pedido)`
+
+**Regla:** un pedido se cubre con los orígenes que hagan falta, en uno o varios días, y el saldo sigue siendo demanda para los días siguientes. Con política económica los candidatos salen del evaluador (ADR-054); con política fija el orden de candidatos es el de siempre —planta primero si consolida en planta, después los depósitos ordenados por costo— y lo único que cambia es que se acepta lo que cada uno pueda dar. Las dos rutas comparten `reservarParcialPedido()`: no hay dos formas de comprometer stock.
 
 ### `intentarAsignarPedido(Pedido pedido)`
 
@@ -144,13 +158,15 @@ Mapea producto a tipo de contenedor.
 
 Retorna la capacidad de la tabla `Producto`; una capacidad faltante aborta el arranque.
 
-### `crearContenedoresParaPedido(Pedido pedido)`
+### `crearContenedoresParaAsignacion(Pedido pedido, AsignacionPedido asignacion)`
 
-**Estado:** implementada (fase 6).
+**Estado:** implementada (ADR-055). Reemplaza a `crearContenedoresParaPedido()`, que dependía de un único origen.
 
-**Retorno:** `int`, la cantidad de contenedores creados. Es idempotente: si el pedido ya tiene contenedores, devuelve los que hay.
+**Retorno:** `int`, la cantidad de contenedores creados en esta pasada. No es "todo o nada": se llama todos los días y va creando contenedores a medida que la asignación consigue volumen.
 
-**Regla:** divide las toneladas **reservadas** en contenedores de la capacidad del tipo que corresponde al producto, y el último va parcial. Cada contenedor queda asociado al lote que más aporta a su carga: se recorren en paralelo los contenedores y las capas reservadas del pedido en el depósito, en el mismo orden FIFO en que se van a despachar, así que la trazabilidad contenedor–lote coincide con la salida física real.
+**Regla:** el volumen disponible es `min(reserva activa, asignado − ya contenerizado)`. Se crean contenedores **completos** mientras el disponible alcance para uno. El último contenedor **parcial** sólo se crea si `permitirUltimoParcial(pedido)`: el pedido está completamente asignado, venció su fecha límite o terminó la campaña. Que una asignación tenga un resto no basta para despachar un contenedor a medio llenar, porque el resto puede venir de otro origen mañana y en el contrato el parcial paga contenedor completo (ADR-053). Cada contenedor referencia la asignación y la clave de reserva con las que se va a despachar.
+
+**Regla anterior (fase 6):** dividía las toneladas **reservadas** del pedido en contenedores de la capacidad del tipo que corresponde al producto, y el último iba parcial siempre. Cada contenedor queda asociado al lote que más aporta a su carga: se recorren en paralelo los contenedores y las capas reservadas del pedido en el depósito, en el mismo orden FIFO en que se van a despachar, así que la trazabilidad contenedor–lote coincide con la salida física real.
 
 **Nota:** se dimensiona sobre lo reservado y no sobre lo solicitado, que es lo que hace `Pedido.calcularCantidadContenedores()`. Un pedido reservado a medias despacha los contenedores que su reserva permite.
 
@@ -234,11 +250,21 @@ Las tres son consultas sobre el registro. La **end-to-end** es todo lo devengado
 
 La utilización se informa por flota (ADR-044): `utilizacionFlota()` divide el camión-día de producto consumido por el ofrecido, y `utilizacionPortacontenedor()` devuelve la estadística de ocupación del pool `flotaPortacontenedores`. `viajesPlantaDeposito` cuenta los viajes efectivamente hechos y viaja al CSV como evidencia de que la flota se consumió.
 
-### Frío propio: `forecastProduccion()`, `demandaProyectada()`, `toneladasASacarDePlanta()`, `toneladasASacarReactiva()`, `registrarOcupacionPlanta()` y `devengarOportunidadFrioPropio()`
+### Frío propio: `forecastProduccion()`, `demandaProyectada()`, `toneladasASacarDePlanta()`, `toneladasASacarPreventivamente()`, `toneladasASacarReactiva()`, `plantaEnSobrecargaCritica()`, `registrarOcupacionPlanta()` y `devengarOportunidadFrioPropio()`
 
-**Estado:** implementadas (fase 19).
+**Estado:** implementadas (fase 19; componente preventivo en ADR-056).
 
-`revisarTransferenciasPlanta()` ya no compara el stock contra toneladas cableadas del agente: pregunta a la política del escenario cuánto sacar por producto (ADR-048). Con `FLEXIBLE`, `toneladasASacarDePlanta()` retiene todo lo que quepa bajo el nivel objetivo considerando el forecast del horizonte (`forecastProduccion()`, perfecto sobre el plan de producción) y saca además lo que exijan las obligaciones pendientes (`demandaProyectada()`, que cuenta los pedidos `PENDIENTE` y `ATRASADO` sin reserva). Con `REACTIVA`, `toneladasASacarReactiva()` reproduce el vaciado anterior con los umbrales expresados en porcentaje.
+`revisarTransferenciasPlanta()` ya no compara el stock contra toneladas cableadas del agente: pregunta a la política del escenario cuánto sacar por producto (ADR-048). Con `FLEXIBLE`, `toneladasASacarDePlanta()` combina **tres** motivos con un máximo, no con una suma:
+
+1. **desborde** — `proyectado − capacidad nominal`, con `proyectado = stock físico + forecastProduccion(diasForecast)`;
+2. **servicio** — `demandaProyectada() − libre en depósitos`, donde la demanda es el **saldo pendiente de asignar** de cada pedido abierto (ADR-055) y no el pedido entero;
+3. **prevención** — `toneladasASacarPreventivamente()`: si el proyectado toca el umbral de alerta, bajar hasta el objetivo; debajo de la alerta, cero (ADR-056).
+
+El resultado se limita al stock **libre** en planta. Los tres se combinan con `max` porque son lecturas del mismo stock: sumarlos transferiría dos veces las mismas toneladas. Los tres componentes quedan en `componentePorDesborde`, `componentePorServicio` y `componentePreventivo` para el diagnóstico y para imputar el motivo del KPI.
+
+`toneladasASacarPreventivamente()` no es la política REACTIVA: REACTIVA mira el stock de **hoy** y aborta si está bajo la alerta; el componente preventivo mira el **proyectado** con el forecast y convive con los otros dos motivos. Con `REACTIVA`, `toneladasASacarReactiva()` **no cambia**: sigue reproduciendo el vaciado anterior con los umbrales en porcentaje.
+
+`plantaEnSobrecargaCritica()` no agrega volumen: sobre el umbral de sobrecarga, la distribución entre depósitos prioriza factibilidad y espacio antes que costo (ADR-056). La producción nunca se bloquea y la penalidad del día se sigue devengando.
 
 `registrarOcupacionPlanta()` corre una vez por día y acumula tonelada-día sobre el nivel nominal y sobre el crítico, los días en sobrecarga y el pico de ocupación. `devengarOportunidadFrioPropio()` devenga la tarifa interna del frío propio y la penalidad de sobrecarga, que sólo entran al costo económico.
 

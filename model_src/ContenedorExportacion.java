@@ -28,4 +28,8 @@ class ContenedorExportacion extends Agent {
 
     // ----- Variables -----
     int diasEsperaPosicion = 0;
+    String idAsignacionPedido = "";
+    String claveReserva = "";
+    String idSitioOrigen = "";
+    EstrategiaLogistica circuito = EstrategiaLogistica.SIN_DEFINIR;
 }

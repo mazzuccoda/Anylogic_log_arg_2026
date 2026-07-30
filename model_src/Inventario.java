@@ -123,7 +123,7 @@ public class Inventario implements java.io.Serializable {
 		double total = 0;
 		for (Capa c : capas) {
 			if (c.idLote == idLote) {
-				total += c.reservadasDe(codigoPedido);
+				total += c.reservadasDePedido(codigoPedido);
 			}
 		}
 		return total;
@@ -132,7 +132,7 @@ public class Inventario implements java.io.Serializable {
 	public double reservadoPedido(String codigoPedido) {
 		double total = 0;
 		for (Capa c : capas) {
-			total += c.reservadasDe(codigoPedido);
+			total += c.reservadasDePedido(codigoPedido);
 		}
 		return total;
 	}
@@ -142,7 +142,18 @@ public class Inventario implements java.io.Serializable {
 		double total = 0;
 		for (Capa c : capas) {
 			if (c.producto == producto && c.idUbicacion.equals(idUbicacion)) {
-				total += c.reservadasDe(codigoPedido);
+				total += c.reservadasDePedido(codigoPedido);
+			}
+		}
+		return total;
+	}
+
+	/** Reservado por una asignacion concreta: es contra esto que se despacha (ADR-055). */
+	public double reservadoClaveEn(String idUbicacion, TipoProducto producto, String clave) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto && c.idUbicacion.equals(idUbicacion)) {
+				total += c.reservadasDe(clave);
 			}
 		}
 		return total;
@@ -229,12 +240,12 @@ public class Inventario implements java.io.Serializable {
 		return mejor;
 	}
 
-	/** Capas de una ubicacion con reserva viva de un pedido, de la mas antigua a la mas nueva. */
+	/** Capas de una ubicacion con reserva viva de una asignacion, de la mas antigua a la mas nueva. */
 	public java.util.List<Capa> capasReservadasDe(String idUbicacion, TipoProducto producto,
-			String codigoPedido) {
+			String clave) {
 		java.util.List<Capa> sel = new java.util.ArrayList<Capa>();
 		for (Capa c : fifo(idUbicacion, producto)) {
-			if (c.reservadasDe(codigoPedido) > EPS) {
+			if (c.reservadasDe(clave) > EPS) {
 				sel.add(c);
 			}
 		}
@@ -315,9 +326,12 @@ public class Inventario implements java.io.Serializable {
 
 	// ---------------------------------------------------------------- reservas
 
-	/** Reserva para un pedido, FIFO. Devuelve lo reservado, que puede ser menos. */
+	/**
+	 * Reserva para una asignacion de un pedido, FIFO. Devuelve lo reservado, que puede ser
+	 * menos: la reserva parcial es valida y se conserva (ADR-055).
+	 */
 	public double reservar(String idUbicacion, TipoProducto producto, double toneladas,
-			String codigoPedido, double dia) {
+			String clave, String codigoPedido, double dia) {
 		double pendiente = toneladas;
 		for (Capa c : fifo(idUbicacion, producto)) {
 			if (pendiente <= EPS) {
@@ -327,44 +341,44 @@ public class Inventario implements java.io.Serializable {
 			if (toma <= EPS) {
 				continue;
 			}
-			c.reservar(codigoPedido, toma, dia);
+			c.reservar(clave, codigoPedido, toma, dia);
 			pendiente -= toma;
 		}
 		return toneladas - pendiente;
 	}
 
-	public double liberarReserva(String codigoPedido) {
+	public double liberarReserva(String clave) {
 		double total = 0;
 		for (Capa c : capas) {
-			total += c.quitarReserva(codigoPedido, c.reservadasDe(codigoPedido));
+			total += c.quitarReserva(clave, c.reservadasDe(clave));
 		}
 		return total;
 	}
 
-	public double liberarReserva(String codigoPedido, double toneladas) {
+	public double liberarReserva(String clave, double toneladas) {
 		double pendiente = toneladas;
 		for (Capa c : capas) {
 			if (pendiente <= EPS) {
 				break;
 			}
-			pendiente -= c.quitarReserva(codigoPedido, pendiente);
+			pendiente -= c.quitarReserva(clave, pendiente);
 		}
 		return toneladas - pendiente;
 	}
 
-	/** Saca fisicamente toneladas ya reservadas por un pedido, FIFO. Devuelve lo despachado. */
+	/** Saca fisicamente toneladas ya reservadas por una asignacion, FIFO. Devuelve lo despachado. */
 	public double despachar(String idUbicacion, TipoProducto producto, double toneladas,
-			String codigoPedido) {
+			String clave) {
 		double pendiente = toneladas;
 		for (Capa c : fifo(idUbicacion, producto)) {
 			if (pendiente <= EPS) {
 				break;
 			}
-			double toma = Math.min(pendiente, Math.min(c.reservadasDe(codigoPedido), c.toneladas));
+			double toma = Math.min(pendiente, Math.min(c.reservadasDe(clave), c.toneladas));
 			if (toma <= EPS) {
 				continue;
 			}
-			c.quitarReserva(codigoPedido, toma);
+			c.quitarReserva(clave, toma);
 			c.toneladas -= toma;
 			pendiente -= toma;
 		}
@@ -402,6 +416,9 @@ public class Inventario implements java.io.Serializable {
 				}
 				if (r.codigoPedido == null || r.codigoPedido.length() == 0) {
 					errores.add("Reserva sin pedido en " + c + ".");
+				}
+				if (r.clave == null || r.clave.length() == 0) {
+					errores.add("Reserva sin clave de asignacion en " + c + ".");
 				}
 			}
 		}
