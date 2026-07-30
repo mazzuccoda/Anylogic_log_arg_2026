@@ -460,11 +460,11 @@ Los casos P, T, E y C se verifican **dentro de la corrida**, no a mano: C-01 y C
 
 **Medido:** `validarBalancePedidos()` corre todos los días de las 1 080 corridas y aborta si difiere. Las 1 080 terminaron `Finished`.
 
-### C-02 Nada de lo producido se pierde
+### C-02 Nada de lo disponible se pierde
 
-**Esperado:** `producido = stock en planta + stock en depósitos + en proceso + entregado`.
+**Esperado:** `stock inicial + producido = stock en planta + stock en depósitos + en proceso + entregado` (ADR-057).
 
-**Medido:** `validarBalanceProducido()` corre todos los días sobre la producción acumulada de la planta. Las 1 080 corridas pasan.
+**Medido:** `validarBalanceProducido()` corre todos los días sobre el stock inicial cargado más la producción acumulada de la planta. Las 1 080 corridas del barrido `fase-25` pasan, y también la corrida con 3 509 tn de stock inicial. Con la identidad anterior —sólo producción— la corrida abortaba el día 0 en cuanto había stock inicial, porque el inventario era mayor que lo producido.
 
 ### T-01 y T-02 Componente preventivo
 
@@ -508,6 +508,82 @@ La corrida deja tres lecturas que son de los **datos**, no del modelo, y que con
 2. **La producción arranca el día 88** y hay pedidos desde el día 1 con plazo de 31 días: los primeros pedidos vencen antes de que exista producto. De ahí los atrasos tempranos.
 3. **CASCARA queda encerrada en planta.** Su única capacidad de depósito está en RUTA9, a 1 200 km, y un viaje redondo consume `2 × 1200 / 70 / 10 = 3,43` camión-día mientras el escenario ofrece 3 camión-día por día. `flotaProductoAlcanza()` nunca da verdadero y el diagnóstico responde `SIN_FLOTA` todos los días: las 12 031 tn de cáscara se producen y no salen nunca (pico de ocupación de planta 668 %). Es una limitación conocida del modelo de flota como capacidad diaria (ADR-044): un viaje que no cabe en una jornada no puede empezar. Queda declarada como pendiente; para representar distancias de 1 200 km hay que permitir que un viaje ocupe un camión durante varios días.
 
+## 4.5 Stock inicial (ADR-057)
+
+Los casos SI se verifican con libros de prueba derivados del volcado sintético de E-00 (`tools/generar_excel_ejemplo.py` produce la plantilla; los libros de prueba sólo cambian la hoja `StockInicial`), más el barrido completo para la regresión.
+
+### SI-01 Stock inicial en planta
+
+**Esperado:** el producto está disponible el día 0 sin haberse producido, y no se devenga flete ni IN.
+
+**Medido:** con 800 tn de JUGO en `PLANTA` (`dia_produccion = -90`, `dia_ingreso = -30`), el tablero informa `Stock inicial: 3509 tn` en el día 0 y el stock de planta arranca en el nivel cargado. La carga sólo llama a `inventario.ingresar(...)`: no hay ningún cargo con fecha anterior al día 0 en el registro de costos.
+
+### SI-02 Stock inicial en depósito y costos futuros
+
+**Esperado:** no paga flete planta→depósito ni IN histórico; sí paga almacenaje desde el día 0, OUT, consolidación, round trip, THC, terminal y despachante cuando se despacha.
+
+**Medido:** con 1 200 tn de JUGO en FRINOA, 1 500 tn de CASCARA en RUTA9 y 9 tn de ACEITE en FRINOA, la campaña completa cierra con IN + OUT de 85 677 USD contra 85 115 USD de la misma corrida sin stock inicial: la diferencia es OUT de despacho, no IN de ingreso. Si el IN histórico se hubiera devengado, las 2 709 tn iniciales en depósito habrían agregado del orden de 6 800 USD. El almacenaje **baja** de 1 393 959 a 864 097 USD porque el producto ya posicionado se despacha antes y la producción nueva queda más tiempo en el frío propio, que no cobra almacenaje.
+
+### SI-03 Un lote en dos ubicaciones
+
+**Esperado:** un mismo `codigo_lote` puede estar en planta y en depósito, y sigue siendo un solo lote.
+
+**Medido:** `JUG-2025-001` con 1 200 tn en FRINOA y 800 tn en PLANTA crea **un** `LoteProducto` con dos capas, `toneladasIniciales = 2000` y `ubicacionActual` en la ubicación de mayor saldo (`Inventario.ubicacionPrincipalDeLote`).
+
+### SI-04 Stock inicial más producción nueva
+
+**Esperado:** la disponibilidad de campaña es la suma, y los lotes iniciales no reciben producción nueva.
+
+**Medido:** `disponibilidad_total_tn` = `stock_inicial_tn` + `produccion_campania_tn` en las corridas. Los lotes iniciales quedan con `estadoComercial = CERRADO` y `toneladasObjetivo = 0`, así que `crearLoteEnPlanta()` nunca los reutiliza: la producción abre sus propios lotes comerciales.
+
+### SI-05 FIFO histórico
+
+**Esperado:** el stock inicial sale antes que la producción nueva.
+
+**Medido:** en el día 37 de la corrida con stock inicial ya hay 548 tn de stock inicial consumidas, y al cierre `stock_inicial_consumido_tn` = 3 509 con remanente 0, con producción disponible sin despachar. El orden lo da el FIFO existente (`dia_ingreso`, después `dia_produccion`, después `idLote`) sin ninguna regla nueva: las fechas negativas lo garantizan.
+
+### SI-06 Capacidad excedida
+
+**Esperado:** exceder la capacidad de un depósito es error de datos y aborta el arranque.
+
+**Medido:** con 99 000 tn de JUGO en FRINOA (capacidad 7 000) la corrida se detiene en el día 0: *"El stock inicial no cumple el contrato de datos (1): - StockInicial en FRINOA / JUGO: 99000 tn superan la capacidad efectiva de 7000 tn"*. En **planta** el mismo exceso es una advertencia de consola y la corrida sigue, porque la capacidad nominal del frío propio es un umbral de lectura (ADR-048) y arrancar en sobrecarga es un caso real que el modelo mide.
+
+### SI-07 Ubicación incompatible
+
+**Esperado:** una terminal no puede tener stock inicial.
+
+**Medido:** con `id_ubicacion = ZARATE` la corrida aborta en la validación del contrato: *"StockInicial SI-201: el stock inicial solo puede estar en PLANTA o DEPOSITO, no en ZARATE (TERMINAL)"*. Lo mismo con una ubicación inexistente, deshabilitada o sin capacidad para el producto.
+
+### SI-08 Hoja vacía y regresión
+
+**Esperado:** sin stock inicial, todo da igual que antes del cambio.
+
+**Medido:** el barrido `fase-25` (1 080 corridas) es **idéntico fila por fila** al de `fase-24` en las 55 columnas comunes —sin una sola diferencia— y agrega las siete columnas nuevas en 0. Un libro **sin** la hoja `StockInicial` (los anteriores a esta versión, incluido `datos/entrada_ejemplo.xlsx`) corre la campaña completa y el tablero informa `Stock inicial: sin carga`. Un libro **con** la hoja y sin filas se comporta igual.
+
+### SI-09 Almacenamiento desde el día 0
+
+**Esperado:** el stock inicial en depósito paga almacenaje del día 0 en adelante y nada de la antigüedad anterior.
+
+**Medido:** `devengarAlmacenamientoDiario()` cobra por capa y por día simulado, así que la primera imputación de una capa inicial es la del día 0. Y `toneladaDiaEnStock()` pasa a acotar la antigüedad al horizonte (`time() − max(0, diaIngreso)`): con `dia_ingreso = -60` el evaluador arrancaba imputando 60 tn-día de almacenaje anterior a la campaña, un costo hundido que empujaba a la política end-to-end a evitar el stock inicial. Con `dia_ingreso >= 0` el cambio es la identidad, y por eso el barrido sin stock inicial no se mueve.
+
+### SI-10 Balance físico
+
+**Esperado:** el stock inicial entra en la conciliación y el remanente es trazable.
+
+**Medido:** C-02 pasa a ser `stock inicial + producción = stock + en proceso + entregado` y corre todos los días. `stock_inicial_remanente_tn` se calcula sobre las capas de los lotes con `esStockInicial`, y `stock_inicial_consumido_tn = stock_inicial_tn − remanente`, así que el retiro de los lotes históricos es atribuible sin acumuladores nuevos.
+
+### SI-11 La carga está conectada al arranque
+
+**Esperado:** `cargarStockInicial()` se ejecuta de verdad, no queda como función huérfana.
+
+**Medido:** el `StartupCode` del `.alp` es `cargarDatosEntrada(); cargarStockInicial();`, y la traza del aborto de SI-06 muestra la cadena real: `Main.validarStockInicial → Main.cargarStockInicial → Main.onStartup`. El punto de invocación vive en el `.alp`, no en el espejo `model_src/`.
+
+### SI-12 Déficit estructural sobre los datos reales
+
+**Esperado:** el modelo dice antes de correr si la demanda es inalcanzable.
+
+**Medido:** con `datos/entrada_ejemplo.xlsx` el tablero informa `déficit estructural 3924 tn` en el día 0. Es la lectura de X-24 punto 1, ahora cuantificada por producto por `DatosEntrada.deficitEstructuralTn()` = `max(0, demanda − stock inicial − producción planificada)`.
+
 ## 4.1 Validación de datos de entrada
 
 Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.
@@ -547,6 +623,20 @@ Después de cada cambio ejecutar al menos:
 - generación de plan;
 - creación de contenedor;
 - corrida corta sin excepciones.
+
+### Regresión de la fase 25
+
+**Ejecutado:** 2026-08-04 en AnyLogic PLE 8.9.9, modelo `fase-25`.
+
+| Comprobación | Resultado |
+|---|---|
+| Build | `Build completed successfully`, 0 errores |
+| Campaña completa sintética | 183 días de campaña sin excepciones, C-01 y C-02 diarios en verde, servicio 100 % |
+| Barrido | 1 080 corridas (36 escenarios × 30 réplicas) `Finished`, CSV etiquetado `fase-25` |
+| Regresión contra `fase-24` | **Idéntico**: las 1 080 filas coinciden en las 55 columnas comunes, sin una sola diferencia. Las siete columnas nuevas dan 0 porque los escenarios sintéticos no tienen stock inicial |
+| Excel sin la hoja | `datos/entrada_ejemplo.xlsx` (364 días, sin `StockInicial`) corre completo; el tablero informa `Stock inicial: sin carga · déficit estructural 3924 tn` |
+| Excel con stock inicial | 3 509 tn en planta, FRINOA y RUTA9: campaña completa, servicio 100 %, stock inicial consumido 3 509 y remanente 0 |
+| Errores de datos | Capacidad de depósito excedida y ubicación `TERMINAL` abortan el arranque con la lista completa de errores (SI-06, SI-07) |
 
 ### Regresión de la fase 24
 

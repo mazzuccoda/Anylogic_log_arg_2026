@@ -49,6 +49,8 @@ flowchart TD
     G -->|No| I[Fin]
 ```
 
+El arranque de la campaña no parte necesariamente de inventario cero: si el escenario trae la hoja `StockInicial`, `cargarStockInicial()` crea los lotes históricos y sus capas antes del primer paso diario, así que el día 0 ya hay producto en planta y en depósitos y los pedidos del día 0 pueden reservarlo (ADR-057). Ese producto entra por la misma puerta que la producción —`inventario.ingresar(...)`— y no devenga ningún costo anterior al día 0.
+
 La cantidad a sacar combina **tres componentes con `max`, no con suma** (ADR-056): desborde sobre la capacidad nominal, servicio (lo que los pedidos van a necesitar desde depósito) y preventivo (bajar del umbral de alerta al objetivo, mirando el forecast de producción). Con política `REACTIVA` el componente preventivo no existe.
 
 El objetivo se **reparte**: una transferencia de 300 tn no se detiene porque en el primer depósito entren 100. El bucle marca ese destino como agotado por hoy y sigue con el siguiente factible hasta cubrir el objetivo, agotar el stock libre o agotar los candidatos. Lo que queda sin mover se cuenta en `transferencias_incompletas`, que es la lectura de falta de espacio en la red.

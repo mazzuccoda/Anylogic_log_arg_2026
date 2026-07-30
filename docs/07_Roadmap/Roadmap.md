@@ -260,6 +260,18 @@ Implementado en el modelo y verificado en PLE (ADR-055/056), versión `fase-24`.
 - [ ] Pendiente: no hay reoptimización ni cancelación de asignaciones vivas; una reserva parcial retiene stock que otro pedido podría usar mejor.
 - [ ] Pendiente, y bloqueante para los datos reales: un viaje que no cabe en una jornada no puede empezar. La flota de producto se consume como capacidad diaria (ADR-044) y un viaje redondo de 1 200 km cuesta 3,43 camión-día, así que con 3 camiones el destino es inalcanzable y el diagnóstico responde `SIN_FLOTA` siempre. En `datos/entrada_ejemplo.xlsx` eso deja las 12 031 tn de cáscara encerradas en planta, porque su única capacidad de depósito está a 1 200 km. Hay que permitir que un viaje ocupe un camión durante varios días.
 
+## 11j. MOD — Stock inicial de campaña
+
+Implementado en el modelo y verificado en PLE (ADR-057), versión `fase-25`.
+
+- [x] Hoja `StockInicial` opcional en el contrato de datos, con identidad de lote histórico `codigo_lote + producto + cliente + calidad` y fechas negativas.
+- [x] `cargarStockInicial()` crea lotes con `esStockInicial` y **capas reales** de `Inventario`; sin producción ficticia, transferencia ficticia ni saldos paralelos. Invocado desde el arranque del agente, antes del primer paso diario.
+- [x] `validarStockInicial()`: capacidad dura en depósito, advertencia en planta (ADR-048). Identidad, fechas y ubicación se validan en el contrato con el criterio de ADR-037.
+- [x] C-02 pasa a `stock inicial + producción = stock + en proceso + entregado`, y `toneladaDiaEnStock()` acota la antigüedad al horizonte para no imputar almacenaje anterior al día 0.
+- [x] Siete KPIs nuevos: stock inicial cargado, consumido y remanente, producción de campaña, disponibilidad total, demanda planificada y déficit estructural.
+- [x] Verificado en PLE: build limpio, barrido de 1 080 corridas **idéntico** a `fase-24` en las 55 columnas comunes, y campaña completa con 3 509 tn de stock inicial.
+- [ ] Pendiente: reservas de stock inicial por cliente y calidad como restricción y no sólo como identidad (fase 5), y una tabla de compromisos previos —producto ya vendido antes del día 0— que hoy no existe.
+
 ## 12. Fase 9 — Terminal
 
 - [ ] Entrega de vacíos.

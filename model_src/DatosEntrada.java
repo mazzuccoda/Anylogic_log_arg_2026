@@ -362,6 +362,43 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * Inventario que ya existe cuando arranca la campania. No es produccion ni
+	 * transferencia: es una capa de inventario preexistente (ADR-057). Los dias son
+	 * relativos al arranque y normalmente negativos, para que el FIFO por diaIngreso
+	 * saque primero el producto historico.
+	 */
+	public static class StockInicial implements java.io.Serializable {
+		private static final long serialVersionUID = 1L;
+		public String idStock;
+		public String codigoLote;
+		public TipoProducto producto;
+		public String idUbicacion;
+		public double toneladas;
+		public double diaProduccion;
+		public double diaIngreso;
+		public String cliente;
+		public String calidad;
+
+		public StockInicial(String idStock, String codigoLote, TipoProducto producto,
+				String idUbicacion, double toneladas, double diaProduccion, double diaIngreso,
+				String cliente, String calidad) {
+			this.idStock = idStock;
+			this.codigoLote = codigoLote;
+			this.producto = producto;
+			this.idUbicacion = idUbicacion;
+			this.toneladas = toneladas;
+			this.diaProduccion = diaProduccion;
+			this.diaIngreso = diaIngreso;
+			this.cliente = cliente;
+			this.calidad = calidad;
+		}
+
+		public String claveLote() {
+			return codigoLote + "|" + producto + "|" + cliente + "|" + calidad;
+		}
+	}
+
 	public Escenario escenario;
 	public java.util.List<Ubicacion> ubicaciones = new java.util.ArrayList<Ubicacion>();
 	public java.util.List<Capacidad> capacidades = new java.util.ArrayList<Capacidad>();
@@ -373,6 +410,7 @@ public class DatosEntrada implements java.io.Serializable {
 	public java.util.List<TarifaEspera> tarifasEspera = new java.util.ArrayList<TarifaEspera>();
 	public java.util.List<ProduccionPlan> produccionPlan = new java.util.ArrayList<ProduccionPlan>();
 	public java.util.List<PedidoPlan> pedidoPlan = new java.util.ArrayList<PedidoPlan>();
+	public java.util.List<StockInicial> stockInicial = new java.util.ArrayList<StockInicial>();
 
 	// ---------- consultas ----------
 
@@ -700,6 +738,62 @@ public class DatosEntrada implements java.io.Serializable {
 		return 0;
 	}
 
+	public double stockInicialTn() {
+		double total = 0;
+		for (StockInicial s : stockInicial) {
+			total += s.toneladas;
+		}
+		return total;
+	}
+
+	public double stockInicialTn(TipoProducto producto) {
+		double total = 0;
+		for (StockInicial s : stockInicial) {
+			if (s.producto == producto) {
+				total += s.toneladas;
+			}
+		}
+		return total;
+	}
+
+	public double stockInicialTn(String idUbicacion, TipoProducto producto) {
+		double total = 0;
+		for (StockInicial s : stockInicial) {
+			if (s.producto == producto && s.idUbicacion.equals(idUbicacion)) {
+				total += s.toneladas;
+			}
+		}
+		return total;
+	}
+
+	public double produccionPlanificadaTn(TipoProducto producto) {
+		double total = 0;
+		for (ProduccionPlan p : produccionPlan) {
+			if (p.producto == producto) {
+				total += p.produccionTn;
+			}
+		}
+		return total;
+	}
+
+	public double demandaPlanificadaTn(TipoProducto producto) {
+		double total = 0;
+		for (PedidoPlan p : pedidoPlan) {
+			if (p.producto == producto) {
+				total += p.toneladasSolicitadas;
+			}
+		}
+		return total;
+	}
+
+	/** Lo que la campania no puede cubrir ni con stock inicial ni con produccion planificada. */
+	public double deficitEstructuralTn(TipoProducto producto) {
+		return Math.max(0,
+				demandaPlanificadaTn(producto)
+				- stockInicialTn(producto)
+				- produccionPlanificadaTn(producto));
+	}
+
 	public java.util.List<PedidoPlan> pedidosDelDia(int dia) {
 		java.util.List<PedidoPlan> resultado = new java.util.ArrayList<PedidoPlan>();
 		for (PedidoPlan p : pedidoPlan) {
@@ -928,6 +1022,66 @@ public class DatosEntrada implements java.io.Serializable {
 				errores.add("La espera no puede ser negativa en " + donde + ".");
 			}
 			errores.addAll(vigenciaInvalida("TarifaEspera", donde, t));
+		}
+
+		// Stock inicial: identidad, ubicacion y fechas. La capacidad efectiva se valida
+		// en Main.validarStockInicial(), que es donde los factores del escenario ya
+		// estan aplicados a los agentes (ADR-057).
+		java.util.Set<String> idsStock = new java.util.HashSet<String>();
+		java.util.Map<String, StockInicial> loteInicial = new java.util.HashMap<String, StockInicial>();
+
+		for (StockInicial s : stockInicial) {
+			String donde = "StockInicial " + s.idStock;
+
+			if (s.idStock == null || s.idStock.trim().isEmpty()) {
+				errores.add("id_stock no puede estar vacio en StockInicial.");
+			} else if (!idsStock.add(s.idStock)) {
+				errores.add("id_stock duplicado en StockInicial: " + s.idStock + ".");
+			}
+
+			if (s.codigoLote == null || s.codigoLote.trim().isEmpty()) {
+				errores.add("codigo_lote no puede estar vacio en " + donde + ".");
+				continue;
+			}
+
+			StockInicial previa = loteInicial.get(s.codigoLote);
+
+			if (previa == null) {
+				loteInicial.put(s.codigoLote, s);
+			} else if (previa.producto != s.producto) {
+				errores.add("El lote " + s.codigoLote + " aparece con productos distintos ("
+						+ previa.producto + " y " + s.producto + ") en StockInicial.");
+			} else if (!previa.cliente.equals(s.cliente) || !previa.calidad.equals(s.calidad)) {
+				errores.add("El lote " + s.codigoLote + " aparece con cliente o calidad"
+						+ " contradictorios en StockInicial.");
+			}
+
+			if (s.toneladas <= 0) {
+				errores.add("toneladas debe ser > 0 en " + donde + ".");
+			}
+
+			if (!existeUbicacion(s.idUbicacion)) {
+				errores.add(donde + " referencia la ubicacion inexistente " + s.idUbicacion + ".");
+			} else {
+				Ubicacion u = ubicacion(s.idUbicacion);
+				if (!u.habilitada) {
+					errores.add(donde + " usa la ubicacion deshabilitada " + s.idUbicacion + ".");
+				}
+				if (!u.tipo.equals("PLANTA") && !u.tipo.equals("DEPOSITO")) {
+					errores.add(donde + ": el stock inicial solo puede estar en PLANTA o DEPOSITO,"
+							+ " no en " + s.idUbicacion + " (" + u.tipo + ").");
+				}
+			}
+
+			if (s.diaProduccion > 0) {
+				errores.add("dia_produccion debe ser <= 0 en " + donde + ".");
+			}
+			if (s.diaIngreso > 0) {
+				errores.add("dia_ingreso debe ser <= 0 en " + donde + ".");
+			}
+			if (s.diaIngreso < s.diaProduccion) {
+				errores.add("dia_ingreso no puede ser anterior a dia_produccion en " + donde + ".");
+			}
 		}
 
 		errores.addAll(coberturaTarifas());

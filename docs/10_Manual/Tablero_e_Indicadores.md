@@ -44,6 +44,7 @@ Por producto, toneladas **en planta** y **en depósito**, más los lotes comerci
 - Stock: `planta.getStock(producto)` y `stockTotalDepositos(producto)`, ambos derivados de las capas de inventario (ADR-023). No son saldos que se mantengan aparte.
 - Lotes comerciales: `lotes.size()` en total y `lotesComercialesAbiertos()` abiertos. Un lote acumula la producción de varios días y se cierra al alcanzar su objetivo (ADR-047), así que el total crece de a poco: una identidad por cada objetivo completado, no una por día de producción. Si los abiertos son más que la cantidad de productos, hay lotes de distinto cliente o calidad conviviendo.
 - Sobrecarga: tonelada-día por encima del nivel nominal de planta, días en sobrecarga y pico de ocupación. Desde la fase 19 la planta **no descarta producto** (ADR-048): si la sobrecarga crece, falta capacidad de frío **o** falta transporte; el panel de flota dice cuál de las dos.
+- Stock inicial: toneladas de inventario preexistente cargadas, consumidas y el déficit estructural (ADR-057). Sin hoja `StockInicial` dice `sin carga`. El **déficit estructural** es `max(0, demanda − stock inicial − producción planificada)` por producto, calculado sobre los datos de entrada: si es mayor que cero, ningún dimensionamiento de flota, depósito o frío llega al 100 % de servicio, y hay que leer el nivel de servicio contra ese techo y no contra el 100 %.
 
 ### Transporte y flota
 

@@ -264,11 +264,30 @@ Si la tabla trae una sola fila por producto sin `dia`, se interpreta como media 
 
 `cliente` y `calidad` se incluyen desde el inicio aunque el alcance actual use un solo valor: son necesarios para identificar el lote comercial abierto y agregarlos después implicaría migrar datos.
 
-### 6.4 `LoteInicial` (opcional)
+### 6.4 `StockInicial` (opcional, ADR-057)
 
-Stock preexistente al inicio de la campaña: `id_escenario`, `id_lote`, `producto`, `calidad`, `cliente`, `id_ubicacion`, `toneladas_tn`, `dia_ingreso`, `toneladas_objetivo`.
+Inventario físico preexistente al día 0. Reemplaza a la tabla `LoteInicial` que este documento proyectaba: no lleva `toneladas_objetivo` porque un lote histórico está cerrado y no recibe producción de campaña.
 
-Necesaria para arrancar una corrida a mitad de campaña o para reproducir un estado real.
+| Columna | Tipo | Regla |
+|---|---|---|
+| `id_escenario` | texto | |
+| `id_stock` | texto | No vacío, único por escenario. Identifica la fila, no el lote |
+| `codigo_lote` | texto | No vacío. Puede repetirse: el mismo lote puede estar en varias ubicaciones |
+| `producto` | enum | Un `codigo_lote` no puede tener dos productos |
+| `id_ubicacion` | texto | FK `Ubicacion`, habilitada, tipo `PLANTA` o `DEPOSITO`. Nunca `TERMINAL` |
+| `toneladas` | double | > 0 |
+| `dia_produccion` | double | <= 0. Día relativo al inicio de campaña |
+| `dia_ingreso` | double | <= 0 y >= `dia_produccion` |
+| `cliente` | texto | Un `codigo_lote` no puede tener dos clientes |
+| `calidad` | texto | Un `codigo_lote` no puede tener dos calidades |
+
+La identidad del lote histórico es `codigo_lote + producto + cliente + calidad`: las filas que la comparten son capas del mismo lote en distintos sitios.
+
+Las fechas son negativas porque el FIFO ordena por `dia_ingreso` y después por `dia_produccion`: el stock histórico sale antes que la producción de la campaña. La antigüedad anterior al día 0 **no** se factura ni se imputa en el costeo (ADR-057).
+
+La hoja es **opcional**: un libro sin `StockInicial` se interpreta como inventario inicial cero, para que los libros anteriores a esta versión sigan corriendo. La plantilla que genera `tools/generar_excel_ejemplo.py` la incluye con encabezados aunque el escenario sintético no tenga stock previo.
+
+Capacidad: la suma del stock inicial por ubicación y producto se compara contra la capacidad efectiva del escenario. En un **depósito** excederla es error de datos y aborta el arranque; en la **planta** queda como advertencia en la consola, porque la capacidad nominal del frío propio es un umbral de lectura y no un tope (ADR-048), y arrancar la campaña en sobrecarga es un caso real que el modelo mide (`ton_dia_sobre_nominal`, `pico_ocupacion_planta_pct`, penalidad).
 
 ---
 
@@ -306,6 +325,7 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 | `TarifaEspera` | `tipo_recurso`, `id_ubicacion`, `franquicia_horas`, `usd_hora`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
 | `ProduccionPlan` | `id_escenario`, `dia`, `producto`, `produccion_tn` |
 | `PedidoPlan` | `id_escenario`, `codigo_pedido`, `dia_llegada`, `dia_limite`, `producto`, `toneladas_solicitadas`, `terminal` |
+| `StockInicial` (opcional) | `id_escenario`, `id_stock`, `codigo_lote`, `producto`, `id_ubicacion`, `toneladas`, `dia_produccion`, `dia_ingreso`, `cliente`, `calidad` |
 
 Las columnas se buscan por nombre, no por posición: se pueden reordenar o agregar columnas propias. Una hoja o una columna faltante se informa junto con todas las demás antes de validar; un número tipeado como texto se acepta, y un texto que no sea número indica hoja, fila y columna.
 
@@ -323,7 +343,7 @@ Las columnas se buscan por nombre, no por posición: se pueden reordenar o agreg
 | `Escenario` | sí, parcial | implementa `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion` y `variabilidad_demanda`, y agrega `pedidos_por_campania`, `toneladas_medias_pedido` y `plazo_pedido_dias`, que son los que gobiernan la demanda sintética |
 | `ProduccionPlan` | sí | serie diaria completa por producto |
 | `PedidoPlan` | sí | sin cliente, calidad, lote solicitado, naviera ni incoterm: el modelo aún no los usa |
-| `LoteInicial` | no | — |
+| `StockInicial` | sí, opcional (ADR-057) | reemplaza a `LoteInicial`. El stock inicial entra como capas reales de `Inventario` con lotes `esStockInicial = true`; sin `toneladas_objetivo`, porque el lote histórico queda cerrado |
 
 La validación existe y corre en el arranque: `Main.cargarDatosEntrada()` obtiene las tablas del origen elegido, ejecuta `DatosEntrada.validar()` y aborta con la lista completa de errores. Todavía no escribe `errores_entrada.csv`. Cubre los puntos 2, 3, 4 y 6 de la sección anterior; los puntos 1, 5, 7 y 8 corresponden a columnas o tablas no implementadas.
 

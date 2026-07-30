@@ -173,6 +173,18 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.producto("producto"), f.numero("toneladas_solicitadas"), f.texto("terminal")));
 		}
 
+		// La hoja es opcional: un libro sin StockInicial corre con inventario inicial
+		// cero, para no invalidar los libros anteriores a ADR-057.
+		if (hojas().contains("StockInicial")) {
+			for (Fila f : filas("StockInicial", "id_escenario", idEscenario)) {
+				datos.stockInicial.add(new DatosEntrada.StockInicial(
+						f.texto("id_stock"), f.texto("codigo_lote"), f.producto("producto"),
+						f.texto("id_ubicacion"), f.numero("toneladas"),
+						f.numero("dia_produccion"), f.numero("dia_ingreso"),
+						f.texto("cliente"), f.texto("calidad")));
+			}
+		}
+
 		if (!errores.isEmpty()) {
 			String detalle = "";
 			for (String e : errores) {

@@ -86,8 +86,12 @@ Clase Java plana serializable, no un tipo de agente: el modelo está en 10 de 10
 | `estado` | EstadoLote | — | Actual |
 | `pedidoAsignado` | Pedido | — | Actual, demasiado restrictivo |
 | `costoAcumulado` | double | USD | Actual |
+| `codigoLoteExterno` | String | — | Actual, código del lote histórico del Excel; vacío en lotes de campaña (ADR-057) |
+| `esStockInicial` | boolean | — | Actual, marca el lote de inventario preexistente al día 0 (ADR-057) |
 
 Un lote acumula la producción de varios días: `crearLoteEnPlanta()` reutiliza el lote abierto compatible por producto, cliente y calidad, y cada día de producción agrega una capa nueva con el mismo `idLote` en lugar de una identidad nueva. El lote se cierra al alcanzar `toneladasObjetivo` en producción acumulada; el despacho y la transferencia parcial no lo cierran, porque descuentan capas y no producción histórica (ADR-047). De ahí que `toneladasIniciales` y el saldo físico puedan diferir: el primero responde "cuánto se produjo", las capas responden "cuánto queda y dónde".
+
+Un lote de **stock inicial** (ADR-057) es la excepción: nace cerrado, con `toneladasObjetivo = 0` y `esStockInicial = true`, y nunca recibe producción de campaña. En esos lotes `toneladasIniciales` es el total histórico cargado, no producción del horizonte simulado, y sus capas tienen `diaIngreso` y `diaProduccion` negativos, así que el FIFO las consume antes que las de la campaña.
 
 ### Ubicación física: capas
 

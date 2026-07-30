@@ -15,7 +15,7 @@ class Escenarios extends ParamVariationExperiment {
     void additionalClassCode() {
         // Version del modelo con la que se corrio el barrido: sin esto un csv de
         // resultados no se puede volver a atar al codigo que lo produjo.
-        static final String VERSION_MODELO = "fase-24";
+        static final String VERSION_MODELO = "fase-25";
 
         static final int REPLICAS = 30;
 
@@ -50,7 +50,10 @@ class Escenarios extends ParamVariationExperiment {
         	"toneladas_pendientes_asignar", "toneladas_pendientes_entregar",
         	"toneladas_transferidas_preventivas", "toneladas_transferidas_desborde",
         	"toneladas_transferidas_servicio", "toneladas_transferidas_criticas",
-        	"transferencias_incompletas"
+        	"transferencias_incompletas",
+        	"stock_inicial_tn", "stock_inicial_consumido_tn", "stock_inicial_remanente_tn",
+        	"produccion_campania_tn", "disponibilidad_total_tn", "demanda_planificada_tn",
+        	"deficit_estructural_tn"
         };
 
         // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -409,7 +412,14 @@ class Escenarios extends ParamVariationExperiment {
         	root.toneladasTransferidasDesborde,
         	root.toneladasTransferidasServicio,
         	root.toneladasTransferidasCriticas,
-        	root.transferenciasIncompletas
+        	root.transferenciasIncompletas,
+        	root.stockInicialCargadoTn,
+        	root.stockInicialConsumidoTn(),
+        	root.stockInicialRemanenteTn(),
+        	root.produccionCampaniaTn(),
+        	root.disponibilidadTotalTn(),
+        	root.demandaPlanificadaTn(),
+        	root.deficitEstructuralTn()
         };
 
         corridas.add(c);

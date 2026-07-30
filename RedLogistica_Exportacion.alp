@@ -385,7 +385,8 @@ terminales.clear();
 terminales.add(terminalZarate);
 terminales.add(terminalT4);
 
-cargarDatosEntrada();]]></StartupCode>
+cargarDatosEntrada();
+cargarStockInicial();]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1784231466973</Id>
@@ -1626,6 +1627,21 @@ cargarDatosEntrada();]]></StartupCode>
 					<Id>1792400003013</Id>
 					<Name><![CDATA[componentePreventivo]]></Name>
 					<X>-140</X><Y>580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>300280</Id>
+					<Name><![CDATA[stockInicialCargadoTn]]></Name>
+					<X>-140</X><Y>1660</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7373,7 +7389,9 @@ for (Capa capa : inventario.fifo(idUbicacion, producto)) {
         continue;
     }
 
-    acumulado += toma * Math.max(0, time() - capa.diaIngreso);
+    // La antiguedad se cuenta dentro del horizonte: una capa de stock inicial ingreso
+    // antes del dia 0 y su almacenaje historico no se devenga ni se imputa (ADR-057).
+    acumulado += toma * Math.max(0, time() - Math.max(0, capa.diaIngreso));
 
     pendiente -= toma;
 }
@@ -8797,10 +8815,12 @@ return total;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[// C-02: todo lo producido esta en algun lado. Sin perdida de producto (ADR-048), lo
-// producido es lo que hay en planta, en depositos, viajando y ya entregado.
+					<Body><![CDATA[// C-02: todo lo disponible esta en algun lado. Sin perdida de producto (ADR-048), el
+// stock inicial mas lo producido es lo que hay en planta, en depositos, viajando y ya
+// entregado (ADR-057).
 double producido =
-    planta.produccionAcumuladaJugo
+    stockInicialCargadoTn
+    + planta.produccionAcumuladaJugo
     + planta.produccionAcumuladaCascara
     + planta.produccionAcumuladaAceite;
 
@@ -8825,12 +8845,274 @@ for (Pedido pedido : pedidos) {
 if (abs(producido - (enStock + enProceso + entregado)) > 0.001) {
     error(
         "Balance de producto el dia " + (int) floor(time())
-        + ": producido " + producido
+        + ": stock inicial + producido " + producido
         + " contra stock " + enStock
         + " + en proceso " + enProceso
         + " + entregado " + entregado
     );
 }]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>300200</Id>
+					<Name><![CDATA[cargarStockInicial]]></Name>
+					<X>130</X><Y>1340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Inventario preexistente al arranque (ADR-057). No es produccion ni transferencia:
+// crea el lote historico y sus capas directamente en el inventario, sin devengar
+// ningun costo pasado. Se llama desde el arranque del agente, despues de
+// cargarDatosEntrada() y antes del primer pasoDiario_accion().
+validarStockInicial();
+
+java.util.Map<String, LoteProducto> porCodigo =
+    new java.util.HashMap<String, LoteProducto>();
+
+for (DatosEntrada.StockInicial fila : datos.stockInicial) {
+
+    LoteProducto lote = porCodigo.get(fila.claveLote());
+
+    if (lote == null) {
+        lote = add_lotes();
+
+        lote.idLote = siguienteIdLote;
+        siguienteIdLote++;
+
+        lote.codigoLoteExterno = fila.codigoLote;
+        lote.esStockInicial = true;
+        lote.producto = fila.producto;
+        lote.cliente = fila.cliente;
+        lote.calidad = fila.calidad;
+        lote.diaProduccion = fila.diaProduccion;
+        lote.costoAcumulado = 0;
+        lote.pedidoAsignado = null;
+
+        // Un lote historico no recibe produccion de campania: queda cerrado y sin
+        // objetivo, asi que la regla de cierre de crearLoteEnPlanta() no lo alcanza.
+        lote.estadoComercial = EstadoComercialLote.CERRADO;
+        lote.toneladasObjetivo = 0;
+
+        // Para un lote inicial 'toneladasIniciales' es el total historico cargado, no
+        // produccion de campania (ADR-047 y ADR-057). Sigue siendo un acumulador
+        // monotono; el origen se distingue con esStockInicial.
+        lote.toneladasIniciales = 0;
+
+        porCodigo.put(fila.claveLote(), lote);
+    }
+
+    inventario.ingresar(
+        lote.idLote,
+        fila.producto,
+        fila.idUbicacion,
+        fila.toneladas,
+        fila.diaIngreso,
+        fila.diaProduccion
+    );
+
+    lote.toneladasIniciales += fila.toneladas;
+    lote.diaProduccion = min(lote.diaProduccion, fila.diaProduccion);
+
+    // Ningun costo lee estos dos campos hoy, pero la presentacion del modelo si.
+    if (!fila.idUbicacion.equals("PLANTA")) {
+        lote.depositoActual = buscarDeposito(fila.idUbicacion);
+        lote.diaIngresoDeposito = fila.diaIngreso;
+    }
+}
+
+for (LoteProducto lote : porCodigo.values()) {
+    actualizarUbicacionLote(lote);
+}
+
+stockInicialCargadoTn = datos.stockInicialTn();
+
+validarInventario();
+
+if (stockInicialCargadoTn > 0.0001) {
+    traceln(
+        "Stock inicial cargado: " + Math.round(stockInicialCargadoTn)
+        + " tn en " + porCodigo.size() + " lotes historicos y "
+        + datos.stockInicial.size() + " capas."
+    );
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>300210</Id>
+					<Name><![CDATA[validarStockInicial]]></Name>
+					<X>130</X><Y>1380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Mismo criterio que DatosEntrada.validar() (ADR-037): la lista completa de errores
+// y el arranque se detiene. La identidad, las fechas y la ubicacion ya se validaron
+// con los datos; aca se valida la capacidad efectiva, que necesita los agentes con
+// los factores del escenario ya aplicados.
+java.util.List<String> errores = new java.util.ArrayList<String>();
+
+java.util.Set<String> vistos = new java.util.HashSet<String>();
+
+for (DatosEntrada.StockInicial fila : datos.stockInicial) {
+
+    String clave = fila.idUbicacion + "|" + fila.producto;
+
+    if (!vistos.add(clave)) {
+        continue;
+    }
+
+    double inicial = datos.stockInicialTn(fila.idUbicacion, fila.producto);
+
+    double capacidad = fila.idUbicacion.equals("PLANTA")
+        ? planta.getCapacidad(fila.producto)
+        : (buscarDeposito(fila.idUbicacion) == null
+            ? 0
+            : buscarDeposito(fila.idUbicacion).getCapacidad(fila.producto));
+
+    String donde = fila.idUbicacion + " / " + fila.producto;
+
+    if (capacidad <= 0) {
+        errores.add(
+            "StockInicial en " + donde + ": la ubicacion no tiene capacidad para el producto."
+        );
+        continue;
+    }
+
+    if (inicial <= capacidad + 0.0001) {
+        continue;
+    }
+
+    // La planta es frio propio y su capacidad nominal es un umbral de lectura, no un
+    // tope (ADR-048): arrancar por encima del nominal es un dato valido y se mide con
+    // los indicadores de sobrecarga. El deposito es de terceros y su capacidad es dura.
+    if (fila.idUbicacion.equals("PLANTA")) {
+        traceln(
+            "Aviso: el stock inicial de " + donde + " (" + Math.round(inicial)
+            + " tn) supera la capacidad nominal (" + Math.round(capacidad)
+            + " tn). La campania arranca en sobrecarga (ADR-048)."
+        );
+    } else {
+        errores.add(
+            "StockInicial en " + donde + ": " + Math.round(inicial)
+            + " tn superan la capacidad efectiva de " + Math.round(capacidad) + " tn."
+        );
+    }
+}
+
+if (errores.isEmpty()) {
+    return;
+}
+
+String detalle = "";
+
+for (String e : errores) {
+    detalle += "\n  - " + e;
+}
+
+error("El stock inicial no cumple el contrato de datos (" + errores.size() + "):" + detalle);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>300220</Id>
+					<Name><![CDATA[stockInicialRemanenteTn]]></Name>
+					<X>130</X><Y>1420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Lo que queda fisicamente de los lotes historicos. La capa guarda idLote, asi que
+// el remanente no necesita un acumulador propio.
+double total = 0;
+
+for (LoteProducto lote : lotes) {
+
+    if (lote.esStockInicial) {
+        total += inventario.stockLote(lote.idLote);
+    }
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>300230</Id>
+					<Name><![CDATA[stockInicialConsumidoTn]]></Name>
+					<X>130</X><Y>1460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[return max(0, stockInicialCargadoTn - stockInicialRemanenteTn());]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>300240</Id>
+					<Name><![CDATA[produccionCampaniaTn]]></Name>
+					<X>130</X><Y>1500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[return planta.produccionAcumuladaJugo
+    + planta.produccionAcumuladaCascara
+    + planta.produccionAcumuladaAceite;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>300250</Id>
+					<Name><![CDATA[disponibilidadTotalTn]]></Name>
+					<X>130</X><Y>1540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// La disponibilidad de la campania es el stock que ya estaba mas lo producido.
+return stockInicialCargadoTn + produccionCampaniaTn();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>300260</Id>
+					<Name><![CDATA[deficitEstructuralTn]]></Name>
+					<X>130</X><Y>1580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Lo que la demanda pide y la campania no puede cubrir ni con stock inicial ni
+// con produccion planificada. Es un dato de entrada, no un resultado del modelo.
+double total = 0;
+
+for (TipoProducto producto : TipoProducto.values()) {
+    total += datos.deficitEstructuralTn(producto);
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>300270</Id>
+					<Name><![CDATA[demandaPlanificadaTn]]></Name>
+					<X>130</X><Y>1620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[double total = 0;
+
+for (TipoProducto producto : TipoProducto.values()) {
+    total += datos.demandaPlanificadaTn(producto);
+}
+
+return total;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -12442,6 +12724,32 @@ if (!retirado) {
 					<TextCode><![CDATA["Sobrecarga: " + round(tonDiaSobreNominalPlanta) + " tn-día · "
 + diasSobrecargaPlanta + " días · pico "
 + round(picoOcupacionPlantaPct) + "%"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1785400000001</Id>
+					<Name><![CDATA[panelProduccionLinea5]]></Name>
+					<X>384</X><Y>178</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA[stockInicialCargadoTn <= 0.0001
+    ? "Stock inicial: sin carga · déficit estructural " + round(deficitEstructuralTn()) + " tn"
+    : "Stock inicial: " + round(stockInicialCargadoTn) + " tn · consumido "
+        + round(stockInicialConsumidoTn()) + " · déficit estructural "
+        + round(deficitEstructuralTn())]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -17322,6 +17630,36 @@ return null;]]></Body>
 			<CurrentLevel>1784232343000</CurrentLevel>
 			<ConnectionsId>1784232342995</ConnectionsId>
 			<Variables>
+				<Variable Class="PlainVariable">
+					<Id>300100</Id>
+					<Name><![CDATA[codigoLoteExterno]]></Name>
+					<X>-140</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>300110</Id>
+					<Name><![CDATA[esStockInicial]]></Name>
+					<X>-140</X><Y>600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1784253021526</Id>
 					<Name><![CDATA[idLote]]></Name>
@@ -20866,7 +21204,7 @@ estado = factible
 			<Name><![CDATA[Escenarios]]></Name>
 			<AdditionalClassCode><![CDATA[// Version del modelo con la que se corrio el barrido: sin esto un csv de
 // resultados no se puede volver a atar al codigo que lo produjo.
-static final String VERSION_MODELO = "fase-24";
+static final String VERSION_MODELO = "fase-25";
 
 static final int REPLICAS = 30;
 
@@ -20901,7 +21239,10 @@ static final String[] KPIS = {
 	"toneladas_pendientes_asignar", "toneladas_pendientes_entregar",
 	"toneladas_transferidas_preventivas", "toneladas_transferidas_desborde",
 	"toneladas_transferidas_servicio", "toneladas_transferidas_criticas",
-	"transferencias_incompletas"
+	"transferencias_incompletas",
+	"stock_inicial_tn", "stock_inicial_consumido_tn", "stock_inicial_remanente_tn",
+	"produccion_campania_tn", "disponibilidad_total_tn", "demanda_planificada_tn",
+	"deficit_estructural_tn"
 };
 
 // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -21257,7 +21598,14 @@ c.kpis = new double[] {
 	root.toneladasTransferidasDesborde,
 	root.toneladasTransferidasServicio,
 	root.toneladasTransferidasCriticas,
-	root.transferenciasIncompletas
+	root.transferenciasIncompletas,
+	root.stockInicialCargadoTn,
+	root.stockInicialConsumidoTn(),
+	root.stockInicialRemanenteTn(),
+	root.produccionCampaniaTn(),
+	root.disponibilidadTotalTn(),
+	root.demandaPlanificadaTn(),
+	root.deficitEstructuralTn()
 };
 
 corridas.add(c);]]></AfterSimulationRunCode>
@@ -22164,6 +22512,43 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * Inventario que ya existe cuando arranca la campania. No es produccion ni
+	 * transferencia: es una capa de inventario preexistente (ADR-057). Los dias son
+	 * relativos al arranque y normalmente negativos, para que el FIFO por diaIngreso
+	 * saque primero el producto historico.
+	 */
+	public static class StockInicial implements java.io.Serializable {
+		private static final long serialVersionUID = 1L;
+		public String idStock;
+		public String codigoLote;
+		public TipoProducto producto;
+		public String idUbicacion;
+		public double toneladas;
+		public double diaProduccion;
+		public double diaIngreso;
+		public String cliente;
+		public String calidad;
+
+		public StockInicial(String idStock, String codigoLote, TipoProducto producto,
+				String idUbicacion, double toneladas, double diaProduccion, double diaIngreso,
+				String cliente, String calidad) {
+			this.idStock = idStock;
+			this.codigoLote = codigoLote;
+			this.producto = producto;
+			this.idUbicacion = idUbicacion;
+			this.toneladas = toneladas;
+			this.diaProduccion = diaProduccion;
+			this.diaIngreso = diaIngreso;
+			this.cliente = cliente;
+			this.calidad = calidad;
+		}
+
+		public String claveLote() {
+			return codigoLote + "|" + producto + "|" + cliente + "|" + calidad;
+		}
+	}
+
 	public Escenario escenario;
 	public java.util.List<Ubicacion> ubicaciones = new java.util.ArrayList<Ubicacion>();
 	public java.util.List<Capacidad> capacidades = new java.util.ArrayList<Capacidad>();
@@ -22175,6 +22560,7 @@ public class DatosEntrada implements java.io.Serializable {
 	public java.util.List<TarifaEspera> tarifasEspera = new java.util.ArrayList<TarifaEspera>();
 	public java.util.List<ProduccionPlan> produccionPlan = new java.util.ArrayList<ProduccionPlan>();
 	public java.util.List<PedidoPlan> pedidoPlan = new java.util.ArrayList<PedidoPlan>();
+	public java.util.List<StockInicial> stockInicial = new java.util.ArrayList<StockInicial>();
 
 	// ---------- consultas ----------
 
@@ -22502,6 +22888,62 @@ public class DatosEntrada implements java.io.Serializable {
 		return 0;
 	}
 
+	public double stockInicialTn() {
+		double total = 0;
+		for (StockInicial s : stockInicial) {
+			total += s.toneladas;
+		}
+		return total;
+	}
+
+	public double stockInicialTn(TipoProducto producto) {
+		double total = 0;
+		for (StockInicial s : stockInicial) {
+			if (s.producto == producto) {
+				total += s.toneladas;
+			}
+		}
+		return total;
+	}
+
+	public double stockInicialTn(String idUbicacion, TipoProducto producto) {
+		double total = 0;
+		for (StockInicial s : stockInicial) {
+			if (s.producto == producto && s.idUbicacion.equals(idUbicacion)) {
+				total += s.toneladas;
+			}
+		}
+		return total;
+	}
+
+	public double produccionPlanificadaTn(TipoProducto producto) {
+		double total = 0;
+		for (ProduccionPlan p : produccionPlan) {
+			if (p.producto == producto) {
+				total += p.produccionTn;
+			}
+		}
+		return total;
+	}
+
+	public double demandaPlanificadaTn(TipoProducto producto) {
+		double total = 0;
+		for (PedidoPlan p : pedidoPlan) {
+			if (p.producto == producto) {
+				total += p.toneladasSolicitadas;
+			}
+		}
+		return total;
+	}
+
+	/** Lo que la campania no puede cubrir ni con stock inicial ni con produccion planificada. */
+	public double deficitEstructuralTn(TipoProducto producto) {
+		return Math.max(0,
+				demandaPlanificadaTn(producto)
+				- stockInicialTn(producto)
+				- produccionPlanificadaTn(producto));
+	}
+
 	public java.util.List<PedidoPlan> pedidosDelDia(int dia) {
 		java.util.List<PedidoPlan> resultado = new java.util.ArrayList<PedidoPlan>();
 		for (PedidoPlan p : pedidoPlan) {
@@ -22730,6 +23172,66 @@ public class DatosEntrada implements java.io.Serializable {
 				errores.add("La espera no puede ser negativa en " + donde + ".");
 			}
 			errores.addAll(vigenciaInvalida("TarifaEspera", donde, t));
+		}
+
+		// Stock inicial: identidad, ubicacion y fechas. La capacidad efectiva se valida
+		// en Main.validarStockInicial(), que es donde los factores del escenario ya
+		// estan aplicados a los agentes (ADR-057).
+		java.util.Set<String> idsStock = new java.util.HashSet<String>();
+		java.util.Map<String, StockInicial> loteInicial = new java.util.HashMap<String, StockInicial>();
+
+		for (StockInicial s : stockInicial) {
+			String donde = "StockInicial " + s.idStock;
+
+			if (s.idStock == null || s.idStock.trim().isEmpty()) {
+				errores.add("id_stock no puede estar vacio en StockInicial.");
+			} else if (!idsStock.add(s.idStock)) {
+				errores.add("id_stock duplicado en StockInicial: " + s.idStock + ".");
+			}
+
+			if (s.codigoLote == null || s.codigoLote.trim().isEmpty()) {
+				errores.add("codigo_lote no puede estar vacio en " + donde + ".");
+				continue;
+			}
+
+			StockInicial previa = loteInicial.get(s.codigoLote);
+
+			if (previa == null) {
+				loteInicial.put(s.codigoLote, s);
+			} else if (previa.producto != s.producto) {
+				errores.add("El lote " + s.codigoLote + " aparece con productos distintos ("
+						+ previa.producto + " y " + s.producto + ") en StockInicial.");
+			} else if (!previa.cliente.equals(s.cliente) || !previa.calidad.equals(s.calidad)) {
+				errores.add("El lote " + s.codigoLote + " aparece con cliente o calidad"
+						+ " contradictorios en StockInicial.");
+			}
+
+			if (s.toneladas <= 0) {
+				errores.add("toneladas debe ser > 0 en " + donde + ".");
+			}
+
+			if (!existeUbicacion(s.idUbicacion)) {
+				errores.add(donde + " referencia la ubicacion inexistente " + s.idUbicacion + ".");
+			} else {
+				Ubicacion u = ubicacion(s.idUbicacion);
+				if (!u.habilitada) {
+					errores.add(donde + " usa la ubicacion deshabilitada " + s.idUbicacion + ".");
+				}
+				if (!u.tipo.equals("PLANTA") && !u.tipo.equals("DEPOSITO")) {
+					errores.add(donde + ": el stock inicial solo puede estar en PLANTA o DEPOSITO,"
+							+ " no en " + s.idUbicacion + " (" + u.tipo + ").");
+				}
+			}
+
+			if (s.diaProduccion > 0) {
+				errores.add("dia_produccion debe ser <= 0 en " + donde + ".");
+			}
+			if (s.diaIngreso > 0) {
+				errores.add("dia_ingreso debe ser <= 0 en " + donde + ".");
+			}
+			if (s.diaIngreso < s.diaProduccion) {
+				errores.add("dia_ingreso no puede ser anterior a dia_produccion en " + donde + ".");
+			}
 		}
 
 		errores.addAll(coberturaTarifas());
@@ -23796,6 +24298,18 @@ public class ImportadorExcel implements java.io.Serializable {
 			datos.pedidoPlan.add(new DatosEntrada.PedidoPlan(
 					f.texto("codigo_pedido"), f.entero("dia_llegada"), f.entero("dia_limite"),
 					f.producto("producto"), f.numero("toneladas_solicitadas"), f.texto("terminal")));
+		}
+
+		// La hoja es opcional: un libro sin StockInicial corre con inventario inicial
+		// cero, para no invalidar los libros anteriores a ADR-057.
+		if (hojas().contains("StockInicial")) {
+			for (Fila f : filas("StockInicial", "id_escenario", idEscenario)) {
+				datos.stockInicial.add(new DatosEntrada.StockInicial(
+						f.texto("id_stock"), f.texto("codigo_lote"), f.producto("producto"),
+						f.texto("id_ubicacion"), f.numero("toneladas"),
+						f.numero("dia_produccion"), f.numero("dia_ingreso"),
+						f.texto("cliente"), f.texto("calidad")));
+			}
 		}
 
 		if (!errores.isEmpty()) {
