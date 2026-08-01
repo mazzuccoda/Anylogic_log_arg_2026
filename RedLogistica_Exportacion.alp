@@ -4,7 +4,7 @@
 	         AnyLogic Project File
 *************************************************
 -->
-<AnyLogicWorkspace WorkspaceVersion="1.9" AnyLogicVersion="8.9.9.202607020720" AlpVersion="8.9.9">
+<AnyLogicWorkspace WorkspaceVersion="1.9" AnyLogicVersion="8.9.9.202606170507" AlpVersion="8.9.9">
 <Model>
 	<Id>1784231466956</Id>
 	<Name><![CDATA[RedLogistica_Exportacion]]></Name>
@@ -516,7 +516,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1784381213890</Id>
 					<Name><![CDATA[costoFletePlantaDeposito]]></Name>
-					<X>700</X><Y>-360</Y>
+					<X>1030</X><Y>-600</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -666,7 +666,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1784679064882</Id>
 					<Name><![CDATA[enviosGenerados]]></Name>
-					<X>700</X><Y>-800</Y>
+					<X>1030</X><Y>-800</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -681,7 +681,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1784680434636</Id>
 					<Name><![CDATA[costoFleteDepositoPuertoReal]]></Name>
-					<X>700</X><Y>-200</Y>
+					<X>1030</X><Y>-450</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -696,7 +696,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1784680463155</Id>
 					<Name><![CDATA[costoConsolidacionReal]]></Name>
-					<X>700</X><Y>-160</Y>
+					<X>1030</X><Y>-400</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -711,7 +711,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791000000100</Id>
 					<Name><![CDATA[inventario]]></Name>
-					<X>1200</X><Y>140</Y>
+					<X>-300</X><Y>40</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -726,7 +726,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785000203</Id>
 					<Name><![CDATA[consolidacionesDelDia]]></Name>
-					<X>700</X><Y>-120</Y>
+					<X>1030</X><Y>-360</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -741,7 +741,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785000204</Id>
 					<Name><![CDATA[contenedoresEnEspera]]></Name>
-					<X>700</X><Y>-80</Y>
+					<X>1030</X><Y>-320</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -756,7 +756,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785000205</Id>
 					<Name><![CDATA[esperaConsolidacionContenedorDia]]></Name>
-					<X>700</X><Y>-40</Y>
+					<X>1030</X><Y>-280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -771,7 +771,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785000206</Id>
 					<Name><![CDATA[consolidacionesRealizadas]]></Name>
-					<X>860</X><Y>-120</Y>
+					<X>1030</X><Y>-530</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -786,7 +786,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785000207</Id>
 					<Name><![CDATA[capacidadConsolidacionOfrecida]]></Name>
-					<X>860</X><Y>-80</Y>
+					<X>1030</X><Y>-490</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -801,7 +801,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785010310</Id>
 					<Name><![CDATA[crossDockDelDia]]></Name>
-					<X>-140</X><Y>740</Y>
+					<X>-300</X><Y>360</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -816,7 +816,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785010312</Id>
 					<Name><![CDATA[capacidadCrossDockOfrecida]]></Name>
-					<X>-140</X><Y>760</Y>
+					<X>-300</X><Y>380</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -831,7 +831,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785010314</Id>
 					<Name><![CDATA[operacionesCrossDock]]></Name>
-					<X>-140</X><Y>780</Y>
+					<X>-300</X><Y>400</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -846,7 +846,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785010316</Id>
 					<Name><![CDATA[toneladasCrossDock]]></Name>
-					<X>-140</X><Y>800</Y>
+					<X>-300</X><Y>420</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -861,7 +861,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785010318</Id>
 					<Name><![CDATA[costoCrossDockReal]]></Name>
-					<X>-140</X><Y>820</Y>
+					<X>-300</X><Y>440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -876,7 +876,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785010320</Id>
 					<Name><![CDATA[crossDockReprogramados]]></Name>
-					<X>-140</X><Y>840</Y>
+					<X>-300</X><Y>460</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -891,7 +891,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1785010322</Id>
 					<Name><![CDATA[crossDockDegradados]]></Name>
-					<X>-140</X><Y>860</Y>
+					<X>-300</X><Y>480</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -906,7 +906,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1786000010</Id>
 					<Name><![CDATA[duracionCampaniaDias]]></Name>
-					<X>860</X><Y>-380</Y>
+					<X>1030</X><Y>-570</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -921,7 +921,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1786000012</Id>
 					<Name><![CDATA[estrategiaConsolidacion]]></Name>
-					<X>1020</X><Y>-340</Y>
+					<X>1030</X><Y>-670</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -936,7 +936,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1786000014</Id>
 					<Name><![CDATA[habilitaCrossDock]]></Name>
-					<X>1020</X><Y>-300</Y>
+					<X>1030</X><Y>-640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -951,7 +951,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1786000016</Id>
 					<Name><![CDATA[camionDiaOcupado]]></Name>
-					<X>1180</X><Y>-420</Y>
+					<X>1030</X><Y>-750</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -966,7 +966,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1786000018</Id>
 					<Name><![CDATA[camionDiaOfrecido]]></Name>
-					<X>1180</X><Y>-380</Y>
+					<X>1030</X><Y>-710</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -981,7 +981,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1795300001</Id>
 					<Name><![CDATA[flotaProductoOfrecidaHoy]]></Name>
-					<X>-140</X><Y>1020</Y>
+					<X>-300</X><Y>560</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -996,7 +996,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1795300003</Id>
 					<Name><![CDATA[flotaProductoUsadaHoy]]></Name>
-					<X>-140</X><Y>1040</Y>
+					<X>-300</X><Y>600</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -1011,7 +1011,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1795300005</Id>
 					<Name><![CDATA[viajesPlantaDeposito]]></Name>
-					<X>-140</X><Y>1060</Y>
+					<X>-300</X><Y>620</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -1026,7 +1026,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1794000001</Id>
 					<Name><![CDATA[tonDiaSobreNominalPlanta]]></Name>
-					<X>-140</X><Y>1520</Y>
+					<X>-300</X><Y>660</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1041,7 +1041,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1794000002</Id>
 					<Name><![CDATA[tonDiaSobreCriticoPlanta]]></Name>
-					<X>-140</X><Y>1560</Y>
+					<X>-300</X><Y>680</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1056,7 +1056,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1794000003</Id>
 					<Name><![CDATA[diasSobrecargaPlanta]]></Name>
-					<X>-140</X><Y>1600</Y>
+					<X>-300</X><Y>700</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1071,7 +1071,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1794000004</Id>
 					<Name><![CDATA[picoOcupacionPlantaPct]]></Name>
-					<X>-140</X><Y>1640</Y>
+					<X>-300</X><Y>740</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1086,7 +1086,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1794000005</Id>
 					<Name><![CDATA[costoOportunidadFrio]]></Name>
-					<X>-140</X><Y>1680</Y>
+					<X>-300</X><Y>760</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1101,7 +1101,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1794000006</Id>
 					<Name><![CDATA[costoPenalidadSobrecarga]]></Name>
-					<X>-140</X><Y>1720</Y>
+					<X>-300</X><Y>780</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1116,7 +1116,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1794000007</Id>
 					<Name><![CDATA[toneladasTransferidasPreventivas]]></Name>
-					<X>-140</X><Y>1760</Y>
+					<X>-300</X><Y>800</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1131,7 +1131,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792000030</Id>
 					<Name><![CDATA[viajesGranelTerminal]]></Name>
-					<X>-140</X><Y>940</Y>
+					<X>-300</X><Y>500</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1146,7 +1146,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792000031</Id>
 					<Name><![CDATA[contenedoresCircuitoPlanta]]></Name>
-					<X>-140</X><Y>980</Y>
+					<X>-300</X><Y>520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1161,7 +1161,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792000032</Id>
 					<Name><![CDATA[contenedoresCircuitoDeposito]]></Name>
-					<X>-140</X><Y>1020</Y>
+					<X>-300</X><Y>540</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1176,7 +1176,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792000033</Id>
 					<Name><![CDATA[contenedoresCircuitoCrossDock]]></Name>
-					<X>-140</X><Y>1060</Y>
+					<X>-300</X><Y>580</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1191,7 +1191,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792000034</Id>
 					<Name><![CDATA[contenedoresCircuitoTerminal]]></Name>
-					<X>-140</X><Y>1100</Y>
+					<X>-300</X><Y>640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1206,7 +1206,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791100000201</Id>
 					<Name><![CDATA[registro]]></Name>
-					<X>1200</X><Y>180</Y>
+					<X>-300</X><Y>20</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -1221,7 +1221,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000301</Id>
 					<Name><![CDATA[costoInDeposito]]></Name>
-					<X>-140</X><Y>540</Y>
+					<X>-300</X><Y>200</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1236,7 +1236,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000303</Id>
 					<Name><![CDATA[costoOutDeposito]]></Name>
-					<X>-140</X><Y>560</Y>
+					<X>-300</X><Y>220</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1251,7 +1251,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000305</Id>
 					<Name><![CDATA[costoThcReal]]></Name>
-					<X>-140</X><Y>580</Y>
+					<X>-300</X><Y>240</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1266,7 +1266,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000307</Id>
 					<Name><![CDATA[costoTerminalReal]]></Name>
-					<X>-140</X><Y>600</Y>
+					<X>-300</X><Y>260</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1281,7 +1281,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000309</Id>
 					<Name><![CDATA[costoDespachanteReal]]></Name>
-					<X>-140</X><Y>620</Y>
+					<X>-300</X><Y>280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1296,7 +1296,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000311</Id>
 					<Name><![CDATA[costoEsperaCamionProducto]]></Name>
-					<X>-140</X><Y>640</Y>
+					<X>-300</X><Y>300</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1311,7 +1311,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000313</Id>
 					<Name><![CDATA[costoEsperaPortacontenedor]]></Name>
-					<X>-140</X><Y>660</Y>
+					<X>-300</X><Y>320</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1326,7 +1326,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000315</Id>
 					<Name><![CDATA[costoFleteGranelTerminal]]></Name>
-					<X>-140</X><Y>680</Y>
+					<X>-300</X><Y>340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1341,7 +1341,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000101</Id>
 					<Name><![CDATA[politicaSeleccion]]></Name>
-					<X>-140</X><Y>1900</Y>
+					<X>-300</X><Y>820</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1356,7 +1356,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000103</Id>
 					<Name><![CDATA[siguienteIdPlan]]></Name>
-					<X>-140</X><Y>1930</Y>
+					<X>-300</X><Y>850</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1371,7 +1371,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000105</Id>
 					<Name><![CDATA[planesEmitidos]]></Name>
-					<X>-140</X><Y>1960</Y>
+					<X>-300</X><Y>880</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1386,7 +1386,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000107</Id>
 					<Name><![CDATA[planesTardios]]></Name>
-					<X>-140</X><Y>1990</Y>
+					<X>-300</X><Y>910</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1401,7 +1401,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000109</Id>
 					<Name><![CDATA[alternativasEvaluadasTotal]]></Name>
-					<X>-140</X><Y>2020</Y>
+					<X>-300</X><Y>940</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1416,7 +1416,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000111</Id>
 					<Name><![CDATA[alternativasDescartadasTotal]]></Name>
-					<X>-140</X><Y>2050</Y>
+					<X>-300</X><Y>970</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1431,7 +1431,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1791300000113</Id>
 					<Name><![CDATA[pedidosSinAlternativaFactible]]></Name>
-					<X>-140</X><Y>2080</Y>
+					<X>-300</X><Y>1000</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1536,7 +1536,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792400003001</Id>
 					<Name><![CDATA[toneladasTransferidasDesborde]]></Name>
-					<X>-140</X><Y>460</Y>
+					<X>-300</X><Y>60</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1551,7 +1551,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792400003003</Id>
 					<Name><![CDATA[toneladasTransferidasServicio]]></Name>
-					<X>-140</X><Y>480</Y>
+					<X>-300</X><Y>80</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1566,7 +1566,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792400003005</Id>
 					<Name><![CDATA[toneladasTransferidasCriticas]]></Name>
-					<X>-140</X><Y>500</Y>
+					<X>-300</X><Y>100</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1581,7 +1581,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792400003007</Id>
 					<Name><![CDATA[transferenciasIncompletas]]></Name>
-					<X>-140</X><Y>520</Y>
+					<X>-300</X><Y>120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1596,7 +1596,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792400003009</Id>
 					<Name><![CDATA[componentePorDesborde]]></Name>
-					<X>-140</X><Y>540</Y>
+					<X>-300</X><Y>140</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1611,7 +1611,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792400003011</Id>
 					<Name><![CDATA[componentePorServicio]]></Name>
-					<X>-140</X><Y>560</Y>
+					<X>-300</X><Y>160</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1626,7 +1626,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>1792400003013</Id>
 					<Name><![CDATA[componentePreventivo]]></Name>
-					<X>-140</X><Y>580</Y>
+					<X>-300</X><Y>180</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1641,7 +1641,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="PlainVariable">
 					<Id>300280</Id>
 					<Name><![CDATA[stockInicialCargadoTn]]></Name>
-					<X>-140</X><Y>1660</Y>
+					<X>-300</X><Y>720</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1656,7 +1656,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="Parameter">
 					<Id>1791000000113</Id>
 					<Name><![CDATA[origenDatos]]></Name>
-					<X>1020</X><Y>-420</Y>
+					<X>700</X><Y>-340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -1680,7 +1680,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="Parameter">
 					<Id>1791000000115</Id>
 					<Name><![CDATA[rutaExcel]]></Name>
-					<X>1020</X><Y>-380</Y>
+					<X>700</X><Y>-160</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -1704,7 +1704,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="Parameter">
 					<Id>1791000000003</Id>
 					<Name><![CDATA[idEscenario]]></Name>
-					<X>700</X><Y>-420</Y>
+					<X>700</X><Y>-280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -1728,7 +1728,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="Parameter">
 					<Id>1791000000007</Id>
 					<Name><![CDATA[semillaBase]]></Name>
-					<X>860</X><Y>-420</Y>
+					<X>700</X><Y>-310</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -1752,7 +1752,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="Parameter">
 					<Id>1784382673676</Id>
 					<Name><![CDATA[diasEstimadosAlmacenamiento]]></Name>
-					<X>700</X><Y>-400</Y>
+					<X>700</X><Y>-240</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -1776,7 +1776,7 @@ cargarStockInicial();]]></StartupCode>
 				<Variable Class="Parameter">
 					<Id>1786000001</Id>
 					<Name><![CDATA[replica]]></Name>
-					<X>700</X><Y>-380</Y>
+					<X>700</X><Y>-200</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -1862,7 +1862,7 @@ cargarStockInicial();]]></StartupCode>
 				<Connector>
 					<Id>1784595031036</Id>
 					<Name><![CDATA[connector]]></Name>
-					<X>220</X><Y>700</Y>
+					<X>220</X><Y>1400</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1889,7 +1889,7 @@ cargarStockInicial();]]></StartupCode>
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-70</X><Y>10</Y></Point>
+						<Point><X>-90</X><Y>10</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -2126,7 +2126,7 @@ cargarStockInicial();]]></StartupCode>
 				<Connector>
 					<Id>1792400001</Id>
 					<Name><![CDATA[connector0001]]></Name>
-					<X>110</X><Y>710</Y>
+					<X>110</X><Y>1410</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2153,7 +2153,7 @@ cargarStockInicial();]]></StartupCode>
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-70</X><Y>0</Y></Point>
+						<Point><X>-70</X><Y>-10</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -2192,7 +2192,7 @@ cargarStockInicial();]]></StartupCode>
 				<Connector>
 					<Id>1792400005</Id>
 					<Name><![CDATA[connector0005]]></Name>
-					<X>440</X><Y>850</Y>
+					<X>440</X><Y>1550</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2219,7 +2219,7 @@ cargarStockInicial();]]></StartupCode>
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-290</X><Y>-140</Y></Point>
+						<Point><X>-320</X><Y>-130</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -2359,7 +2359,7 @@ cargarStockInicial();]]></StartupCode>
 				<Event>
 					<Id>1784385744963</Id>
 					<Name><![CDATA[pasoDiario]]></Name>
-					<X>360</X><Y>-640</Y>
+					<X>360</X><Y>-630</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2682,7 +2682,7 @@ return seleccionado;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784385540267</Id>
 					<Name><![CDATA[transferirProductoADepositos]]></Name>
-					<X>360</X><Y>-550</Y>
+					<X>360</X><Y>-600</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2769,7 +2769,7 @@ return movidasTotal;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784385672632</Id>
 					<Name><![CDATA[revisarTransferenciasPlanta]]></Name>
-					<X>360</X><Y>-510</Y>
+					<X>360</X><Y>-570</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2840,7 +2840,7 @@ for (TipoProducto producto : TipoProducto.values()) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784386517514</Id>
 					<Name><![CDATA[stockTotalDepositos]]></Name>
-					<X>1080</X><Y>-460</Y>
+					<X>1400</X><Y>-560</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2862,7 +2862,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784386576844</Id>
 					<Name><![CDATA[toneladasLotesEnDepositos]]></Name>
-					<X>1080</X><Y>-420</Y>
+					<X>1400</X><Y>-530</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2884,7 +2884,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784386688887</Id>
 					<Name><![CDATA[getCostoAlmacenamientoTotal]]></Name>
-					<X>1080</X><Y>-380</Y>
+					<X>1400</X><Y>-500</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2974,7 +2974,7 @@ return pedido;]]></Body>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1784406914228</Id>
 					<Name><![CDATA[intentarAsignarPedido]]></Name>
-					<X>50</X><Y>-580</Y>
+					<X>50</X><Y>-670</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3003,7 +3003,7 @@ return asignarParcialPedido(pedido) > 0.0001;]]></Body>
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1784408336875</Id>
 					<Name><![CDATA[contarPedidos]]></Name>
-					<X>1080</X><Y>-340</Y>
+					<X>1400</X><Y>-470</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3028,7 +3028,7 @@ return cantidad;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784408402841</Id>
 					<Name><![CDATA[stockReservadoDepositos]]></Name>
-					<X>1080</X><Y>-300</Y>
+					<X>1400</X><Y>-410</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3054,7 +3054,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784408451291</Id>
 					<Name><![CDATA[toneladasReservadasEnLotes]]></Name>
-					<X>1080</X><Y>-260</Y>
+					<X>1400</X><Y>-440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3070,7 +3070,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[Envio]]></ReturnType>
 					<Id>1784677672320</Id>
 					<Name><![CDATA[crearEnvio]]></Name>
-					<X>360</X><Y>-460</Y>
+					<X>360</X><Y>-540</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3239,7 +3239,7 @@ return envio;]]></Body>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1784679415040</Id>
 					<Name><![CDATA[retirarReservaParaEnvio]]></Name>
-					<X>360</X><Y>-320</Y>
+					<X>360</X><Y>-510</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3325,7 +3325,7 @@ return true;]]></Body>
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1784681617260</Id>
 					<Name><![CDATA[contarEnvios]]></Name>
-					<X>360</X><Y>-280</Y>
+					<X>360</X><Y>-470</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3350,7 +3350,7 @@ return cantidad;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784681718851</Id>
 					<Name><![CDATA[toneladasEnProceso]]></Name>
-					<X>360</X><Y>-240</Y>
+					<X>360</X><Y>-430</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3381,7 +3381,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1784681898632</Id>
 					<Name><![CDATA[toneladasEntregadas]]></Name>
-					<X>360</X><Y>-200</Y>
+					<X>360</X><Y>-390</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3553,7 +3553,7 @@ refrescarTarifasDelDia();]]></Body>
 					<ReturnType><![CDATA[Terminal]]></ReturnType>
 					<Id>1791000000023</Id>
 					<Name><![CDATA[buscarTerminal]]></Name>
-					<X>1400</X><Y>-680</Y>
+					<X>1400</X><Y>-660</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3576,7 +3576,7 @@ return null;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000000</Id>
 					<Name><![CDATA[producirEnPlantas]]></Name>
-					<X>1400</X><Y>-800</Y>
+					<X>1400</X><Y>-820</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3589,7 +3589,7 @@ planta.producir();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000001</Id>
 					<Name><![CDATA[registrarPedidosDelDia]]></Name>
-					<X>1400</X><Y>-770</Y>
+					<X>1400</X><Y>-790</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3675,7 +3675,7 @@ for (Pedido pedido : pendientes) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000003</Id>
 					<Name><![CDATA[prepararPedidosReservados]]></Name>
-					<X>1400</X><Y>-710</Y>
+					<X>1400</X><Y>-690</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3711,7 +3711,7 @@ for (Pedido pedido : pedidos) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000004</Id>
 					<Name><![CDATA[devengarAlmacenamientoDiario]]></Name>
-					<X>1400</X><Y>-680</Y>
+					<X>1400</X><Y>-630</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3791,7 +3791,7 @@ for (Capa capa : inventario.capas) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1790000000005</Id>
 					<Name><![CDATA[registrarAtrasos]]></Name>
-					<X>1400</X><Y>-650</Y>
+					<X>1400</X><Y>-600</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3835,7 +3835,7 @@ for (Pedido pedido : pedidos) {
 					<ReturnType><![CDATA[Deposito]]></ReturnType>
 					<Id>1791000000101</Id>
 					<Name><![CDATA[buscarDeposito]]></Name>
-					<X>130</X><Y>1900</Y>
+					<X>-300</X><Y>2300</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3858,7 +3858,7 @@ return null;]]></Body>
 					<ReturnType><![CDATA[LoteProducto]]></ReturnType>
 					<Id>1791000000102</Id>
 					<Name><![CDATA[buscarLote]]></Name>
-					<X>330</X><Y>1900</Y>
+					<X>-300</X><Y>2980</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3881,7 +3881,7 @@ return null;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791000000103</Id>
 					<Name><![CDATA[marcarLotesReservados]]></Name>
-					<X>530</X><Y>1900</Y>
+					<X>-300</X><Y>3000</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3916,7 +3916,7 @@ for (LoteProducto lote : lotes) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791000000104</Id>
 					<Name><![CDATA[actualizarEstadoLotesVacios]]></Name>
-					<X>730</X><Y>1900</Y>
+					<X>-300</X><Y>3020</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3941,7 +3941,7 @@ for (LoteProducto lote : lotes) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791000000105</Id>
 					<Name><![CDATA[validarInventario]]></Name>
-					<X>930</X><Y>1900</Y>
+					<X>-300</X><Y>3040</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3972,7 +3972,7 @@ error(
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>9401</Id>
 					<Name><![CDATA[transferirToneladasLote]]></Name>
-					<X>130</X><Y>1100</Y>
+					<X>-300</X><Y>1120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4099,7 +4099,7 @@ return movidas;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>9402</Id>
 					<Name><![CDATA[actualizarUbicacionLote]]></Name>
-					<X>130</X><Y>1160</Y>
+					<X>-300</X><Y>1140</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4148,7 +4148,7 @@ if (lote.estado == EstadoLote.EN_PLANTA) {
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>9603</Id>
 					<Name><![CDATA[contarContenedores]]></Name>
-					<X>130</X><Y>1280</Y>
+					<X>-300</X><Y>1160</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4176,7 +4176,7 @@ return cantidad;]]></Body>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1785000210</Id>
 					<Name><![CDATA[consolidaEnDeposito]]></Name>
-					<X>130</X><Y>1340</Y>
+					<X>-300</X><Y>1260</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4189,7 +4189,7 @@ return cantidad;]]></Body>
 					<ReturnType><![CDATA[String]]></ReturnType>
 					<Id>1785000212</Id>
 					<Name><![CDATA[sitioConsolidacion]]></Name>
-					<X>130</X><Y>1380</Y>
+					<X>-300</X><Y>1360</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4213,7 +4213,7 @@ return contenedor == null
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785000214</Id>
 					<Name><![CDATA[abrirPosicionesConsolidacionDelDia]]></Name>
-					<X>130</X><Y>1420</Y>
+					<X>-300</X><Y>1500</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4255,7 +4255,7 @@ for (Deposito deposito : depositos) {
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1785000216</Id>
 					<Name><![CDATA[tomarPosicionConsolidacion]]></Name>
-					<X>130</X><Y>1460</Y>
+					<X>-300</X><Y>1580</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4290,7 +4290,7 @@ return true;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785000218</Id>
 					<Name><![CDATA[despacharContenedoresPendientes]]></Name>
-					<X>130</X><Y>1500</Y>
+					<X>-300</X><Y>1660</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4425,7 +4425,7 @@ for (
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1785000220</Id>
 					<Name><![CDATA[pedidoTotalmenteDespachado]]></Name>
-					<X>130</X><Y>1540</Y>
+					<X>-300</X><Y>1780</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4454,7 +4454,7 @@ return true;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785010400</Id>
 					<Name><![CDATA[abrirPosicionesCrossDockDelDia]]></Name>
-					<X>130</X><Y>1400</Y>
+					<X>-300</X><Y>1400</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4492,7 +4492,7 @@ for (Deposito deposito : depositos) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785010402</Id>
 					<Name><![CDATA[capacidadCrossDockLibre]]></Name>
-					<X>130</X><Y>1420</Y>
+					<X>-300</X><Y>1460</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4513,7 +4513,7 @@ return datos.capacidadCrossDockDia(idUbicacion)
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1785010404</Id>
 					<Name><![CDATA[tomarPosicionesCrossDock]]></Name>
-					<X>130</X><Y>1440</Y>
+					<X>-300</X><Y>1480</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4544,7 +4544,7 @@ return true;]]></Body>
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1785010406</Id>
 					<Name><![CDATA[contenedoresNecesarios]]></Name>
-					<X>130</X><Y>1460</Y>
+					<X>-300</X><Y>1560</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4569,7 +4569,7 @@ return (int) ceil(toneladas / capacidad - 0.0001);]]></Body>
 					<ReturnType><![CDATA[Deposito]]></ReturnType>
 					<Id>1785010410</Id>
 					<Name><![CDATA[seleccionarSitioCrossDock]]></Name>
-					<X>130</X><Y>1500</Y>
+					<X>-300</X><Y>1640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4652,7 +4652,7 @@ return mejorSitio;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785010412</Id>
 					<Name><![CDATA[transferirLotesADeposito]]></Name>
-					<X>130</X><Y>1520</Y>
+					<X>-300</X><Y>1680</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4712,7 +4712,7 @@ return toneladas - pendiente;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785010414</Id>
 					<Name><![CDATA[ejecutarCrossDockPedido]]></Name>
-					<X>130</X><Y>1540</Y>
+					<X>-300</X><Y>1760</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4835,7 +4835,7 @@ return reservadas;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785010416</Id>
 					<Name><![CDATA[programarCrossDockDelDia]]></Name>
-					<X>130</X><Y>1560</Y>
+					<X>-300</X><Y>1820</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4883,7 +4883,7 @@ for (Pedido pedido : candidatos) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1786000100</Id>
 					<Name><![CDATA[aplicarEscenario]]></Name>
-					<X>130</X><Y>1600</Y>
+					<X>-300</X><Y>1860</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4921,7 +4921,7 @@ if (
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1786000104</Id>
 					<Name><![CDATA[costoTotalCampania]]></Name>
-					<X>130</X><Y>1640</Y>
+					<X>-300</X><Y>1920</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4935,7 +4935,7 @@ return registro.total(RegistroCostos.Tipo.CAJA);]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1786000106</Id>
 					<Name><![CDATA[toneladasExportadas]]></Name>
-					<X>130</X><Y>1660</Y>
+					<X>-300</X><Y>1960</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4953,7 +4953,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1786000108</Id>
 					<Name><![CDATA[costoPorToneladaExportada]]></Name>
-					<X>130</X><Y>1680</Y>
+					<X>-300</X><Y>2060</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4969,7 +4969,7 @@ return toneladas <= 0
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1786000110</Id>
 					<Name><![CDATA[nivelServicio]]></Name>
-					<X>130</X><Y>1700</Y>
+					<X>-300</X><Y>2080</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4996,7 +4996,7 @@ return pedidosRecibidos <= 0
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1786000112</Id>
 					<Name><![CDATA[atrasoPromedioDias]]></Name>
-					<X>130</X><Y>1720</Y>
+					<X>-300</X><Y>2100</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5017,7 +5017,7 @@ return pedidosRecibidos <= 0
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1786000114</Id>
 					<Name><![CDATA[utilizacionFlota]]></Name>
-					<X>130</X><Y>1740</Y>
+					<X>-300</X><Y>2120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5031,7 +5031,7 @@ return pedidosRecibidos <= 0
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1786000116</Id>
 					<Name><![CDATA[excedenteFinalTn]]></Name>
-					<X>130</X><Y>1760</Y>
+					<X>-300</X><Y>2140</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5055,7 +5055,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1786000118</Id>
 					<Name><![CDATA[usoPosicionesConsolidacion]]></Name>
-					<X>130</X><Y>1780</Y>
+					<X>-300</X><Y>2160</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5069,7 +5069,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1795300011</Id>
 					<Name><![CDATA[abrirFlotaDelDia]]></Name>
-					<X>130</X><Y>1300</Y>
+					<X>-300</X><Y>1180</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5091,7 +5091,7 @@ camionDiaOfrecido += flotaProductoOfrecidaHoy;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1795300013</Id>
 					<Name><![CDATA[camionDiaViaje]]></Name>
-					<X>130</X><Y>1340</Y>
+					<X>-300</X><Y>1240</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5118,7 +5118,7 @@ return 2 * distancia
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1795300015</Id>
 					<Name><![CDATA[viajesNecesariosCamion]]></Name>
-					<X>130</X><Y>1380</Y>
+					<X>-300</X><Y>1340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5138,7 +5138,7 @@ return (int) ceil(
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1795300017</Id>
 					<Name><![CDATA[flotaProductoLibreHoy]]></Name>
-					<X>130</X><Y>1420</Y>
+					<X>-300</X><Y>1440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5150,7 +5150,7 @@ return (int) ceil(
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1795300023</Id>
 					<Name><![CDATA[utilizacionPortacontenedor]]></Name>
-					<X>130</X><Y>1540</Y>
+					<X>-300</X><Y>1740</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5202,7 +5202,7 @@ return null;]]></Body>
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1792000000101</Id>
 					<Name><![CDATA[lotesComercialesAbiertos]]></Name>
-					<X>130</X><Y>1360</Y>
+					<X>-300</X><Y>1280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5222,7 +5222,7 @@ return abiertos;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1794000101</Id>
 					<Name><![CDATA[forecastProduccion]]></Name>
-					<X>130</X><Y>1780</Y>
+					<X>-300</X><Y>2040</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5253,7 +5253,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1794000102</Id>
 					<Name><![CDATA[demandaProyectada]]></Name>
-					<X>130</X><Y>1820</Y>
+					<X>-300</X><Y>2200</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5286,7 +5286,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1794000103</Id>
 					<Name><![CDATA[toneladasASacarDePlanta]]></Name>
-					<X>130</X><Y>1860</Y>
+					<X>-300</X><Y>2240</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5356,7 +5356,7 @@ return min(
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1794000104</Id>
 					<Name><![CDATA[toneladasASacarReactiva]]></Name>
-					<X>130</X><Y>1900</Y>
+					<X>-300</X><Y>2280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5392,7 +5392,7 @@ return min(
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1794000105</Id>
 					<Name><![CDATA[registrarOcupacionPlanta]]></Name>
-					<X>130</X><Y>1940</Y>
+					<X>-300</X><Y>2340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5458,7 +5458,7 @@ if (diaEnSobrecarga) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1794000106</Id>
 					<Name><![CDATA[devengarOportunidadFrioPropio]]></Name>
-					<X>130</X><Y>1980</Y>
+					<X>-300</X><Y>2380</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5491,7 +5491,7 @@ for (TipoProducto producto : TipoProducto.values()) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1794000107</Id>
 					<Name><![CDATA[costoTotalEconomico]]></Name>
-					<X>130</X><Y>2020</Y>
+					<X>-300</X><Y>2400</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5506,7 +5506,7 @@ return registro.total();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1794000108</Id>
 					<Name><![CDATA[costoEconomicoPorTonelada]]></Name>
-					<X>130</X><Y>2060</Y>
+					<X>-300</X><Y>2420</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5522,7 +5522,7 @@ return toneladas <= 0
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1792100001</Id>
 					<Name><![CDATA[consolidaEnPlanta]]></Name>
-					<X>130</X><Y>2400</Y>
+					<X>-300</X><Y>2600</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5535,7 +5535,7 @@ return toneladas <= 0
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1792100003</Id>
 					<Name><![CDATA[consolidaEnTerminal]]></Name>
-					<X>130</X><Y>2440</Y>
+					<X>-300</X><Y>2640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5548,7 +5548,7 @@ return toneladas <= 0
 					<ReturnType><![CDATA[EstrategiaLogistica]]></ReturnType>
 					<Id>1792100005</Id>
 					<Name><![CDATA[circuitoDe]]></Name>
-					<X>130</X><Y>2480</Y>
+					<X>-300</X><Y>2680</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5580,7 +5580,7 @@ return consolidaEnTerminal()
 					<ReturnType><![CDATA[String]]></ReturnType>
 					<Id>1792100007</Id>
 					<Name><![CDATA[sitioEstiba]]></Name>
-					<X>130</X><Y>2520</Y>
+					<X>-300</X><Y>2720</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5609,7 +5609,7 @@ return circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1792100009</Id>
 					<Name><![CDATA[usaPortacontenedor]]></Name>
-					<X>130</X><Y>2560</Y>
+					<X>-300</X><Y>2760</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5630,7 +5630,7 @@ return envio != null
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792100013</Id>
 					<Name><![CDATA[registrarEstibaEnOrigen]]></Name>
-					<X>130</X><Y>2640</Y>
+					<X>-300</X><Y>2800</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5694,7 +5694,7 @@ if (envio.contenedor.esCrossDock) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792100015</Id>
 					<Name><![CDATA[registrarIngresoTerminal]]></Name>
-					<X>130</X><Y>2680</Y>
+					<X>-300</X><Y>2820</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5785,7 +5785,7 @@ envio.costoCargosReal += registrarEspera(
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792100017</Id>
 					<Name><![CDATA[registrarConsolidacionEnTerminal]]></Name>
-					<X>130</X><Y>2720</Y>
+					<X>-300</X><Y>2840</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5819,7 +5819,7 @@ envio.costoCargosReal +=
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792100019</Id>
 					<Name><![CDATA[finalizarEnvio]]></Name>
-					<X>130</X><Y>2760</Y>
+					<X>-300</X><Y>2860</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5955,7 +5955,7 @@ if (envio.contenedor != null) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792200003</Id>
 					<Name><![CDATA[confirmarAsignacion]]></Name>
-					<X>130</X><Y>2840</Y>
+					<X>-300</X><Y>2880</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6031,7 +6031,7 @@ toneladasReservadasAcumuladas += toneladas;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792200005</Id>
 					<Name><![CDATA[importeServicioEstiba]]></Name>
-					<X>130</X><Y>2880</Y>
+					<X>-300</X><Y>2900</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6070,7 +6070,7 @@ return cruza
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1792200007</Id>
 					<Name><![CDATA[estibaEnOrigen]]></Name>
-					<X>130</X><Y>2920</Y>
+					<X>-300</X><Y>2920</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6091,7 +6091,7 @@ return envio != null
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792200009</Id>
 					<Name><![CDATA[tomarFlotaProducto]]></Name>
-					<X>130</X><Y>2960</Y>
+					<X>-300</X><Y>2940</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6139,7 +6139,7 @@ if (flotaProductoUsadaHoy > flotaProductoOfrecidaHoy + 0.0001) {
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1792200011</Id>
 					<Name><![CDATA[flotaProductoAlcanza]]></Name>
-					<X>130</X><Y>3000</Y>
+					<X>-300</X><Y>2960</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6167,7 +6167,7 @@ return flotaProductoLibreHoy() + 0.0001
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1791100000001</Id>
 					<Name><![CDATA[diaCampania]]></Name>
-					<X>130</X><Y>1340</Y>
+					<X>-300</X><Y>1220</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6181,7 +6181,7 @@ return (int) Math.floor(time());]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791100000003</Id>
 					<Name><![CDATA[refrescarTarifasDelDia]]></Name>
-					<X>130</X><Y>1380</Y>
+					<X>-300</X><Y>1320</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6207,7 +6207,7 @@ for (Deposito deposito : depositos) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791100000211</Id>
 					<Name><![CDATA[registrarFleteProducto]]></Name>
-					<X>130</X><Y>1420</Y>
+					<X>-300</X><Y>1420</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6306,7 +6306,7 @@ return importe;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791100000213</Id>
 					<Name><![CDATA[registrarRoundTrip]]></Name>
-					<X>130</X><Y>1460</Y>
+					<X>-300</X><Y>1540</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6364,7 +6364,7 @@ return importe;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791100000215</Id>
 					<Name><![CDATA[registrarServicioEstiba]]></Name>
-					<X>130</X><Y>1500</Y>
+					<X>-300</X><Y>1620</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6425,7 +6425,7 @@ return importe;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791100000217</Id>
 					<Name><![CDATA[exigirIgual]]></Name>
-					<X>130</X><Y>1540</Y>
+					<X>-300</X><Y>1720</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6455,7 +6455,7 @@ if (Math.abs(registrado - cotizado) > RegistroCostos.EPS) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791100000219</Id>
 					<Name><![CDATA[reconciliarCostos]]></Name>
-					<X>130</X><Y>1580</Y>
+					<X>-300</X><Y>1840</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6513,7 +6513,7 @@ registro.reconciliar(
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000331</Id>
 					<Name><![CDATA[registrarInDeposito]]></Name>
-					<X>130</X><Y>1620</Y>
+					<X>-300</X><Y>1900</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6567,7 +6567,7 @@ return importe;]]></Body>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1791300000333</Id>
 					<Name><![CDATA[pagaOutDeposito]]></Name>
-					<X>130</X><Y>1660</Y>
+					<X>-300</X><Y>1940</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6589,7 +6589,7 @@ return envio != null
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000335</Id>
 					<Name><![CDATA[registrarOutDeposito]]></Name>
-					<X>130</X><Y>1700</Y>
+					<X>-300</X><Y>1980</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6627,7 +6627,7 @@ return importe;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000337</Id>
 					<Name><![CDATA[registrarCargosTerminal]]></Name>
-					<X>130</X><Y>1740</Y>
+					<X>-300</X><Y>2000</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6691,7 +6691,7 @@ return thc + terminalCargo;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000339</Id>
 					<Name><![CDATA[registrarDespachante]]></Name>
-					<X>130</X><Y>1780</Y>
+					<X>-300</X><Y>2020</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6745,7 +6745,7 @@ return importe;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000341</Id>
 					<Name><![CDATA[registrarEspera]]></Name>
-					<X>130</X><Y>1820</Y>
+					<X>-300</X><Y>2180</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6815,7 +6815,7 @@ return importe;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000343</Id>
 					<Name><![CDATA[costoEsperadoCircuito]]></Name>
-					<X>130</X><Y>1860</Y>
+					<X>-300</X><Y>2220</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6914,7 +6914,7 @@ return esperado;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000345</Id>
 					<Name><![CDATA[costoEndToEndPedido]]></Name>
-					<X>130</X><Y>1900</Y>
+					<X>-300</X><Y>2260</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6934,7 +6934,7 @@ return pedido == null
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000347</Id>
 					<Name><![CDATA[costoIncrementalPedido]]></Name>
-					<X>130</X><Y>1940</Y>
+					<X>-300</X><Y>2320</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6955,7 +6955,7 @@ return pedido == null
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000349</Id>
 					<Name><![CDATA[costoHistoricoPedido]]></Name>
-					<X>130</X><Y>1980</Y>
+					<X>-300</X><Y>2360</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -6991,7 +6991,7 @@ return historico;]]></Body>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1791300000201</Id>
 					<Name><![CDATA[usaEvaluador]]></Name>
-					<X>130</X><Y>2100</Y>
+					<X>-300</X><Y>2440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7009,7 +7009,7 @@ return politicaSeleccion == DatosEntrada.PoliticaSeleccion.PRIORIDAD_FRIO_PROPIO
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1791300000203</Id>
 					<Name><![CDATA[decideEndToEnd]]></Name>
-					<X>130</X><Y>2140</Y>
+					<X>-300</X><Y>2460</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7023,7 +7023,7 @@ return politicaSeleccion
 					<ReturnType><![CDATA[java.util.List<AlternativaCircuito>]]></ReturnType>
 					<Id>1791300000205</Id>
 					<Name><![CDATA[generarAlternativas]]></Name>
-					<X>130</X><Y>2180</Y>
+					<X>-300</X><Y>2480</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7095,7 +7095,7 @@ return alternativas;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000207</Id>
 					<Name><![CDATA[evaluarAlternativa]]></Name>
-					<X>130</X><Y>2220</Y>
+					<X>-300</X><Y>2500</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7217,7 +7217,7 @@ alternativa.llegaATiempo =
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000209</Id>
 					<Name><![CDATA[costearAlternativa]]></Name>
-					<X>130</X><Y>2260</Y>
+					<X>-300</X><Y>2520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7309,7 +7309,7 @@ alternativa.totalizar();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000211</Id>
 					<Name><![CDATA[costearHundidoAlternativa]]></Name>
-					<X>130</X><Y>2300</Y>
+					<X>-300</X><Y>2540</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7354,7 +7354,7 @@ alternativa.costoAlmacenajeHundido =
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000213</Id>
 					<Name><![CDATA[toneladaDiaEnStock]]></Name>
-					<X>130</X><Y>2340</Y>
+					<X>-300</X><Y>2560</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7403,7 +7403,7 @@ return acumulado;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000215</Id>
 					<Name><![CDATA[horasCicloAlternativa]]></Name>
-					<X>130</X><Y>2380</Y>
+					<X>-300</X><Y>2580</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7459,7 +7459,7 @@ return horas;]]></Body>
 					<ReturnType><![CDATA[java.util.List<AlternativaCircuito>]]></ReturnType>
 					<Id>1791300000217</Id>
 					<Name><![CDATA[ordenarAlternativas]]></Name>
-					<X>130</X><Y>2420</Y>
+					<X>-300</X><Y>2620</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7531,7 +7531,7 @@ return factibles;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000219</Id>
 					<Name><![CDATA[ejecutarAlternativa]]></Name>
-					<X>130</X><Y>2460</Y>
+					<X>-300</X><Y>2660</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7574,7 +7574,7 @@ return reservarParcialPedido(
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000221</Id>
 					<Name><![CDATA[asignarConEvaluador]]></Name>
-					<X>130</X><Y>2500</Y>
+					<X>-300</X><Y>2700</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7642,7 +7642,7 @@ return asignadas;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000223</Id>
 					<Name><![CDATA[registrarPlan]]></Name>
-					<X>130</X><Y>2540</Y>
+					<X>-300</X><Y>2740</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7751,7 +7751,7 @@ if (!elegida.llegaATiempo) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1791300000225</Id>
 					<Name><![CDATA[intentarCrossDockPedido]]></Name>
-					<X>130</X><Y>2580</Y>
+					<X>-300</X><Y>2780</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7772,7 +7772,7 @@ return ejecutarCrossDockPedido(
 					<ReturnType><![CDATA[AsignacionPedido]]></ReturnType>
 					<Id>1792400001101</Id>
 					<Name><![CDATA[crearAsignacion]]></Name>
-					<X>1700</X><Y>1300</Y>
+					<X>1700</X><Y>1290</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7826,7 +7826,7 @@ return asignacion;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792400001103</Id>
 					<Name><![CDATA[reservarParcialPedido]]></Name>
-					<X>1700</X><Y>1300</Y>
+					<X>1700</X><Y>1170</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7925,7 +7925,7 @@ return reservadas;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792400001105</Id>
 					<Name><![CDATA[asignarParcialPedido]]></Name>
-					<X>1700</X><Y>1300</Y>
+					<X>1700</X><Y>1200</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7971,7 +7971,7 @@ return asignadas;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792400001107</Id>
 					<Name><![CDATA[asignarConPoliticaFija]]></Name>
-					<X>1700</X><Y>1300</Y>
+					<X>1700</X><Y>1230</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8020,7 +8020,7 @@ return asignadas;]]></Body>
 					<ReturnType><![CDATA[java.util.List<Deposito>]]></ReturnType>
 					<Id>1792400001109</Id>
 					<Name><![CDATA[depositosOrdenadosParaPedido]]></Name>
-					<X>1700</X><Y>1300</Y>
+					<X>1700</X><Y>1260</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8073,7 +8073,7 @@ return candidatos;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792400001111</Id>
 					<Name><![CDATA[costoEstimadoDesde]]></Name>
-					<X>1700</X><Y>1300</Y>
+					<X>1700</X><Y>1340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8128,7 +8128,7 @@ return (flete + estiba) / toneladas;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792400001113</Id>
 					<Name><![CDATA[toneladasDisponiblesParaAlternativa]]></Name>
-					<X>1700</X><Y>1300</Y>
+					<X>1700</X><Y>1320</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8173,7 +8173,7 @@ return min(
 					<ReturnType><![CDATA[AlternativaCircuito]]></ReturnType>
 					<Id>1792400001115</Id>
 					<Name><![CDATA[alternativaPara]]></Name>
-					<X>1700</X><Y>1400</Y>
+					<X>1700</X><Y>1370</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8227,7 +8227,7 @@ return new AlternativaCircuito(
 					<ReturnType><![CDATA[AsignacionPedido]]></ReturnType>
 					<Id>1792400002101</Id>
 					<Name><![CDATA[asignacionDe]]></Name>
-					<X>1700</X><Y>1700</Y>
+					<X>1700</X><Y>1550</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8260,7 +8260,7 @@ return null;]]></Body>
 					<ReturnType><![CDATA[AsignacionPedido]]></ReturnType>
 					<Id>1792400002103</Id>
 					<Name><![CDATA[asignacionDeEnvio]]></Name>
-					<X>1700</X><Y>1700</Y>
+					<X>1700</X><Y>1520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8278,7 +8278,7 @@ return null;]]></Body>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1792400002105</Id>
 					<Name><![CDATA[permitirUltimoParcial]]></Name>
-					<X>1700</X><Y>1700</Y>
+					<X>1700</X><Y>1490</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8304,7 +8304,7 @@ return pedido.toneladasPendientesAsignar() <= 0.0001
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1792400002107</Id>
 					<Name><![CDATA[crearContenedoresParaAsignacion]]></Name>
-					<X>1700</X><Y>1700</Y>
+					<X>1700</X><Y>1460</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8474,7 +8474,7 @@ return creados;]]></Body>
 					<ReturnType><![CDATA[String]]></ReturnType>
 					<Id>1792400002109</Id>
 					<Name><![CDATA[diagnosticoPedido]]></Name>
-					<X>1700</X><Y>1700</Y>
+					<X>1700</X><Y>1430</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8504,7 +8504,7 @@ return "[dia " + (int) floor(time()) + "] " + pedido.codigoPedido
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792400002111</Id>
 					<Name><![CDATA[validarBalancePedidos]]></Name>
-					<X>1700</X><Y>1700</Y>
+					<X>1700</X><Y>1400</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8539,7 +8539,7 @@ for (Pedido pedido : pedidos) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792400003101</Id>
 					<Name><![CDATA[toneladasASacarPreventivamente]]></Name>
-					<X>1700</X><Y>2000</Y>
+					<X>1700</X><Y>1820</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8583,7 +8583,7 @@ return max(0, proyectado - objetivo);]]></Body>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1792400003103</Id>
 					<Name><![CDATA[plantaEnSobrecargaCritica]]></Name>
-					<X>1700</X><Y>2000</Y>
+					<X>1700</X><Y>1790</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8606,7 +8606,7 @@ return capacidad > 0
 					<ReturnType><![CDATA[String]]></ReturnType>
 					<Id>1792400003105</Id>
 					<Name><![CDATA[motivoDescarteDeposito]]></Name>
-					<X>1700</X><Y>2000</Y>
+					<X>1700</X><Y>1760</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8662,7 +8662,7 @@ return "";]]></Body>
 					<ReturnType><![CDATA[String]]></ReturnType>
 					<Id>1792400003107</Id>
 					<Name><![CDATA[diagnosticoDepositos]]></Name>
-					<X>1700</X><Y>2000</Y>
+					<X>1700</X><Y>1730</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8723,7 +8723,7 @@ return texto.toString();]]></Body>
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1792400003109</Id>
 					<Name><![CDATA[pedidosParcialmenteReservados]]></Name>
-					<X>1700</X><Y>2000</Y>
+					<X>1700</X><Y>1700</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8746,7 +8746,7 @@ return cantidad;]]></Body>
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1792400003111</Id>
 					<Name><![CDATA[pedidosParcialmenteEntregados]]></Name>
-					<X>1700</X><Y>2000</Y>
+					<X>1700</X><Y>1670</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8768,7 +8768,7 @@ return cantidad;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792400003113</Id>
 					<Name><![CDATA[toneladasPendientesAsignarTotal]]></Name>
-					<X>1700</X><Y>2000</Y>
+					<X>1700</X><Y>1640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8789,7 +8789,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792400003115</Id>
 					<Name><![CDATA[toneladasPendientesEntregarTotal]]></Name>
-					<X>1700</X><Y>2000</Y>
+					<X>1700</X><Y>1610</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8810,7 +8810,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792400003117</Id>
 					<Name><![CDATA[validarBalanceProducido]]></Name>
-					<X>1700</X><Y>2000</Y>
+					<X>1700</X><Y>1580</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8857,7 +8857,7 @@ if (abs(producido - (enStock + enProceso + entregado)) > 0.001) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>300200</Id>
 					<Name><![CDATA[cargarStockInicial]]></Name>
-					<X>130</X><Y>1340</Y>
+					<X>-300</X><Y>1200</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8943,7 +8943,7 @@ if (stockInicialCargadoTn > 0.0001) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>300210</Id>
 					<Name><![CDATA[validarStockInicial]]></Name>
-					<X>130</X><Y>1380</Y>
+					<X>-300</X><Y>1300</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9019,7 +9019,7 @@ error("El stock inicial no cumple el contrato de datos (" + errores.size() + "):
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>300220</Id>
 					<Name><![CDATA[stockInicialRemanenteTn]]></Name>
-					<X>130</X><Y>1420</Y>
+					<X>-300</X><Y>1380</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9042,7 +9042,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>300230</Id>
 					<Name><![CDATA[stockInicialConsumidoTn]]></Name>
-					<X>130</X><Y>1460</Y>
+					<X>-300</X><Y>1520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9054,7 +9054,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>300240</Id>
 					<Name><![CDATA[produccionCampaniaTn]]></Name>
-					<X>130</X><Y>1500</Y>
+					<X>-300</X><Y>1600</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9068,7 +9068,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>300250</Id>
 					<Name><![CDATA[disponibilidadTotalTn]]></Name>
-					<X>130</X><Y>1540</Y>
+					<X>-300</X><Y>1700</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9081,7 +9081,7 @@ return stockInicialCargadoTn + produccionCampaniaTn();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>300260</Id>
 					<Name><![CDATA[deficitEstructuralTn]]></Name>
-					<X>130</X><Y>1580</Y>
+					<X>-300</X><Y>1800</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9101,7 +9101,7 @@ return total;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>300270</Id>
 					<Name><![CDATA[demandaPlanificadaTn]]></Name>
-					<X>130</X><Y>1620</Y>
+					<X>-300</X><Y>1880</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9292,7 +9292,7 @@ return total;]]></Body>
 				<EmbeddedObject>
 					<Id>1791200000301</Id>
 					<Name><![CDATA[planes]]></Name>
-					<X>280</X><Y>-780</Y>
+					<X>700</X><Y>-880</Y>
 					<Label><X>-60</X><Y>-35</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -10305,7 +10305,7 @@ return total;]]></Body>
 				<EmbeddedObject>
 					<Id>1784592621437</Id>
 					<Name><![CDATA[flotaPortacontenedores]]></Name>
-					<X>60</X><Y>1660</Y>
+					<X>60</X><Y>1540</Y>
 					<Label><X>-40</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -10928,7 +10928,7 @@ return total;]]></Body>
 				<EmbeddedObject>
 					<Id>1792300001</Id>
 					<Name><![CDATA[seleccionarCircuito]]></Name>
-					<X>110</X><Y>1390</Y>
+					<X>100</X><Y>1400</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -14362,6 +14362,118 @@ if (!retirado) {
 					<FillAreaUnderLine>false</FillAreaUnderLine>
 					<LabelFormat>MODEL_TIME_UNITS</LabelFormat>
     			</TimePlot>
+    			<TimePlot>
+					<Id>1785503080105</Id>
+					<Name><![CDATA[plotStockTotalProducto]]></Name>
+					<X>910</X><Y>700</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<AutoUpdate>true</AutoUpdate>
+					<RecurrenceProperties>
+						<Id>1785503080103</Id>
+						<OccurrenceAtTime>true</OccurrenceAtTime>
+						<OccurrenceDate>1784275200000</OccurrenceDate>
+						<OccurrenceTime Class="CodeUnitValue">
+							<Code><![CDATA[0]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[DAY]]></Unit>
+						</OccurrenceTime>
+						<RecurrenceCode Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[DAY]]></Unit>
+						</RecurrenceCode>
+					</RecurrenceProperties>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Width>430</Width>
+					<Height>235</Height>
+					<BackgroundColor/>
+					<BorderColor/>
+					<ChartArea>
+						<XOffset>50</XOffset>
+						<YOffset>30</YOffset>
+						<Width>350</Width>
+						<Height>145</Height>
+						<BackgroundColor>-1</BackgroundColor>
+						<BorderColor>-16777216</BorderColor>
+						<GridColor>-12566464</GridColor>
+					</ChartArea>
+					<Legend>
+						<Place>SOUTH</Place>
+						<TextColor>-16777216</TextColor>
+						<Size>30</Size>
+					</Legend>
+					<Labels>
+						<HorLabelsPosition>DEFAULT</HorLabelsPosition>
+						<VerLabelsPosition>DEFAULT</VerLabelsPosition>
+						<TextColor>-12566464</TextColor>
+					</Labels>
+					<ShowLegend>true</ShowLegend>
+					<TimeWindowsMovementType>MOVEMENT_WITH_TIME</TimeWindowsMovementType>		
+					<TimeWindowUnits>MODEL_TIME_UNIT</TimeWindowUnits>
+					<VerScaleFromExpression><![CDATA[0]]></VerScaleFromExpression>
+					<VerScaleToExpression><![CDATA[1]]></VerScaleToExpression>
+					<VerScaleType>AUTO</VerScaleType>
+					<DrawLine>true</DrawLine>
+					<Interpolation>LINEAR</Interpolation>
+					<DatasetExpression>  
+						<Title><![CDATA[Jugo]]></Title>
+					<Id>1785503080100</Id>
+					<Expression><![CDATA[dataset]]></Expression>
+					<Color>-10496</Color>
+					<Expression2><![CDATA[inventario.stockProducto(TipoProducto.JUGO)]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>  
+						<Title><![CDATA[Cascara]]></Title>
+					<Id>1785503080101</Id>
+					<Expression><![CDATA[dataset1]]></Expression>
+					<Color>-6632142</Color>
+					<Expression2><![CDATA[inventario.stockProducto(TipoProducto.CASCARA)]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<DatasetExpression>  
+						<Title><![CDATA[Aceite]]></Title>
+					<Id>1785503080102</Id>
+					<Expression><![CDATA[dataset2]]></Expression>
+					<Color>-14774017</Color>
+					<Expression2><![CDATA[inventario.stockProducto(TipoProducto.ACEITE)]]></Expression2>
+					<Expression2Flag>true</Expression2Flag>
+						<PointStyle>NONE</PointStyle>
+						<LineWidth>1.0</LineWidth>
+					</DatasetExpression>
+					<SamplesToKeep>365</SamplesToKeep>
+					<TimeWindowExpression><![CDATA[getEngine().getStopTime()]]></TimeWindowExpression>
+					<FillAreaUnderLine>false</FillAreaUnderLine>
+					<LabelFormat>MODEL_TIME_UNITS</LabelFormat>
+    			</TimePlot>
+				<Text>
+					<Id>1785504553028</Id>
+					<Name><![CDATA[tituloGrafico5]]></Name>
+					<X>960</X><Y>680</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Stock total de la red por producto (tn)"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
 			</Presentation>
 
 				</Level>
@@ -21164,6 +21276,9 @@ estado = factible
 				</Parameter>
 				<Parameter>
 					<ParameterName><![CDATA[origenDatos]]></ParameterName>
+					<ParameterValue Class="CodeValue">
+						<Code><![CDATA[OrigenDatos.EXCEL]]></Code>
+					</ParameterValue>
 				</Parameter>
 				<Parameter>
 					<ParameterName><![CDATA[rutaExcel]]></ParameterName>
