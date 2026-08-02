@@ -302,6 +302,22 @@ KPIs asociados: `stockInicialCargadoTn`, `stockInicialRemanenteTn()` (lo que que
 
 KPIs asociados: `servicioPorToneladaCutoff()`, `buquesCumplidos()`, `buquesPerdidos()`, `holguraPromedioDias()`, `contenedoresPlanificadosSinEjecutar()`, más los contadores `toneladasEntregadasAntesCutoff`, `toneladasEntregadasFueraCutoff`, `pedidosPerdieronCutoff`, `pedidosVentanaInviable` y `contenedoresSinPosicionFutura`.
 
+### Capacidad finita: `capacidadNominalDia()`, `capacidadDisponibleDia()`, `capacidadDisponibleEnVentana()`, `reservarCapacidad()`, `consumirReservaCapacidad()`, `liberarCapacidadPorAsignacion()`, `reprogramarReservasCapacidad()` y `reconciliarCapacidad()`
+
+**Estado:** implementadas (ADR-060).
+
+La agenda es `ocupacionCapacidad`, una ocupacion por `(recurso, sitio, dia)`, y `reservasCapacidad`, la lista de `ReservaCapacidad`. Los recursos son `CONSOLIDACION` y `CROSS_DOCK` y no comparten cupo.
+
+`capacidadNominalDia(recurso, sitio, dia)` es el techo declarado del sitio para ese recurso: `contenedores_por_dia` —capacidad diaria total procesable, no posiciones simultaneas— para consolidacion y el cupo de cross dock para el otro, cero si el sitio no existe, no esta habilitado o el dia esta fuera del horizonte. `capacidadDisponibleDia()` le resta la ocupacion; `capacidadDisponibleEnVentana(recurso, sitio, desde, hasta)` la suma dia por dia y `diasDisponiblesEnVentana()` devuelve los dias concretos, que es lo que el evaluador usa para acotar la alternativa antes de costearla.
+
+`reservarCapacidad(asignacion, pedido, recurso, sitio, desde, hasta, cuantas)` toma las posiciones mas tempranas de la ventana y devuelve las reservas creadas; se llama al crear la asignacion, con `ceil(tn / capacidad del contenedor)`. `consumirReservaCapacidad(contenedor)` es lo que ejecuta el contenedor el dia comprometido: valida la reserva, la marca consumida y **no vuelve a ocupar** el dia —la posicion ya estaba ocupada desde que se reservo—. `liberarCapacidadPorAsignacion(asignacion, motivo)` devuelve al cupo lo que la asignacion ya no va a usar, con el motivo escrito, y deja la reserva en el registro: liberada no bloquea, pero sigue siendo auditable.
+
+`reprogramarReservasCapacidad()` es el **paso diario** que corre antes del despacho: libera las posiciones que sobran de una asignacion ya contenerizada, mueve al proximo dia con lugar de la ventana las que quedaron vencidas y libera con `SIN_CAPACIDAD_ANTES_CUTOFF` las que ya no tienen dia antes del cut-off.
+
+`reconciliarCapacidad()` es **C-03** y corre todos los dias: `activas + consumidas + liberadas` tiene que explicar lo reservado, los contadores de consumo y liberacion tienen que coincidir con las reservas, y ninguna ocupacion diaria puede superar el nominal del sitio. Corre tambien con la agenda apagada, porque la consolidacion sigue ocupando capacidad al ejecutar.
+
+KPIs asociados: `capacidadReservadaTotal`, `capacidadConsumidaTotal`, `capacidadLiberadaTotal`, `reservasReprogramadas`, `contenedoresSinPosicionFutura`, `sobrecostoSaturacionUsd`, `pedidosMultiCircuito` y `fallbacksPoliticaFija`, mas los tres CSV de diagnostico.
+
 ### `aplicarEscenario()`
 
 **Estado:** implementada (fase 13).

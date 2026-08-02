@@ -656,6 +656,104 @@ La ventana **no** es neutra, y ese es el punto del MOD: hoy un pedido con 31 dí
 - Campaña completa con `datos/entrada_ejemplo.xlsx`: servicio 26 %, 14 602 tn exportadas, 943 pedidos que pierden el cut-off, 93 buques cumplidos contra 313 perdidos.
 - **Cuánto de eso es la ventana:** corriendo el mismo libro con `dia_apertura_retiro_vacio = dia_conocimiento` (que reproduce la regla anterior, ejecutar desde `dia_llegada`) el servicio sube de 26 % a 32 % y las toneladas exportadas de 14 602 a 15 218. La ventana explica unos 6 puntos; el resto es estructural y ya estaba declarado en X-24: 520 de los 1 399 pedidos son de CASCARA, que no puede salir de planta por la limitación de flota de ADR-044 (RUTA9 a 1 200 km).
 
+## 4.7 Capacidad finita y menor costo factible (ADR-060)
+
+Los casos CAP se corren **uno por uno, sin barrido**, con libros minimos generados a partir de `datos/entrada_ejemplo.xlsx`: 24 pedidos vivos, las cuatro fechas de la ventana concentradas en un mismo buque y la capacidad de los sitios como unica variable. Cada caso dice **como** se midio. Los tres CSV de diagnostico (`capacidad_por_dia.csv`, `asignaciones_capacidad.csv`, `asignaciones_capacidad_decisiones.csv`) son la evidencia; el tablero es la lectura.
+
+El caso base es **CAP-00** (capacidad de red sin tocar): 32 posiciones reservadas y las 32 consumidas, 25 alternativas seleccionadas, ningun descarte por capacidad, ocupacion DODERO 26 / RUTA9 4 / T4 1 / ZARATE 1 y ningun dia por encima del nominal.
+
+### CAP-01 y CAP-07 La alternativa barata con capacidad parcial se usa hasta donde llega (corrida directa)
+
+**Esperado:** si el sitio mas barato solo tiene una parte de las posiciones que el pedido necesita, se usa por esa parte y el resto va a otro circuito, en vez de comprometer el pedido entero y hacer backlog.
+
+**Medido:** libro `CAP-07-sitio-barato-saturado.xlsx`, identico a CAP-00 salvo DODERO en 1 posicion/dia. El reparto pasa de 26/4/1/1 a **DODERO 17, T4 7, ZARATE 4, RUTA9 4**, aparecen 7 alternativas descartadas con `SIN_CAPACIDAD_ANTES_CUTOFF` y el sobrecosto de saturacion queda medido en **5 098,66 USD**. Ningun dia supera el nominal y las 32 posiciones se consumen.
+
+### CAP-02 La alternativa barata sin posiciones en la ventana no gana el ranking (corrida directa)
+
+**Esperado:** la alternativa mas barata sin capacidad en la ventana se descarta **antes** de compararse por costo, con motivo escrito.
+
+**Medido:** libro `CAP-02-sitio-barato-sin-capacidad.xlsx` (ventana de 5 dias, RUTA9 en 1 posicion/dia): 2 alternativas descartadas con `SIN_CAPACIDAD_ANTES_CUTOFF` y 1 236,86 USD de sobrecosto. Poner la capacidad del sitio en **cero** no es la forma de probar esto: el modelo lo rechaza como error de datos al arrancar (“la capacidad de consolidacion de RUTA9 es cero”), y esta bien que lo haga.
+
+### CAP-03 Capacidad total insuficiente (corrida directa)
+
+**Esperado:** cuando la ventana completa no alcanza para todos los contenedores, el modelo no sobre-vende posiciones: reparte lo que hay, deja el resto sin cubrir y lo muestra.
+
+**Medido:** libro `CAP-03-capacidad-insuficiente.xlsx` (ventana de 5 dias y **todos** los sitios en 1 posicion/dia). Cada sitio de consolidacion queda exactamente en su techo —BOREAS 5, DODERO 5, PLANTA 5, RUTA9 5 en 5 dias—, se usan 12 posiciones de cross dock, **68 alternativas** se descartan por falta de posicion antes del cut-off y el servicio cae a 25 %. El sobrecosto de saturacion sube a 15 455,54 USD. **Ningun dia por encima del nominal.**
+
+### CAP-04 No sobreasignar un dia (corrida directa, todos los casos)
+
+**Esperado:** la ocupacion diaria de un recurso nunca supera su capacidad nominal.
+
+**Medido:** `dias sobre nominal = 0` en los diez libros CAP y en la campana completa (3 640 filas de `capacidad_por_dia.csv`). Es ademas invariante diario: `reconciliarCapacidad()` aborta la corrida si se rompe.
+
+### CAP-05 Liberacion de posiciones (implementado; no observado en las corridas)
+
+**Esperado:** una posicion que ya no se va a usar vuelve al cupo del sitio y queda registrada con motivo.
+
+**Medido:** las tres rutas de liberacion estan implementadas y auditadas por C-03 —sobrante de una asignacion ya contenerizada, `SIN_CAPACIDAD_ANTES_CUTOFF` al quedarse sin dia, y cancelacion del pedido que perdio el cut-off con politica `CANCELAR`, que antes de este cambio dejaba las posiciones tomadas—, pero **ninguna se disparo** en los libros CAP: la reserva se crea junto con los contenedores de la asignacion y se consume el dia planificado, asi que en estas corridas nunca queda una reserva viva sin contenedor. Se corrio el caso dirigido (`CAP-05-cancelacion-libera.xlsx`, capacidad estrangulada + `politica_reprogramacion_buque = CANCELAR`) y dio 32 reservas consumidas y 0 liberadas. **Queda como caso no observado**, no como caso verde.
+
+### CAP-06 Reprogramacion dentro de la ventana (implementado; no observado en las corridas)
+
+**Esperado:** una posicion no usada el dia comprometido se mueve al proximo dia con lugar de la ventana y nunca despues del cut-off.
+
+**Medido:** `reservasReprogramadas = 0` en los diez libros y en la campana completa. La reprogramacion se dispara cuando un contenedor **pierde** su dia comprometido, y en estos libros el contenedor siempre esta listo: se intento forzarlo con un solo camion de producto y sin stock en los depositos (`CAP-06-flota-escasa.xlsx`), y el evaluador evita la demora eligiendo planta y cross dock en vez de llegar tarde —que es la conducta correcta—. La cota dura si esta verificada: **ninguna reserva quedo con `dia_planificado > dia_limite`** en ningun caso.
+
+### CAP-08 Pedido cubierto por mas de un circuito (corrida directa)
+
+**Esperado:** un pedido que no entra en un solo sitio se reparte entre circuitos, con trazabilidad por asignacion.
+
+**Medido:** en CAP-07 y CAP-03 el mismo pedido aparece con reservas en sitios distintos de `asignaciones_capacidad.csv`, una por asignacion, y el tablero cuenta los pedidos multi-circuito. Es el mismo mecanismo de ADR-055; lo que agrega ADR-060 es que el reparto lo dispara la capacidad y no solo el stock.
+
+### CAP-09 El cross dock consume su propio recurso (corrida directa)
+
+**Esperado:** una operacion de cross dock ocupa `CROSS_DOCK` y no gasta posiciones de consolidacion.
+
+**Medido:** en CAP-03 las reservas se separan en 20 de `CONSOLIDACION` y 12 de `CROSS_DOCK`, con techos independientes (`CROSS_DOCK|DODERO` nominal 320, `CROSS_DOCK|RUTA9` 640) y sin que el cruce reduzca las posiciones de consolidacion del mismo sitio. En la campana completa: 1 870 de consolidacion y 113 de cross dock.
+
+### CAP-10 Sin posiciones de cross dock (corrida directa)
+
+**Esperado:** con el cross dock sin cupo, el flujo degrada a consolidacion normal y no rompe.
+
+**Medido:** libro `CAP-10-sin-posiciones-cross-dock.xlsx` (`posiciones_cross_dock = 0` en todos los sitios): 32 reservas, **todas de `CONSOLIDACION`**, ninguna de cross dock, y el resultado coincide con CAP-00 sitio por sitio (26/4/1/1). La degradacion es completa y silenciosa.
+
+### CAP-11 Regresion con la agenda apagada (corrida directa)
+
+**Esperado:** con `permite_reserva_capacidad_futura = false` el modelo reproduce exactamente la conducta anterior a ADR-060.
+
+**Medido:** libro `CAP-11-sin-agenda.xlsx` contra CAP-00: **0 reservas creadas**, las mismas 160 filas de `capacidad_por_dia.csv` con **0 diferencias de ocupacion**, y las decisiones del evaluador **identicas** pedido por pedido. La unica diferencia es la que tiene que estar: sin agenda, DODERO acumula 55 contenedor-dia de cola esperando posicion; con agenda, esa espera es planificada y la cola es 0.
+
+### CAP-12 Reconciliacion (invariante diario)
+
+**Esperado:** lo reservado se explica siempre por lo activo, lo consumido y lo liberado, y ninguna ocupacion supera el nominal.
+
+**Medido:** `reconciliarCapacidad()` (C-03) corre todos los dias de todas las corridas —incluida la campana completa de 365 dias con `datos/entrada_ejemplo.xlsx`— y ninguna aborto. Con la agenda apagada tambien corre, porque la consolidacion sigue ocupando capacidad al ejecutar.
+
+### CAP-13 Terminal saturada (corrida directa)
+
+**Esperado:** con T4 en una posicion por dia, T4 recibe como maximo un contenedor por dia y el resto se reparte.
+
+**Medido:** libro `CAP-13-t4-saturada.xlsx`: T4 opera los dias 2 a 8, **exactamente 1 contenedor por dia**, maximo 1, y las 7 alternativas que no entran se descartan con motivo. Ninguna reserva quedo despues del cut-off.
+
+### CAP-14 Politica fija con y sin fallback (corrida directa)
+
+**Esperado:** una politica `FIJA_*` respeta la capacidad; sin fallback el saldo que no entra queda sin cubrir y se ve, y con fallback pasa al evaluador.
+
+**Medido:** dos libros identicos con `politica_seleccion = FIJA_DEPOSITO`, cross dock apagado, ventana de 5 dias y los depositos en 1 posicion/dia. Sin fallback (`CAP-14a`) el modelo usa **solo depositos** —BOREAS 18, DODERO 9, RUTA9 5— y el saldo que no entra se pierde. Con fallback (`CAP-14b`) aparecen PLANTA 3, T4 10 y ZARATE 4, es decir circuitos que la politica fija no habilita, con 41 alternativas descartadas por capacidad y 12 958,32 USD de sobrecosto de saturacion. En los dos casos ningun dia supera el nominal.
+
+### CAP-15 Horizonte y cut-off (corrida directa, todos los casos)
+
+**Esperado:** no se reserva ni se opera despues del cut-off del pedido.
+
+**Medido:** `dia_planificado > dia_limite` en **0 reservas** de todos los libros CAP y de la campana completa (1 983 reservas). La unica excepcion prevista —el pedido que ya perdio el cut-off y sigue por politica `CONTINUAR`— esta documentada en ADR-060 punto 5 y no se activo en estos casos.
+
+### CAP-16 Campana completa con el libro real (corrida directa, integracion)
+
+**Esperado:** la campana completa desde `datos/entrada_ejemplo.xlsx` termina sin excepciones y con la agenda consistente.
+
+**Medido:** 365 dias, **1 983 posiciones reservadas y las 1 983 consumidas** (1 870 de consolidacion, 113 de cross dock), 0 reprogramadas, 0 liberadas, **0 dias por encima del nominal** en 3 640 filas de agenda, 521 alternativas descartadas por falta de posicion antes del cut-off y 103 359 USD de sobrecosto de saturacion. Servicio y toneladas quedan en el mismo orden que `fase-26` (14 611 tn exportadas), como corresponde: capacidad finita **reparte, no crea**, y el techo estructural de la CASCARA sigue siendo flota (ADR-044).
+
+**No se corrio barrido**, por pedido explicito. El efecto agregado de ADR-060 sobre los 36 escenarios queda pendiente y no se afirma.
+
 ## 4.1 Validación de datos de entrada
 
 Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.

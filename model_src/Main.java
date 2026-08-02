@@ -30,12 +30,10 @@ class Main extends Agent {
     double costoFleteDepositoPuertoReal = 0;
     double costoConsolidacionReal = 0;
     Inventario inventario = new Inventario();
-    java.util.HashMap<String, Integer> consolidacionesDelDia = new java.util.HashMap<String, Integer>();
     int contenedoresEnEspera = 0;
     double esperaConsolidacionContenedorDia = 0;
     int consolidacionesRealizadas = 0;
     double capacidadConsolidacionOfrecida = 0;
-    java.util.HashMap<String, Integer> crossDockDelDia = new java.util.HashMap<String, Integer>();
     double capacidadCrossDockOfrecida = 0;
     int operacionesCrossDock = 0;
     double toneladasCrossDock = 0;
@@ -99,7 +97,24 @@ class Main extends Agent {
     int contenedoresSinPosicionFutura = 0;
     double holguraAcumuladaDias = 0;
     int pedidosConHolguraMedida = 0;
-    LinkedHashMap<String, LinkedHashMap<Integer, Integer>> posicionesPlanificadas = new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>();
+    java.util.ArrayList<ReservaCapacidad> reservasCapacidad = new java.util.ArrayList<ReservaCapacidad>();
+    LinkedHashMap<String, ReservaCapacidad> reservaPorClave = new LinkedHashMap<String, ReservaCapacidad>();
+    LinkedHashMap<String, java.util.ArrayList<ReservaCapacidad>> reservasPorAsignacion = new LinkedHashMap<String, java.util.ArrayList<ReservaCapacidad>>();
+    LinkedHashMap<String, AsignacionPedido> asignacionPorId = new LinkedHashMap<String, AsignacionPedido>();
+    LinkedHashMap<String, LinkedHashMap<Integer, Integer>> ocupacionCapacidad = new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>();
+    int siguienteIdReservaCapacidad = 1;
+    int capacidadReservadaTotal = 0;
+    int capacidadConsumidaTotal = 0;
+    int capacidadLiberadaTotal = 0;
+    int reservasReprogramadas = 0;
+    double toneladasReasignadasPorCapacidad = 0;
+    int fallbacksPoliticaFija = 0;
+    double costoAdicionalSaturacion = 0;
+    int pedidosMultiCircuito = 0;
+    LinkedHashMap<String, Integer> contenedoresPorCircuito = new LinkedHashMap<String, Integer>();
+    java.util.ArrayList<String> diagnosticoAsignaciones = new java.util.ArrayList<String>();
+    boolean exportarDiagnosticoCapacidad = false;
+    LinkedHashMap<String, LinkedHashMap<Integer, Integer>> colaCapacidad = new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>();
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -1450,8 +1465,6 @@ class Main extends Agent {
     void abrirPosicionesConsolidacionDelDia() {
         // Las posiciones son un recurso de conteo diario (definicion, seccion 3): cada
         // dia se abre la capacidad del sitio y lo que no entra espera al dia siguiente.
-        consolidacionesDelDia.clear();
-
         // La capacidad se ofrece donde el escenario arma contenedores: en el circuito de
         // terminal es el puerto y en los demas el sitio de origen. Con consolidacion en
         // planta los depositos siguen ofreciendo capacidad porque el pedido que no entra
@@ -1481,23 +1494,47 @@ class Main extends Agent {
         }
     }
 
-    boolean tomarPosicionConsolidacion(String idUbicacion) {
-        int usadas =
-            consolidacionesDelDia.containsKey(idUbicacion)
-            ? consolidacionesDelDia.get(idUbicacion)
-            : 0;
+    boolean tomarPosicionConsolidacion(ContenedorExportacion contenedor) {
+        // Ejecutar la estiba de un contenedor. Con reserva se consume la posicion ya
+        // comprometida y la ocupacion del dia no se incrementa dos veces; sin reserva -con la
+        // agenda apagada, o despues de perder la posicion- solo puede usar lo que quedo libre.
+        String idUbicacion = sitioConsolidacion(contenedor);
+
+        int hoy = diaCampania();
+
+        ReservaCapacidad reserva = reservaDeContenedor(contenedor);
 
         if (
-            usadas + 1
-            > datos.capacidadConsolidacionDia(idUbicacion)
+            reserva != null
+            && reserva.activa
+            && !reserva.consumida
+            && !reserva.liberada
+        ) {
+
+            // Todavia no es su dia: la posicion esta comprometida mas adelante en la ventana.
+            if (reserva.diaPlanificado > hoy) {
+                return false;
+            }
+
+            if (!consumirReservaCapacidad(reserva, hoy)) {
+                return false;
+            }
+
+            contenedor.diaPlanificadoOperacion = hoy;
+
+            consolidacionesRealizadas++;
+
+            return true;
+        }
+
+        if (
+            capacidadDisponibleDia(
+                ReservaCapacidad.CONSOLIDACION, idUbicacion, hoy) < 1
         ) {
             return false;
         }
 
-        consolidacionesDelDia.put(
-            idUbicacion,
-            usadas + 1
-        );
+        ocuparCapacidad(ReservaCapacidad.CONSOLIDACION, idUbicacion, hoy, 1);
 
         consolidacionesRealizadas++;
 
@@ -1599,10 +1636,22 @@ class Main extends Agent {
 
             if (
                 !contenedor.esCrossDock
-                && !tomarPosicionConsolidacion(
-                    sitioConsolidacion(contenedor)
-                )
+                && !tomarPosicionConsolidacion(contenedor)
             ) {
+                // La cola mide falta de lugar, no espera planificada: el contenedor que todavia
+                // no llego al dia de su posicion no esta haciendo cola, esta esperando su turno.
+                ReservaCapacidad reservaEnEspera = reservaDeContenedor(contenedor);
+
+                if (
+                    reservaEnEspera == null
+                    || reservaEnEspera.diaPlanificado <= diaCampania()
+                ) {
+                    registrarColaCapacidad(
+                        ReservaCapacidad.CONSOLIDACION,
+                        sitioConsolidacion(contenedor)
+                    );
+                }
+
                 contenedor.diasEsperaPosicion++;
                 esperaConsolidacionContenedorDia++;
                 contenedoresEnEspera++;
@@ -1664,8 +1713,6 @@ class Main extends Agent {
         // Las posiciones de cross dock se cuentan por dia, igual que las de
         // consolidacion (ADR-039): una operacion es un contenedor armado con producto
         // que llega y sale el mismo dia.
-        crossDockDelDia.clear();
-
         capacidadCrossDockOfrecida = 0;
 
         if (!habilitaCrossDock) {
@@ -1682,36 +1729,17 @@ class Main extends Agent {
                 datos.capacidadCrossDockDia(
                     deposito.idUbicacion
                 );
-
-            crossDockDelDia.put(
-                deposito.idUbicacion,
-                0
-            );
         }
     }
 
     double capacidadCrossDockLibre(String idUbicacion) {
-        if (!crossDockDelDia.containsKey(idUbicacion)) {
-            return 0;
-        }
-
-        return datos.capacidadCrossDockDia(idUbicacion)
-            - crossDockDelDia.get(idUbicacion);
-    }
-
-    boolean tomarPosicionesCrossDock(String idUbicacion, int cantidad) {
-        if (capacidadCrossDockLibre(idUbicacion) < cantidad) {
-            return false;
-        }
-
-        crossDockDelDia.put(
+        // Cupo de cross dock libre hoy en ese deposito. Sale de la misma agenda que la
+        // consolidacion pero con recurso propio: cruzar no consume posiciones de estiba y la
+        // estiba no consume cupo de cruce (ADR-041, ADR-060).
+        return capacidadDisponibleDia(
+            ReservaCapacidad.CROSS_DOCK,
             idUbicacion,
-            crossDockDelDia.get(idUbicacion) + cantidad
-        );
-
-        operacionesCrossDock += cantidad;
-
-        return true;
+            diaCampania());
     }
 
     int contenedoresNecesarios(TipoProducto producto, double toneladas) {
@@ -1873,14 +1901,12 @@ class Main extends Agent {
             return 0;
         }
 
-        int necesarios =
-            contenedoresNecesarios(pedido.producto, toneladas);
-
+        // El cupo de cross dock se toma como reserva de la asignacion y no como un conteo
+        // aparte: asi el contenedor que cruza tiene su posicion y la agenda no cuenta dos veces
+        // la misma operacion (ADR-060). El volumen ya vino acotado por el cupo libre de hoy.
         if (
-            !tomarPosicionesCrossDock(
-                sitio.idUbicacion,
-                necesarios
-            )
+            capacidadCrossDockLibre(sitio.idUbicacion)
+            < contenedoresNecesarios(pedido.producto, toneladas)
         ) {
             crossDockReprogramados++;
             return 0;
@@ -1980,6 +2006,7 @@ class Main extends Agent {
 
         duracionCampaniaDias = escenario.duracionCampaniaDias;
         habilitaCrossDock = escenario.habilitaCrossDock;
+        exportarDiagnosticoCapacidad = escenario.exportarDiagnosticoCapacidad;
         politicaSeleccion = datos.politicaSeleccion();
 
         if (
@@ -3471,6 +3498,43 @@ class Main extends Agent {
 
         double toneladas = alternativa.toneladas;
 
+        // Sin capacidad no hay alternativa (ADR-060): habia producto, lo que falta es donde
+        // procesarlo antes del cut-off. Se costea igual, con el volumen que el stock permitia,
+        // para poder medir despues cuanto cuesta la saturacion.
+        if (
+            toneladas <= 0.0001
+            && usaAgendaCapacidad()
+            && alternativa.toneladasSinRestriccionCapacidad > 0.0001
+        ) {
+
+            alternativa.toneladas = alternativa.toneladasSinRestriccionCapacidad;
+
+            alternativa.contenedores =
+                contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+
+            costearAlternativa(pedido, alternativa);
+
+            alternativa.costoUnitarioSinRestriccion =
+                alternativa.costoUnitarioSegun(decideEndToEnd());
+
+            alternativa.toneladas = 0;
+            alternativa.contenedores = 0;
+
+            alternativa.descartar(
+                "SIN_CAPACIDAD_ANTES_CUTOFF en " + alternativa.idUbicacionCapacidad);
+
+            if (exportarDiagnosticoCapacidad) {
+                diagnosticoAsignaciones.add(
+                    diaCampania() + "," + pedido.codigoPedido + ","
+                    + alternativa.clave() + "," + alternativa.tipoRecursoCapacidad + ","
+                    + alternativa.idUbicacionCapacidad + ","
+                    + Math.round(alternativa.toneladasSinRestriccionCapacidad * 100) / 100.0
+                    + ",0,0,SIN_CAPACIDAD_ANTES_CUTOFF");
+            }
+
+            return;
+        }
+
         // Con asignacion parcial el volumen ya viene acotado a lo posible: si quedo en cero, el
         // origen no tiene nada que ofrecer hoy (ADR-055).
         if (toneladas <= 0.0001) {
@@ -3558,6 +3622,9 @@ class Main extends Agent {
         }
 
         costearAlternativa(pedido, alternativa);
+
+        alternativa.costoUnitarioSinRestriccion =
+            alternativa.costoUnitarioSegun(decideEndToEnd());
 
         // Un dia para armar y programar el contenedor mas el ciclo fisico del circuito,
         // contados desde que la ventana de retiro abre: antes de esa fecha el circuito
@@ -3837,6 +3904,8 @@ class Main extends Agent {
 
                 registrarPlan(pedido, alternativas, elegida, tomadas);
 
+                registrarSaturacion(pedido, alternativas, elegida, tomadas);
+
                 break;
             }
 
@@ -3969,6 +4038,8 @@ class Main extends Agent {
 
         pedido.asignaciones.add(asignacion);
 
+        asignacionPorId.put(asignacion.idAsignacion, asignacion);
+
         asignacionesCreadas++;
 
         return asignacion;
@@ -4003,6 +4074,42 @@ class Main extends Agent {
             return 0;
         }
 
+        // Capacidad antes que compromiso (ADR-060): solo se reserva inventario para lo que el
+        // sitio puede procesar dentro de la ventana del pedido. El cross dock cruza hoy, con su
+        // cupo propio; la estiba usa las posiciones del sitio donde se arma el contenedor.
+        String tipoRecurso =
+            cruza
+            ? ReservaCapacidad.CROSS_DOCK
+            : ReservaCapacidad.CONSOLIDACION;
+
+        String sitioRecurso =
+            cruza
+            ? idSitio
+            : sitioEstiba(idSitio, circuito, pedido.puertoSalida);
+
+        int desdeDia = cruza ? diaCampania() : primerDiaVentanaCapacidad(pedido);
+        int hastaDia = cruza ? diaCampania() : ultimoDiaVentanaCapacidad(pedido);
+
+        boolean reservaPosiciones = usaAgendaCapacidad() || cruza;
+
+        if (reservaPosiciones) {
+
+            double capacidadContenedor =
+                obtenerCapacidadContenedorTon(
+                    obtenerTipoContenedor(pedido.producto));
+
+            aReservar =
+                min(
+                    aReservar,
+                    capacidadDisponibleEnVentana(
+                        tipoRecurso, sitioRecurso, desdeDia, hastaDia)
+                    * capacidadContenedor);
+
+            if (aReservar <= 0.0001) {
+                return 0;
+            }
+        }
+
         AsignacionPedido asignacion =
             crearAsignacion(pedido, idSitio, circuito, cruza, motivo);
 
@@ -4020,6 +4127,7 @@ class Main extends Agent {
 
             // Nada que anotar: la asignacion no existe si no reservo.
             pedido.asignaciones.remove(asignacion);
+            asignacionPorId.remove(asignacion.idAsignacion);
             asignacionesCreadas--;
 
             return 0;
@@ -4027,6 +4135,37 @@ class Main extends Agent {
 
         asignacion.toneladasAsignadas = reservadas;
         asignacion.toneladasReservadasActivas = reservadas;
+
+        if (reservaPosiciones) {
+
+            int necesarias =
+                contenedoresNecesarios(pedido.producto, reservadas);
+
+            java.util.List<ReservaCapacidad> posiciones =
+                reservarCapacidad(
+                    asignacion.idAsignacion,
+                    pedido.codigoPedido,
+                    tipoRecurso,
+                    sitioRecurso,
+                    desdeDia,
+                    hastaDia,
+                    necesarias);
+
+            if (posiciones.size() < necesarias) {
+
+                // No deberia pasar: la capacidad se verifico contra la misma agenda un
+                // instante antes. Si pasa, la agenda dejo de ser una restriccion.
+                error(
+                    "La asignacion " + asignacion.idAsignacion
+                    + " reservo " + reservadas + " tn en " + sitioRecurso
+                    + " y solo consiguio " + posiciones.size()
+                    + " de " + necesarias + " posiciones.");
+            }
+
+            if (cruza) {
+                operacionesCrossDock += posiciones.size();
+            }
+        }
 
         if (reservadas + 0.0001 < pedido.toneladasSolicitadas) {
             asignacionesParciales++;
@@ -4050,6 +4189,8 @@ class Main extends Agent {
 
         double antes = pedido.cantidadOrigenes();
 
+        int circuitosAntes = circuitosDePedido(pedido);
+
         double asignadas =
             usaEvaluador()
             ? asignarConEvaluador(pedido)
@@ -4057,6 +4198,10 @@ class Main extends Agent {
 
         if (antes <= 1 && pedido.cantidadOrigenes() > 1) {
             pedidosMultiOrigen++;
+        }
+
+        if (circuitosAntes <= 1 && circuitosDePedido(pedido) > 1) {
+            pedidosMultiCircuito++;
         }
 
         // Marca historica: el estado final no alcanza para medir por donde paso el pedido, porque
@@ -4107,6 +4252,22 @@ class Main extends Agent {
                     false,
                     "politica " + politicaSeleccion
                 );
+        }
+
+        // Politica fija con capacidad finita (ADR-060): el circuito fijo se usa mientras sea
+        // factible. Si el saldo no entra y el escenario habilita el fallback, se evaluan las
+        // demas alternativas en vez de dejarlo sin cubrir; sin permiso, el saldo no es factible.
+        if (
+            pedido.toneladasPendientesAsignar() > 0.0001
+            && datos.escenario.permiteFallbackPoliticaFija
+        ) {
+
+            double porFallback = asignarConEvaluador(pedido);
+
+            if (porFallback > 0.0001) {
+                fallbacksPoliticaFija++;
+                asignadas += porFallback;
+            }
         }
 
         return asignadas;
@@ -4218,25 +4379,77 @@ class Main extends Agent {
     }
 
     AlternativaCircuito alternativaPara(Pedido pedido, double pendiente, String idOrigen, String sitioEstiba, EstrategiaLogistica circuito, boolean cruza) {
-        // Una alternativa por el volumen que su origen puede resolver hoy, acotado por el saldo
-        // pendiente del pedido. Cero toneladas es una alternativa que existe y se descarta con
-        // motivo, no una que desaparece.
-        double toneladas =
+        // Una alternativa por el volumen que su origen puede resolver, acotado por el saldo
+        // pendiente y por la capacidad del sitio dentro de la ventana del pedido. Cero toneladas
+        // es una alternativa que existe y se descarta con motivo, no una que desaparece.
+        double stock =
             min(
                 pendiente,
                 toneladasDisponiblesParaAlternativa(idOrigen, pedido.producto, cruza)
             );
 
-        toneladas = max(0, toneladas);
+        stock = max(0, stock);
 
-        return new AlternativaCircuito(
-            idOrigen,
-            sitioEstiba,
-            circuito,
-            cruza,
-            toneladas,
-            contenedoresNecesarios(pedido.producto, toneladas)
-        );
+        AlternativaCircuito alternativa =
+            new AlternativaCircuito(
+                idOrigen,
+                sitioEstiba,
+                circuito,
+                cruza,
+                stock,
+                contenedoresNecesarios(pedido.producto, stock)
+            );
+
+        alternativa.toneladasSinRestriccionCapacidad = stock;
+
+        // El recurso que consume la alternativa: cruzar usa el cupo de cross dock del deposito
+        // de paso y estibar usa las posiciones del sitio donde se arma el contenedor.
+        alternativa.tipoRecursoCapacidad =
+            cruza
+            ? ReservaCapacidad.CROSS_DOCK
+            : ReservaCapacidad.CONSOLIDACION;
+
+        alternativa.idUbicacionCapacidad = cruza ? idOrigen : sitioEstiba;
+
+        if (!usaAgendaCapacidad()) {
+            return alternativa;
+        }
+
+        // Capacidad antes que costo (ADR-060): cuantos contenedores puede procesar el sitio
+        // entre la apertura del retiro y el cut-off. El cross dock se ejecuta el mismo dia en
+        // que el producto cruza, asi que su ventana es hoy.
+        int desde = cruza ? diaCampania() : primerDiaVentanaCapacidad(pedido);
+        int hasta = cruza ? diaCampania() : ultimoDiaVentanaCapacidad(pedido);
+
+        alternativa.contenedoresConCapacidad =
+            capacidadDisponibleEnVentana(
+                alternativa.tipoRecursoCapacidad,
+                alternativa.idUbicacionCapacidad,
+                desde,
+                hasta);
+
+        alternativa.diasCapacidadDisponibles =
+            diasDisponiblesEnVentana(
+                alternativa.tipoRecursoCapacidad,
+                alternativa.idUbicacionCapacidad,
+                desde,
+                hasta);
+
+        alternativa.capacidadReservable =
+            alternativa.contenedoresConCapacidad > 0;
+
+        alternativa.toneladasCapacidadDisponible =
+            alternativa.contenedoresConCapacidad
+            * obtenerCapacidadContenedorTon(
+                obtenerTipoContenedor(pedido.producto));
+
+        alternativa.toneladas =
+            max(0, min(stock, alternativa.toneladasCapacidadDisponible));
+
+        alternativa.contenedores =
+            contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+
+        return alternativa;
     }
 
     AsignacionPedido asignacionDe(Pedido pedido, String idAsignacion) {
@@ -4328,9 +4541,16 @@ class Main extends Agent {
 
         boolean ultimoParcial = permitirUltimoParcial(pedido);
 
+        // Un contenedor por posicion reservada (ADR-060): no se arma un contenedor que el sitio
+        // no puede procesar dentro de la ventana, por mas stock reservado que haya.
+        int posicionesLibres =
+            (usaAgendaCapacidad() || asignacion.esCrossDock)
+            ? reservasLibresDe(asignacion.idAsignacion)
+            : Integer.MAX_VALUE;
+
         int creados = 0;
 
-        while (disponible > 0.0001) {
+        while (disponible > 0.0001 && creados < posicionesLibres) {
 
             boolean completo =
                 disponible + 0.0001 >= pedido.capacidadContenedorTon;
@@ -4383,7 +4603,26 @@ class Main extends Agent {
                 ? EstadoContenedor.ESPERANDO_PROGRAMACION
                 : EstadoContenedor.CREADO;
 
-            planificarPosicionFutura(pedido, sitioDeEstiba);
+            ReservaCapacidad posicion =
+                reservaLibreDe(asignacion.idAsignacion);
+
+            if (posicion != null) {
+
+                posicion.idContenedor = contenedor.idContenedor;
+
+                contenedor.claveReservaCapacidad = posicion.claveReserva;
+                contenedor.diaPlanificadoOperacion = posicion.diaPlanificado;
+                contenedor.idUbicacionOperacion = posicion.idUbicacion;
+                contenedor.tipoRecursoOperacion = posicion.tipoRecurso;
+
+                // El cruce ocurre el dia en que el producto sale de planta: la posicion de cross
+                // dock se consume al armar el contenedor y no espera al despacho.
+                if (asignacion.esCrossDock) {
+                    consumirReservaCapacidad(posicion, diaCampania());
+                }
+            }
+
+            registrarContenedorPorCircuito(asignacion.circuito, asignacion.esCrossDock);
 
             contenedor.costoEstimado =
                 datos.roundTripUsdContenedor(
@@ -5076,8 +5315,15 @@ class Main extends Agent {
             if ("CANCELAR".equals(datos.escenario.politicaReprogramacionBuque)) {
 
                 // Politica dura: lo que no llega al buque no viaja. El saldo se cancela y
-                // deja de competir por recursos.
+                // deja de competir por recursos, incluidas las posiciones que tenia tomadas:
+                // si no se liberan, un pedido cancelado sigue bloqueando el sitio (CAP-05).
                 pedido.estado = EstadoPedido.CANCELADO;
+
+                for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+                    liberarCapacidadPorAsignacion(
+                        asignacion.idAsignacion, "pedido cancelado por cut-off");
+                }
 
             } else {
 
@@ -5086,47 +5332,6 @@ class Main extends Agent {
                 pedido.cantidadReprogramaciones++;
             }
         }
-    }
-
-    void planificarPosicionFutura(Pedido pedido, String sitioEstiba) {
-        // Reserva de capacidad futura (ADR-059): al comprometer un contenedor se le busca un
-        // dia de estiba dentro de su ventana, contra la capacidad declarada del sitio. No
-        // restringe la ejecucion, que sigue decidiendose dia a dia con la capacidad real: lo
-        // que hace es avisar antes del cut-off que la capacidad no da.
-        if (!datos.escenario.permiteReservaCapacidadFutura) {
-            return;
-        }
-
-        int capacidad = (int) Math.floor(datos.capacidadConsolidacionDia(sitioEstiba));
-
-        if (capacidad <= 0) {
-            return;
-        }
-
-        LinkedHashMap<Integer, Integer> porDia = posicionesPlanificadas.get(sitioEstiba);
-
-        if (porDia == null) {
-            porDia = new LinkedHashMap<Integer, Integer>();
-            posicionesPlanificadas.put(sitioEstiba, porDia);
-        }
-
-        int desde = (int) Math.max(diaCampania(), Math.floor(pedido.diaAperturaRetiroVacio));
-        int hasta = (int) Math.floor(pedido.diaLimite);
-
-        for (int dia = desde; dia <= hasta; dia++) {
-
-            Integer usadas = porDia.get(dia);
-            int ocupadas = usadas == null ? 0 : usadas.intValue();
-
-            if (ocupadas < capacidad) {
-                porDia.put(dia, ocupadas + 1);
-                return;
-            }
-        }
-
-        // Ningun dia de la ventana tiene posicion libre: el contenedor va a existir igual,
-        // pero se sabe hoy que no tiene donde armarse antes del cut-off.
-        contenedoresSinPosicionFutura++;
     }
 
     double holguraContenedor(ContenedorExportacion contenedor) {
@@ -5219,6 +5424,732 @@ class Main extends Agent {
         return contarContenedores(EstadoContenedor.CREADO);
     }
 
+    boolean usaAgendaCapacidad() {
+        // Interruptor maestro de la capacidad finita (ADR-060). Con el permiso apagado la
+        // agenda no reserva nada y el modelo vuelve a la conducta anterior: la capacidad se
+        // verifica el dia de la operacion y la futura es solo diagnostico.
+        return datos != null
+            && datos.escenario != null
+            && datos.escenario.permiteReservaCapacidadFutura;
+    }
+
+    String claveRecurso(String tipoRecurso, String idUbicacion) {
+        // La unidad de capacidad es el par recurso-sitio: la consolidacion y el cross dock de
+        // un mismo deposito son cupos distintos y no se prestan posiciones (ADR-041).
+        return tipoRecurso + "|" + idUbicacion;
+    }
+
+    int capacidadNominalDia(String tipoRecurso, String idUbicacion, int dia) {
+        // Capacidad declarada del sitio para ese dia. contenedores_por_dia es capacidad diaria
+        // total y no posiciones simultaneas (ADR-060, seccion 4.1); los factores del escenario
+        // ya vienen aplicados en el dato de Ubicacion, aplicarlos aca los contaria dos veces.
+        if (idUbicacion == null || idUbicacion.isEmpty()) {
+            return 0;
+        }
+
+        if (dia < 0 || dia > duracionCampaniaDias) {
+            return 0;
+        }
+
+        if (!datos.existeUbicacion(idUbicacion)) {
+            return 0;
+        }
+
+        DatosEntrada.Ubicacion sitio = datos.ubicacion(idUbicacion);
+
+        if (!sitio.habilitada) {
+            return 0;
+        }
+
+        double nominal =
+            ReservaCapacidad.CROSS_DOCK.equals(tipoRecurso)
+            ? (habilitaCrossDock ? datos.capacidadCrossDockDia(idUbicacion) : 0)
+            : datos.capacidadConsolidacionDia(idUbicacion);
+
+        return (int) Math.floor(nominal + 0.0001);
+    }
+
+    int capacidadOcupadaDia(String tipoRecurso, String idUbicacion, int dia) {
+        // Ocupacion unica del dia: reservas vivas mas operaciones ejecutadas sin reserva. Que
+        // sea un solo contador es lo que evita el doble conteo entre planificar y ejecutar.
+        LinkedHashMap<Integer, Integer> porDia =
+            ocupacionCapacidad.get(claveRecurso(tipoRecurso, idUbicacion));
+
+        if (porDia == null) {
+            return 0;
+        }
+
+        Integer ocupadas = porDia.get(dia);
+
+        return ocupadas == null ? 0 : ocupadas.intValue();
+    }
+
+    void ocuparCapacidad(String tipoRecurso, String idUbicacion, int dia, int delta) {
+        String clave = claveRecurso(tipoRecurso, idUbicacion);
+
+        LinkedHashMap<Integer, Integer> porDia = ocupacionCapacidad.get(clave);
+
+        if (porDia == null) {
+            porDia = new LinkedHashMap<Integer, Integer>();
+            ocupacionCapacidad.put(clave, porDia);
+        }
+
+        Integer ocupadas = porDia.get(dia);
+
+        int total = (ocupadas == null ? 0 : ocupadas.intValue()) + delta;
+
+        if (total < 0) {
+            error("La ocupacion de " + clave + " el dia " + dia + " quedo negativa.");
+        }
+
+        porDia.put(dia, total);
+    }
+
+    int capacidadDisponibleDia(String tipoRecurso, String idUbicacion, int dia) {
+        return Math.max(
+            0,
+            capacidadNominalDia(tipoRecurso, idUbicacion, dia)
+            - capacidadOcupadaDia(tipoRecurso, idUbicacion, dia));
+    }
+
+    int capacidadDisponibleEnVentana(String tipoRecurso, String idUbicacion, int desde, int hasta) {
+        // Cuantos contenedores puede procesar el sitio entre dos dias inclusive. Es la
+        // pregunta que el evaluador tiene que hacerse antes de comparar costos: una alternativa
+        // barata sin dias disponibles no es una alternativa (ADR-060).
+        int total = 0;
+
+        for (int dia = Math.max(0, desde); dia <= hasta; dia++) {
+            total += capacidadDisponibleDia(tipoRecurso, idUbicacion, dia);
+        }
+
+        return total;
+    }
+
+    java.util.List<Integer> diasDisponiblesEnVentana(String tipoRecurso, String idUbicacion, int desde, int hasta) {
+        // Los dias con lugar, del mas temprano al mas tardio: reservar temprano es lo que baja
+        // el riesgo de perder el cut-off.
+        java.util.List<Integer> dias = new java.util.ArrayList<Integer>();
+
+        for (int dia = Math.max(0, desde); dia <= hasta; dia++) {
+
+            if (capacidadDisponibleDia(tipoRecurso, idUbicacion, dia) > 0) {
+                dias.add(Integer.valueOf(dia));
+            }
+        }
+
+        return dias;
+    }
+
+    int primerDiaVentanaCapacidad(Pedido pedido) {
+        // El circuito fisico no puede empezar antes de que abra el retiro del vacio (ADR-059).
+        return (int) Math.max(
+            diaCampania(),
+            Math.ceil(pedido.diaAperturaRetiroVacio - 0.0001));
+    }
+
+    int ultimoDiaVentanaCapacidad(Pedido pedido) {
+        // No se reserva despues del cut-off (CAP-15). La unica excepcion es el pedido que ya lo
+        // perdio y sigue viajando por politica CONTINUAR: si tampoco pudiera reservar, su saldo
+        // quedaria inmovilizado con el inventario tomado y nadie lo despacharia nunca.
+        int cutoff = (int) Math.floor(pedido.diaLimite + 0.0001);
+
+        return cutoff >= primerDiaVentanaCapacidad(pedido)
+            ? cutoff
+            : duracionCampaniaDias;
+    }
+
+    java.util.List<ReservaCapacidad> reservarCapacidad(String claveAsignacion, String codigoPedido, String tipoRecurso, String idUbicacion, int desde, int hasta, int cantidad) {
+        // Reserva hasta la capacidad disponible y devuelve lo que consiguio: la asignacion
+        // parcial necesita poder reservar menos de lo pedido, y nunca mas que el cupo del dia.
+        java.util.List<ReservaCapacidad> creadas =
+            new java.util.ArrayList<ReservaCapacidad>();
+
+        if (cantidad <= 0 || idUbicacion == null || idUbicacion.isEmpty()) {
+            return creadas;
+        }
+
+        for (
+            int dia = Math.max(0, desde);
+            dia <= hasta && creadas.size() < cantidad;
+            dia++
+        ) {
+
+            int libres = capacidadDisponibleDia(tipoRecurso, idUbicacion, dia);
+
+            for (int i = 0; i < libres && creadas.size() < cantidad; i++) {
+
+                ReservaCapacidad reserva =
+                    new ReservaCapacidad(
+                        "RES-" + siguienteIdReservaCapacidad,
+                        codigoPedido,
+                        claveAsignacion,
+                        tipoRecurso,
+                        idUbicacion,
+                        dia,
+                        hasta);
+
+                siguienteIdReservaCapacidad++;
+
+                reservasCapacidad.add(reserva);
+                reservaPorClave.put(reserva.claveReserva, reserva);
+
+                java.util.ArrayList<ReservaCapacidad> deLaAsignacion =
+                    reservasPorAsignacion.get(claveAsignacion);
+
+                if (deLaAsignacion == null) {
+                    deLaAsignacion = new java.util.ArrayList<ReservaCapacidad>();
+                    reservasPorAsignacion.put(claveAsignacion, deLaAsignacion);
+                }
+
+                deLaAsignacion.add(reserva);
+
+                ocuparCapacidad(tipoRecurso, idUbicacion, dia, 1);
+
+                capacidadReservadaTotal++;
+
+                creadas.add(reserva);
+            }
+        }
+
+        return creadas;
+    }
+
+    void liberarReserva(ReservaCapacidad reserva, String motivo) {
+        // Liberar devuelve la posicion al dia: la capacidad no se pierde en silencio.
+        if (reserva == null || reserva.liberada || reserva.consumida) {
+            return;
+        }
+
+        reserva.activa = false;
+        reserva.liberada = true;
+        reserva.motivoBaja = motivo == null ? "" : motivo;
+        reserva.idContenedor = "";
+
+        ocuparCapacidad(
+            reserva.tipoRecurso,
+            reserva.idUbicacion,
+            reserva.diaPlanificado,
+            -1);
+
+        capacidadLiberadaTotal++;
+    }
+
+    int liberarCapacidadPorAsignacion(String claveAsignacion, String motivo) {
+        // Se usa al cancelar una asignacion, al cambiar de circuito y al cerrar la asignacion
+        // con posiciones de mas: lo que no se va a usar vuelve al cupo del sitio.
+        java.util.ArrayList<ReservaCapacidad> reservas =
+            reservasPorAsignacion.get(claveAsignacion);
+
+        if (reservas == null) {
+            return 0;
+        }
+
+        int liberadas = 0;
+
+        for (ReservaCapacidad reserva : reservas) {
+
+            if (reserva.activa && !reserva.consumida && !reserva.liberada) {
+                liberarReserva(reserva, motivo);
+                liberadas++;
+            }
+        }
+
+        return liberadas;
+    }
+
+    ReservaCapacidad reservaLibreDe(String claveAsignacion) {
+        // La primera posicion libre de la asignacion, la mas temprana: es la que va a tomar el
+        // proximo contenedor.
+        java.util.ArrayList<ReservaCapacidad> reservas =
+            reservasPorAsignacion.get(claveAsignacion);
+
+        if (reservas == null) {
+            return null;
+        }
+
+        ReservaCapacidad mejor = null;
+
+        for (ReservaCapacidad reserva : reservas) {
+
+            if (
+                reserva.disponible()
+                && (mejor == null || reserva.diaPlanificado < mejor.diaPlanificado)
+            ) {
+                mejor = reserva;
+            }
+        }
+
+        return mejor;
+    }
+
+    int reservasLibresDe(String claveAsignacion) {
+        java.util.ArrayList<ReservaCapacidad> reservas =
+            reservasPorAsignacion.get(claveAsignacion);
+
+        if (reservas == null) {
+            return 0;
+        }
+
+        int libres = 0;
+
+        for (ReservaCapacidad reserva : reservas) {
+
+            if (reserva.disponible()) {
+                libres++;
+            }
+        }
+
+        return libres;
+    }
+
+    ReservaCapacidad reservaDeContenedor(ContenedorExportacion contenedor) {
+        if (
+            contenedor == null
+            || contenedor.claveReservaCapacidad == null
+            || contenedor.claveReservaCapacidad.isEmpty()
+        ) {
+            return null;
+        }
+
+        return reservaPorClave.get(contenedor.claveReservaCapacidad);
+    }
+
+    boolean consumirReservaCapacidad(ReservaCapacidad reserva, int dia) {
+        // Ejecutar lo comprometido: la reserva pasa a consumida y la ocupacion del dia no se
+        // vuelve a incrementar. Si la operacion cae mas tarde que el dia reservado, la ocupacion
+        // se mueve al dia real para que ninguna ubicacion supere su capacidad diaria.
+        if (
+            reserva == null
+            || !reserva.activa
+            || reserva.consumida
+            || reserva.liberada
+            || reserva.diaPlanificado > dia
+        ) {
+            return false;
+        }
+
+        if (reserva.diaPlanificado < dia) {
+
+            if (
+                capacidadDisponibleDia(reserva.tipoRecurso, reserva.idUbicacion, dia) < 1
+            ) {
+                return false;
+            }
+
+            ocuparCapacidad(
+                reserva.tipoRecurso, reserva.idUbicacion, reserva.diaPlanificado, -1);
+
+            ocuparCapacidad(reserva.tipoRecurso, reserva.idUbicacion, dia, 1);
+
+            reserva.diaPlanificado = dia;
+            reserva.reprogramaciones++;
+            reservasReprogramadas++;
+        }
+
+        reserva.consumida = true;
+        reserva.activa = false;
+
+        capacidadConsumidaTotal++;
+
+        return true;
+    }
+
+    boolean asignacionNecesitaReserva(String claveAsignacion) {
+        AsignacionPedido asignacion = asignacionPorId.get(claveAsignacion);
+
+        if (asignacion == null || asignacion.cancelada) {
+            return false;
+        }
+
+        return asignacion.toneladasPorContenerizar() > 0.0001;
+    }
+
+    void reprogramarReservasCapacidad() {
+        // Paso diario: una posicion que no se uso el dia comprometido no se pierde y tampoco
+        // bloquea el sitio. Se mueve al proximo dia con lugar dentro de la ventana; si no queda
+        // ninguno antes del cut-off, se libera con motivo y el contenedor queda sin posicion.
+        if (!usaAgendaCapacidad()) {
+            return;
+        }
+
+        int hoy = diaCampania();
+
+        for (ReservaCapacidad reserva : reservasCapacidad) {
+
+            if (!reserva.activa || reserva.consumida || reserva.liberada) {
+                continue;
+            }
+
+            // Posicion de mas: la asignacion ya tiene contenedor para todo lo comprometido.
+            if (
+                reserva.idContenedor.isEmpty()
+                && !asignacionNecesitaReserva(reserva.claveAsignacion)
+            ) {
+                liberarReserva(reserva, "sobrante de la asignacion");
+                continue;
+            }
+
+            if (reserva.diaPlanificado >= hoy) {
+                continue;
+            }
+
+            int destino = -1;
+
+            for (int dia = hoy; dia <= reserva.diaLimiteVentana; dia++) {
+
+                if (
+                    capacidadDisponibleDia(reserva.tipoRecurso, reserva.idUbicacion, dia) > 0
+                ) {
+                    destino = dia;
+                    break;
+                }
+            }
+
+            if (destino < 0) {
+                liberarReserva(reserva, "SIN_CAPACIDAD_ANTES_CUTOFF");
+                contenedoresSinPosicionFutura++;
+                continue;
+            }
+
+            ocuparCapacidad(
+                reserva.tipoRecurso, reserva.idUbicacion, reserva.diaPlanificado, -1);
+
+            ocuparCapacidad(reserva.tipoRecurso, reserva.idUbicacion, destino, 1);
+
+            reserva.diaPlanificado = destino;
+            reserva.reprogramaciones++;
+            reservasReprogramadas++;
+        }
+    }
+
+    void reconciliarCapacidad() {
+        // C-03 (CAP-12): lo reservado se explica siempre por lo consumido, lo activo y lo
+        // liberado, y ninguna ubicacion supera su capacidad diaria. Si alguna de las dos cosas
+        // falla, la agenda dejo de ser una restriccion y la corrida no sirve. Se controla
+        // tambien con la agenda apagada: ahi el cross dock sigue reservando y la consolidacion
+        // ocupa al ejecutar, y el techo diario tiene que valer igual.
+        int activas = 0;
+        int consumidas = 0;
+        int liberadas = 0;
+
+        for (ReservaCapacidad reserva : reservasCapacidad) {
+
+            if (reserva.consumida) {
+                consumidas++;
+            } else if (reserva.liberada) {
+                liberadas++;
+            } else {
+                activas++;
+            }
+        }
+
+        if (
+            activas + consumidas + liberadas != capacidadReservadaTotal
+            || consumidas != capacidadConsumidaTotal
+            || liberadas != capacidadLiberadaTotal
+        ) {
+            error(
+                "C-03: la capacidad no reconcilia el dia " + diaCampania()
+                + " (reservada " + capacidadReservadaTotal
+                + ", activa " + activas
+                + ", consumida " + consumidas + "/" + capacidadConsumidaTotal
+                + ", liberada " + liberadas + "/" + capacidadLiberadaTotal + ").");
+        }
+
+        for (String clave : ocupacionCapacidad.keySet()) {
+
+            int corte = clave.indexOf('|');
+
+            String tipoRecurso = clave.substring(0, corte);
+            String idUbicacion = clave.substring(corte + 1);
+
+            LinkedHashMap<Integer, Integer> porDia = ocupacionCapacidad.get(clave);
+
+            for (Integer dia : porDia.keySet()) {
+
+                int nominal = capacidadNominalDia(tipoRecurso, idUbicacion, dia.intValue());
+
+                if (porDia.get(dia).intValue() > nominal) {
+                    error(
+                        "C-03: " + clave + " tiene " + porDia.get(dia)
+                        + " posiciones ocupadas el dia " + dia
+                        + " y su capacidad es " + nominal + ".");
+                }
+            }
+        }
+    }
+
+    void registrarContenedorPorCircuito(EstrategiaLogistica circuito, boolean cruza) {
+        // Contenedores planificados por circuito (ADR-060): con capacidad finita el mismo
+        // pedido puede repartirse entre circuitos y el reparto es el resultado a leer.
+        String clave = cruza ? "CROSS_DOCK_DEPOSITO" : ("" + circuito);
+
+        Integer previos = contenedoresPorCircuito.get(clave);
+
+        contenedoresPorCircuito.put(
+            clave,
+            Integer.valueOf((previos == null ? 0 : previos.intValue()) + 1));
+    }
+
+    int circuitosDePedido(Pedido pedido) {
+        java.util.List<String> vistos = new java.util.ArrayList<String>();
+
+        for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+            String clave =
+                asignacion.esCrossDock
+                ? "CROSS_DOCK_DEPOSITO"
+                : ("" + asignacion.circuito);
+
+            if (!vistos.contains(clave)) {
+                vistos.add(clave);
+            }
+        }
+
+        return vistos.size();
+    }
+
+    void registrarSaturacion(Pedido pedido, java.util.List<AlternativaCircuito> alternativas, AlternativaCircuito elegida, double toneladas) {
+        // Cuanto cuesta la saturacion (ADR-060): la diferencia entre lo que se pago y lo que
+        // habria costado la alternativa mas barata si hubiera tenido capacidad. Es cero cuando la
+        // capacidad no ata: mide la restriccion, no el costo.
+        boolean endToEnd = decideEndToEnd();
+
+        double costoElegido = elegida.costoUnitarioSegun(endToEnd);
+
+        double mejorSinRestriccion = costoElegido;
+
+        for (AlternativaCircuito alternativa : alternativas) {
+
+            if (
+                alternativa.factible
+                || alternativa.costoUnitarioSinRestriccion == Double.POSITIVE_INFINITY
+            ) {
+                continue;
+            }
+
+            if (alternativa.costoUnitarioSinRestriccion < mejorSinRestriccion) {
+                mejorSinRestriccion = alternativa.costoUnitarioSinRestriccion;
+            }
+        }
+
+        if (mejorSinRestriccion + 0.0001 < costoElegido) {
+            costoAdicionalSaturacion +=
+                (costoElegido - mejorSinRestriccion) * toneladas;
+
+            toneladasReasignadasPorCapacidad += toneladas;
+        }
+
+        if (exportarDiagnosticoCapacidad) {
+            diagnosticoAsignaciones.add(
+                diaCampania() + "," + pedido.codigoPedido + ","
+                + elegida.clave() + "," + elegida.tipoRecursoCapacidad + ","
+                + elegida.idUbicacionCapacidad + ","
+                + Math.round(toneladas * 100) / 100.0 + ","
+                + elegida.contenedoresConCapacidad + ","
+                + Math.round((costoElegido - mejorSinRestriccion) * toneladas * 100) / 100.0
+                + ",SELECCIONADA");
+        }
+    }
+
+    void registrarColaCapacidad(String tipoRecurso, String idUbicacion) {
+        // Cola del dia por recurso y sitio: contenedores que estaban listos y no encontraron
+        // posicion. Es el numero que dimensiona posiciones, porque la ocupacion sola no dice si
+        // falto lugar o falto trabajo.
+        String clave = claveRecurso(tipoRecurso, idUbicacion);
+
+        LinkedHashMap<Integer, Integer> porDia = colaCapacidad.get(clave);
+
+        if (porDia == null) {
+            porDia = new LinkedHashMap<Integer, Integer>();
+            colaCapacidad.put(clave, porDia);
+        }
+
+        Integer previos = porDia.get(Integer.valueOf(diaCampania()));
+
+        porDia.put(
+            Integer.valueOf(diaCampania()),
+            Integer.valueOf((previos == null ? 0 : previos.intValue()) + 1));
+    }
+
+    int colaCapacidadDia(String tipoRecurso, String idUbicacion, int dia) {
+        LinkedHashMap<Integer, Integer> porDia =
+            colaCapacidad.get(claveRecurso(tipoRecurso, idUbicacion));
+
+        if (porDia == null) {
+            return 0;
+        }
+
+        Integer cola = porDia.get(Integer.valueOf(dia));
+
+        return cola == null ? 0 : cola.intValue();
+    }
+
+    int reservasDelDia(String tipoRecurso, String idUbicacion, int dia, String estado) {
+        // Reservas de ese recurso, sitio y dia en un estado: ACTIVA, CONSUMIDA o LIBERADA.
+        int total = 0;
+
+        for (ReservaCapacidad reserva : reservasCapacidad) {
+
+            if (
+                !reserva.tipoRecurso.equals(tipoRecurso)
+                || !reserva.idUbicacion.equals(idUbicacion)
+                || reserva.diaPlanificado != dia
+            ) {
+                continue;
+            }
+
+            if ("CONSUMIDA".equals(estado) ? reserva.consumida
+                : ("LIBERADA".equals(estado) ? reserva.liberada
+                    : (!reserva.consumida && !reserva.liberada))) {
+                total++;
+            }
+        }
+
+        return total;
+    }
+
+    String resumenCapacidad() {
+        // Linea del tablero: la capacidad como restriccion, no como dato de catalogo.
+        return "Capacidad · reservadas " + capacidadReservadaTotal
+            + " · consumidas " + capacidadConsumidaTotal
+            + " · liberadas " + capacidadLiberadaTotal
+            + " · reprogramadas " + reservasReprogramadas
+            + " · sin posición antes del cut-off " + contenedoresSinPosicionFutura
+            + " | multi-circuito " + pedidosMultiCircuito
+            + " · fallback política fija " + fallbacksPoliticaFija
+            + " · sobrecosto por saturación USD "
+            + String.format("%,.0f", costoAdicionalSaturacion);
+    }
+
+    void exportarCapacidadSiCorresponde() {
+        // El diagnostico se escribe una vez, el ultimo dia, y solo si el escenario lo pide: en
+        // el barrido son millones de filas que nadie lee.
+        if (
+            !exportarDiagnosticoCapacidad
+            || diaCampania() < duracionCampaniaDias - 1
+        ) {
+            return;
+        }
+
+        exportarCapacidadPorDia("resultados/capacidad_por_dia.csv");
+        exportarAsignacionesCapacidad("resultados/asignaciones_capacidad.csv");
+    }
+
+    void exportarCapacidadPorDia(String ruta) {
+        java.io.PrintWriter salida = null;
+
+        try {
+            salida = new java.io.PrintWriter(ruta, "UTF-8");
+
+            salida.println(
+                "escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
+                + "reservada,consumida,liberada,ocupada,libre,cola");
+
+            for (String clave : ocupacionCapacidad.keySet()) {
+
+                int corte = clave.indexOf('|');
+
+                String tipoRecurso = clave.substring(0, corte);
+                String idUbicacion = clave.substring(corte + 1);
+
+                for (int dia = 0; dia < duracionCampaniaDias; dia++) {
+
+                    int nominal = capacidadNominalDia(tipoRecurso, idUbicacion, dia);
+                    int ocupada = capacidadOcupadaDia(tipoRecurso, idUbicacion, dia);
+                    int cola = colaCapacidadDia(tipoRecurso, idUbicacion, dia);
+
+                    if (nominal <= 0 && ocupada <= 0 && cola <= 0) {
+                        continue;
+                    }
+
+                    salida.println(
+                        idEscenario + "," + replica + "," + dia + ","
+                        + tipoRecurso + "," + idUbicacion + "," + nominal + ","
+                        + reservasDelDia(tipoRecurso, idUbicacion, dia, "ACTIVA") + ","
+                        + reservasDelDia(tipoRecurso, idUbicacion, dia, "CONSUMIDA") + ","
+                        + reservasDelDia(tipoRecurso, idUbicacion, dia, "LIBERADA") + ","
+                        + ocupada + "," + Math.max(0, nominal - ocupada) + "," + cola);
+                }
+            }
+
+        } catch (java.io.IOException e) {
+            traceln("No se pudo escribir " + ruta + ": " + e.getMessage());
+
+        } finally {
+            if (salida != null) {
+                salida.close();
+            }
+        }
+    }
+
+    void exportarAsignacionesCapacidad(String ruta) {
+        // Dos bloques en un archivo no sirven, asi que van dos archivos: este es la vida de
+        // cada posicion reservada -quien la pidio, para cuando, que contenedor la uso y por que
+        // se dio de baja- y el de decisiones queda al lado con el sufijo _decisiones.
+        java.io.PrintWriter salida = null;
+
+        try {
+            salida = new java.io.PrintWriter(ruta, "UTF-8");
+
+            salida.println(
+                "escenario,replica,reserva,pedido,asignacion,tipo_recurso,ubicacion,"
+                + "dia_planificado,dia_original,dia_limite,reprogramaciones,contenedor,"
+                + "estado,motivo_baja");
+
+            for (ReservaCapacidad reserva : reservasCapacidad) {
+
+                salida.println(
+                    idEscenario + "," + replica + "," + reserva.claveReserva + ","
+                    + reserva.codigoPedido + "," + reserva.claveAsignacion + ","
+                    + reserva.tipoRecurso + "," + reserva.idUbicacion + ","
+                    + reserva.diaPlanificado + "," + reserva.diaOriginal + ","
+                    + reserva.diaLimiteVentana + "," + reserva.reprogramaciones + ","
+                    + reserva.idContenedor + ","
+                    + (reserva.consumida
+                        ? "CONSUMIDA"
+                        : (reserva.liberada ? "LIBERADA" : "ACTIVA"))
+                    + "," + reserva.motivoBaja);
+            }
+
+        } catch (java.io.IOException e) {
+            traceln("No se pudo escribir " + ruta + ": " + e.getMessage());
+
+        } finally {
+            if (salida != null) {
+                salida.close();
+            }
+        }
+
+        if (diagnosticoAsignaciones.isEmpty()) {
+            return;
+        }
+
+        String rutaDecisiones = ruta.replace(".csv", "_decisiones.csv");
+
+        salida = null;
+
+        try {
+            salida = new java.io.PrintWriter(rutaDecisiones, "UTF-8");
+
+            salida.println(
+                "escenario,replica,dia,pedido,alternativa,tipo_recurso,ubicacion,"
+                + "toneladas,contenedores_con_capacidad,sobrecosto_saturacion_usd,resultado");
+
+            for (String linea : diagnosticoAsignaciones) {
+                salida.println(idEscenario + "," + replica + "," + linea);
+            }
+
+        } catch (java.io.IOException e) {
+            traceln("No se pudo escribir " + rutaDecisiones + ": " + e.getMessage());
+
+        } finally {
+            if (salida != null) {
+                salida.close();
+            }
+        }
+    }
+
     // ----- Eventos -----
 
     // evento pasoDiario [timeout cyclic] cada 1 day
@@ -5232,6 +6163,7 @@ class Main extends Agent {
         actualizarVentanasRetiroDelDia();        // 2b. abrir la ventana de retiro del vacio
         abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
         abrirPosicionesCrossDockDelDia();        // 4. abrir la capacidad de cross dock del dia
+        reprogramarReservasCapacidad();          // 4b. mover las posiciones no usadas (ADR-060)
         programarCrossDockDelDia();              // 5. cruzar lo que no necesita guardarse
         revisarTransferenciasPlanta();           // 6. sacar de planta solo lo necesario
         revisarPedidosPendientes();              // 7. reservar contra stock
@@ -5245,6 +6177,8 @@ class Main extends Agent {
         validarInventario();              // invariantes de las capas (ADR-023)
         validarBalancePedidos();          // C-01: el pedido cierra por partes (ADR-055)
         validarBalanceProducido();        // C-02: nada de lo producido se pierde (ADR-048)
+        reconciliarCapacidad();           // C-03: la capacidad reservada reconcilia (ADR-060)
         reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
+        exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)
     }
 }

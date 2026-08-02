@@ -104,6 +104,10 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.booleanoOpcional("permite_transferencia_antes_retiro", true);
 			e.permiteReservaCapacidadFutura =
 					f.booleanoOpcional("permite_reserva_capacidad_futura", true);
+			e.permiteFallbackPoliticaFija =
+					f.booleanoOpcional("permite_fallback_politica_fija", false);
+			e.exportarDiagnosticoCapacidad =
+					f.booleanoOpcional("exportar_diagnostico_capacidad", false);
 			e.politicaReprogramacionBuque =
 					f.textoOpcional("politica_reprogramacion_buque", "CONTINUAR").toUpperCase();
 			datos.escenario = e;

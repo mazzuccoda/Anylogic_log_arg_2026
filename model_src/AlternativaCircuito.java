@@ -22,6 +22,24 @@ public class AlternativaCircuito implements java.io.Serializable {
 	public int contenedores = 0;
 
 	public boolean factible = false;
+
+	// Capacidad finita (ADR-060): una alternativa vale por lo que puede procesar antes
+	// del cut-off, no por su costo. El recurso es la unidad de capacidad que consume.
+	public String tipoRecursoCapacidad = ReservaCapacidad.CONSOLIDACION;
+	public String idUbicacionCapacidad = "";
+	public int contenedoresConCapacidad = 0;
+
+	/** Si el sitio tiene al menos una posicion libre en la ventana del pedido. */
+	public boolean capacidadReservable = true;
+	public double toneladasCapacidadDisponible = 0;
+
+	/** Lo que el origen podria dar si la capacidad no existiera: mide la saturacion. */
+	public double toneladasSinRestriccionCapacidad = 0;
+
+	/** Costo unitario que tendria sin la restriccion de capacidad (KPI de saturacion). */
+	public double costoUnitarioSinRestriccion = Double.POSITIVE_INFINITY;
+
+	public java.util.List<Integer> diasCapacidadDisponibles = new java.util.ArrayList<Integer>();
 	public String motivoNoFactible = "";
 
 	public double diaEntregaEstimado = 0;
