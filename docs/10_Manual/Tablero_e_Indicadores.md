@@ -11,7 +11,7 @@ El tablero es la lectura **de una corrida**. Las decisiones de dimensionamiento 
 ![Tablero al final de una corrida del escenario E-00](img/tablero_campania.png)
 
 ```
-  Campaña        Producción y stock    Transporte y flota   Pedidos y servicio
+  Campaña        Producción y stock    Transporte y flota   Pedidos y servicio   Ventana marítima
   Inventario     Contenedores          Consolidación y      Costos
   y reservas     y envíos              cross dock
 
@@ -19,7 +19,7 @@ El tablero es la lectura **de una corrida**. Las decisiones de dimensionamiento 
   [Costos acumulados]  [Estado de los pedidos]
 ```
 
-Ocho paneles de estado y cinco gráficos de evolución. Debajo del tablero, en el mismo lienzo, están el diagrama de flujo del transporte depósito–terminal y las poblaciones de agentes; se ven alejando el zoom.
+Nueve paneles de estado y cinco gráficos de evolución. El panel *Ventana marítima y cut-off* es el último de la fila superior, así que hay que desplazar el lienzo a la derecha para verlo. Debajo del tablero, en el mismo lienzo, están el diagrama de flujo del transporte depósito–terminal y las poblaciones de agentes; se ven alejando el zoom.
 
 ---
 
@@ -71,6 +71,21 @@ Las dos flotas son distintas y se miden distinto (ADR-044): la de producto es ca
 | Exportado | Toneladas entregadas en terminal |
 
 El atraso incluye a los no entregados a propósito: si no, un escenario que no entrega nada tendría atraso cero.
+
+El nivel de servicio se lee contra el **cut-off físico**, no contra el ETD, y viene acompañado del servicio **por tonelada** (`servicioPorToneladaCutoff()`): un pedido entregado a medias no es un pedido servido, pero las toneladas que llegaron al buque tampoco desaparecen. La diferencia entre los dos indicadores mide cuánto del faltante son pedidos partidos y cuánto son pedidos enteros que no salieron.
+
+### Ventana marítima y cut-off (ADR-059)
+
+| Línea | Cálculo |
+|---|---|
+| Conocidos / con retiro abierto | `pedidosRecibidos` y `pedidosConHolguraMedida`, o sea los pedidos cuya ventana de retiro ya abrió |
+| Perdieron cut-off / ventanas inviables | `pedidosPerdieronCutoff` y `pedidosVentanaInviable` (holgura negativa el día que abrió la ventana) |
+| Buques | `buquesCumplidos()` y `buquesPerdidos()`: un buque se cumple si ningún pedido suyo perdió el cut-off |
+| Holgura media | `holguraPromedioDias()`, medida una sola vez por pedido el día de la apertura |
+| Toneladas al cut-off / fuera | `toneladasEntregadasAntesCutoff` y `toneladasEntregadasFueraCutoff` |
+| Planificados sin ejecutar / sin posición | Contenedores en `CREADO` esperando que abra su ventana, y `contenedoresSinPosicionFutura` |
+
+Las dos últimas son de dimensionamiento y conviene leerlas juntas: muchos contenedores sin posición futura con holgura media alta significa que falta capacidad de consolidación, no ventana.
 
 ### Inventario y reservas (tn)
 

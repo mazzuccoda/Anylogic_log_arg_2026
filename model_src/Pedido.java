@@ -49,6 +49,15 @@ class Pedido extends Agent {
     String idSitioOrigen = "";
     boolean tuvoReservaParcial = false;
     boolean tuvoEntregaParcial = false;
+    double diaConocimiento = -1;
+    double diaAperturaRetiroVacio = -1;
+    double diaETD = -1;
+    String buque = "";
+    String viajeBuque = "";
+    boolean ventanaRetiroAbierta = false;
+    boolean perdioCutoff = false;
+    boolean reprogramado = false;
+    int cantidadReprogramaciones = 0;
 
     // ----- Funciones -----
 

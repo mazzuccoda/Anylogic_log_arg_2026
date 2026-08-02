@@ -92,6 +92,14 @@ class Main extends Agent {
     double componentePorServicio = 0;
     double componentePreventivo = 0;
     double stockInicialCargadoTn = 0;
+    double toneladasEntregadasAntesCutoff = 0;
+    double toneladasEntregadasFueraCutoff = 0;
+    int pedidosPerdieronCutoff = 0;
+    int pedidosVentanaInviable = 0;
+    int contenedoresSinPosicionFutura = 0;
+    double holguraAcumuladaDias = 0;
+    int pedidosConHolguraMedida = 0;
+    LinkedHashMap<String, LinkedHashMap<Integer, Integer>> posicionesPlanificadas = new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>();
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -457,7 +465,11 @@ class Main extends Agent {
         return total;
     }
 
-    Pedido crearPedido(String codigo, TipoProducto producto, double toneladas, Terminal puerto, double diaLimite) {
+    Pedido crearPedido(DatosEntrada.PedidoPlan plan, Terminal puerto) {
+        String codigo = plan.codigoPedido;
+        TipoProducto producto = plan.producto;
+        double toneladas = plan.toneladasSolicitadas;
+
         if (
             toneladas <= 0
             || puerto == null
@@ -478,11 +490,34 @@ class Main extends Agent {
         pedido.toneladasEntregadas = 0;
 
         pedido.diaLlegada = time();
-        pedido.diaLimite = diaLimite;
         pedido.diaReserva = -1;
         pedido.diaEntrega = -1;
 
+        // Ventana maritima (ADR-059). El cut-off fisico es la fuente de verdad de la
+        // fecha limite: diaLimite y fechaLimiteTerminal son la misma fecha vista con
+        // dos nombres, para no partir en dos lo que el modelo ya compara.
+        pedido.diaConocimiento = plan.diaConocimiento;
+        pedido.diaAperturaRetiroVacio = plan.diaAperturaRetiroVacio;
+        pedido.diaETD = plan.diaETD;
+        pedido.fechaLimiteTerminal = plan.diaCutoffFisico;
+        pedido.diaLimite = plan.diaCutoffFisico;
+
+        pedido.naviera = plan.naviera;
+        pedido.incoterm = plan.incoterm;
+        pedido.buque = plan.buque;
+        pedido.viajeBuque = plan.viajeBuque;
+
+        // La ventana abre sola el dia que corresponde; un pedido que nace con la
+        // ventana ya abierta no espera un dia de mas.
+        pedido.ventanaRetiroAbierta = time() >= plan.diaAperturaRetiroVacio;
+        pedido.perdioCutoff = false;
+
         pedido.puertoSalida = puerto;
+
+        // El campo estaba declarado y sin usar: la terminal de destino es la misma
+        // que la de salida del circuito, no un dato aparte (ADR-059).
+        pedido.terminalDestino = puerto;
+
         pedido.depositoAsignado = null;
         pedido.idSitioOrigen = "";
 
@@ -857,6 +892,12 @@ class Main extends Agent {
             );
         }
 
+        // Un dato derivado no es un dato cargado (ADR-059): si el libro no trae las
+        // cuatro fechas de la ventana, la corrida sigue pero lo dice.
+        for (String aviso : ImportadorExcel.ultimasAdvertencias) {
+            traceln("Advertencia de datos: " + aviso);
+        }
+
         List<String> errores = datos.validar();
 
         if (!errores.isEmpty()) {
@@ -958,13 +999,7 @@ class Main extends Agent {
                 );
             }
 
-            crearPedido(
-                plan.codigoPedido,
-                plan.producto,
-                plan.toneladasSolicitadas,
-                terminal,
-                plan.diaLimite
-            );
+            crearPedido(plan, terminal);
         }
     }
 
@@ -976,8 +1011,16 @@ class Main extends Agent {
         // saldo: uno reservado a medias vuelve todos los dias hasta completarse (ADR-055).
         for (Pedido pedido : pedidos) {
 
+            // Conocer el pedido alcanza para reservar: comprometer inventario no es
+            // mover un contenedor (ADR-059). Con el permiso apagado, el pedido no
+            // toca el inventario hasta que abre su retiro.
+            boolean puedeReservar =
+                datos.escenario.permiteReservaAntesRetiro
+                || pedido.ventanaRetiroAbierta;
+
             if (
-                pedido.estado != EstadoPedido.ENTREGADO
+                puedeReservar
+                && pedido.estado != EstadoPedido.ENTREGADO
                 && pedido.estado != EstadoPedido.CANCELADO
                 && pedido.toneladasPendientesAsignar() > 0.0001
             ) {
@@ -1492,6 +1535,18 @@ class Main extends Agent {
                         Double.compare(
                             a.Pedido.diaLimite,
                             b.Pedido.diaLimite
+                        );
+
+                    if (orden != 0) {
+                        return orden;
+                    }
+
+                    // Mismo cut-off: primero el que tiene menos holgura, que es el que
+                    // deja de llegar si el dia se queda sin recursos (ADR-059).
+                    orden =
+                        Double.compare(
+                            holguraContenedor(a),
+                            holguraContenedor(b)
                         );
 
                     return orden != 0
@@ -2129,8 +2184,16 @@ class Main extends Agent {
 
         for (Pedido pedido : pedidos) {
 
+            // La demanda conocida se cuenta completa aunque el retiro todavia no abra:
+            // posicionar producto lleva dias de flota y esperar a la apertura es lo que
+            // hace perder el cut-off (ADR-059). El permiso apagado es el caso contrario.
+            boolean cuenta =
+                datos.escenario.permiteTransferenciaAntesRetiro
+                || pedido.ventanaRetiroAbierta;
+
             if (
-                pedido.producto == producto
+                cuenta
+                && pedido.producto == producto
                 && pedido.estado != EstadoPedido.ENTREGADO
                 && pedido.estado != EstadoPedido.CANCELADO
             ) {
@@ -2542,6 +2605,14 @@ class Main extends Agent {
             asignacion.toneladasEntregadas += envio.toneladas;
             asignacion.diaUltimaEntrega = time();
             asignacion.cerrarSiCompleta();
+        }
+
+        // El servicio se mide contra el cut-off fisico y por tonelada: media entrega a
+        // tiempo no es medio buque perdido, pero tampoco es servicio completo (ADR-059).
+        if (time() <= pedido.diaLimite + 0.0001) {
+            toneladasEntregadasAntesCutoff += envio.toneladas;
+        } else {
+            toneladasEntregadasFueraCutoff += envio.toneladas;
         }
 
         // El pedido se entrega cuando se completa, no cuando llega un envio: una entrega parcial
@@ -3488,9 +3559,12 @@ class Main extends Agent {
 
         costearAlternativa(pedido, alternativa);
 
-        // Un dia para armar y programar el contenedor mas el ciclo fisico del circuito.
+        // Un dia para armar y programar el contenedor mas el ciclo fisico del circuito,
+        // contados desde que la ventana de retiro abre: antes de esa fecha el circuito
+        // no puede empezar por mas barato que sea (ADR-059).
         alternativa.diaEntregaEstimado =
-            time() + 1 + horasCicloAlternativa(pedido, alternativa) / 24.0;
+            max(time(), pedido.diaAperturaRetiroVacio)
+            + 1 + horasCicloAlternativa(pedido, alternativa) / 24.0;
 
         alternativa.llegaATiempo =
             alternativa.diaEntregaEstimado <= pedido.diaLimite + 0.0001;
@@ -3632,42 +3706,13 @@ class Main extends Agent {
 
     double horasCicloAlternativa(Pedido pedido, AlternativaCircuito alternativa) {
         // Mismo ciclo fisico que arma crearEnvio(), estimado antes de que el envio exista.
-        boolean granel =
-            alternativa.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
-
-        String terminal = pedido.puertoSalida.idUbicacion;
-
-        double toneladas = alternativa.toneladas;
-
-        double velocidad = datos.escenario.velocidadCamionKmh;
-
-        DatosEntrada.Ubicacion origen = datos.ubicacion(alternativa.idOrigen);
-
-        DatosEntrada.Ubicacion puerto = datos.ubicacion(terminal);
-
-        double distancia = datos.distanciaKm(alternativa.idOrigen, terminal);
-
-        double horas = 0;
-
-        if (alternativa.esCrossDock) {
-            horas += datos.distanciaKm("PLANTA", alternativa.idOrigen) / velocidad;
-        }
-
-        horas +=
-            granel
-            ? toneladas / origen.velocidadCargaTnHora
-            : toneladas / origen.velocidadConsolidacionTnHora;
-
-        // Circuitos 1 a 3: el portacontenedor sale vacio de la terminal antes de cargar.
-        horas += granel ? 0 : distancia / velocidad;
-
-        horas += distancia / velocidad;
-
-        horas += toneladas / puerto.velocidadDescargaTnHora;
-
-        horas += granel ? toneladas / puerto.velocidadConsolidacionTnHora : 0;
-
-        return horas;
+        return horasCicloFisico(
+            pedido,
+            alternativa.idOrigen,
+            alternativa.circuito,
+            alternativa.esCrossDock,
+            alternativa.toneladas
+        );
     }
 
     java.util.List<AlternativaCircuito> ordenarAlternativas(Pedido pedido, java.util.List<AlternativaCircuito> alternativas) {
@@ -4330,7 +4375,15 @@ class Main extends Agent {
                     : (Agent) pedido.puertoSalida
                 );
 
-            contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
+            // Ventana maritima (ADR-059): comprometer no es ejecutar. Con la ventana
+            // cerrada el contenedor existe planificado y no entra al flujo fisico
+            // hasta que abre el retiro del vacio.
+            contenedor.estado =
+                pedido.ventanaRetiroAbierta
+                ? EstadoContenedor.ESPERANDO_PROGRAMACION
+                : EstadoContenedor.CREADO;
+
+            planificarPosicionFutura(pedido, sitioDeEstiba);
 
             contenedor.costoEstimado =
                 datos.roundTripUsdContenedor(
@@ -4846,6 +4899,326 @@ class Main extends Agent {
         return total;
     }
 
+    double horasCicloFisico(Pedido pedido, String idOrigen, EstrategiaLogistica circuito, boolean esCrossDock, double toneladas) {
+        // Ciclo fisico de un circuito, sin depender de que exista la alternativa o el envio:
+        // lo usan el evaluador (ex ante) y la ventana maritima (holgura contra el cut-off).
+        boolean granel = circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+        String terminal = pedido.puertoSalida.idUbicacion;
+
+        double velocidad = datos.escenario.velocidadCamionKmh;
+
+        DatosEntrada.Ubicacion origen = datos.ubicacion(idOrigen);
+
+        DatosEntrada.Ubicacion puerto = datos.ubicacion(terminal);
+
+        double distancia = datos.distanciaKm(idOrigen, terminal);
+
+        double horas = 0;
+
+        if (esCrossDock) {
+            horas += datos.distanciaKm("PLANTA", idOrigen) / velocidad;
+        }
+
+        horas +=
+            granel
+            ? toneladas / origen.velocidadCargaTnHora
+            : toneladas / origen.velocidadConsolidacionTnHora;
+
+        // Circuitos 1 a 3: el portacontenedor sale vacio de la terminal antes de cargar.
+        horas += granel ? 0 : distancia / velocidad;
+
+        horas += distancia / velocidad;
+
+        horas += toneladas / puerto.velocidadDescargaTnHora;
+
+        horas += granel ? toneladas / puerto.velocidadConsolidacionTnHora : 0;
+
+        return horas;
+    }
+
+    double tiempoLogisticoEstimadoDias(Pedido pedido, AsignacionPedido asignacion) {
+        // Dias entre que el circuito puede empezar y el contenedor entra a la terminal
+        // (ADR-059): un dia para programar y armar, mas el ciclo fisico del circuito.
+        if (asignacion == null) {
+            return 1;
+        }
+
+        return 1
+            + horasCicloFisico(
+                pedido,
+                asignacion.idSitioOrigen,
+                asignacion.circuito,
+                asignacion.esCrossDock,
+                asignacion.toneladasAsignadas
+            ) / 24.0;
+    }
+
+    double tiempoLogisticoMinimoDias(Pedido pedido) {
+        // El circuito mas rapido que el pedido tiene comprometido hoy. Sin asignaciones
+        // todavia no hay circuito elegido y se estima con el deposito por defecto, que es
+        // lo que el pedido usaria si tuviera que salir ahora.
+        double mejor = Double.POSITIVE_INFINITY;
+
+        for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+            if (!asignacion.cancelada) {
+                mejor = min(mejor, tiempoLogisticoEstimadoDias(pedido, asignacion));
+            }
+        }
+
+        if (mejor < Double.POSITIVE_INFINITY) {
+            return mejor;
+        }
+
+        double toneladas =
+            min(pedido.toneladasSolicitadas, max(1, pedido.capacidadContenedorTon));
+
+        double horas = Double.POSITIVE_INFINITY;
+
+        for (Deposito deposito : depositos) {
+
+            if (deposito.habilitado) {
+                horas =
+                    min(
+                        horas,
+                        horasCicloFisico(
+                            pedido,
+                            deposito.idUbicacion,
+                            EstrategiaLogistica.CONSOLIDACION_DEPOSITO,
+                            false,
+                            toneladas
+                        )
+                    );
+            }
+        }
+
+        if (horas == Double.POSITIVE_INFINITY) {
+            horas =
+                horasCicloFisico(
+                    pedido, "PLANTA", EstrategiaLogistica.CONSOLIDACION_PLANTA, false, toneladas);
+        }
+
+        return 1 + horas / 24.0;
+    }
+
+    void actualizarVentanasRetiroDelDia() {
+        // Paso 2b del dia (ADR-059). Separa conocer de poder ejecutar: hasta hoy el pedido
+        // pudo reservar, asignar y hacer transferir producto, pero el vacio no podia salir de
+        // la terminal. Al abrir la ventana, lo que estaba planificado entra al flujo fisico.
+        for (Pedido pedido : pedidos) {
+
+            if (
+                pedido.ventanaRetiroAbierta
+                || pedido.estado == EstadoPedido.CANCELADO
+                || time() + 0.0001 < pedido.diaAperturaRetiroVacio
+            ) {
+                continue;
+            }
+
+            pedido.ventanaRetiroAbierta = true;
+
+            // La holgura del pedido se mide una sola vez, el dia en que su ejecucion puede
+            // empezar: es la pregunta de dimensionamiento (¿la ventana alcanza?), no un
+            // indicador que cambia con el reloj.
+            double holgura =
+                pedido.diaLimite - time() - tiempoLogisticoMinimoDias(pedido);
+
+            holguraAcumuladaDias += holgura;
+            pedidosConHolguraMedida++;
+
+            if (holgura < 0) {
+
+                pedidosVentanaInviable++;
+
+                if (pedidosVentanaInviable <= 10) {
+                    traceln(
+                        "Dia " + diaCampania()
+                        + ": la ventana del pedido " + pedido.codigoPedido
+                        + " no alcanza para el cut-off (holgura "
+                        + String.format("%.2f", holgura) + " dias, buque "
+                        + (pedido.buque.isEmpty() ? "sin identificar" : pedido.buque) + ")."
+                    );
+                }
+            }
+
+            // Lo planificado mientras la ventana estaba cerrada arranca hoy.
+            for (ContenedorExportacion contenedor : pedido.contenedores) {
+
+                if (contenedor.estado == EstadoContenedor.CREADO) {
+                    contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
+                }
+            }
+        }
+    }
+
+    void registrarPerdidaDeCutoff() {
+        // Paso 11b del dia (ADR-059). El cut-off no es el fin del pedido: el saldo sigue
+        // buscando salir y se entrega tarde, que es lo que en la realidad rolea al buque
+        // siguiente. Lo que se registra aca es que ese buque se perdio.
+        for (Pedido pedido : pedidos) {
+
+            if (
+                pedido.perdioCutoff
+                || pedido.estado == EstadoPedido.CANCELADO
+                || time() <= pedido.diaLimite + 0.0001
+            ) {
+                continue;
+            }
+
+            if (pedido.estaCompleto()) {
+                continue;
+            }
+
+            pedido.perdioCutoff = true;
+            pedidosPerdieronCutoff++;
+
+            if ("CANCELAR".equals(datos.escenario.politicaReprogramacionBuque)) {
+
+                // Politica dura: lo que no llega al buque no viaja. El saldo se cancela y
+                // deja de competir por recursos.
+                pedido.estado = EstadoPedido.CANCELADO;
+
+            } else {
+
+                // Politica por defecto: el saldo se rolea y sigue hasta entregarse.
+                pedido.reprogramado = true;
+                pedido.cantidadReprogramaciones++;
+            }
+        }
+    }
+
+    void planificarPosicionFutura(Pedido pedido, String sitioEstiba) {
+        // Reserva de capacidad futura (ADR-059): al comprometer un contenedor se le busca un
+        // dia de estiba dentro de su ventana, contra la capacidad declarada del sitio. No
+        // restringe la ejecucion, que sigue decidiendose dia a dia con la capacidad real: lo
+        // que hace es avisar antes del cut-off que la capacidad no da.
+        if (!datos.escenario.permiteReservaCapacidadFutura) {
+            return;
+        }
+
+        int capacidad = (int) Math.floor(datos.capacidadConsolidacionDia(sitioEstiba));
+
+        if (capacidad <= 0) {
+            return;
+        }
+
+        LinkedHashMap<Integer, Integer> porDia = posicionesPlanificadas.get(sitioEstiba);
+
+        if (porDia == null) {
+            porDia = new LinkedHashMap<Integer, Integer>();
+            posicionesPlanificadas.put(sitioEstiba, porDia);
+        }
+
+        int desde = (int) Math.max(diaCampania(), Math.floor(pedido.diaAperturaRetiroVacio));
+        int hasta = (int) Math.floor(pedido.diaLimite);
+
+        for (int dia = desde; dia <= hasta; dia++) {
+
+            Integer usadas = porDia.get(dia);
+            int ocupadas = usadas == null ? 0 : usadas.intValue();
+
+            if (ocupadas < capacidad) {
+                porDia.put(dia, ocupadas + 1);
+                return;
+            }
+        }
+
+        // Ningun dia de la ventana tiene posicion libre: el contenedor va a existir igual,
+        // pero se sabe hoy que no tiene donde armarse antes del cut-off.
+        contenedoresSinPosicionFutura++;
+    }
+
+    double holguraContenedor(ContenedorExportacion contenedor) {
+        // Dias que le sobran al contenedor para entrar a la terminal antes del cut-off.
+        // Negativa significa que ya no llega ni empezando ahora.
+        Pedido pedido = contenedor.Pedido;
+
+        if (pedido == null) {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        AsignacionPedido asignacion = null;
+
+        for (AsignacionPedido a : pedido.asignaciones) {
+
+            if (a.idAsignacion.equals(contenedor.idAsignacionPedido)) {
+                asignacion = a;
+            }
+        }
+
+        return pedido.diaLimite
+            - time()
+            - tiempoLogisticoEstimadoDias(pedido, asignacion);
+    }
+
+    double servicioPorToneladaCutoff() {
+        // Servicio por tonelada contra el cut-off fisico (ADR-059): un pedido entregado a
+        // medias no es un pedido servido, pero las toneladas que si llegaron al buque no
+        // desaparecen del indicador.
+        double solicitadas = 0;
+
+        for (Pedido pedido : pedidos) {
+
+            if (pedido.estado != EstadoPedido.CANCELADO) {
+                solicitadas += pedido.toneladasSolicitadas;
+            }
+        }
+
+        return solicitadas <= 0 ? 0 : toneladasEntregadasAntesCutoff / solicitadas;
+    }
+
+    int buquesCumplidos() {
+        // Un buque se cumple cuando ningun pedido suyo perdio el cut-off. Los pedidos sin
+        // buque identificado no cuentan: no hay nada que cumplir o perder.
+        LinkedHashMap<String, Boolean> porBuque = new LinkedHashMap<String, Boolean>();
+
+        for (Pedido pedido : pedidos) {
+
+            if (pedido.buque == null || pedido.buque.isEmpty()) {
+                continue;
+            }
+
+            Boolean ok = porBuque.get(pedido.buque);
+            boolean cumple = !pedido.perdioCutoff;
+
+            porBuque.put(pedido.buque, (ok == null ? true : ok.booleanValue()) && cumple);
+        }
+
+        int cumplidos = 0;
+
+        for (Boolean ok : porBuque.values()) {
+            cumplidos += ok.booleanValue() ? 1 : 0;
+        }
+
+        return cumplidos;
+    }
+
+    int buquesPerdidos() {
+        LinkedHashSet<String> buques = new LinkedHashSet<String>();
+
+        for (Pedido pedido : pedidos) {
+
+            if (pedido.buque != null && !pedido.buque.isEmpty()) {
+                buques.add(pedido.buque);
+            }
+        }
+
+        return buques.size() - buquesCumplidos();
+    }
+
+    double holguraPromedioDias() {
+        // Promedio de la holgura medida el dia en que cada ventana abrio (ADR-059).
+        return pedidosConHolguraMedida == 0
+            ? 0
+            : holguraAcumuladaDias / pedidosConHolguraMedida;
+    }
+
+    int contenedoresPlanificadosSinEjecutar() {
+        // Contenedores comprometidos que todavia esperan que abra su ventana de retiro.
+        return contarContenedores(EstadoContenedor.CREADO);
+    }
+
     // ----- Eventos -----
 
     // evento pasoDiario [timeout cyclic] cada 1 day
@@ -4856,6 +5229,7 @@ class Main extends Agent {
         abrirFlotaDelDia();                      // 0b. abrir la capacidad de flota del dia
         producirEnPlantas();                     // 1. producir
         registrarPedidosDelDia();                // 2. planificar y comprometer
+        actualizarVentanasRetiroDelDia();        // 2b. abrir la ventana de retiro del vacio
         abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
         abrirPosicionesCrossDockDelDia();        // 4. abrir la capacidad de cross dock del dia
         programarCrossDockDelDia();              // 5. cruzar lo que no necesita guardarse
@@ -4867,6 +5241,7 @@ class Main extends Agent {
         devengarOportunidadFrioPropio();         // 10b. devengar el uso del frio propio
         registrarOcupacionPlanta();              // 10c. medir la sobrecarga del dia
         registrarAtrasos();                      // 11. registrar indicadores del dia
+        registrarPerdidaDeCutoff();              // 11b. que pedidos perdieron su buque
         validarInventario();              // invariantes de las capas (ADR-023)
         validarBalancePedidos();          // C-01: el pedido cierra por partes (ADR-055)
         validarBalanceProducido();        // C-02: nada de lo producido se pierde (ADR-048)

@@ -30,7 +30,11 @@ public class VolcarDatos {
 				+ "\tpolitica_frio_propio\tpolitica_seleccion\tservicio_minimo_proyectado"
 				+ "\tfactor_tarifa_flete\tfactor_tarifa_round_trip\tfactor_tarifa_cross_dock"
 				+ "\tfactor_tarifa_terminal\tfactor_consolidacion_planta"
-				+ "\tfactor_cupo_cross_dock\tfactor_capacidad_terminal");
+				+ "\tfactor_cupo_cross_dock\tfactor_capacidad_terminal"
+				+ "\tdias_anticipacion_planificacion_default\tdias_anticipacion_retiro_default"
+				+ "\tdias_entre_cutoff_y_etd_default\tpermite_reserva_antes_retiro"
+				+ "\tpermite_transferencia_antes_retiro\tpermite_reserva_capacidad_futura"
+				+ "\tpolitica_reprogramacion_buque");
 		for (String id : GeneradorSintetico.ESCENARIOS) {
 			DatosEntrada.Escenario e = GeneradorSintetico.escenario(id, semilla);
 			System.out.println(e.idEscenario
@@ -69,7 +73,14 @@ public class VolcarDatos {
 					+ "\t" + e.factorTarifaTerminal
 					+ "\t" + e.factorConsolidacionPlanta
 					+ "\t" + e.factorCupoCrossDock
-					+ "\t" + e.factorCapacidadTerminal);
+					+ "\t" + e.factorCapacidadTerminal
+					+ "\t" + e.diasAnticipacionPlanificacionDefault
+					+ "\t" + e.diasAnticipacionRetiroDefault
+					+ "\t" + e.diasEntreCutoffYEtdDefault
+					+ "\t" + e.permiteReservaAntesRetiro
+					+ "\t" + e.permiteTransferenciaAntesRetiro
+					+ "\t" + e.permiteReservaCapacidadFutura
+					+ "\t" + e.politicaReprogramacionBuque);
 		}
 
 		hoja("Producto", "producto\ttipo_contenedor\tcapacidad_contenedor_tn\ttoneladas_objetivo_lote_tn");
@@ -153,12 +164,18 @@ public class VolcarDatos {
 			System.out.println(idEscenario + "\t" + p.dia + "\t" + p.producto + "\t" + p.produccionTn);
 		}
 
-		hoja("PedidoPlan", "id_escenario\tcodigo_pedido\tdia_llegada\tdia_limite"
-				+ "\tproducto\ttoneladas_solicitadas\tterminal");
+		// Ventana maritima (ADR-059): la fecha comercial de siempre es el cut-off fisico
+		// y las otras tres fechas van explicitas, no derivadas.
+		hoja("PedidoPlan", "id_escenario\tcodigo_pedido\tproducto\ttoneladas_solicitadas"
+				+ "\tterminal\tnaviera\tincoterm\tbuque\tviaje_buque"
+				+ "\tdia_conocimiento\tdia_apertura_retiro_vacio\tdia_cutoff_fisico\tdia_etd");
 		for (DatosEntrada.PedidoPlan p : d.pedidoPlan) {
-			System.out.println(idEscenario + "\t" + p.codigoPedido + "\t" + p.diaLlegada
-					+ "\t" + p.diaLimite + "\t" + p.producto + "\t" + p.toneladasSolicitadas
-					+ "\t" + p.terminal);
+			System.out.println(idEscenario + "\t" + p.codigoPedido
+					+ "\t" + p.producto + "\t" + p.toneladasSolicitadas + "\t" + p.terminal
+					+ "\t" + p.naviera + "\t" + p.incoterm
+					+ "\t" + p.buque + "\t" + p.viajeBuque
+					+ "\t" + p.diaConocimiento + "\t" + p.diaAperturaRetiroVacio
+					+ "\t" + p.diaCutoffFisico + "\t" + p.diaETD);
 		}
 
 		// Stock inicial (ADR-057): la plantilla trae la hoja aunque el escenario sintetico

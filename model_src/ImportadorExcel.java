@@ -16,6 +16,13 @@ public class ImportadorExcel implements java.io.Serializable {
 
 	private final com.anylogic.engine.connectivity.ExcelFile libro;
 	private final java.util.List<String> errores = new java.util.ArrayList<String>();
+	private final java.util.List<String> advertencias = new java.util.ArrayList<String>();
+
+	/**
+	 * Lo que el libro no trae y se derivo con los defaults del contrato. No aborta
+	 * la corrida, pero el modelo lo informa: un dato derivado no es un dato cargado.
+	 */
+	public static java.util.List<String> ultimasAdvertencias = new java.util.ArrayList<String>();
 
 	private ImportadorExcel(com.anylogic.engine.connectivity.ExcelFile libro) {
 		this.libro = libro;
@@ -42,6 +49,7 @@ public class ImportadorExcel implements java.io.Serializable {
 
 	private DatosEntrada leer(String idEscenario) {
 		DatosEntrada datos = new DatosEntrada();
+		ultimasAdvertencias = advertencias;
 
 		for (Fila f : filas("Escenario", "id_escenario", idEscenario)) {
 			DatosEntrada.Escenario e = new DatosEntrada.Escenario();
@@ -82,6 +90,22 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.factorConsolidacionPlanta = f.numero("factor_consolidacion_planta");
 			e.factorCupoCrossDock = f.numero("factor_cupo_cross_dock");
 			e.factorCapacidadTerminal = f.numero("factor_capacidad_terminal");
+			// Ventana maritima (ADR-059): opcionales, para que un libro anterior al
+			// MOD siga corriendo con los defaults del contrato.
+			e.diasAnticipacionPlanificacionDefault =
+					f.enteroOpcional("dias_anticipacion_planificacion_default", 14);
+			e.diasAnticipacionRetiroDefault =
+					f.enteroOpcional("dias_anticipacion_retiro_default", 7);
+			e.diasEntreCutoffYEtdDefault =
+					f.enteroOpcional("dias_entre_cutoff_y_etd_default", 1);
+			e.permiteReservaAntesRetiro =
+					f.booleanoOpcional("permite_reserva_antes_retiro", true);
+			e.permiteTransferenciaAntesRetiro =
+					f.booleanoOpcional("permite_transferencia_antes_retiro", true);
+			e.permiteReservaCapacidadFutura =
+					f.booleanoOpcional("permite_reserva_capacidad_futura", true);
+			e.politicaReprogramacionBuque =
+					f.textoOpcional("politica_reprogramacion_buque", "CONTINUAR").toUpperCase();
 			datos.escenario = e;
 		}
 
@@ -168,9 +192,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		}
 
 		for (Fila f : filas("PedidoPlan", "id_escenario", idEscenario)) {
-			datos.pedidoPlan.add(new DatosEntrada.PedidoPlan(
-					f.texto("codigo_pedido"), f.entero("dia_llegada"), f.entero("dia_limite"),
-					f.producto("producto"), f.numero("toneladas_solicitadas"), f.texto("terminal")));
+			datos.pedidoPlan.add(leerPedidoPlan(f, datos.escenario));
 		}
 
 		// La hoja es opcional: un libro sin stock inicial corre con inventario
@@ -187,6 +209,69 @@ public class ImportadorExcel implements java.io.Serializable {
 		}
 
 		return datos;
+	}
+
+	/**
+	 * Arma el pedido con su ventana maritima (ADR-059). El contrato pide las cuatro
+	 * fechas; un libro anterior al MOD solo trae dia_llegada y dia_limite y la
+	 * ventana se deriva de los defaults del escenario, sin inventar conocimiento
+	 * mas temprano que el que el libro declara.
+	 */
+	private DatosEntrada.PedidoPlan leerPedidoPlan(Fila f, DatosEntrada.Escenario escenario) {
+
+		String codigo = f.texto("codigo_pedido");
+		TipoProducto producto = f.producto("producto");
+		double toneladas = f.numero("toneladas_solicitadas");
+		String terminal = f.texto("terminal");
+
+		DatosEntrada.PedidoPlan plan;
+
+		if (f.tiene("dia_cutoff_fisico")) {
+			int cutoff = f.entero("dia_cutoff_fisico");
+			int retiro = escenario == null ? 7 : escenario.diasAnticipacionRetiroDefault;
+			int planificacion = escenario == null
+					? 14 : escenario.diasAnticipacionPlanificacionDefault;
+			int hastaEtd = escenario == null ? 1 : escenario.diasEntreCutoffYEtdDefault;
+
+			plan = new DatosEntrada.PedidoPlan(
+					codigo,
+					f.enteroOpcional("dia_conocimiento", cutoff - planificacion),
+					f.enteroOpcional("dia_apertura_retiro_vacio", cutoff - retiro),
+					cutoff,
+					f.enteroOpcional("dia_etd", cutoff + hastaEtd),
+					producto, toneladas, terminal);
+
+		} else if (f.tiene("dia_limite")) {
+			plan = DatosEntrada.PedidoPlan.desdeLegacy(codigo, f.entero("dia_llegada"),
+					f.entero("dia_limite"), producto, toneladas, terminal, escenario);
+
+			String aviso = "La hoja PedidoPlan no trae dia_cutoff_fisico: la ventana"
+					+ " maritima se deriva de dia_llegada/dia_limite con los defaults del"
+					+ " escenario (ADR-059).";
+			if (!advertencias.contains(aviso)) {
+				advertencias.add(aviso);
+			}
+
+			if (plan.diaConocimiento == plan.diaAperturaRetiroVacio) {
+				String sinMargen = "Con la ventana derivada hay pedidos sin margen entre el"
+						+ " conocimiento y la apertura del retiro (ADR-059).";
+				if (!advertencias.contains(sinMargen)) {
+					advertencias.add(sinMargen);
+				}
+			}
+
+		} else {
+			errores.add("La hoja PedidoPlan necesita dia_cutoff_fisico (contrato) o"
+					+ " dia_llegada/dia_limite (forma anterior a ADR-059).");
+			plan = new DatosEntrada.PedidoPlan(codigo, 0, 0, 0, 0, producto, toneladas, terminal);
+		}
+
+		plan.naviera = f.naviera("naviera");
+		plan.incoterm = f.textoOpcional("incoterm", "").toUpperCase();
+		plan.buque = f.textoOpcional("buque", "");
+		plan.viajeBuque = f.textoOpcional("viaje_buque", "");
+
+		return plan;
 	}
 
 	/**
@@ -589,6 +674,43 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		private String texto(String nombre) {
 			return comoTexto(columna(nombre));
+		}
+
+		/** Columna presente en la hoja. Una columna opcional ausente no es un error. */
+		private boolean tiene(String nombre) {
+			return encabezados.containsKey(nombre);
+		}
+
+		private String textoOpcional(String nombre, String porDefecto) {
+			if (!tiene(nombre)) {
+				return porDefecto;
+			}
+			String v = comoTexto(columna(nombre));
+			return v.length() == 0 ? porDefecto : v;
+		}
+
+		private int enteroOpcional(String nombre, int porDefecto) {
+			return tiene(nombre) && comoTexto(columna(nombre)).length() > 0
+					? entero(nombre) : porDefecto;
+		}
+
+		private boolean booleanoOpcional(String nombre, boolean porDefecto) {
+			return tiene(nombre) && comoTexto(columna(nombre)).length() > 0
+					? booleano(nombre) : porDefecto;
+		}
+
+		private Naviera naviera(String nombre) {
+			String v = textoOpcional(nombre, "").toUpperCase().replace(" ", "_").replace("-", "_");
+			if (v.length() == 0) {
+				return Naviera.SIN_DEFINIR;
+			}
+			try {
+				return Naviera.valueOf(v);
+			} catch (IllegalArgumentException e) {
+				errores.add("Naviera desconocida '" + v + "' en la fila " + fila
+						+ " de la hoja " + hoja + ".");
+				return Naviera.SIN_DEFINIR;
+			}
 		}
 
 		private double numero(String nombre) {

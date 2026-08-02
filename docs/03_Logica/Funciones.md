@@ -288,6 +288,20 @@ Los lotes históricos quedan con `esStockInicial = true`, `codigoLoteExterno`, `
 
 KPIs asociados: `stockInicialCargadoTn`, `stockInicialRemanenteTn()` (lo que queda físicamente de los lotes con `esStockInicial`), `stockInicialConsumidoTn()`, `produccionCampaniaTn()`, `disponibilidadTotalTn()`, `demandaPlanificadaTn()` y `deficitEstructuralTn()`.
 
+### Ventana marítima: `actualizarVentanasRetiroDelDia()`, `registrarPerdidaDeCutoff()`, `planificarPosicionFutura()`, `tiempoLogisticoEstimadoDias()`, `tiempoLogisticoMinimoDias()`, `horasCicloFisico()` y `holguraContenedor()`
+
+**Estado:** implementadas (ADR-059).
+
+`actualizarVentanasRetiroDelDia()` es el **paso 2b** del día, inmediatamente después de `registrarPedidosDelDia()`. Abre la ejecución física del pedido cuando llega `dia_apertura_retiro_vacio`: marca `ventanaRetiroAbierta`, mide la holgura una sola vez (`dia_cutoff_fisico − hoy − tiempoLogisticoMinimoDias(pedido)`), informa por traza las ventanas inviables y pasa a `ESPERANDO_PROGRAMACION` los contenedores que estaban en `CREADO`. Antes de ese día el pedido ya existe y ya puede reservar: lo que no puede es retirar el vacío.
+
+`registrarPerdidaDeCutoff()` es el **paso 11b**, después de `registrarAtrasos()`. Marca una sola vez el pedido que pasó su cut-off sin completarse y aplica `politica_reprogramacion_buque`: `CONTINUAR` (default) lo cuenta como reprogramado y deja que el saldo siga hasta entregarse tarde; `CANCELAR` da de baja el saldo. No hay estado de contenedor nuevo ni calendario de buques.
+
+`planificarPosicionFutura(pedido, sitio)` corre al comprometer un contenedor: busca dentro de la ventana el primer día con posición de consolidación libre contra `capacidadConsolidacionDia(sitio)` y lo anota en `posicionesPlanificadas`. Si ningún día de la ventana tiene lugar incrementa `contenedoresSinPosicionFutura`. Es una reserva de aviso: la ejecución sigue decidiéndose día a día con la capacidad real, así que planificar no consume capacidad de hoy.
+
+`horasCicloFisico(pedido, idOrigen, circuito, esCrossDock, toneladas)` es el ciclo físico del circuito calculado sin depender de que exista la alternativa o el envío: carga o consolidación en origen, tramo vacío terminal→origen en los circuitos 1 a 3, viaje cargado, descarga y consolidación en terminal en el circuito 4. `horasCicloAlternativa()` pasó a delegar en ella, así que el evaluador y la ventana miden el mismo ciclo. `tiempoLogisticoEstimadoDias(pedido, asignacion)` le suma el día de programación y lo pasa a días; `tiempoLogisticoMinimoDias(pedido)` toma el mejor circuito ya comprometido y, si el pedido todavía no tiene asignaciones, estima con el depósito habilitado más rápido. `holguraContenedor(contenedor)` es la misma cuenta a nivel de contenedor y ordena el despacho: primero el cut-off más cercano y, con el mismo cut-off, el que menos margen tiene.
+
+KPIs asociados: `servicioPorToneladaCutoff()`, `buquesCumplidos()`, `buquesPerdidos()`, `holguraPromedioDias()`, `contenedoresPlanificadosSinEjecutar()`, más los contadores `toneladasEntregadasAntesCutoff`, `toneladasEntregadasFueraCutoff`, `pedidosPerdieronCutoff`, `pedidosVentanaInviable` y `contenedoresSinPosicionFutura`.
+
 ### `aplicarEscenario()`
 
 **Estado:** implementada (fase 13).

@@ -26,6 +26,7 @@ SALIDA = RAIZ / "datos" / "entrada_ejemplo.xlsx"
 ENUMS = {
     "TipoProducto.java": "public enum TipoProducto { JUGO, ACEITE, CASCARA }\n",
     "TipoContenedor.java": "public enum TipoContenedor { REEFER_40, DRY_HC_40, IMO_DRY_20 }\n",
+    "Naviera.java": "public enum Naviera { SIN_DEFINIR, MSC, MAERSK, HAPAG_LLOYD, CMA_CGM, ONE }\n",
 }
 
 
