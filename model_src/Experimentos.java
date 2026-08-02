@@ -15,7 +15,7 @@ class Escenarios extends ParamVariationExperiment {
     void additionalClassCode() {
         // Version del modelo con la que se corrio el barrido: sin esto un csv de
         // resultados no se puede volver a atar al codigo que lo produjo.
-        static final String VERSION_MODELO = "fase-25";
+        static final String VERSION_MODELO = "fase-26";
 
         static final int REPLICAS = 30;
 
@@ -53,7 +53,11 @@ class Escenarios extends ParamVariationExperiment {
         	"transferencias_incompletas",
         	"stock_inicial_tn", "stock_inicial_consumido_tn", "stock_inicial_remanente_tn",
         	"produccion_campania_tn", "disponibilidad_total_tn", "demanda_planificada_tn",
-        	"deficit_estructural_tn"
+        	"deficit_estructural_tn",
+        	"servicio_toneladas_cutoff", "toneladas_dentro_cutoff", "toneladas_fuera_cutoff",
+        	"pedidos_perdieron_cutoff", "buques_cumplidos", "buques_perdidos",
+        	"holgura_promedio_dias", "pedidos_ventana_inviable",
+        	"contenedores_sin_posicion_futura"
         };
 
         // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -419,7 +423,16 @@ class Escenarios extends ParamVariationExperiment {
         	root.produccionCampaniaTn(),
         	root.disponibilidadTotalTn(),
         	root.demandaPlanificadaTn(),
-        	root.deficitEstructuralTn()
+        	root.deficitEstructuralTn(),
+        	root.servicioPorToneladaCutoff(),
+        	root.toneladasEntregadasAntesCutoff,
+        	root.toneladasEntregadasFueraCutoff,
+        	root.pedidosPerdieronCutoff,
+        	root.buquesCumplidos(),
+        	root.buquesPerdidos(),
+        	root.holguraPromedioDias(),
+        	root.pedidosVentanaInviable,
+        	root.contenedoresSinPosicionFutura
         };
 
         corridas.add(c);

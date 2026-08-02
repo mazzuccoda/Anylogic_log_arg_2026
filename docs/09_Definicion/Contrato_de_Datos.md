@@ -229,6 +229,13 @@ Los datos operativos de la planta (velocidades, `contenedores_por_dia`, tarifa d
 | `factor_consolidacion_planta` | double | > 0. Multiplica `contenedores_por_dia` de la planta |
 | `factor_cupo_cross_dock` | double | > 0. Multiplica el cupo diario de cross dock de cada depósito |
 | `factor_capacidad_terminal` | double | > 0. Multiplica `contenedores_por_dia` de la terminal |
+| `dias_anticipacion_planificacion_default` | int | >= 0. Sólo para derivar `dia_conocimiento` cuando el libro no lo trae (default 14, ADR-059) |
+| `dias_anticipacion_retiro_default` | int | >= 0. Ídem para `dia_apertura_retiro_vacio` (default 7) |
+| `dias_entre_cutoff_y_etd_default` | int | >= 0. Ídem para `dia_etd` (default 1) |
+| `permite_reserva_antes_retiro` | bool | Si el pedido puede reservar inventario antes de que abra el retiro del vacío (default `true`) |
+| `permite_transferencia_antes_retiro` | bool | Si su demanda cuenta para las transferencias preventivas planta→depósito (default `true`) |
+| `permite_reserva_capacidad_futura` | bool | Si el contenedor comprometido reserva una posición de consolidación dentro de su ventana (default `true`) |
+| `politica_reprogramacion_buque` | texto | Qué pasa con el saldo que perdió el cut-off: `CONTINUAR` lo rolea y lo entrega tarde (default), `CANCELAR` lo da de baja |
 | `politica_prioridad` | enum | `FECHA_LIMITE`, `FIFO`, `MAYOR_VOLUMEN` |
 | `tipo_cambio_ars_usd` | double | Para tarifas en ARS |
 
@@ -251,8 +258,6 @@ Si la tabla trae una sola fila por producto sin `dia`, se interpreta como media 
 |---|---|---|
 | `id_escenario` | texto | |
 | `codigo_pedido` | texto | Único por escenario |
-| `dia_llegada` | int | >= 0 |
-| `dia_limite` | int | >= `dia_llegada` |
 | `cliente` | texto | |
 | `producto` | enum | |
 | `calidad` | texto | |
@@ -261,8 +266,18 @@ Si la tabla trae una sola fila por producto sin `dia`, se interpreta como media 
 | `terminal` | texto | FK `Ubicacion` tipo `TERMINAL` |
 | `naviera` | enum | |
 | `incoterm` | texto | Informativo |
+| `buque` | texto | Informativo. Agrupa los pedidos que comparten cut-off |
+| `viaje_buque` | texto | Informativo |
+| `dia_conocimiento` | int | >= 0. Desde cuándo el pedido existe para planificar |
+| `dia_apertura_retiro_vacio` | int | >= `dia_conocimiento`. Primer día de retiro físico del vacío |
+| `dia_cutoff_fisico` | int | >= `dia_apertura_retiro_vacio`. Último día de ingreso a terminal |
+| `dia_etd` | int | >= `dia_cutoff_fisico`. Salida estimada del buque |
 
 `cliente` y `calidad` se incluyen desde el inicio aunque el alcance actual use un solo valor: son necesarios para identificar el lote comercial abierto y agregarlos después implicaría migrar datos.
+
+Las cuatro fechas son la ventana marítima (ADR-059) y tienen que respetar `dia_conocimiento <= dia_apertura_retiro_vacio <= dia_cutoff_fisico <= dia_etd`. El servicio se mide contra `dia_cutoff_fisico`, no contra `dia_etd`: el compromiso operativo es que el contenedor esté en la terminal, y lo que pasa después es del buque.
+
+**Forma anterior a ADR-059.** Un libro con `dia_llegada` y `dia_limite` sigue cargando: `dia_cutoff_fisico = dia_limite`, `dia_conocimiento = dia_llegada` (no se inventa conocimiento anterior al que el libro declara), `dia_apertura_retiro_vacio = max(dia_llegada, cut-off − dias_anticipacion_retiro_default)` y `dia_etd = cut-off + dias_entre_cutoff_y_etd_default`.
 
 ### 6.4 `StockInicial` (opcional, ADR-057)
 
@@ -309,7 +324,7 @@ Antes de simular, el modelo valida las tablas y **aborta con mensaje explícito*
 3. una capacidad, tarifa o duración es negativa, o una capacidad de contenedor es cero;
 4. falta una tarifa requerida por alguna combinación alcanzable (producto × ubicación × terminal × naviera presente en el escenario);
 5. `vigencia` no cubre todo el horizonte de campaña, o hay tarifas superpuestas para la misma clave;
-6. `dia_limite < dia_llegada`, o `toneladas_solicitadas <= 0`;
+6. la ventana marítima no respeta `dia_conocimiento <= dia_apertura_retiro_vacio <= dia_cutoff_fisico <= dia_etd`, o `toneladas_solicitadas <= 0`;
 7. un `lote_solicitado` referenciado no existe ni puede producirse;
 8. `transito_dias_min > moda > max` está mal ordenado.
 
@@ -323,7 +338,7 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 
 | Hoja | Columnas |
 |---|---|
-| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default`, `umbral_alerta_pct`, `umbral_sobrecarga_pct`, `umbral_objetivo_pct`, `dias_forecast`, `politica_frio_propio`, `politica_seleccion`, `servicio_minimo_proyectado`, `factor_tarifa_flete`, `factor_tarifa_round_trip`, `factor_tarifa_cross_dock`, `factor_tarifa_terminal`, `factor_consolidacion_planta`, `factor_cupo_cross_dock`, `factor_capacidad_terminal` |
+| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default`, `umbral_alerta_pct`, `umbral_sobrecarga_pct`, `umbral_objetivo_pct`, `dias_forecast`, `politica_frio_propio`, `politica_seleccion`, `servicio_minimo_proyectado`, `factor_tarifa_flete`, `factor_tarifa_round_trip`, `factor_tarifa_cross_dock`, `factor_tarifa_terminal`, `factor_consolidacion_planta`, `factor_cupo_cross_dock`, `factor_capacidad_terminal`, `dias_anticipacion_planificacion_default`, `dias_anticipacion_retiro_default`, `dias_entre_cutoff_y_etd_default`, `permite_reserva_antes_retiro`, `permite_transferencia_antes_retiro`, `permite_reserva_capacidad_futura`, `politica_reprogramacion_buque` |
 | `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn`, `toneladas_objetivo_lote_tn` |
 | `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `contenedores_por_dia`, `posiciones_cross_dock` |
 | `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |
@@ -333,7 +348,7 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 | `TarifaRoundTrip` | `terminal`, `sitio`, `tipo_contenedor`, `tarifa_usd_contenedor`, `horas_espera_incluidas`, `tarifa_espera_usd_hora`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
 | `TarifaEspera` | `tipo_recurso`, `id_ubicacion`, `franquicia_horas`, `usd_hora`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
 | `ProduccionPlan` | `id_escenario`, `dia`, `producto`, `produccion_tn` |
-| `PedidoPlan` | `id_escenario`, `codigo_pedido`, `dia_llegada`, `dia_limite`, `producto`, `toneladas_solicitadas`, `terminal` |
+| `PedidoPlan` | `id_escenario`, `codigo_pedido`, `producto`, `toneladas_solicitadas`, `terminal`, `naviera`, `incoterm`, `buque`, `viaje_buque`, `dia_conocimiento`, `dia_apertura_retiro_vacio`, `dia_cutoff_fisico`, `dia_etd`. Acepta también la forma anterior a ADR-059 con `dia_llegada` y `dia_limite` |
 | `StockInicial` (opcional) | `id_escenario`, `id_stock`, `codigo_lote`, `producto`, `id_ubicacion`, `toneladas`, `dia_produccion`, `dia_ingreso`, `cliente`, `calidad` |
 
 Las columnas se buscan por nombre, no por posición: se pueden reordenar o agregar columnas propias. Una hoja o una columna faltante se informa junto con todas las demás antes de validar; un número tipeado como texto se acepta, y un texto que no sea número indica hoja, fila y columna.

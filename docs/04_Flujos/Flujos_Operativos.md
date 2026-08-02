@@ -76,6 +76,22 @@ Reglas:
 7. Localizar todas las existencias físicas del lote.
 8. Generar alternativas.
 
+### 4.1 Ventana marítima (ADR-059)
+
+El pedido no vive en una fecha sino en una ventana de cuatro:
+
+```mermaid
+flowchart LR
+    A[dia_conocimiento<br/>existe, reserva, planifica] --> B[dia_apertura_retiro_vacio<br/>abre el retiro del vacío]
+    B --> C[dia_cutoff_fisico<br/>último ingreso a terminal]
+    C --> D[dia_etd<br/>zarpa el buque]
+```
+
+- Entre **conocimiento** y **apertura** el pedido reserva inventario, cuenta para las transferencias preventivas y planifica su posición de consolidación, pero no hay movimiento físico: sus contenedores quedan en `CREADO`.
+- El día de la **apertura**, `actualizarVentanasRetiroDelDia()` los pasa a `ESPERANDO_PROGRAMACION` y mide la holgura de la ventana una sola vez. Holgura negativa = ventana inviable, informada antes del cut-off y no después.
+- Entre apertura y **cut-off** corre el circuito físico completo. El despacho se ordena por cut-off y, con el mismo cut-off, por holgura.
+- Pasado el **cut-off** sin completarse, `registrarPerdidaDeCutoff()` marca el pedido: con `CONTINUAR` el saldo se rolea y se entrega tarde, con `CANCELAR` se da de baja. El **ETD** no interviene en ninguna decisión: es dato marítimo.
+
 ## 5. Reserva
 
 ```mermaid

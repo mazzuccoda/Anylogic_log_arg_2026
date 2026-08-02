@@ -68,6 +68,17 @@ public class DatosEntrada implements java.io.Serializable {
 		public double factorConsolidacionPlanta;   // contenedores por dia del frio propio
 		public double factorCupoCrossDock;         // operaciones de cross dock por dia
 		public double factorCapacidadTerminal;     // contenedores por dia de la terminal
+
+		// Ventana maritima (ADR-059). El pedido se conoce antes de poder ejecutarlo:
+		// estos defaults solo se usan para derivar las fechas de un libro que todavia
+		// trae la forma vieja (dia_llegada / dia_limite).
+		public int diasAnticipacionPlanificacionDefault = 14;
+		public int diasAnticipacionRetiroDefault = 7;
+		public int diasEntreCutoffYEtdDefault = 1;
+		public boolean permiteReservaAntesRetiro = true;
+		public boolean permiteTransferenciaAntesRetiro = true;
+		public boolean permiteReservaCapacidadFutura = true;
+		public String politicaReprogramacionBuque = "CONTINUAR";   // CONTINUAR | CANCELAR
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -342,23 +353,63 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * Pedido de exportacion con su ventana maritima (ADR-059). La fecha comercial
+	 * de siempre es el cut-off fisico: el ultimo dia en que el contenedor cargado
+	 * puede entrar a la terminal. El pedido se conoce antes (diaConocimiento) y el
+	 * vacio recien puede retirarse desde diaAperturaRetiroVacio.
+	 */
 	public static class PedidoPlan implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public String codigoPedido;
-		public int diaLlegada;
-		public int diaLimite;
 		public TipoProducto producto;
 		public double toneladasSolicitadas;
 		public String terminal;
 
-		public PedidoPlan(String codigoPedido, int diaLlegada, int diaLimite,
-				TipoProducto producto, double toneladasSolicitadas, String terminal) {
+		public int diaConocimiento;          // desde aqui el pedido existe y puede reservar
+		public int diaAperturaRetiroVacio;   // desde aqui puede empezar el movimiento fisico
+		public int diaCutoffFisico;          // contra esta fecha se mide el servicio
+		public int diaETD;                   // salida estimada del buque, no es fecha de entrega
+
+		public Naviera naviera = Naviera.SIN_DEFINIR;
+		public String incoterm = "";
+		public String buque = "";
+		public String viajeBuque = "";
+
+		// Alias legacy: el resto del modelo sigue leyendo estos dos nombres. No son
+		// datos independientes, son vistas de las fechas de la ventana.
+		public int diaLlegada;
+		public int diaLimite;
+
+		public PedidoPlan(String codigoPedido, int diaConocimiento, int diaAperturaRetiroVacio,
+				int diaCutoffFisico, int diaETD, TipoProducto producto,
+				double toneladasSolicitadas, String terminal) {
 			this.codigoPedido = codigoPedido;
-			this.diaLlegada = diaLlegada;
-			this.diaLimite = diaLimite;
 			this.producto = producto;
 			this.toneladasSolicitadas = toneladasSolicitadas;
 			this.terminal = terminal;
+			this.diaConocimiento = diaConocimiento;
+			this.diaAperturaRetiroVacio = diaAperturaRetiroVacio;
+			this.diaCutoffFisico = diaCutoffFisico;
+			this.diaETD = diaETD;
+			this.diaLlegada = diaConocimiento;
+			this.diaLimite = diaCutoffFisico;
+		}
+
+		/**
+		 * Deriva la ventana de un libro que solo trae dia_llegada y dia_limite
+		 * (VM-08). La derivacion nunca inventa conocimiento mas temprano que el que
+		 * el libro declara: dia_llegada sigue siendo el dia en que el pedido existe,
+		 * y la apertura se atrasa hasta la anticipacion de retiro del escenario.
+		 */
+		public static PedidoPlan desdeLegacy(String codigoPedido, int diaLlegada, int diaLimite,
+				TipoProducto producto, double toneladasSolicitadas, String terminal,
+				Escenario escenario) {
+			int retiro = escenario == null ? 7 : escenario.diasAnticipacionRetiroDefault;
+			int etd = escenario == null ? 1 : escenario.diasEntreCutoffYEtdDefault;
+			int apertura = Math.max(diaLlegada, diaLimite - retiro);
+			return new PedidoPlan(codigoPedido, diaLlegada, apertura, diaLimite,
+					diaLimite + etd, producto, toneladasSolicitadas, terminal);
 		}
 	}
 
@@ -797,7 +848,8 @@ public class DatosEntrada implements java.io.Serializable {
 	public java.util.List<PedidoPlan> pedidosDelDia(int dia) {
 		java.util.List<PedidoPlan> resultado = new java.util.ArrayList<PedidoPlan>();
 		for (PedidoPlan p : pedidoPlan) {
-			if (p.diaLlegada == dia) {
+			// El pedido nace el dia en que se conoce, no el dia del cut-off (ADR-059).
+			if (p.diaConocimiento == dia) {
 				resultado.add(p);
 			}
 		}
@@ -879,6 +931,26 @@ public class DatosEntrada implements java.io.Serializable {
 
 		if (escenario.diasForecast < 0) {
 			errores.add("dias_forecast no puede ser negativo.");
+		}
+
+		if (escenario.diasAnticipacionRetiroDefault < 0
+				|| escenario.diasAnticipacionPlanificacionDefault < 0
+				|| escenario.diasEntreCutoffYEtdDefault < 0) {
+			errores.add("Las anticipaciones de la ventana maritima no pueden ser negativas.");
+		}
+
+		if (escenario.diasAnticipacionPlanificacionDefault < escenario.diasAnticipacionRetiroDefault) {
+			errores.add("dias_anticipacion_planificacion_default ("
+					+ escenario.diasAnticipacionPlanificacionDefault
+					+ ") no puede ser menor que dias_anticipacion_retiro_default ("
+					+ escenario.diasAnticipacionRetiroDefault
+					+ "): el pedido se conoce antes de poder retirar el vacio.");
+		}
+
+		if (!"CONTINUAR".equals(escenario.politicaReprogramacionBuque)
+				&& !"CANCELAR".equals(escenario.politicaReprogramacionBuque)) {
+			errores.add("politica_reprogramacion_buque invalida: "
+					+ escenario.politicaReprogramacionBuque);
 		}
 
 		if (!"FLEXIBLE".equals(escenario.politicaFrioPropio)
@@ -1143,8 +1215,16 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 
 		for (PedidoPlan p : pedidoPlan) {
-			if (p.diaLimite < p.diaLlegada) {
-				errores.add("dia_limite < dia_llegada en el pedido " + p.codigoPedido + ".");
+			// La ventana maritima es una cadena ordenada (ADR-059, seccion 21 del MOD):
+			// romperla no es un caso raro, es un dato mal cargado.
+			if (!(p.diaConocimiento <= p.diaAperturaRetiroVacio
+					&& p.diaAperturaRetiroVacio <= p.diaCutoffFisico
+					&& p.diaCutoffFisico <= p.diaETD)) {
+				errores.add("La ventana maritima del pedido " + p.codigoPedido
+						+ " no respeta dia_conocimiento <= dia_apertura_retiro_vacio"
+						+ " <= dia_cutoff_fisico <= dia_etd: "
+						+ p.diaConocimiento + ", " + p.diaAperturaRetiroVacio + ", "
+						+ p.diaCutoffFisico + ", " + p.diaETD + ".");
 			}
 			if (p.toneladasSolicitadas <= 0) {
 				errores.add("toneladas_solicitadas <= 0 en el pedido " + p.codigoPedido + ".");

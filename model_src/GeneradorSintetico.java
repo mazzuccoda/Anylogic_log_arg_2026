@@ -595,13 +595,29 @@ public class GeneradorSintetico implements java.io.Serializable {
 			String terminal = TERMINALES[fijo ? (i - 1) % TERMINALES.length
 					: rnd.nextInt(TERMINALES.length)];
 
-			datos.pedidoPlan.add(new DatosEntrada.PedidoPlan(
+			// Ventana maritima (ADR-059). El pedido se conoce el mismo dia que antes
+			// del MOD: lo unico nuevo es que el vacio no puede retirarse hasta la
+			// apertura, que es lo que este modelo quiere medir.
+			int cutoff = diaLlegada + plazo;
+			int apertura = Math.max(diaLlegada,
+					cutoff - escenario.diasAnticipacionRetiroDefault);
+
+			DatosEntrada.PedidoPlan plan = new DatosEntrada.PedidoPlan(
 				String.format("P%03d", i),
 				diaLlegada,
-				diaLlegada + plazo,
+				apertura,
+				cutoff,
+				cutoff + escenario.diasEntreCutoffYEtdDefault,
 				producto,
 				redondear(Math.max(10, toneladas)),
-				terminal));
+				terminal);
+
+			// El buque no es un dato del generador: se identifica por la ventana que
+			// comparte, que es lo que en la realidad agrupa a los pedidos.
+			plan.buque = "B-" + cutoff + "-" + terminal;
+			plan.viajeBuque = String.valueOf(cutoff);
+
+			datos.pedidoPlan.add(plan);
 		}
 	}
 

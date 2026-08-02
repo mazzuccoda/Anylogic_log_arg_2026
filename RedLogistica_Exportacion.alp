@@ -1857,6 +1857,127 @@ cargarStockInicial();]]></StartupCode>
 					</Properties>
 
 				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1785950000</Id>
+					<Name><![CDATA[toneladasEntregadasAntesCutoff]]></Name>
+					<X>-700</X><Y>1400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950010</Id>
+					<Name><![CDATA[toneladasEntregadasFueraCutoff]]></Name>
+					<X>-700</X><Y>1420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950020</Id>
+					<Name><![CDATA[pedidosPerdieronCutoff]]></Name>
+					<X>-700</X><Y>1440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950030</Id>
+					<Name><![CDATA[pedidosVentanaInviable]]></Name>
+					<X>-700</X><Y>1460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950040</Id>
+					<Name><![CDATA[contenedoresSinPosicionFutura]]></Name>
+					<X>-700</X><Y>1480</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950050</Id>
+					<Name><![CDATA[holguraAcumuladaDias]]></Name>
+					<X>-700</X><Y>1500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950060</Id>
+					<Name><![CDATA[pedidosConHolguraMedida]]></Name>
+					<X>-700</X><Y>1520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950070</Id>
+					<Name><![CDATA[posicionesPlanificadas]]></Name>
+					<X>-700</X><Y>1540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, LinkedHashMap<Integer, Integer>>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Connectors>
 				<Connector>
@@ -2392,6 +2513,7 @@ refrescarTarifasDelDia();                // 0. tarifa vigente de hoy (ADR-051)
 abrirFlotaDelDia();                      // 0b. abrir la capacidad de flota del dia
 producirEnPlantas();                     // 1. producir
 registrarPedidosDelDia();                // 2. planificar y comprometer
+actualizarVentanasRetiroDelDia();        // 2b. abrir la ventana de retiro del vacio
 abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
 abrirPosicionesCrossDockDelDia();        // 4. abrir la capacidad de cross dock del dia
 programarCrossDockDelDia();              // 5. cruzar lo que no necesita guardarse
@@ -2403,6 +2525,7 @@ devengarAlmacenamientoDiario();          // 10. devengar almacenaje
 devengarOportunidadFrioPropio();         // 10b. devengar el uso del frio propio
 registrarOcupacionPlanta();              // 10c. medir la sobrecarga del dia
 registrarAtrasos();                      // 11. registrar indicadores del dia
+registrarPerdidaDeCutoff();              // 11b. que pedidos perdieron su buque
 validarInventario();              // invariantes de las capas (ADR-023)
 validarBalancePedidos();          // C-01: el pedido cierra por partes (ADR-055)
 validarBalanceProducido();        // C-02: nada de lo producido se pierde (ADR-048)
@@ -2908,26 +3031,18 @@ return total;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[codigo]]></Name>
-						<Type><![CDATA[String]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[producto]]></Name>
-						<Type><![CDATA[TipoProducto]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[toneladas]]></Name>
-						<Type><![CDATA[double]]></Type>
+						<Name><![CDATA[plan]]></Name>
+						<Type><![CDATA[DatosEntrada.PedidoPlan]]></Type>
 					</Parameter>
 					<Parameter>
 						<Name><![CDATA[puerto]]></Name>
 						<Type><![CDATA[Terminal]]></Type>
 					</Parameter>
-					<Parameter>
-						<Name><![CDATA[diaLimite]]></Name>
-						<Type><![CDATA[double]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (
+					<Body><![CDATA[String codigo = plan.codigoPedido;
+TipoProducto producto = plan.producto;
+double toneladas = plan.toneladasSolicitadas;
+
+if (
     toneladas <= 0
     || puerto == null
     || !puerto.habilitada
@@ -2947,11 +3062,34 @@ pedido.toneladasReservadas = 0;
 pedido.toneladasEntregadas = 0;
 
 pedido.diaLlegada = time();
-pedido.diaLimite = diaLimite;
 pedido.diaReserva = -1;
 pedido.diaEntrega = -1;
 
+// Ventana maritima (ADR-059). El cut-off fisico es la fuente de verdad de la
+// fecha limite: diaLimite y fechaLimiteTerminal son la misma fecha vista con
+// dos nombres, para no partir en dos lo que el modelo ya compara.
+pedido.diaConocimiento = plan.diaConocimiento;
+pedido.diaAperturaRetiroVacio = plan.diaAperturaRetiroVacio;
+pedido.diaETD = plan.diaETD;
+pedido.fechaLimiteTerminal = plan.diaCutoffFisico;
+pedido.diaLimite = plan.diaCutoffFisico;
+
+pedido.naviera = plan.naviera;
+pedido.incoterm = plan.incoterm;
+pedido.buque = plan.buque;
+pedido.viajeBuque = plan.viajeBuque;
+
+// La ventana abre sola el dia que corresponde; un pedido que nace con la
+// ventana ya abierta no espera un dia de mas.
+pedido.ventanaRetiroAbierta = time() >= plan.diaAperturaRetiroVacio;
+pedido.perdioCutoff = false;
+
 pedido.puertoSalida = puerto;
+
+// El campo estaba declarado y sin usar: la terminal de destino es la misma
+// que la de salida del circuito, no un dato aparte (ADR-059).
+pedido.terminalDestino = puerto;
+
 pedido.depositoAsignado = null;
 pedido.idSitioOrigen = "";
 
@@ -3474,6 +3612,12 @@ if (origenDatos == OrigenDatos.EXCEL) {
     );
 }
 
+// Un dato derivado no es un dato cargado (ADR-059): si el libro no trae las
+// cuatro fechas de la ventana, la corrida sigue pero lo dice.
+for (String aviso : ImportadorExcel.ultimasAdvertencias) {
+    traceln("Advertencia de datos: " + aviso);
+}
+
 List<String> errores = datos.validar();
 
 if (!errores.isEmpty()) {
@@ -3611,13 +3755,7 @@ for (DatosEntrada.PedidoPlan plan : datos.pedidosDelDia(diaActual)) {
         );
     }
 
-    crearPedido(
-        plan.codigoPedido,
-        plan.producto,
-        plan.toneladasSolicitadas,
-        terminal,
-        plan.diaLimite
-    );
+    crearPedido(plan, terminal);
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3637,8 +3775,16 @@ for (DatosEntrada.PedidoPlan plan : datos.pedidosDelDia(diaActual)) {
 // saldo: uno reservado a medias vuelve todos los dias hasta completarse (ADR-055).
 for (Pedido pedido : pedidos) {
 
+    // Conocer el pedido alcanza para reservar: comprometer inventario no es
+    // mover un contenedor (ADR-059). Con el permiso apagado, el pedido no
+    // toca el inventario hasta que abre su retiro.
+    boolean puedeReservar =
+        datos.escenario.permiteReservaAntesRetiro
+        || pedido.ventanaRetiroAbierta;
+
     if (
-        pedido.estado != EstadoPedido.ENTREGADO
+        puedeReservar
+        && pedido.estado != EstadoPedido.ENTREGADO
         && pedido.estado != EstadoPedido.CANCELADO
         && pedido.toneladasPendientesAsignar() > 0.0001
     ) {
@@ -4325,6 +4471,18 @@ java.util.Collections.sort(
                 Double.compare(
                     a.Pedido.diaLimite,
                     b.Pedido.diaLimite
+                );
+
+            if (orden != 0) {
+                return orden;
+            }
+
+            // Mismo cut-off: primero el que tiene menos holgura, que es el que
+            // deja de llegar si el dia se queda sin recursos (ADR-059).
+            orden =
+                Double.compare(
+                    holguraContenedor(a),
+                    holguraContenedor(b)
                 );
 
             return orden != 0
@@ -5270,8 +5428,16 @@ double total = 0;
 
 for (Pedido pedido : pedidos) {
 
+    // La demanda conocida se cuenta completa aunque el retiro todavia no abra:
+    // posicionar producto lleva dias de flota y esperar a la apertura es lo que
+    // hace perder el cut-off (ADR-059). El permiso apagado es el caso contrario.
+    boolean cuenta =
+        datos.escenario.permiteTransferenciaAntesRetiro
+        || pedido.ventanaRetiroAbierta;
+
     if (
-        pedido.producto == producto
+        cuenta
+        && pedido.producto == producto
         && pedido.estado != EstadoPedido.ENTREGADO
         && pedido.estado != EstadoPedido.CANCELADO
     ) {
@@ -5851,6 +6017,14 @@ if (asignacion != null) {
     asignacion.toneladasEntregadas += envio.toneladas;
     asignacion.diaUltimaEntrega = time();
     asignacion.cerrarSiCompleta();
+}
+
+// El servicio se mide contra el cut-off fisico y por tonelada: media entrega a
+// tiempo no es medio buque perdido, pero tampoco es servicio completo (ADR-059).
+if (time() <= pedido.diaLimite + 0.0001) {
+    toneladasEntregadasAntesCutoff += envio.toneladas;
+} else {
+    toneladasEntregadasFueraCutoff += envio.toneladas;
 }
 
 // El pedido se entrega cuando se completa, no cuando llega un envio: una entrega parcial
@@ -7205,9 +7379,12 @@ if (
 
 costearAlternativa(pedido, alternativa);
 
-// Un dia para armar y programar el contenedor mas el ciclo fisico del circuito.
+// Un dia para armar y programar el contenedor mas el ciclo fisico del circuito,
+// contados desde que la ventana de retiro abre: antes de esa fecha el circuito
+// no puede empezar por mas barato que sea (ADR-059).
 alternativa.diaEntregaEstimado =
-    time() + 1 + horasCicloAlternativa(pedido, alternativa) / 24.0;
+    max(time(), pedido.diaAperturaRetiroVacio)
+    + 1 + horasCicloAlternativa(pedido, alternativa) / 24.0;
 
 alternativa.llegaATiempo =
     alternativa.diaEntregaEstimado <= pedido.diaLimite + 0.0001;]]></Body>
@@ -7417,42 +7594,13 @@ return acumulado;]]></Body>
 						<Type><![CDATA[AlternativaCircuito]]></Type>
 					</Parameter>
 					<Body><![CDATA[// Mismo ciclo fisico que arma crearEnvio(), estimado antes de que el envio exista.
-boolean granel =
-    alternativa.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
-
-String terminal = pedido.puertoSalida.idUbicacion;
-
-double toneladas = alternativa.toneladas;
-
-double velocidad = datos.escenario.velocidadCamionKmh;
-
-DatosEntrada.Ubicacion origen = datos.ubicacion(alternativa.idOrigen);
-
-DatosEntrada.Ubicacion puerto = datos.ubicacion(terminal);
-
-double distancia = datos.distanciaKm(alternativa.idOrigen, terminal);
-
-double horas = 0;
-
-if (alternativa.esCrossDock) {
-    horas += datos.distanciaKm("PLANTA", alternativa.idOrigen) / velocidad;
-}
-
-horas +=
-    granel
-    ? toneladas / origen.velocidadCargaTnHora
-    : toneladas / origen.velocidadConsolidacionTnHora;
-
-// Circuitos 1 a 3: el portacontenedor sale vacio de la terminal antes de cargar.
-horas += granel ? 0 : distancia / velocidad;
-
-horas += distancia / velocidad;
-
-horas += toneladas / puerto.velocidadDescargaTnHora;
-
-horas += granel ? toneladas / puerto.velocidadConsolidacionTnHora : 0;
-
-return horas;]]></Body>
+return horasCicloFisico(
+    pedido,
+    alternativa.idOrigen,
+    alternativa.circuito,
+    alternativa.esCrossDock,
+    alternativa.toneladas
+);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -8415,7 +8563,15 @@ while (disponible > 0.0001) {
             : (Agent) pedido.puertoSalida
         );
 
-    contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
+    // Ventana maritima (ADR-059): comprometer no es ejecutar. Con la ventana
+    // cerrada el contenedor existe planificado y no entra al flujo fisico
+    // hasta que abre el retiro del vacio.
+    contenedor.estado =
+        pedido.ventanaRetiroAbierta
+        ? EstadoContenedor.ESPERANDO_PROGRAMACION
+        : EstadoContenedor.CREADO;
+
+    planificarPosicionFutura(pedido, sitioDeEstiba);
 
     contenedor.costoEstimado =
         datos.roundTripUsdContenedor(
@@ -9113,6 +9269,467 @@ for (TipoProducto producto : TipoProducto.values()) {
 }
 
 return total;]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786900000</Id>
+					<Name><![CDATA[horasCicloFisico]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idOrigen]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[circuito]]></Name>
+						<Type><![CDATA[EstrategiaLogistica]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[esCrossDock]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Ciclo fisico de un circuito, sin depender de que exista la alternativa o el envio:
+// lo usan el evaluador (ex ante) y la ventana maritima (holgura contra el cut-off).
+boolean granel = circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+String terminal = pedido.puertoSalida.idUbicacion;
+
+double velocidad = datos.escenario.velocidadCamionKmh;
+
+DatosEntrada.Ubicacion origen = datos.ubicacion(idOrigen);
+
+DatosEntrada.Ubicacion puerto = datos.ubicacion(terminal);
+
+double distancia = datos.distanciaKm(idOrigen, terminal);
+
+double horas = 0;
+
+if (esCrossDock) {
+    horas += datos.distanciaKm("PLANTA", idOrigen) / velocidad;
+}
+
+horas +=
+    granel
+    ? toneladas / origen.velocidadCargaTnHora
+    : toneladas / origen.velocidadConsolidacionTnHora;
+
+// Circuitos 1 a 3: el portacontenedor sale vacio de la terminal antes de cargar.
+horas += granel ? 0 : distancia / velocidad;
+
+horas += distancia / velocidad;
+
+horas += toneladas / puerto.velocidadDescargaTnHora;
+
+horas += granel ? toneladas / puerto.velocidadConsolidacionTnHora : 0;
+
+return horas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786900010</Id>
+					<Name><![CDATA[tiempoLogisticoEstimadoDias]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[asignacion]]></Name>
+						<Type><![CDATA[AsignacionPedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Dias entre que el circuito puede empezar y el contenedor entra a la terminal
+// (ADR-059): un dia para programar y armar, mas el ciclo fisico del circuito.
+if (asignacion == null) {
+    return 1;
+}
+
+return 1
+    + horasCicloFisico(
+        pedido,
+        asignacion.idSitioOrigen,
+        asignacion.circuito,
+        asignacion.esCrossDock,
+        asignacion.toneladasAsignadas
+    ) / 24.0;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786900020</Id>
+					<Name><![CDATA[tiempoLogisticoMinimoDias]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El circuito mas rapido que el pedido tiene comprometido hoy. Sin asignaciones
+// todavia no hay circuito elegido y se estima con el deposito por defecto, que es
+// lo que el pedido usaria si tuviera que salir ahora.
+double mejor = Double.POSITIVE_INFINITY;
+
+for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+    if (!asignacion.cancelada) {
+        mejor = min(mejor, tiempoLogisticoEstimadoDias(pedido, asignacion));
+    }
+}
+
+if (mejor < Double.POSITIVE_INFINITY) {
+    return mejor;
+}
+
+double toneladas =
+    min(pedido.toneladasSolicitadas, max(1, pedido.capacidadContenedorTon));
+
+double horas = Double.POSITIVE_INFINITY;
+
+for (Deposito deposito : depositos) {
+
+    if (deposito.habilitado) {
+        horas =
+            min(
+                horas,
+                horasCicloFisico(
+                    pedido,
+                    deposito.idUbicacion,
+                    EstrategiaLogistica.CONSOLIDACION_DEPOSITO,
+                    false,
+                    toneladas
+                )
+            );
+    }
+}
+
+if (horas == Double.POSITIVE_INFINITY) {
+    horas =
+        horasCicloFisico(
+            pedido, "PLANTA", EstrategiaLogistica.CONSOLIDACION_PLANTA, false, toneladas);
+}
+
+return 1 + horas / 24.0;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786900030</Id>
+					<Name><![CDATA[actualizarVentanasRetiroDelDia]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Paso 2b del dia (ADR-059). Separa conocer de poder ejecutar: hasta hoy el pedido
+// pudo reservar, asignar y hacer transferir producto, pero el vacio no podia salir de
+// la terminal. Al abrir la ventana, lo que estaba planificado entra al flujo fisico.
+for (Pedido pedido : pedidos) {
+
+    if (
+        pedido.ventanaRetiroAbierta
+        || pedido.estado == EstadoPedido.CANCELADO
+        || time() + 0.0001 < pedido.diaAperturaRetiroVacio
+    ) {
+        continue;
+    }
+
+    pedido.ventanaRetiroAbierta = true;
+
+    // La holgura del pedido se mide una sola vez, el dia en que su ejecucion puede
+    // empezar: es la pregunta de dimensionamiento (¿la ventana alcanza?), no un
+    // indicador que cambia con el reloj.
+    double holgura =
+        pedido.diaLimite - time() - tiempoLogisticoMinimoDias(pedido);
+
+    holguraAcumuladaDias += holgura;
+    pedidosConHolguraMedida++;
+
+    if (holgura < 0) {
+
+        pedidosVentanaInviable++;
+
+        if (pedidosVentanaInviable <= 10) {
+            traceln(
+                "Dia " + diaCampania()
+                + ": la ventana del pedido " + pedido.codigoPedido
+                + " no alcanza para el cut-off (holgura "
+                + String.format("%.2f", holgura) + " dias, buque "
+                + (pedido.buque.isEmpty() ? "sin identificar" : pedido.buque) + ")."
+            );
+        }
+    }
+
+    // Lo planificado mientras la ventana estaba cerrada arranca hoy.
+    for (ContenedorExportacion contenedor : pedido.contenedores) {
+
+        if (contenedor.estado == EstadoContenedor.CREADO) {
+            contenedor.estado = EstadoContenedor.ESPERANDO_PROGRAMACION;
+        }
+    }
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786900040</Id>
+					<Name><![CDATA[registrarPerdidaDeCutoff]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Paso 11b del dia (ADR-059). El cut-off no es el fin del pedido: el saldo sigue
+// buscando salir y se entrega tarde, que es lo que en la realidad rolea al buque
+// siguiente. Lo que se registra aca es que ese buque se perdio.
+for (Pedido pedido : pedidos) {
+
+    if (
+        pedido.perdioCutoff
+        || pedido.estado == EstadoPedido.CANCELADO
+        || time() <= pedido.diaLimite + 0.0001
+    ) {
+        continue;
+    }
+
+    if (pedido.estaCompleto()) {
+        continue;
+    }
+
+    pedido.perdioCutoff = true;
+    pedidosPerdieronCutoff++;
+
+    if ("CANCELAR".equals(datos.escenario.politicaReprogramacionBuque)) {
+
+        // Politica dura: lo que no llega al buque no viaja. El saldo se cancela y
+        // deja de competir por recursos.
+        pedido.estado = EstadoPedido.CANCELADO;
+
+    } else {
+
+        // Politica por defecto: el saldo se rolea y sigue hasta entregarse.
+        pedido.reprogramado = true;
+        pedido.cantidadReprogramaciones++;
+    }
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786900050</Id>
+					<Name><![CDATA[planificarPosicionFutura]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[sitioEstiba]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Reserva de capacidad futura (ADR-059): al comprometer un contenedor se le busca un
+// dia de estiba dentro de su ventana, contra la capacidad declarada del sitio. No
+// restringe la ejecucion, que sigue decidiendose dia a dia con la capacidad real: lo
+// que hace es avisar antes del cut-off que la capacidad no da.
+if (!datos.escenario.permiteReservaCapacidadFutura) {
+    return;
+}
+
+int capacidad = (int) Math.floor(datos.capacidadConsolidacionDia(sitioEstiba));
+
+if (capacidad <= 0) {
+    return;
+}
+
+LinkedHashMap<Integer, Integer> porDia = posicionesPlanificadas.get(sitioEstiba);
+
+if (porDia == null) {
+    porDia = new LinkedHashMap<Integer, Integer>();
+    posicionesPlanificadas.put(sitioEstiba, porDia);
+}
+
+int desde = (int) Math.max(diaCampania(), Math.floor(pedido.diaAperturaRetiroVacio));
+int hasta = (int) Math.floor(pedido.diaLimite);
+
+for (int dia = desde; dia <= hasta; dia++) {
+
+    Integer usadas = porDia.get(dia);
+    int ocupadas = usadas == null ? 0 : usadas.intValue();
+
+    if (ocupadas < capacidad) {
+        porDia.put(dia, ocupadas + 1);
+        return;
+    }
+}
+
+// Ningun dia de la ventana tiene posicion libre: el contenedor va a existir igual,
+// pero se sabe hoy que no tiene donde armarse antes del cut-off.
+contenedoresSinPosicionFutura++;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786900060</Id>
+					<Name><![CDATA[holguraContenedor]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[contenedor]]></Name>
+						<Type><![CDATA[ContenedorExportacion]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Dias que le sobran al contenedor para entrar a la terminal antes del cut-off.
+// Negativa significa que ya no llega ni empezando ahora.
+Pedido pedido = contenedor.Pedido;
+
+if (pedido == null) {
+    return Double.POSITIVE_INFINITY;
+}
+
+AsignacionPedido asignacion = null;
+
+for (AsignacionPedido a : pedido.asignaciones) {
+
+    if (a.idAsignacion.equals(contenedor.idAsignacionPedido)) {
+        asignacion = a;
+    }
+}
+
+return pedido.diaLimite
+    - time()
+    - tiempoLogisticoEstimadoDias(pedido, asignacion);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786900070</Id>
+					<Name><![CDATA[servicioPorToneladaCutoff]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Servicio por tonelada contra el cut-off fisico (ADR-059): un pedido entregado a
+// medias no es un pedido servido, pero las toneladas que si llegaron al buque no
+// desaparecen del indicador.
+double solicitadas = 0;
+
+for (Pedido pedido : pedidos) {
+
+    if (pedido.estado != EstadoPedido.CANCELADO) {
+        solicitadas += pedido.toneladasSolicitadas;
+    }
+}
+
+return solicitadas <= 0 ? 0 : toneladasEntregadasAntesCutoff / solicitadas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1786900080</Id>
+					<Name><![CDATA[buquesCumplidos]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Un buque se cumple cuando ningun pedido suyo perdio el cut-off. Los pedidos sin
+// buque identificado no cuentan: no hay nada que cumplir o perder.
+LinkedHashMap<String, Boolean> porBuque = new LinkedHashMap<String, Boolean>();
+
+for (Pedido pedido : pedidos) {
+
+    if (pedido.buque == null || pedido.buque.isEmpty()) {
+        continue;
+    }
+
+    Boolean ok = porBuque.get(pedido.buque);
+    boolean cumple = !pedido.perdioCutoff;
+
+    porBuque.put(pedido.buque, (ok == null ? true : ok.booleanValue()) && cumple);
+}
+
+int cumplidos = 0;
+
+for (Boolean ok : porBuque.values()) {
+    cumplidos += ok.booleanValue() ? 1 : 0;
+}
+
+return cumplidos;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1786900090</Id>
+					<Name><![CDATA[buquesPerdidos]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[LinkedHashSet<String> buques = new LinkedHashSet<String>();
+
+for (Pedido pedido : pedidos) {
+
+    if (pedido.buque != null && !pedido.buque.isEmpty()) {
+        buques.add(pedido.buque);
+    }
+}
+
+return buques.size() - buquesCumplidos();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786900100</Id>
+					<Name><![CDATA[holguraPromedioDias]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Promedio de la holgura medida el dia en que cada ventana abrio (ADR-059).
+return pedidosConHolguraMedida == 0
+    ? 0
+    : holguraAcumuladaDias / pedidosConHolguraMedida;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1786900110</Id>
+					<Name><![CDATA[contenedoresPlanificadosSinEjecutar]]></Name>
+					<X>-700</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Contenedores comprometidos que todavia esperan que abra su ventana de retiro.
+return contarContenedores(EstadoContenedor.CREADO);]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -12942,6 +13559,189 @@ if (!retirado) {
 					<Alignment>LEFT</Alignment>
 				</Text>
 				<Rectangle>
+					<Id>1786910000</Id>
+					<Name><![CDATA[panelVentana]]></Name>
+					<X>1480</X><Y>40</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>155</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1786910001</Id>
+					<Name><![CDATA[panelVentanaTitulo]]></Name>
+					<X>1494</X><Y>50</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Ventana marítima y cut-off"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1786910002</Id>
+					<Name><![CDATA[panelVentanaLinea1]]></Name>
+					<X>1494</X><Y>78</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Conocidos: " + pedidosRecibidos
++ " · con retiro abierto: " + pedidosConHolguraMedida]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1786910003</Id>
+					<Name><![CDATA[panelVentanaLinea2]]></Name>
+					<X>1494</X><Y>98</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Perdieron cut-off: " + pedidosPerdieronCutoff
++ " · ventanas inviables: " + pedidosVentanaInviable]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1786910004</Id>
+					<Name><![CDATA[panelVentanaLinea3]]></Name>
+					<X>1494</X><Y>118</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Buques: " + buquesCumplidos() + " cumplidos"
++ " · " + buquesPerdidos() + " perdidos"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1786910005</Id>
+					<Name><![CDATA[panelVentanaLinea4]]></Name>
+					<X>1494</X><Y>138</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Holgura media: "
++ round(10 * holguraPromedioDias()) / 10.0 + " días"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1786910006</Id>
+					<Name><![CDATA[panelVentanaLinea5]]></Name>
+					<X>1494</X><Y>158</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Toneladas al cut-off: " + round(toneladasEntregadasAntesCutoff)
++ " · fuera: " + round(toneladasEntregadasFueraCutoff)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1786910007</Id>
+					<Name><![CDATA[panelVentanaLinea6]]></Name>
+					<X>1494</X><Y>178</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Planificados sin ejecutar: " + contenedoresPlanificadosSinEjecutar()
++ " · sin posición: " + contenedoresSinPosicionFutura]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
 					<Id>1785000000032</Id>
 					<Name><![CDATA[panelServicio]]></Name>
 					<X>1110</X><Y>40</Y>
@@ -13069,7 +13869,9 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Nivel de servicio: " + round(100 * nivelServicio()) + "%"]]></TextCode>
+					<TextCode><![CDATA["Nivel de servicio: " + round(100 * nivelServicio()) + "%"
++ " · por tonelada al cut-off: "
++ round(100 * servicioPorToneladaCutoff()) + "%"]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -17360,6 +18162,142 @@ if (producto != null) {
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1785900000</Id>
+					<Name><![CDATA[diaConocimiento]]></Name>
+					<X>-140</X><Y>900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900010</Id>
+					<Name><![CDATA[diaAperturaRetiroVacio]]></Name>
+					<X>-140</X><Y>920</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900020</Id>
+					<Name><![CDATA[diaETD]]></Name>
+					<X>-140</X><Y>940</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900030</Id>
+					<Name><![CDATA[buque]]></Name>
+					<X>-140</X><Y>960</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900040</Id>
+					<Name><![CDATA[viajeBuque]]></Name>
+					<X>-140</X><Y>980</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900050</Id>
+					<Name><![CDATA[ventanaRetiroAbierta]]></Name>
+					<X>-140</X><Y>1000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900060</Id>
+					<Name><![CDATA[perdioCutoff]]></Name>
+					<X>-140</X><Y>1020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900070</Id>
+					<Name><![CDATA[reprogramado]]></Name>
+					<X>-140</X><Y>1040</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900080</Id>
+					<Name><![CDATA[cantidadReprogramaciones]]></Name>
+					<X>-140</X><Y>1060</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -21319,7 +22257,7 @@ estado = factible
 			<Name><![CDATA[Escenarios]]></Name>
 			<AdditionalClassCode><![CDATA[// Version del modelo con la que se corrio el barrido: sin esto un csv de
 // resultados no se puede volver a atar al codigo que lo produjo.
-static final String VERSION_MODELO = "fase-25";
+static final String VERSION_MODELO = "fase-26";
 
 static final int REPLICAS = 30;
 
@@ -21357,7 +22295,11 @@ static final String[] KPIS = {
 	"transferencias_incompletas",
 	"stock_inicial_tn", "stock_inicial_consumido_tn", "stock_inicial_remanente_tn",
 	"produccion_campania_tn", "disponibilidad_total_tn", "demanda_planificada_tn",
-	"deficit_estructural_tn"
+	"deficit_estructural_tn",
+	"servicio_toneladas_cutoff", "toneladas_dentro_cutoff", "toneladas_fuera_cutoff",
+	"pedidos_perdieron_cutoff", "buques_cumplidos", "buques_perdidos",
+	"holgura_promedio_dias", "pedidos_ventana_inviable",
+	"contenedores_sin_posicion_futura"
 };
 
 // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -21720,7 +22662,16 @@ c.kpis = new double[] {
 	root.produccionCampaniaTn(),
 	root.disponibilidadTotalTn(),
 	root.demandaPlanificadaTn(),
-	root.deficitEstructuralTn()
+	root.deficitEstructuralTn(),
+	root.servicioPorToneladaCutoff(),
+	root.toneladasEntregadasAntesCutoff,
+	root.toneladasEntregadasFueraCutoff,
+	root.pedidosPerdieronCutoff,
+	root.buquesCumplidos(),
+	root.buquesPerdidos(),
+	root.holguraPromedioDias(),
+	root.pedidosVentanaInviable,
+	root.contenedoresSinPosicionFutura
 };
 
 corridas.add(c);]]></AfterSimulationRunCode>
@@ -22333,6 +23284,17 @@ public class DatosEntrada implements java.io.Serializable {
 		public double factorConsolidacionPlanta;   // contenedores por dia del frio propio
 		public double factorCupoCrossDock;         // operaciones de cross dock por dia
 		public double factorCapacidadTerminal;     // contenedores por dia de la terminal
+
+		// Ventana maritima (ADR-059). El pedido se conoce antes de poder ejecutarlo:
+		// estos defaults solo se usan para derivar las fechas de un libro que todavia
+		// trae la forma vieja (dia_llegada / dia_limite).
+		public int diasAnticipacionPlanificacionDefault = 14;
+		public int diasAnticipacionRetiroDefault = 7;
+		public int diasEntreCutoffYEtdDefault = 1;
+		public boolean permiteReservaAntesRetiro = true;
+		public boolean permiteTransferenciaAntesRetiro = true;
+		public boolean permiteReservaCapacidadFutura = true;
+		public String politicaReprogramacionBuque = "CONTINUAR";   // CONTINUAR | CANCELAR
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -22607,23 +23569,63 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * Pedido de exportacion con su ventana maritima (ADR-059). La fecha comercial
+	 * de siempre es el cut-off fisico: el ultimo dia en que el contenedor cargado
+	 * puede entrar a la terminal. El pedido se conoce antes (diaConocimiento) y el
+	 * vacio recien puede retirarse desde diaAperturaRetiroVacio.
+	 */
 	public static class PedidoPlan implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public String codigoPedido;
-		public int diaLlegada;
-		public int diaLimite;
 		public TipoProducto producto;
 		public double toneladasSolicitadas;
 		public String terminal;
 
-		public PedidoPlan(String codigoPedido, int diaLlegada, int diaLimite,
-				TipoProducto producto, double toneladasSolicitadas, String terminal) {
+		public int diaConocimiento;          // desde aqui el pedido existe y puede reservar
+		public int diaAperturaRetiroVacio;   // desde aqui puede empezar el movimiento fisico
+		public int diaCutoffFisico;          // contra esta fecha se mide el servicio
+		public int diaETD;                   // salida estimada del buque, no es fecha de entrega
+
+		public Naviera naviera = Naviera.SIN_DEFINIR;
+		public String incoterm = "";
+		public String buque = "";
+		public String viajeBuque = "";
+
+		// Alias legacy: el resto del modelo sigue leyendo estos dos nombres. No son
+		// datos independientes, son vistas de las fechas de la ventana.
+		public int diaLlegada;
+		public int diaLimite;
+
+		public PedidoPlan(String codigoPedido, int diaConocimiento, int diaAperturaRetiroVacio,
+				int diaCutoffFisico, int diaETD, TipoProducto producto,
+				double toneladasSolicitadas, String terminal) {
 			this.codigoPedido = codigoPedido;
-			this.diaLlegada = diaLlegada;
-			this.diaLimite = diaLimite;
 			this.producto = producto;
 			this.toneladasSolicitadas = toneladasSolicitadas;
 			this.terminal = terminal;
+			this.diaConocimiento = diaConocimiento;
+			this.diaAperturaRetiroVacio = diaAperturaRetiroVacio;
+			this.diaCutoffFisico = diaCutoffFisico;
+			this.diaETD = diaETD;
+			this.diaLlegada = diaConocimiento;
+			this.diaLimite = diaCutoffFisico;
+		}
+
+		/**
+		 * Deriva la ventana de un libro que solo trae dia_llegada y dia_limite
+		 * (VM-08). La derivacion nunca inventa conocimiento mas temprano que el que
+		 * el libro declara: dia_llegada sigue siendo el dia en que el pedido existe,
+		 * y la apertura se atrasa hasta la anticipacion de retiro del escenario.
+		 */
+		public static PedidoPlan desdeLegacy(String codigoPedido, int diaLlegada, int diaLimite,
+				TipoProducto producto, double toneladasSolicitadas, String terminal,
+				Escenario escenario) {
+			int retiro = escenario == null ? 7 : escenario.diasAnticipacionRetiroDefault;
+			int etd = escenario == null ? 1 : escenario.diasEntreCutoffYEtdDefault;
+			int apertura = Math.max(diaLlegada, diaLimite - retiro);
+			return new PedidoPlan(codigoPedido, diaLlegada, apertura, diaLimite,
+					diaLimite + etd, producto, toneladasSolicitadas, terminal);
 		}
 	}
 
@@ -23062,7 +24064,8 @@ public class DatosEntrada implements java.io.Serializable {
 	public java.util.List<PedidoPlan> pedidosDelDia(int dia) {
 		java.util.List<PedidoPlan> resultado = new java.util.ArrayList<PedidoPlan>();
 		for (PedidoPlan p : pedidoPlan) {
-			if (p.diaLlegada == dia) {
+			// El pedido nace el dia en que se conoce, no el dia del cut-off (ADR-059).
+			if (p.diaConocimiento == dia) {
 				resultado.add(p);
 			}
 		}
@@ -23144,6 +24147,26 @@ public class DatosEntrada implements java.io.Serializable {
 
 		if (escenario.diasForecast < 0) {
 			errores.add("dias_forecast no puede ser negativo.");
+		}
+
+		if (escenario.diasAnticipacionRetiroDefault < 0
+				|| escenario.diasAnticipacionPlanificacionDefault < 0
+				|| escenario.diasEntreCutoffYEtdDefault < 0) {
+			errores.add("Las anticipaciones de la ventana maritima no pueden ser negativas.");
+		}
+
+		if (escenario.diasAnticipacionPlanificacionDefault < escenario.diasAnticipacionRetiroDefault) {
+			errores.add("dias_anticipacion_planificacion_default ("
+					+ escenario.diasAnticipacionPlanificacionDefault
+					+ ") no puede ser menor que dias_anticipacion_retiro_default ("
+					+ escenario.diasAnticipacionRetiroDefault
+					+ "): el pedido se conoce antes de poder retirar el vacio.");
+		}
+
+		if (!"CONTINUAR".equals(escenario.politicaReprogramacionBuque)
+				&& !"CANCELAR".equals(escenario.politicaReprogramacionBuque)) {
+			errores.add("politica_reprogramacion_buque invalida: "
+					+ escenario.politicaReprogramacionBuque);
 		}
 
 		if (!"FLEXIBLE".equals(escenario.politicaFrioPropio)
@@ -23408,8 +24431,16 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 
 		for (PedidoPlan p : pedidoPlan) {
-			if (p.diaLimite < p.diaLlegada) {
-				errores.add("dia_limite < dia_llegada en el pedido " + p.codigoPedido + ".");
+			// La ventana maritima es una cadena ordenada (ADR-059, seccion 21 del MOD):
+			// romperla no es un caso raro, es un dato mal cargado.
+			if (!(p.diaConocimiento <= p.diaAperturaRetiroVacio
+					&& p.diaAperturaRetiroVacio <= p.diaCutoffFisico
+					&& p.diaCutoffFisico <= p.diaETD)) {
+				errores.add("La ventana maritima del pedido " + p.codigoPedido
+						+ " no respeta dia_conocimiento <= dia_apertura_retiro_vacio"
+						+ " <= dia_cutoff_fisico <= dia_etd: "
+						+ p.diaConocimiento + ", " + p.diaAperturaRetiroVacio + ", "
+						+ p.diaCutoffFisico + ", " + p.diaETD + ".");
 			}
 			if (p.toneladasSolicitadas <= 0) {
 				errores.add("toneladas_solicitadas <= 0 en el pedido " + p.codigoPedido + ".");
@@ -24189,13 +25220,29 @@ public class GeneradorSintetico implements java.io.Serializable {
 			String terminal = TERMINALES[fijo ? (i - 1) % TERMINALES.length
 					: rnd.nextInt(TERMINALES.length)];
 
-			datos.pedidoPlan.add(new DatosEntrada.PedidoPlan(
+			// Ventana maritima (ADR-059). El pedido se conoce el mismo dia que antes
+			// del MOD: lo unico nuevo es que el vacio no puede retirarse hasta la
+			// apertura, que es lo que este modelo quiere medir.
+			int cutoff = diaLlegada + plazo;
+			int apertura = Math.max(diaLlegada,
+					cutoff - escenario.diasAnticipacionRetiroDefault);
+
+			DatosEntrada.PedidoPlan plan = new DatosEntrada.PedidoPlan(
 				String.format("P%03d", i),
 				diaLlegada,
-				diaLlegada + plazo,
+				apertura,
+				cutoff,
+				cutoff + escenario.diasEntreCutoffYEtdDefault,
 				producto,
 				redondear(Math.max(10, toneladas)),
-				terminal));
+				terminal);
+
+			// El buque no es un dato del generador: se identifica por la ventana que
+			// comparte, que es lo que en la realidad agrupa a los pedidos.
+			plan.buque = "B-" + cutoff + "-" + terminal;
+			plan.viajeBuque = String.valueOf(cutoff);
+
+			datos.pedidoPlan.add(plan);
 		}
 	}
 
@@ -24258,6 +25305,13 @@ public class ImportadorExcel implements java.io.Serializable {
 
 	private final com.anylogic.engine.connectivity.ExcelFile libro;
 	private final java.util.List<String> errores = new java.util.ArrayList<String>();
+	private final java.util.List<String> advertencias = new java.util.ArrayList<String>();
+
+	/**
+	 * Lo que el libro no trae y se derivo con los defaults del contrato. No aborta
+	 * la corrida, pero el modelo lo informa: un dato derivado no es un dato cargado.
+	 */
+	public static java.util.List<String> ultimasAdvertencias = new java.util.ArrayList<String>();
 
 	private ImportadorExcel(com.anylogic.engine.connectivity.ExcelFile libro) {
 		this.libro = libro;
@@ -24284,6 +25338,7 @@ public class ImportadorExcel implements java.io.Serializable {
 
 	private DatosEntrada leer(String idEscenario) {
 		DatosEntrada datos = new DatosEntrada();
+		ultimasAdvertencias = advertencias;
 
 		for (Fila f : filas("Escenario", "id_escenario", idEscenario)) {
 			DatosEntrada.Escenario e = new DatosEntrada.Escenario();
@@ -24324,6 +25379,22 @@ public class ImportadorExcel implements java.io.Serializable {
 			e.factorConsolidacionPlanta = f.numero("factor_consolidacion_planta");
 			e.factorCupoCrossDock = f.numero("factor_cupo_cross_dock");
 			e.factorCapacidadTerminal = f.numero("factor_capacidad_terminal");
+			// Ventana maritima (ADR-059): opcionales, para que un libro anterior al
+			// MOD siga corriendo con los defaults del contrato.
+			e.diasAnticipacionPlanificacionDefault =
+					f.enteroOpcional("dias_anticipacion_planificacion_default", 14);
+			e.diasAnticipacionRetiroDefault =
+					f.enteroOpcional("dias_anticipacion_retiro_default", 7);
+			e.diasEntreCutoffYEtdDefault =
+					f.enteroOpcional("dias_entre_cutoff_y_etd_default", 1);
+			e.permiteReservaAntesRetiro =
+					f.booleanoOpcional("permite_reserva_antes_retiro", true);
+			e.permiteTransferenciaAntesRetiro =
+					f.booleanoOpcional("permite_transferencia_antes_retiro", true);
+			e.permiteReservaCapacidadFutura =
+					f.booleanoOpcional("permite_reserva_capacidad_futura", true);
+			e.politicaReprogramacionBuque =
+					f.textoOpcional("politica_reprogramacion_buque", "CONTINUAR").toUpperCase();
 			datos.escenario = e;
 		}
 
@@ -24410,9 +25481,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		}
 
 		for (Fila f : filas("PedidoPlan", "id_escenario", idEscenario)) {
-			datos.pedidoPlan.add(new DatosEntrada.PedidoPlan(
-					f.texto("codigo_pedido"), f.entero("dia_llegada"), f.entero("dia_limite"),
-					f.producto("producto"), f.numero("toneladas_solicitadas"), f.texto("terminal")));
+			datos.pedidoPlan.add(leerPedidoPlan(f, datos.escenario));
 		}
 
 		// La hoja es opcional: un libro sin stock inicial corre con inventario
@@ -24429,6 +25498,69 @@ public class ImportadorExcel implements java.io.Serializable {
 		}
 
 		return datos;
+	}
+
+	/**
+	 * Arma el pedido con su ventana maritima (ADR-059). El contrato pide las cuatro
+	 * fechas; un libro anterior al MOD solo trae dia_llegada y dia_limite y la
+	 * ventana se deriva de los defaults del escenario, sin inventar conocimiento
+	 * mas temprano que el que el libro declara.
+	 */
+	private DatosEntrada.PedidoPlan leerPedidoPlan(Fila f, DatosEntrada.Escenario escenario) {
+
+		String codigo = f.texto("codigo_pedido");
+		TipoProducto producto = f.producto("producto");
+		double toneladas = f.numero("toneladas_solicitadas");
+		String terminal = f.texto("terminal");
+
+		DatosEntrada.PedidoPlan plan;
+
+		if (f.tiene("dia_cutoff_fisico")) {
+			int cutoff = f.entero("dia_cutoff_fisico");
+			int retiro = escenario == null ? 7 : escenario.diasAnticipacionRetiroDefault;
+			int planificacion = escenario == null
+					? 14 : escenario.diasAnticipacionPlanificacionDefault;
+			int hastaEtd = escenario == null ? 1 : escenario.diasEntreCutoffYEtdDefault;
+
+			plan = new DatosEntrada.PedidoPlan(
+					codigo,
+					f.enteroOpcional("dia_conocimiento", cutoff - planificacion),
+					f.enteroOpcional("dia_apertura_retiro_vacio", cutoff - retiro),
+					cutoff,
+					f.enteroOpcional("dia_etd", cutoff + hastaEtd),
+					producto, toneladas, terminal);
+
+		} else if (f.tiene("dia_limite")) {
+			plan = DatosEntrada.PedidoPlan.desdeLegacy(codigo, f.entero("dia_llegada"),
+					f.entero("dia_limite"), producto, toneladas, terminal, escenario);
+
+			String aviso = "La hoja PedidoPlan no trae dia_cutoff_fisico: la ventana"
+					+ " maritima se deriva de dia_llegada/dia_limite con los defaults del"
+					+ " escenario (ADR-059).";
+			if (!advertencias.contains(aviso)) {
+				advertencias.add(aviso);
+			}
+
+			if (plan.diaConocimiento == plan.diaAperturaRetiroVacio) {
+				String sinMargen = "Con la ventana derivada hay pedidos sin margen entre el"
+						+ " conocimiento y la apertura del retiro (ADR-059).";
+				if (!advertencias.contains(sinMargen)) {
+					advertencias.add(sinMargen);
+				}
+			}
+
+		} else {
+			errores.add("La hoja PedidoPlan necesita dia_cutoff_fisico (contrato) o"
+					+ " dia_llegada/dia_limite (forma anterior a ADR-059).");
+			plan = new DatosEntrada.PedidoPlan(codigo, 0, 0, 0, 0, producto, toneladas, terminal);
+		}
+
+		plan.naviera = f.naviera("naviera");
+		plan.incoterm = f.textoOpcional("incoterm", "").toUpperCase();
+		plan.buque = f.textoOpcional("buque", "");
+		plan.viajeBuque = f.textoOpcional("viaje_buque", "");
+
+		return plan;
 	}
 
 	/**
@@ -24831,6 +25963,43 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		private String texto(String nombre) {
 			return comoTexto(columna(nombre));
+		}
+
+		/** Columna presente en la hoja. Una columna opcional ausente no es un error. */
+		private boolean tiene(String nombre) {
+			return encabezados.containsKey(nombre);
+		}
+
+		private String textoOpcional(String nombre, String porDefecto) {
+			if (!tiene(nombre)) {
+				return porDefecto;
+			}
+			String v = comoTexto(columna(nombre));
+			return v.length() == 0 ? porDefecto : v;
+		}
+
+		private int enteroOpcional(String nombre, int porDefecto) {
+			return tiene(nombre) && comoTexto(columna(nombre)).length() > 0
+					? entero(nombre) : porDefecto;
+		}
+
+		private boolean booleanoOpcional(String nombre, boolean porDefecto) {
+			return tiene(nombre) && comoTexto(columna(nombre)).length() > 0
+					? booleano(nombre) : porDefecto;
+		}
+
+		private Naviera naviera(String nombre) {
+			String v = textoOpcional(nombre, "").toUpperCase().replace(" ", "_").replace("-", "_");
+			if (v.length() == 0) {
+				return Naviera.SIN_DEFINIR;
+			}
+			try {
+				return Naviera.valueOf(v);
+			} catch (IllegalArgumentException e) {
+				errores.add("Naviera desconocida '" + v + "' en la fila " + fila
+						+ " de la hoja " + hoja + ".");
+				return Naviera.SIN_DEFINIR;
+			}
 		}
 
 		private double numero(String nombre) {

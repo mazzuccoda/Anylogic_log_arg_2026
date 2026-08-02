@@ -584,6 +584,78 @@ Los casos SI se verifican con libros de prueba derivados del volcado sintético 
 
 **Medido:** con `datos/entrada_ejemplo.xlsx` el tablero informa `déficit estructural 3924 tn` en el día 0. Es la lectura de X-24 punto 1, ahora cuantificada por producto por `DatosEntrada.deficitEstructuralTn()` = `max(0, demanda − stock inicial − producción planificada)`.
 
+## 4.6 Ventana marítima y cut-off (ADR-059)
+
+Los casos VM se verifican con dos libros de prueba (`vm_ventana.xlsx`, con las cuatro fechas explícitas y pedidos armados caso por caso, y `vm_legacy.xlsx`, con el contrato anterior), más el barrido completo `fase-26` para el efecto agregado. Cada caso dice **cómo** se midió: corrida directa, barrido o lectura del código. Un caso medido por lectura de código no es un caso corrido, y así queda anotado.
+
+### VM-01 Planificación anticipada (corrida directa)
+
+**Esperado:** con conocimiento 10, apertura 17, cut-off 24 y ETD 25, el pedido existe y reserva desde el día 10, ningún viaje físico ocurre antes del día 17 y la entrega puede ocurrir hasta el día 24.
+
+**Medido:** la traza de `vm_ventana.xlsx` registra `[dia 10] VM01 JUGO estado=RESERVADO solicitado=400 reserva_activa=400`, siete días antes de la apertura. En el corte del día 16 el pedido tiene sus contenedores en `CREADO`, con 0 envíos en el flujo físico y 0 viajes; el tablero informa `Planificados sin ejecutar` distinto de cero y `con retiro abierto` en cero para ese buque.
+
+### VM-02 Varios pedidos en el mismo buque (corrida directa)
+
+**Esperado:** 30 pedidos con el mismo cut-off y la misma terminal se distribuyen dentro de la ventana en vez de liberarse todos el día del cut-off.
+
+**Medido:** los 30 pedidos `VM02-xx` se reservan el día 46 (conocimiento) y no el 53 (apertura): la traza los muestra `RESERVADO` con `pend_asignar = 0` en el mismo día en que nacen. La ejecución arranca el día 53 y se secuencia por holgura, no por orden de llegada. **Límite de esta evidencia:** con la capacidad del libro de prueba el cluster no entra completo en la ventana y 28 de los 30 pierden el cut-off, así que el caso demuestra la planificación anticipada y la secuenciación, no un cluster holgado.
+
+### VM-03 Ventana inviable (corrida directa)
+
+**Esperado:** una ventana más corta que el tiempo logístico mínimo se detecta y se avisa.
+
+**Medido:** *"Dia 20: la ventana del pedido VM03 no alcanza para el cut-off (holgura -1.37 dias, buque B-VM03)"*. El tablero lo cuenta en `ventanas inviables`, y el KPI `pedidos_ventana_inviable` lo expone en el barrido.
+
+### VM-04 Servicio por tonelada (corrida directa)
+
+**Esperado:** el incumplimiento por pedido es binario y el servicio por tonelada mide la fracción entregada antes del cut-off.
+
+**Medido:** las dos métricas se separan de verdad. En la campaña completa con `datos/entrada_ejemplo.xlsx`: `Toneladas al cut-off: 7666 · fuera: 6936`, con `Nivel de servicio 26% · por tonelada al cut-off 25%`. El acumulador se parte en `toneladasEntregadasAntesCutoff` / `toneladasEntregadasFueraCutoff` en el momento de la entrega, contra `dia_cutoff_fisico` y no contra el ETD.
+
+### VM-05 Pérdida de buque (corrida directa)
+
+**Esperado:** una entrega posterior al cut-off marca `perdioCutoff` y el pedido sigue vivo hasta entregarse o reprogramarse.
+
+**Medido:** `VM05` (3 000 tn, ventana de 2 días) queda avisado el día 77 por ventana inviable y después aparece como `estado=ATRASADO` con reserva que sigue creciendo hasta el final de la corrida: el pedido no se cancela ni se congela. Con `politica_reprogramacion_buque = CONTINUAR` (default) se marca `reprogramado`; con `CANCELAR` el pedido pasa a `CANCELADO`.
+
+### VM-06 Capacidad futura insuficiente (corrida directa)
+
+**Esperado:** los contenedores que no encuentran posición dentro de la ventana quedan identificados.
+
+**Medido:** el tablero informa `sin posición` distinto de cero en las dos corridas (213 en el libro VM, 150 en la campaña completa) y `contenedores_sin_posicion_futura` lo expone por corrida en el barrido. `posicionesPlanificadas` es un registro de planificación: no consume capacidad operativa del día, sólo dice cuándo la ventana no alcanza para el sitio elegido.
+
+### VM-07 Cross docking dentro de la ventana (barrido)
+
+**Esperado:** el cross dock se planifica anticipadamente y se ejecuta dentro de la ventana.
+
+**Medido:** en `fase-26`, E-05 (escenario de cross dock) mantiene sus operaciones de cross dock con `pedidos_perdieron_cutoff = 0,2` de media en 30 réplicas y servicio 0,988: el cruce ocurre dentro de la ventana. **Límite:** no hay un caso unitario de cross dock con ventana corta; el respaldo es el escenario del barrido.
+
+### VM-08 Compatibilidad legacy (corrida directa)
+
+**Esperado:** un libro sin las columnas nuevas corre, deriva las fechas y avisa.
+
+**Medido:** `vm_legacy.xlsx` (1 399 pedidos con `dia_llegada`/`dia_limite`) corre sin excepción y la consola abre con *"Advertencia de datos: La hoja PedidoPlan no trae dia_cutoff_fisico: la ventana maritima se deriva de dia_llegada/dia_limite con los defaults del escenario (ADR-059)"*. La derivación no inventa conocimiento más temprano que el declarado: `dia_conocimiento = dia_llegada`.
+
+### VM-09 Reservar y transferir antes de abrir la ventana (corrida directa)
+
+**Esperado:** la reserva y la transferencia funcionan con la ventana cerrada; el contenedor existe en `CREADO` y nada entra al flujo físico hasta la apertura.
+
+**Medido:** es la otra mitad de VM-01. `crearContenedoresParaAsignacion()` crea el contenedor en `CREADO` cuando `pedido.ventanaRetiroAbierta` es falso y en `ESPERANDO_PROGRAMACION` cuando ya abrió, así que un pedido que nace con la ventana abierta no pierde un día. `actualizarVentanasRetiroDelDia()` (paso 2b) es el único punto que hace `CREADO → ESPERANDO_PROGRAMACION`. No se agregó ningún estado nuevo de contenedor.
+
+### VM-10 Regresión de `demandaProyectada()` (lectura de código + barrido)
+
+**Esperado:** la demanda conocida se cuenta completa aunque el retiro no haya abierto, y la transferencia preventiva no cambia sólo por la existencia de la ventana.
+
+**Medido:** el filtro es `permiteTransferenciaAntesRetiro || pedido.ventanaRetiroAbierta`, con el permiso en `true` por default, así que con la configuración del contrato la proyección es la de antes. Lo mismo con `permiteReservaAntesRetiro` en `reservarParcialPedido()`. **Límite:** no hay corrida específica con los permisos apagados; el caso está cubierto por lectura del código y por el barrido con los defaults.
+
+### VM-11 Efecto agregado de la ventana (barrido y corrida completa)
+
+La ventana **no** es neutra, y ese es el punto del MOD: hoy un pedido con 31 días de plazo se ejecuta desde el día 1; con el gate arranca a lo sumo 7 días antes del cut-off.
+
+- Barrido sintético `fase-24` → `fase-26`: E-00 baja de 0,975 a 0,696 de servicio con las mismas 12 738 tn exportadas, y aparecen 10,7 pedidos que pierden el cut-off, 5,24 días de holgura media y 60 contenedores sin posición futura. E-05 (0,988) y E-22 (0,990) casi no se mueven: el margen ya estaba.
+- Campaña completa con `datos/entrada_ejemplo.xlsx`: servicio 26 %, 14 602 tn exportadas, 943 pedidos que pierden el cut-off, 93 buques cumplidos contra 313 perdidos.
+- **Cuánto de eso es la ventana:** corriendo el mismo libro con `dia_apertura_retiro_vacio = dia_conocimiento` (que reproduce la regla anterior, ejecutar desde `dia_llegada`) el servicio sube de 26 % a 32 % y las toneladas exportadas de 14 602 a 15 218. La ventana explica unos 6 puntos; el resto es estructural y ya estaba declarado en X-24: 520 de los 1 399 pedidos son de CASCARA, que no puede salir de planta por la limitación de flota de ADR-044 (RUTA9 a 1 200 km).
+
 ## 4.1 Validación de datos de entrada
 
 Antes de cualquier caso funcional, el escenario debe pasar `validarDatosEntrada()` (ver [Contrato de datos](../09_Definicion/Contrato_de_Datos.md) §7). Una corrida con `errores_entrada.csv` no vacío no se considera evidencia válida.
