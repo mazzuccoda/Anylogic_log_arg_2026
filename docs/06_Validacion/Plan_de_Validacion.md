@@ -848,3 +848,38 @@ Después de cada cambio ejecutar al menos:
 | Excel vs. sintético | Las 743 filas de `datos/entrada_ejemplo.xlsx` coinciden celda por celda con el generador (0 diferencias numéricas) y E-00 da los mismos KPIs por los dos caminos |
 | Pérdida de producto | Cero en los 13 escenarios |
 | E-09 determinístico | Desvío 0 en las 30 réplicas |
+
+## V-FLOTA-MD. Flota de producto multidiaria (ADR-061)
+
+Doce casos. El barrido **no** se corrio en esta tanda por pedido explicito: la evidencia es build, campana completa y corridas dirigidas con libros derivados del libro real (`/home/ubuntu/flota_tests/`). Cada caso dice **como se midio**, y los que no se observaron directamente quedan como *no observados*, no como verdes.
+
+| Caso | Qué verifica | Resultado |
+|---|---|---|
+| V-FLOTA-MD-01 | Un viaje mas largo que una jornada se puede programar y ocupa el camion hasta que vuelve | **Verificado** por corrida. Libro con 3 camiones y 10 h: el tramo de 1 200 km cuesta 3,43 camion-dia y con la agenda **se hace**; la utilizacion de la flota pasa de 7 % (agenda apagada) a **91 %** y aparece espera de flota de 1,4 dias |
+| V-FLOTA-MD-02 | El producto no esta disponible en destino antes de la llegada | **Verificado** por construccion auditada: `recibirViajeProducto()` es el unico que llama a `inventario.ingresar()` para un viaje, con `dia_ingreso = diaLlegadaDestino`, y C-04 aborta si un viaje se completa sin haber ingresado o ingresa sin haber retirado. Ningun aborto en las corridas |
+| V-FLOTA-MD-03 | El camion no se libera al llegar, sino al regresar | **Verificado** por C-04: `disponibleDesde` nunca puede ser anterior al ultimo regreso de sus viajes vivos, y la reconciliacion corre todos los dias de las cuatro campanas |
+| V-FLOTA-MD-04 | Un movimiento se puede programar parcialmente | **Verificado** por corrida: con 3 camiones el modelo programa 566 de 578 viajes y contabiliza 681 951 tn sin flota, en vez de rechazar el movimiento entero |
+| V-FLOTA-MD-05 | La CASCARA hacia RUTA9 (1 200 km) deja de ser imposible | **Verificado, con una correccion del diagnostico previo:** con el libro vigente (500 camiones, 20 h) el tramo **ya era posible** bajo ADR-044, porque la regla era camion-dia agregado y no "entrar en la jornada": la corrida con la agenda apagada tambien mueve 506 tn de cascara a deposito. Lo que era imposible es el caso de flota chica, y ahi la agenda es la diferencia |
+| V-FLOTA-MD-06 | Inventario en transito reconciliado | **Verificado** por C-04 y C-02: el contador `toneladasProductoEnTransito` tiene que ser igual a la suma de los viajes en transito todos los dias, y el balance de la campana incluye el transito. Sin abortos |
+| V-FLOTA-MD-07 | El flete se cobra una sola vez por viaje fisico, y el viaje cancelado no paga | **Verificado** por construccion auditada: `iniciarViajeProducto()` es el unico punto que llama a `registrarFleteProducto()` para un viaje y marca `fleteRegistrado`; `cancelarViajeProducto()` no cobra. La auditoria por envio de ADR-053 no aborto en ninguna corrida |
+| V-FLOTA-MD-08 | El espacio del deposito no se compromete dos veces | **Verificado** por construccion auditada: `espacioDisponibleEfectivo()` descuenta `toneladasEnTransitoHacia()`, y ninguna corrida excedio capacidad de deposito (la capacidad dura de ADR-057 aborta si se excede) |
+| V-FLOTA-MD-09 | El cross dock solo cruza si el viaje llega dentro de la jornada | **Verificado** por lectura de codigo y corrida: `cruceLlegaEnElDia()` exige llegada antes del fin del dia y, si no, la alternativa se descarta con `CRUCE_SIN_LLEGADA_EN_EL_DIA`. Con los libros usados el cross dock sigue sin ganar el ranking, igual que en ADR-054 |
+| V-FLOTA-MD-10 | La evaluacion no muta la agenda | **Verificado** por construccion auditada: `evaluarDisponibilidadFlotaProducto()` trabaja sobre una copia `double[]` de las fechas de disponibilidad y no crea viajes; el unico punto que escribe `disponibleDesde` es `programarViajeProducto()` (y la liberacion de `cancelarViajeProducto()`) |
+| V-FLOTA-MD-11 | Un tramo sin distancia declarada no aborta la corrida | **Verificado** por corrida: antes de la correccion la campana abortaba con `Falta la distancia ZARATE -> PLANTA`; con la lectura simetrica corre y el tramo faltante daria `RUTA_SIN_DISTANCIA` |
+| V-FLOTA-MD-12 | Interruptor de regresion | **Verificado** por corrida pareada: con `habilita_flota_producto_multidiaria = false` el libro vigente da 988 viajes planta→deposito, 23 417 tn transferidas, 27 % de servicio y 14 611 tn exportadas, y con la agenda encendida 989 viajes y los mismos 23 417 tn, 27 % y 14 611 tn. El caso donde la flota no restringe **no se distorsiona** |
+
+**No observados:** la cancelacion de viajes por perder el cut-off (`politica_reprogramacion_buque = CANCELAR`) esta implementada y auditada por C-04, pero los libros usados corren con la politica `CONTINUAR`, asi que la ruta no se ejercito. Tampoco se ejercito `SIN_CAMIONES_CONFIGURADOS` (ningun libro declara flota cero).
+
+### Corridas de esta tanda
+
+**Ejecutado:** 2026-07-24 en AnyLogic PLE 8.9.9, modelo `fase-27`.
+
+| Corrida | Libro | Resultado |
+|---|---|---|
+| Build | — | `Build completed successfully`, 0 errores |
+| Campana completa, agenda encendida | `datos/entrada_ejemplo.xlsx` | 365 dias `Finished` sin excepciones; 1 553 viajes programados y los 1 553 iniciados, espera 0,0 d, 989 viajes planta→deposito, 23 417 tn transferidas, pico de 94 camiones en ruta de 500, servicio 27 %, exportado 14 611 tn |
+| Campana completa, agenda apagada | libro vigente con `habilita_flota_producto_multidiaria = false` | 365 dias `Finished`; 988 viajes, 23 417 tn, servicio 27 %, exportado 14 611 tn |
+| Flota chica, agenda encendida | 3 camiones, 10 h | 365 dias `Finished`; utilizacion 91 %, 566 de 578 viajes programados, espera 1,4 d, 25 tn en transito al cierre, servicio 6 %, exportado 7 536 tn |
+| Flota chica, agenda apagada | 3 camiones, 10 h | 365 dias `Finished`; utilizacion 7 %, 548 viajes, servicio 4 %, exportado 7 436 tn |
+
+Dos errores reales aparecieron en estas corridas y estan corregidos: el retorno pedia la fila inversa de `Distancia` (que la tabla no trae) y C-04 contaba como superposicion tener el viaje en curso con el siguiente ya programado para cuando el camion vuelve, que es una agenda legitima.

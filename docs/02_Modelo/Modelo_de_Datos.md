@@ -277,3 +277,36 @@ final double EPS = 0.0001;
 ```
 
 No comparar `double` mediante igualdad exacta en saldos y capacidades.
+
+## 10. Flota de producto y viajes (ADR-061)
+
+### 10.1 `UnidadFlotaProducto`
+
+| Campo | Tipo | Significado |
+|---|---|---|
+| `idCamion` | int | Identidad del camión, 1..`camiones_producto` |
+| `disponibleDesde` | double | **Única** fuente de disponibilidad: día a partir del cual puede salir |
+| `ubicacionBase` | String | Base del camión (hoy siempre `PLANTA`, supuesto declarado) |
+| `ubicacionActual` | String | Dónde está o hacia dónde salió |
+| `idViajeActual` | String | Último viaje asignado, vacío si está libre |
+| `activo` | boolean | Camión disponible en la campaña |
+| `camionDiaAcumulado` | double | Camión-día consumido, base de la utilización |
+| `viajesCompletados` | int | Viajes que volvieron |
+
+### 10.2 `ViajeProducto`
+
+Un viaje es **un camión y hasta `capacidad_camion_tn` toneladas**. Lleva origen, destino, lote, código de pedido, producto, toneladas, estrategia y si cruza; las fechas de programación, solicitud, salida, llegada, inicio de retorno y regreso; las duraciones de ida y retorno y la distancia; y tres banderas que hacen auditable el ciclo: `stockRetiradoOrigen`, `stockIngresadoDestino` y `fleteRegistrado`. `ocupaSoloFlota` distingue el viaje que solo ocupa camión (granel a terminal, cuyo movimiento físico y costo son del envío) del que además mueve inventario.
+
+`EstadoViajeProducto`: `PROGRAMADO → EN_TRANSITO_DESTINO → DESCARGANDO → RETORNANDO → COMPLETADO`, con `CANCELADO` para el viaje que nunca salió.
+
+### 10.3 Reglas de integridad
+
+- `0 < toneladas <= capacidad_camion_tn`.
+- `diaSalida <= diaLlegadaDestino <= diaRegreso`.
+- Ningún camión con dos viajes **superpuestos en el tiempo**; tener el viaje en curso y el siguiente programado para cuando vuelve es válido.
+- `disponibleDesde` nunca anterior al último regreso de sus viajes vivos.
+- No se ingresa carga que no se retiró, ni se completa un viaje que no ingresó.
+- El flete se devenga una sola vez por viaje, al salir.
+- La reserva del viaje vive en las capas de `Inventario` con `clave = VIAJE|<id>`; no hay un segundo registro de compromisos.
+
+Todo esto lo verifica **C-04** (`reconciliarFlotaProducto()`) todos los días.

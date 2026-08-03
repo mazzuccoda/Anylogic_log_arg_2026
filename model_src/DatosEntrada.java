@@ -92,6 +92,20 @@ public class DatosEntrada implements java.io.Serializable {
 		 */
 		public boolean exportarDiagnosticoCapacidad = false;
 		public String politicaReprogramacionBuque = "CONTINUAR";   // CONTINUAR | CANCELAR
+
+		/**
+		 * Flota de producto como camiones discretos con viajes multidiarios (ADR-061). En
+		 * false corre la logica anterior de capacidad diaria agregada (ADR-044) y es la
+		 * regresion exacta: sin agenda, sin transito y con el movimiento instantaneo.
+		 */
+		public boolean habilitaFlotaProductoMultidiaria = true;
+
+		/**
+		 * Cuantos dias hacia adelante puede comprometer la agenda de camiones. Programar
+		 * un viaje inmoviliza el stock que lleva: sin techo, el producto queda reservado
+		 * para un viaje lejano y no sirve al pedido de manana.
+		 */
+		public double diasMaxProgramacionFlota = 2;
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -523,6 +537,26 @@ public class DatosEntrada implements java.io.Serializable {
 			}
 		}
 		throw new RuntimeException("Falta la fila de " + producto + " en la tabla Producto.");
+	}
+
+	/**
+	 * Distancia del tramo en cualquiera de los dos sentidos, o -1 si el tramo no esta en la
+	 * tabla. La tabla Distancia declara un solo sentido por par (PLANTA -> ZARATE, no la
+	 * vuelta), asi que el retorno del camion tiene que poder leer la fila de la ida sin que
+	 * un tramo faltante aborte la corrida (ADR-061).
+	 */
+	public double distanciaKmSimetrica(String origen, String destino) {
+		for (Distancia d : distancias) {
+			if (d.origen.equals(origen) && d.destino.equals(destino)) {
+				return d.distanciaKm;
+			}
+		}
+		for (Distancia d : distancias) {
+			if (d.origen.equals(destino) && d.destino.equals(origen)) {
+				return d.distanciaKm;
+			}
+		}
+		return -1;
 	}
 
 	public double distanciaKm(String origen, String destino) {

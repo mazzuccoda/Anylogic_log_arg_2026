@@ -277,3 +277,31 @@ Dos advertencias que el panel repite en pantalla:
 - el costo por tonelada hereda la limitación del contrato de datos: la planta no cobra almacenaje.
 
 Todos los números del tablero salen de las mismas corridas que el CSV: son medias de `corridas`, la misma colección que se escribe en `resultados/kpis_por_corrida.csv` (ADR-046).
+
+## 8. Indicadores de flota multidiaria (ADR-061)
+
+Con la agenda activa, el panel *Transporte y flota* cambia de contenido: en vez del camión-día del día muestra **camiones en ruta** sobre la flota y el **pico**, y agrega a las líneas de viajes y de toneladas los viajes iniciados sobre programados, la espera media de flota, las toneladas en tránsito y las toneladas que no se pudieron programar. Con `habilita_flota_producto_multidiaria = false` el panel vuelve al camión-día de ADR-044.
+
+Diecisiete KPIs nuevos en `resultados/kpis_por_corrida.csv`:
+
+| KPI | Definición |
+|---|---|
+| `viajes_producto_programados` | Viajes creados en la campaña |
+| `viajes_producto_iniciados` | Viajes que salieron |
+| `viajes_producto_completados` | Viajes que volvieron |
+| `viajes_producto_cancelados` | Viajes dados de baja antes de salir |
+| `camiones_producto_promedio_en_ruta` | Media diaria de camiones en ruta |
+| `pico_camiones_producto_en_ruta` | Máximo diario de camiones en ruta. **Es el número de dimensionamiento de flota** |
+| `espera_media_flota_producto_dias` | Días de espera por camión, promediados sobre los movimientos que esperaron |
+| `espera_maxima_flota_producto_dias` | Peor espera de la campaña |
+| `toneladas_reservadas_para_transporte` | Comprometido en viajes que todavía no salieron, al cierre |
+| `toneladas_producto_en_transito` | Arriba de un camión al cierre |
+| `toneladas_no_programadas_por_flota` | Volumen que no consiguió camión. Es la demanda de flota que falta |
+| `toneladas_programadas_parcialmente` | Volumen movido en movimientos que quedaron incompletos |
+| `movimientos_parciales_por_flota` | Cuántos movimientos quedaron incompletos |
+| `pedidos_perdieron_cutoff_por_flota` | Pedidos que perdieron el buque y tuvieron algún descarte por flota. Separa el problema de flota del de posiciones |
+| `viajes_en_curso_fin_campania` | Viajes sin cerrar al final: mide el arrastre |
+| `toneladas_transferidas_programadas` | Toneladas programadas para transferencia |
+| `toneladas_transferidas_salidas` | Toneladas que efectivamente salieron |
+
+Cómo leerlos sin equivocarse: `pico_camiones_producto_en_ruta` dimensiona la flota, `toneladas_no_programadas_por_flota` dice cuánto falta y `espera_maxima_flota_producto_dias` cuánto cuesta en tiempo. Una utilización baja con toneladas sin programar no es contradictoria: significa que el volumen se pidió cuando los camiones estaban en ruta.

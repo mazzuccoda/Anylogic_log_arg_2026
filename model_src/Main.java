@@ -115,6 +115,31 @@ class Main extends Agent {
     java.util.ArrayList<String> diagnosticoAsignaciones = new java.util.ArrayList<String>();
     boolean exportarDiagnosticoCapacidad = false;
     LinkedHashMap<String, LinkedHashMap<Integer, Integer>> colaCapacidad = new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>();
+    java.util.ArrayList<UnidadFlotaProducto> unidadesFlotaProducto = new java.util.ArrayList<UnidadFlotaProducto>();
+    java.util.ArrayList<ViajeProducto> viajesProducto = new java.util.ArrayList<ViajeProducto>();
+    LinkedHashMap<String, ViajeProducto> viajeProductoPorId = new LinkedHashMap<String, ViajeProducto>();
+    int siguienteIdViajeProducto = 1;
+    double toneladasProductoEnTransito = 0;
+    double toneladasReservadasParaTransporte = 0;
+    int viajesProductoProgramados = 0;
+    int viajesProductoIniciados = 0;
+    int viajesProductoCompletados = 0;
+    int viajesProductoCancelados = 0;
+    double esperaFlotaProductoDiasAcumulada = 0;
+    double esperaFlotaProductoDiasMaxima = 0;
+    int movimientosConEsperaFlota = 0;
+    double toneladasNoProgramadasPorFlota = 0;
+    double toneladasProgramadasParcialmente = 0;
+    int movimientosParcialesPorFlota = 0;
+    double picoCamionesProductoEnRuta = 0;
+    double camionesEnRutaDiaAcumulado = 0;
+    int diasFlotaMedidos = 0;
+    double toneladasTransferidasProgramadas = 0;
+    double toneladasTransferidasSalidas = 0;
+    LinkedHashMap<String, Integer> descartesFlotaPorMotivo = new LinkedHashMap<String, Integer>();
+    java.util.HashSet<String> pedidosConDescartePorFlota = new java.util.HashSet<String>();
+    int pedidosPerdieronCutoffPorFlota = 0;
+    java.util.ArrayList<String> diagnosticoFlota = new java.util.ArrayList<String>();
 
     // ----- Colecciones -----
     ArrayList<Terminal> terminales = new ArrayList<Terminal>();
@@ -260,9 +285,11 @@ class Main extends Agent {
 
             // Ya no hace falta que entre todo: alcanza con que entre una parte, y se compara
             // por costo unitario para que el criterio no dependa de cuanto entra en cada uno.
+            // El espacio se descuenta por lo que ya viene en camino: con viajes de varios dias
+            // el volumen en ruta todavia no esta en el stock del deposito (ADR-061).
             double posible = min(
                 toneladas,
-                deposito.getEspacioDisponible(producto)
+                espacioDisponibleEfectivo(deposito, producto)
             );
 
             if (posible <= 0.0001) {
@@ -400,6 +427,14 @@ class Main extends Agent {
             double toneladas = flexible
                 ? toneladasASacarDePlanta(producto)
                 : toneladasASacarReactiva(producto);
+
+            // Lo reservado para un viaje que todavia no salio ya esta saliendo: volver a
+            // pedirlo programaria dos veces el mismo desborde (ADR-061). La politica no
+            // cambia; cambia que ahora la salida tarda.
+            if (usaFlotaMultidiaria()) {
+                toneladas =
+                    max(0, toneladas - toneladasComprometidasParaViajesDe(producto));
+            }
 
             boolean critica = plantaEnSobrecargaCritica(producto);
 
@@ -1302,6 +1337,13 @@ class Main extends Agent {
             return 0;
         }
 
+        // Con la agenda de camiones el movimiento deja de ser instantaneo: se programan viajes
+        // fisicos, el producto sale al salir el viaje y entra al llegar (ADR-061). El flete y el
+        // ingreso al deposito se devengan en esos dos momentos, no aca.
+        if (usaFlotaMultidiaria()) {
+            return programarTransferenciaLote(lote, destino, toneladas, cruza);
+        }
+
         double aMover = min(
             min(toneladas, inventario.libreDeLoteEn(lote.idLote, "PLANTA")),
             destino.getEspacioDisponible(lote.producto)
@@ -1620,14 +1662,7 @@ class Main extends Agent {
                 contenedor.circuito
                 == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
 
-            if (
-                granel
-                && !flotaProductoAlcanza(
-                    contenedor.idSitioOrigen,
-                    pedido.puertoSalida.idUbicacion,
-                    contenedor.cantidadAsignadaTon
-                )
-            ) {
+            if (granel && !flotaProductoDisponibleParaGranel(pedido, contenedor)) {
                 contenedor.diasEsperaPosicion++;
                 esperaConsolidacionContenedorDia++;
                 contenedoresEnEspera++;
@@ -1675,13 +1710,7 @@ class Main extends Agent {
             envio.contenedor = contenedor;
 
             if (granel) {
-                tomarFlotaProducto(
-                    contenedor.idSitioOrigen,
-                    pedido.puertoSalida.idUbicacion,
-                    viajesNecesariosCamion(
-                        contenedor.cantidadAsignadaTon
-                    )
-                );
+                ocuparFlotaParaGranel(pedido, contenedor);
             }
 
             contenedor.estado =
@@ -1880,7 +1909,7 @@ class Main extends Agent {
                 min(
                     inventario.libre("PLANTA", pedido.producto),
                     min(
-                        sitio.getEspacioDisponible(pedido.producto),
+                        espacioDisponibleEfectivo(sitio, pedido.producto),
                         capacidadCrossDockLibre(sitio.idUbicacion) * capacidadContenedor
                     )
                 )
@@ -1890,7 +1919,35 @@ class Main extends Agent {
             return 0;
         }
 
-        if (
+        if (usaFlotaMultidiaria()) {
+
+            // Cruzar exige que el camion llegue dentro de la jornada: si no, el producto tendria
+            // que dormir en el sitio y eso ya no es cross dock (ADR-010, ADR-061).
+            if (!cruceLlegaEnElDia("PLANTA", sitio.idUbicacion, toneladas)) {
+                contarDescarteFlota(
+                    ViajeProducto.CRUCE_SIN_LLEGADA_EN_EL_DIA, pedido.codigoPedido);
+                crossDockReprogramados++;
+                return 0;
+            }
+
+            ResultadoDisponibilidadFlota disponibilidad =
+                evaluarDisponibilidadFlotaProducto(
+                    "PLANTA", sitio.idUbicacion, toneladas, time(), floor(time()) + 1);
+
+            if (!disponibilidad.puedeProgramarAlgo()) {
+                contarDescarteFlota(
+                    disponibilidad.motivo.isEmpty()
+                    ? ViajeProducto.SIN_FLOTA_ANTES_CUTOFF
+                    : disponibilidad.motivo,
+                    pedido.codigoPedido);
+                crossDockReprogramados++;
+                return 0;
+            }
+
+            // Se cruza lo que la flota puede llevar hoy: el resto vuelve a competir manana.
+            toneladas = min(toneladas, disponibilidad.toneladasProgramables);
+
+        } else if (
             !flotaProductoAlcanza(
                 "PLANTA",
                 sitio.idUbicacion,
@@ -2093,8 +2150,9 @@ class Main extends Agent {
     }
 
     double excedenteFinalTn() {
-        // Producto que la campania no logro exportar: se quedo en planta o en deposito.
-        double total = 0;
+        // Producto que la campania no logro exportar: quedo en planta, en un deposito o arriba
+        // de un camion que todavia no llego a destino al cierre (ADR-061).
+        double total = toneladasProductoEnTransito;
 
         for (TipoProducto producto : TipoProducto.values()) {
 
@@ -2115,11 +2173,15 @@ class Main extends Agent {
     }
 
     void abrirFlotaDelDia() {
-        // La flota de producto es capacidad diaria, igual que las posiciones (ADR-039):
-        // cada dia se ofrece un camion-dia por camion y lo que no entra espera al dia
-        // siguiente. Los portacontenedores, en cambio, se toman y se liberan en el flujo.
-        flotaProductoUsadaHoy = 0;
+        // Con la agenda de camiones (ADR-061) la restriccion es la fecha en que cada camion
+        // vuelve a estar libre, no un balde diario: aca la capacidad diaria queda solo como
+        // medida. Sin agenda sigue vigente ADR-044 y el balde es la restriccion.
         flotaProductoOfrecidaHoy = datos.escenario.camionesProducto;
+
+        flotaProductoUsadaHoy =
+            usaFlotaMultidiaria()
+            ? camionesProductoEnRuta(time())
+            : 0;
 
         flotaPortacontenedores.set_capacity(
             datos.escenario.camionesPortacontenedor
@@ -3535,6 +3597,31 @@ class Main extends Agent {
             return;
         }
 
+        // Habia producto y habia capacidad, lo que no hay es camion: el motivo tiene que
+        // decirlo, porque el remedio es otro (comprar viajes, no alquilar posiciones). El
+        // volumen sin restriccion se costea igual para medir cuanto cuesta la falta de flota.
+        if (
+            toneladas <= 0.0001
+            && alternativa.requiereFlotaProducto
+            && alternativa.toneladasSinRestriccionCapacidad > 0.0001
+        ) {
+
+            String motivoFlota =
+                alternativa.diagnosticoFlota.isEmpty()
+                ? ViajeProducto.SIN_FLOTA_ANTES_CUTOFF
+                : alternativa.diagnosticoFlota;
+
+            alternativa.descartar(
+                motivoFlota + " "
+                + (alternativa.esCrossDock ? "PLANTA" : alternativa.idOrigen)
+                + "->"
+                + (alternativa.esCrossDock ? alternativa.idOrigen : terminal));
+
+            contarDescarteFlota(motivoFlota, pedido.codigoPedido);
+
+            return;
+        }
+
         // Con asignacion parcial el volumen ya viene acotado a lo posible: si quedo en cero, el
         // origen no tiene nada que ofrecer hoy (ADR-055).
         if (toneladas <= 0.0001) {
@@ -3578,15 +3665,18 @@ class Main extends Agent {
             }
 
             if (
-                sitio.getEspacioDisponible(pedido.producto) + 0.0001
+                espacioDisponibleEfectivo(sitio, pedido.producto) + 0.0001
                 < toneladas
             ) {
                 alternativa.descartar("sin espacio de paso en el deposito");
                 return;
             }
 
+            // Con la agenda esto ya se resolvio en acotarAlternativaPorFlota(): el volumen
+            // viene acotado a los viajes que llegan hoy (ADR-061).
             if (
-                !flotaProductoAlcanza("PLANTA", alternativa.idOrigen, toneladas)
+                !usaFlotaMultidiaria()
+                && !flotaProductoAlcanza("PLANTA", alternativa.idOrigen, toneladas)
             ) {
                 alternativa.descartar("sin flota de producto planta-deposito");
                 return;
@@ -3604,6 +3694,7 @@ class Main extends Agent {
 
             if (
                 alternativa.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL
+                && !usaFlotaMultidiaria()
                 && !flotaProductoAlcanza(alternativa.idOrigen, terminal, toneladas)
             ) {
                 alternativa.descartar("sin flota de producto para el granel a terminal");
@@ -3629,8 +3720,12 @@ class Main extends Agent {
         // Un dia para armar y programar el contenedor mas el ciclo fisico del circuito,
         // contados desde que la ventana de retiro abre: antes de esa fecha el circuito
         // no puede empezar por mas barato que sea (ADR-059).
+        // La espera por un camion libre es tiempo que el ciclo no conoce: horasCicloAlternativa()
+        // ya cuenta el viaje, asi que se suma solo lo que el pedido espera para arrancar
+        // (ADR-061). Sumar tambien el viaje seria contarlo dos veces.
         alternativa.diaEntregaEstimado =
             max(time(), pedido.diaAperturaRetiroVacio)
+            + alternativa.esperaFlotaDias
             + 1 + horasCicloAlternativa(pedido, alternativa) / 24.0;
 
         alternativa.llegaATiempo =
@@ -4412,6 +4507,7 @@ class Main extends Agent {
         alternativa.idUbicacionCapacidad = cruza ? idOrigen : sitioEstiba;
 
         if (!usaAgendaCapacidad()) {
+            acotarAlternativaPorFlota(pedido, alternativa);
             return alternativa;
         }
 
@@ -4448,6 +4544,8 @@ class Main extends Agent {
 
         alternativa.contenedores =
             contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+
+        acotarAlternativaPorFlota(pedido, alternativa);
 
         return alternativa;
     }
@@ -4780,7 +4878,7 @@ class Main extends Agent {
             return "SIN_CAPACIDAD_PRODUCTO";
         }
 
-        if (deposito.getEspacioDisponible(producto) <= 0.0001) {
+        if (espacioDisponibleEfectivo(deposito, producto) <= 0.0001) {
             return "SIN_ESPACIO";
         }
 
@@ -4794,8 +4892,26 @@ class Main extends Agent {
             return "TARIFA_SITIO_INEXISTENTE";
         }
 
-        if (toneladas > 0.0001 && !flotaProductoAlcanza("PLANTA", deposito.idUbicacion, toneladas)) {
-            return "SIN_FLOTA";
+        if (toneladas > 0.0001) {
+
+            if (usaFlotaMultidiaria()) {
+
+                // Con la agenda el motivo deja de ser "no entra en la jornada": es sin camiones,
+                // sin camion antes de la fecha o solo una parte (ADR-061).
+                ResultadoDisponibilidadFlota disponibilidad =
+                    evaluarDisponibilidadFlotaProducto(
+                        "PLANTA", deposito.idUbicacion, toneladas, time(),
+                        limiteLlegadaTransferencia("PLANTA", deposito.idUbicacion, toneladas));
+
+                if (!disponibilidad.puedeProgramarAlgo()) {
+                    return disponibilidad.motivo.isEmpty()
+                        ? ViajeProducto.SIN_FLOTA_ANTES_CUTOFF
+                        : disponibilidad.motivo;
+                }
+
+            } else if (!flotaProductoAlcanza("PLANTA", deposito.idUbicacion, toneladas)) {
+                return "SIN_FLOTA";
+            }
         }
 
         return "";
@@ -4929,13 +5045,18 @@ class Main extends Agent {
             entregado += pedido.toneladasEntregadas;
         }
 
-        if (abs(producido - (enStock + enProceso + entregado)) > 0.001) {
+        // El producto arriba de un camion no esta en ninguna ubicacion y todavia no se
+        // entrego: es una cuarta ubicacion del balance, no una perdida (ADR-061).
+        double enTransito = toneladasProductoEnTransito;
+
+        if (abs(producido - (enStock + enProceso + entregado + enTransito)) > 0.001) {
             error(
                 "Balance de producto el dia " + (int) floor(time())
                 + ": stock inicial + producido " + producido
                 + " contra stock " + enStock
                 + " + en proceso " + enProceso
                 + " + entregado " + entregado
+                + " + en transito " + enTransito
             );
         }
     }
@@ -5312,6 +5433,13 @@ class Main extends Agent {
             pedido.perdioCutoff = true;
             pedidosPerdieronCutoff++;
 
+            // Si a este pedido se le descarto o se le acoto una alternativa por falta de
+            // camiones, la perdida del buque tiene otro responsable que la capacidad de
+            // estiba: el remedio es flota, no posiciones (ADR-061).
+            if (pedidosConDescartePorFlota.contains(pedido.codigoPedido)) {
+                pedidosPerdieronCutoffPorFlota++;
+            }
+
             if ("CANCELAR".equals(datos.escenario.politicaReprogramacionBuque)) {
 
                 // Politica dura: lo que no llega al buque no viaja. El saldo se cancela y
@@ -5323,6 +5451,22 @@ class Main extends Agent {
 
                     liberarCapacidadPorAsignacion(
                         asignacion.idAsignacion, "pedido cancelado por cut-off");
+                }
+
+                // Un viaje que todavia no salio ya no tiene a quien llevarle el producto:
+                // libera el stock reservado y el camion. El que ya salio no se cancela,
+                // porque el producto esta arriba del camion (ADR-061).
+                for (
+                    ViajeProducto viaje
+                    : new java.util.ArrayList<ViajeProducto>(viajesProducto)
+                ) {
+
+                    if (
+                        viaje.estado == EstadoViajeProducto.PROGRAMADO
+                        && pedido.codigoPedido.equals(viaje.codigoPedido)
+                    ) {
+                        cancelarViajeProducto(viaje, "pedido cancelado por cut-off");
+                    }
                 }
 
             } else {
@@ -6150,6 +6294,1215 @@ class Main extends Agent {
         }
     }
 
+    boolean usaFlotaMultidiaria() {
+        // Interruptor de regresion (ADR-061): en false corre la capacidad diaria agregada de
+        // ADR-044, con el movimiento instantaneo y sin transito.
+        return datos != null
+            && datos.escenario != null
+            && datos.escenario.habilitaFlotaProductoMultidiaria;
+    }
+
+    void inicializarFlotaProducto() {
+        // Los camiones se crean una sola vez por corrida, despues de leer el escenario. No se
+        // recrean cada dia: un camion que salio sigue ocupado manana, y eso es todo el cambio
+        // (ADR-061).
+        unidadesFlotaProducto.clear();
+        viajesProducto.clear();
+        viajeProductoPorId.clear();
+        siguienteIdViajeProducto = 1;
+
+        if (!usaFlotaMultidiaria()) {
+            return;
+        }
+
+        int cantidad = datos.escenario.camionesProducto;
+
+        for (int i = 1; i <= cantidad; i++) {
+            unidadesFlotaProducto.add(
+                new UnidadFlotaProducto(i, "PLANTA")
+            );
+        }
+    }
+
+    double duracionIdaProductoDias(String origen, String destino) {
+        // Solo la ida: el retorno se cuenta aparte porque el producto llega a destino antes de
+        // que el camion se libere (ADR-061). La jornada es la del escenario, no un supuesto.
+        double distancia = datos.distanciaKmSimetrica(origen, destino);
+
+        double velocidad = datos.escenario.velocidadCamionKmh;
+
+        double jornada = datos.escenario.horasOperativasDia;
+
+        return distancia <= 0 || velocidad <= 0 || jornada <= 0
+            ? 0
+            : distancia / velocidad / jornada;
+    }
+
+    double duracionRetornoProductoDias(String origen, String destino) {
+        // Si no hay distancia inversa declarada, datos.distanciaKm() devuelve la misma: el
+        // retorno vale lo que la ida.
+        return duracionIdaProductoDias(destino, origen);
+    }
+
+    double horasManipuleoViajeProducto(String origen, String destino, double toneladas) {
+        // Carga en el origen y descarga en el destino con las velocidades declaradas de cada
+        // sitio: son los mismos campos que usa crearEnvio(), asi que el modelo tiene una sola
+        // duracion para el mismo viaje y nada cableado.
+        double horas = 0;
+
+        DatosEntrada.Ubicacion salida = datos.ubicacion(origen);
+
+        if (salida != null && salida.velocidadCargaTnHora > 0) {
+            horas += toneladas / salida.velocidadCargaTnHora;
+        }
+
+        DatosEntrada.Ubicacion llegada = datos.ubicacion(destino);
+
+        if (llegada != null && llegada.velocidadDescargaTnHora > 0) {
+            horas += toneladas / llegada.velocidadDescargaTnHora;
+        }
+
+        return horas;
+    }
+
+    double duracionTotalViajeProductoDias(String origen, String destino, double toneladas) {
+        // Lo que el camion queda ocupado: ida, manipuleo y retorno. Es el mismo numero que
+        // camionDiaViaje() calculaba para la capacidad diaria (ADR-044), mas el manipuleo; lo
+        // que cambia es que ya no tiene que entrar en una sola jornada.
+        double jornada = datos.escenario.horasOperativasDia;
+
+        return duracionIdaProductoDias(origen, destino)
+            + duracionRetornoProductoDias(origen, destino)
+            + (jornada <= 0
+                ? 0
+                : horasManipuleoViajeProducto(origen, destino, toneladas) / jornada);
+    }
+
+    UnidadFlotaProducto buscarCamionDisponibleMasTemprano(double noAntesDe) {
+        // El camion que puede salir antes. El empate se rompe por id para que la corrida sea
+        // determinista: dos corridas iguales asignan los mismos camiones a los mismos viajes.
+        UnidadFlotaProducto elegido = null;
+
+        double mejor = Double.POSITIVE_INFINITY;
+
+        for (UnidadFlotaProducto camion : unidadesFlotaProducto) {
+
+            if (!camion.activo) {
+                continue;
+            }
+
+            double salida = camion.salidaMasTemprana(noAntesDe);
+
+            if (salida < mejor - 0.0001) {
+                mejor = salida;
+                elegido = camion;
+            }
+        }
+
+        return elegido;
+    }
+
+    double fechaSalidaMasTempranaProducto(double noAntesDe) {
+        UnidadFlotaProducto camion = buscarCamionDisponibleMasTemprano(noAntesDe);
+
+        return camion == null ? -1 : camion.salidaMasTemprana(noAntesDe);
+    }
+
+    int camionesDisponiblesEn(double dia) {
+        int cantidad = 0;
+
+        for (UnidadFlotaProducto camion : unidadesFlotaProducto) {
+
+            if (camion.disponibleEn(dia)) {
+                cantidad++;
+            }
+        }
+
+        return cantidad;
+    }
+
+    int camionesProductoEnRuta(double dia) {
+        int cantidad = 0;
+
+        for (ViajeProducto viaje : viajesProducto) {
+
+            if (
+                viaje.vivo()
+                && viaje.diaSalida >= 0
+                && viaje.diaSalida <= dia + 0.0001
+                && viaje.diaRegreso > dia + 0.0001
+            ) {
+                cantidad++;
+            }
+        }
+
+        return cantidad;
+    }
+
+    ResultadoDisponibilidadFlota evaluarDisponibilidadFlotaProducto(String origen, String destino, double toneladas, double noAntesDe, double fechaLimite) {
+        // Que puede prometer la agenda sin tocarla: simula sobre una copia de las fechas de
+        // disponibilidad y no crea viajes (ADR-061). Reemplaza el si/no de flotaProductoAlcanza():
+        // si solo entra una parte del volumen, la alternativa compite por esa parte.
+        ResultadoDisponibilidadFlota resultado = new ResultadoDisponibilidadFlota();
+
+        resultado.toneladasSolicitadas = max(0, toneladas);
+
+        if (toneladas <= 0.0001) {
+            return resultado;
+        }
+
+        double capacidad = datos.escenario.capacidadCamionTn;
+
+        resultado.viajesRequeridos = viajesNecesariosCamion(toneladas);
+
+        if (unidadesFlotaProducto.isEmpty()) {
+            resultado.motivo = ViajeProducto.SIN_CAMIONES_CONFIGURADOS;
+            return resultado;
+        }
+
+        double ida = duracionIdaProductoDias(origen, destino);
+
+        double retorno = duracionRetornoProductoDias(origen, destino);
+
+        if (ida <= 0 && retorno <= 0) {
+            // Sin distancia el viaje no existe como movimiento fisico: es un dato faltante y no
+            // una ruta gratis.
+            resultado.motivo = ViajeProducto.RUTA_SIN_DISTANCIA;
+            return resultado;
+        }
+
+        double[] libres = new double[unidadesFlotaProducto.size()];
+
+        for (int i = 0; i < libres.length; i++) {
+            libres[i] = unidadesFlotaProducto.get(i).activo
+                ? unidadesFlotaProducto.get(i).disponibleDesde
+                : Double.POSITIVE_INFINITY;
+        }
+
+        double pendiente = toneladas;
+
+        int guarda = 0;
+
+        while (pendiente > 0.0001 && guarda <= resultado.viajesRequeridos) {
+
+            guarda++;
+
+            double carga = min(pendiente, capacidad);
+
+            int mejor = -1;
+
+            for (int i = 0; i < libres.length; i++) {
+
+                if (mejor < 0 || libres[i] < libres[mejor] - 0.0001) {
+                    mejor = i;
+                }
+            }
+
+            if (mejor < 0 || Double.isInfinite(libres[mejor])) {
+                resultado.motivo = ViajeProducto.SIN_CAMIONES_CONFIGURADOS;
+                break;
+            }
+
+            double salida = max(noAntesDe, libres[mejor]);
+
+            double llegada =
+                salida + ida
+                + horasManipuleoViajeProducto(origen, destino, carga)
+                    / max(0.0001, datos.escenario.horasOperativasDia);
+
+            // El limite es del movimiento, no del camion: si el producto no puede llegar antes de
+            // la fecha, ese viaje no sirve y los siguientes tampoco, porque salen mas tarde.
+            if (llegada > fechaLimite + 0.0001) {
+                resultado.motivo = resultado.toneladasProgramables > 0.0001
+                    ? ViajeProducto.FLOTA_PARCIAL
+                    : ViajeProducto.SIN_FLOTA_ANTES_CUTOFF;
+                break;
+            }
+
+            resultado.toneladasProgramables += carga;
+            resultado.viajesProgramables++;
+
+            if (resultado.primeraSalida < 0) {
+                resultado.primeraSalida = salida;
+            }
+
+            resultado.ultimaSalida = max(resultado.ultimaSalida, salida);
+            resultado.ultimaLlegada = max(resultado.ultimaLlegada, llegada);
+            resultado.ultimoRegreso = max(resultado.ultimoRegreso, llegada + retorno);
+
+            resultado.esperaMaximaDias =
+                max(resultado.esperaMaximaDias, salida - noAntesDe);
+
+            libres[mejor] = llegada + retorno;
+
+            pendiente -= carga;
+        }
+
+        if (resultado.motivo.isEmpty() && !resultado.puedeProgramarTodo()) {
+            resultado.motivo = resultado.puedeProgramarAlgo()
+                ? ViajeProducto.FLOTA_PARCIAL
+                : ViajeProducto.SIN_FLOTA_ANTES_CUTOFF;
+        }
+
+        if (resultado.motivo.isEmpty() && resultado.esperaMaximaDias > 0.0001) {
+            resultado.motivo = ViajeProducto.ESPERA_FLOTA;
+        }
+
+        return resultado;
+    }
+
+    double diaProduccionDeLoteEn(int idLote, String idUbicacion, TipoProducto producto) {
+        // La antiguedad del producto no se pierde en ruta: el viaje se lleva el dia de produccion
+        // de la capa que carga y la capa que se crea en destino lo conserva (ADR-047).
+        java.util.List<Capa> capas =
+            idLote > 0
+            ? inventario.fifoDeLote(idLote, idUbicacion)
+            : inventario.fifo(idUbicacion, producto);
+
+        for (Capa capa : capas) {
+
+            if (capa.libres() > 0.0001) {
+                return capa.diaProduccion;
+            }
+        }
+
+        return time();
+    }
+
+    ViajeProducto programarViajeProducto(String origen, String destino, TipoProducto producto, double toneladas, int idLote, String codigoPedido, EstrategiaLogistica estrategia, boolean crossDock, String idOperacion, double noAntesDe, double fechaLimiteSalida, boolean ocupaSoloFlota) {
+        // Un viaje de un camion (ADR-061). Programar no mueve producto: reserva el stock, ocupa
+        // el camion hasta su regreso y deja escritas las fechas de salida, llegada y regreso. El
+        // producto sale del origen al salir el viaje y aparece en destino al llegar.
+        if (toneladas <= 0.0001 || producto == null) {
+            return null;
+        }
+
+        UnidadFlotaProducto camion = buscarCamionDisponibleMasTemprano(noAntesDe);
+
+        if (camion == null) {
+            return null;
+        }
+
+        double carga = min(toneladas, datos.escenario.capacidadCamionTn);
+
+        double salida = camion.salidaMasTemprana(noAntesDe);
+
+        if (salida > fechaLimiteSalida + 0.0001) {
+            return null;
+        }
+
+        ViajeProducto viaje = new ViajeProducto();
+
+        viaje.idViaje = "V-" + siguienteIdViajeProducto;
+        siguienteIdViajeProducto++;
+
+        viaje.idCamion = camion.idCamion;
+        viaje.idOperacion = idOperacion;
+        viaje.idLote = idLote;
+        viaje.codigoPedido = codigoPedido;
+        viaje.producto = producto;
+        viaje.origen = origen;
+        viaje.destino = destino;
+        viaje.estrategia = estrategia;
+        viaje.crossDock = crossDock;
+        viaje.ocupaSoloFlota = ocupaSoloFlota;
+
+        // El stock se compromete con las reservas de capa que ya existen (ADR-023), con la clave
+        // del viaje: asi lo comprometido deja de estar libre para otro pedido sin que aparezca una
+        // segunda fuente de verdad de reservas.
+        if (!ocupaSoloFlota) {
+
+            viaje.diaProduccionLote =
+                diaProduccionDeLoteEn(idLote, origen, producto);
+
+            double reservadas =
+                idLote > 0
+                ? inventario.reservarDeLote(
+                    idLote, origen, carga, viaje.claveReservaStock(), codigoPedido, time())
+                : inventario.reservar(
+                    origen, producto, carga, viaje.claveReservaStock(), codigoPedido, time());
+
+            if (reservadas <= 0.0001) {
+                contarDescarteFlota(ViajeProducto.STOCK_NO_RESERVABLE, codigoPedido);
+                return null;
+            }
+
+            carga = reservadas;
+            toneladasReservadasParaTransporte += reservadas;
+        }
+
+        viaje.toneladas = carga;
+        viaje.distanciaKmIda = datos.distanciaKmSimetrica(origen, destino);
+        viaje.duracionIdaDias = duracionIdaProductoDias(origen, destino);
+        viaje.duracionRetornoDias = duracionRetornoProductoDias(origen, destino);
+
+        viaje.diaProgramacion = time();
+        viaje.diaSolicitud = noAntesDe;
+        viaje.diaSalida = salida;
+
+        viaje.diaLlegadaDestino =
+            salida
+            + viaje.duracionIdaDias
+            + horasManipuleoViajeProducto(origen, destino, carga)
+                / max(0.0001, datos.escenario.horasOperativasDia);
+
+        viaje.diaInicioRetorno = viaje.diaLlegadaDestino;
+        viaje.diaRegreso = viaje.diaLlegadaDestino + viaje.duracionRetornoDias;
+
+        viaje.estado = EstadoViajeProducto.PROGRAMADO;
+
+        camion.disponibleDesde = viaje.diaRegreso;
+        camion.idViajeActual = viaje.idViaje;
+        camion.ubicacionActual = origen;
+
+        viajesProducto.add(viaje);
+        viajeProductoPorId.put(viaje.idViaje, viaje);
+        viajesProductoProgramados++;
+
+        double espera = viaje.esperaFlotaDias();
+
+        if (espera > 0.0001) {
+            esperaFlotaProductoDiasAcumulada += espera;
+            esperaFlotaProductoDiasMaxima = max(esperaFlotaProductoDiasMaxima, espera);
+            movimientosConEsperaFlota++;
+        }
+
+        // Un viaje que sale hoy sale hoy: el paso diario ya corrio sus salidas cuando la
+        // planificacion lo pide, y esperar al dia siguiente atrasaria un dia todas las rutas que
+        // entran en una jornada, sin razon fisica.
+        procesarViajeProductoInmediato(viaje);
+
+        return viaje;
+    }
+
+    double programarMovimientoProducto(String origen, String destino, TipoProducto producto, double toneladasObjetivo, int idLote, String codigoPedido, EstrategiaLogistica estrategia, boolean crossDock, String idOperacion, double noAntesDe, double fechaLimiteSalida, boolean ocupaSoloFlota) {
+        // Programa el volumen en viajes de hasta un camion y devuelve lo programado, que puede
+        // ser una parte (ADR-061). Un movimiento parcial no se revierte porque no entre el total:
+        // mover cinco de ocho viajes es mejor que mover cero.
+        if (toneladasObjetivo <= 0.0001) {
+            return 0;
+        }
+
+        double capacidad = datos.escenario.capacidadCamionTn;
+
+        int maximoViajes = viajesNecesariosCamion(toneladasObjetivo);
+
+        double programadas = 0;
+
+        double pendiente = toneladasObjetivo;
+
+        int guarda = 0;
+
+        while (pendiente > 0.0001 && guarda < maximoViajes + 1) {
+
+            guarda++;
+
+            ViajeProducto viaje =
+                programarViajeProducto(
+                    origen, destino, producto, min(pendiente, capacidad), idLote, codigoPedido,
+                    estrategia, crossDock, idOperacion, noAntesDe, fechaLimiteSalida,
+                    ocupaSoloFlota);
+
+            if (viaje == null) {
+                break;
+            }
+
+            programadas += viaje.toneladas;
+            pendiente -= viaje.toneladas;
+        }
+
+        double faltante = max(0, toneladasObjetivo - programadas);
+
+        if (faltante > 0.0001) {
+
+            toneladasNoProgramadasPorFlota += faltante;
+
+            if (programadas > 0.0001) {
+                toneladasProgramadasParcialmente += programadas;
+                movimientosParcialesPorFlota++;
+                contarDescarteFlota(ViajeProducto.FLOTA_PARCIAL, codigoPedido);
+
+            } else {
+                contarDescarteFlota(ViajeProducto.SIN_FLOTA_ANTES_CUTOFF, codigoPedido);
+            }
+        }
+
+        return programadas;
+    }
+
+    void contarDescarteFlota(String motivo, String codigoPedido) {
+        // Un solo texto por concepto para poder agrupar el diagnostico (seccion 27 del MOD).
+        Integer previo = descartesFlotaPorMotivo.get(motivo);
+
+        descartesFlotaPorMotivo.put(motivo, previo == null ? 1 : previo + 1);
+
+        if (codigoPedido != null && !codigoPedido.isEmpty()) {
+            pedidosConDescartePorFlota.add(codigoPedido);
+        }
+    }
+
+    void iniciarViajeProducto(ViajeProducto viaje) {
+        // Salida del viaje: aca el producto deja el origen y pasa a estar en transito, y aca se
+        // devenga el flete, una sola vez por viaje fisico (ADR-061).
+        if (viaje == null || viaje.estado != EstadoViajeProducto.PROGRAMADO) {
+            return;
+        }
+
+        if (!viaje.ocupaSoloFlota) {
+
+            double sacadas =
+                viaje.idLote > 0
+                ? inventario.despacharDeLote(
+                    viaje.idLote, viaje.origen, viaje.toneladas, viaje.claveReservaStock())
+                : inventario.despachar(
+                    viaje.origen, viaje.producto, viaje.toneladas, viaje.claveReservaStock());
+
+            if (abs(sacadas - viaje.toneladas) > 0.001) {
+                error(
+                    "El viaje " + viaje.idViaje + " no pudo retirar su carga: "
+                    + sacadas + " de " + viaje.toneladas + " tn en " + viaje.origen);
+            }
+
+            viaje.stockRetiradoOrigen = true;
+            toneladasReservadasParaTransporte -= sacadas;
+            toneladasProductoEnTransito += sacadas;
+            toneladasTransferidasSalidas += sacadas;
+
+            // El flete del tramo lo paga el viaje que efectivamente sale: un viaje cancelado antes
+            // de salir no paga (seccion 25.1 del MOD). El circuito 4 lo cobra el envio, que es el
+            // que tiene el movimiento fisico del granel.
+            double costo =
+                registrarFleteProducto(
+                    viaje.origen, viaje.destino, viaje.producto, viaje.toneladas, 1,
+                    viaje.idLote > 0 ? "" + viaje.idLote : "", viaje.codigoPedido,
+                    viaje.estrategia, "FLV-" + viaje.idViaje);
+
+            viaje.fleteRegistrado = true;
+
+            LoteProducto lote = buscarLote(viaje.idLote);
+
+            if (lote != null) {
+                lote.costoAcumulado += costo;
+            }
+
+            if (buscarTerminal(viaje.destino) == null) {
+                costoFletePlantaDeposito += costo;
+            }
+        }
+
+        viaje.estado = EstadoViajeProducto.EN_TRANSITO_DESTINO;
+        viajesProductoIniciados++;
+
+        if (buscarTerminal(viaje.destino) != null) {
+            viajesGranelTerminal++;
+        } else {
+            viajesPlantaDeposito++;
+        }
+    }
+
+    void recibirViajeProducto(ViajeProducto viaje) {
+        // Llegada a destino: el producto entra al inventario del sitio recien ahora, con la fecha
+        // de llegada como dia de ingreso y conservando lote y produccion (ADR-061).
+        if (viaje == null || viaje.estado != EstadoViajeProducto.EN_TRANSITO_DESTINO) {
+            return;
+        }
+
+        viaje.estado = EstadoViajeProducto.DESCARGANDO;
+
+        if (viaje.ocupaSoloFlota) {
+            // El movimiento fisico del granel lo ejecuta el flujo del envio: el viaje solo tiene
+            // ocupado el camion.
+            viaje.estado = EstadoViajeProducto.RETORNANDO;
+            return;
+        }
+
+        if (!viaje.stockRetiradoOrigen) {
+            error("El viaje " + viaje.idViaje + " llego sin haber retirado la carga del origen");
+        }
+
+        inventario.ingresar(
+            viaje.idLote,
+            viaje.producto,
+            viaje.destino,
+            viaje.toneladas,
+            viaje.diaLlegadaDestino,
+            viaje.diaProduccionLote);
+
+        toneladasProductoEnTransito -= viaje.toneladas;
+        viaje.stockIngresadoDestino = true;
+
+        Deposito destino = buscarDeposito(viaje.destino);
+
+        LoteProducto lote = buscarLote(viaje.idLote);
+
+        if (destino != null) {
+
+            destino.toneladasRecibidasAcumuladas += viaje.toneladas;
+            destino.cantidadRecepciones++;
+
+            // El ingreso al almacenamiento lo paga el producto que se queda: el que cruza no entra
+            // al stock y no lo paga (ADR-053).
+            if (!viaje.crossDock) {
+
+                double costoIn =
+                    registrarInDeposito(
+                        viaje.destino, viaje.producto, viaje.toneladas,
+                        viaje.idLote > 0 ? "" + viaje.idLote : "", viaje.codigoPedido,
+                        "INV-" + viaje.idViaje);
+
+                if (lote != null) {
+                    lote.costoAcumulado += costoIn;
+                }
+            }
+
+            if (lote != null) {
+                lote.depositoActual = destino;
+                lote.diaIngresoDeposito = viaje.diaLlegadaDestino;
+            }
+
+            toneladasTransferidasDepositos += viaje.toneladas;
+            cantidadTransferenciasDepositos++;
+        }
+
+        if (lote != null) {
+            actualizarUbicacionLote(lote);
+        }
+
+        viaje.estado = EstadoViajeProducto.RETORNANDO;
+    }
+
+    void completarViajeProducto(ViajeProducto viaje) {
+        // Regreso del camion: recien aca vuelve a estar disponible. Un camion no se libera al
+        // llegar a destino si el viaje incluye retorno (ADR-061).
+        if (viaje == null || viaje.estado != EstadoViajeProducto.RETORNANDO) {
+            return;
+        }
+
+        if (!viaje.ocupaSoloFlota && !viaje.stockIngresadoDestino) {
+            error("El viaje " + viaje.idViaje + " se completa sin haber ingresado la carga");
+        }
+
+        viaje.estado = EstadoViajeProducto.COMPLETADO;
+        viajesProductoCompletados++;
+
+        double camionDia = viaje.camionDiaOcupado();
+
+        camionDiaOcupado += camionDia;
+
+        for (UnidadFlotaProducto camion : unidadesFlotaProducto) {
+
+            if (camion.idCamion != viaje.idCamion) {
+                continue;
+            }
+
+            camion.camionDiaAcumulado += camionDia;
+            camion.viajesCompletados++;
+            camion.ubicacionActual = camion.ubicacionBase;
+
+            if (camion.idViajeActual.equals(viaje.idViaje)) {
+                camion.idViajeActual = "";
+            }
+        }
+    }
+
+    void procesarViajeProductoInmediato(ViajeProducto viaje) {
+        // Un evento fechado hoy ocurre hoy: el reloj es diario pero las fechas del viaje son
+        // fraccionarias, asi que un viaje que sale, llega o vuelve dentro de la jornada de hoy se
+        // procesa en el mismo paso. Sin esto las rutas cortas atrasarian un dia por el redondeo.
+        if (viaje == null) {
+            return;
+        }
+
+        double finDelDia = floor(time()) + 1;
+
+        if (viaje.diaSalida < finDelDia) {
+            iniciarViajeProducto(viaje);
+        }
+
+        if (viaje.diaLlegadaDestino < finDelDia) {
+            recibirViajeProducto(viaje);
+        }
+
+        if (viaje.diaRegreso < finDelDia) {
+            completarViajeProducto(viaje);
+        }
+    }
+
+    void iniciarViajesProductoDelDia() {
+        if (!usaFlotaMultidiaria()) {
+            return;
+        }
+
+        double finDelDia = floor(time()) + 1;
+
+        for (ViajeProducto viaje : new java.util.ArrayList<ViajeProducto>(viajesProducto)) {
+
+            if (
+                viaje.estado == EstadoViajeProducto.PROGRAMADO
+                && viaje.diaSalida < finDelDia
+            ) {
+                iniciarViajeProducto(viaje);
+
+                // Una ruta que entra en la jornada llega el mismo dia en que sale.
+                if (viaje.diaLlegadaDestino < finDelDia) {
+                    recibirViajeProducto(viaje);
+                }
+
+                if (viaje.diaRegreso < finDelDia) {
+                    completarViajeProducto(viaje);
+                }
+            }
+        }
+    }
+
+    void recibirViajesProductoDelDia() {
+        if (!usaFlotaMultidiaria()) {
+            return;
+        }
+
+        double finDelDia = floor(time()) + 1;
+
+        for (ViajeProducto viaje : new java.util.ArrayList<ViajeProducto>(viajesProducto)) {
+
+            if (
+                viaje.estado == EstadoViajeProducto.EN_TRANSITO_DESTINO
+                && viaje.diaLlegadaDestino < finDelDia
+            ) {
+                recibirViajeProducto(viaje);
+            }
+        }
+    }
+
+    void completarViajesProductoDelDia() {
+        if (!usaFlotaMultidiaria()) {
+            return;
+        }
+
+        double finDelDia = floor(time()) + 1;
+
+        for (ViajeProducto viaje : new java.util.ArrayList<ViajeProducto>(viajesProducto)) {
+
+            if (
+                viaje.estado == EstadoViajeProducto.RETORNANDO
+                && viaje.diaRegreso < finDelDia
+            ) {
+                completarViajeProducto(viaje);
+            }
+        }
+    }
+
+    void cancelarViajeProducto(ViajeProducto viaje, String motivo) {
+        // Cancelar antes de salir libera el stock comprometido y el camion; no cobra flete
+        // porque el viaje no ocurrio (seccion 25.1 del MOD). Un viaje ya salido no se cancela: el
+        // producto esta arriba del camion.
+        if (viaje == null || viaje.estado != EstadoViajeProducto.PROGRAMADO) {
+            return;
+        }
+
+        if (!viaje.ocupaSoloFlota) {
+
+            double liberadas =
+                inventario.liberarReserva(viaje.claveReservaStock());
+
+            toneladasReservadasParaTransporte -= liberadas;
+        }
+
+        viaje.estado = EstadoViajeProducto.CANCELADO;
+        viaje.motivoBaja = motivo;
+        viajesProductoCancelados++;
+
+        for (UnidadFlotaProducto camion : unidadesFlotaProducto) {
+
+            if (camion.idCamion != viaje.idCamion) {
+                continue;
+            }
+
+            if (camion.idViajeActual.equals(viaje.idViaje)) {
+                camion.idViajeActual = "";
+            }
+
+            // El camion no hizo este viaje, pero puede tener otros ya programados: queda
+            // libre cuando vuelve del ultimo que le sigue vivo, nunca antes de hoy.
+            double libre = time();
+
+            for (ViajeProducto otro : viajesProducto) {
+
+                if (otro.idCamion == camion.idCamion && otro.vivo()) {
+                    libre = max(libre, otro.diaRegreso);
+                }
+            }
+
+            camion.disponibleDesde = libre;
+        }
+    }
+
+    double toneladasEnTransitoHacia(String destino, TipoProducto producto) {
+        // Producto que ya viene en camino a un sitio. Sin esto el espacio del deposito se
+        // comprometeria dos veces: el volumen en ruta todavia no esta en el stock.
+        double total = 0;
+
+        for (ViajeProducto viaje : viajesProducto) {
+
+            if (
+                viaje.vivo()
+                && !viaje.ocupaSoloFlota
+                && !viaje.stockIngresadoDestino
+                && viaje.producto == producto
+                && viaje.destino.equals(destino)
+            ) {
+                total += viaje.toneladas;
+            }
+        }
+
+        return total;
+    }
+
+    double toneladasComprometidasParaViajesDe(TipoProducto producto) {
+        // Reservado para un viaje que todavia no salio: sigue en el stock del origen, pero ya
+        // esta saliendo. La transferencia del dia siguiente no tiene que volver a pedirlo.
+        double total = 0;
+
+        for (ViajeProducto viaje : viajesProducto) {
+
+            if (
+                viaje.estado == EstadoViajeProducto.PROGRAMADO
+                && !viaje.ocupaSoloFlota
+                && viaje.producto == producto
+            ) {
+                total += viaje.toneladas;
+            }
+        }
+
+        return total;
+    }
+
+    double espacioDisponibleEfectivo(Deposito deposito, TipoProducto producto) {
+        if (deposito == null) {
+            return 0;
+        }
+
+        return max(
+            0,
+            deposito.getEspacioDisponible(producto)
+            - toneladasEnTransitoHacia(deposito.idUbicacion, producto));
+    }
+
+    double toneladasProductoEnTransitoDe(TipoProducto producto) {
+        double total = 0;
+
+        for (ViajeProducto viaje : viajesProducto) {
+
+            if (
+                viaje.enTransito()
+                && !viaje.ocupaSoloFlota
+                && viaje.producto == producto
+            ) {
+                total += viaje.toneladas;
+            }
+        }
+
+        return total;
+    }
+
+    int viajesProductoEnCurso() {
+        int cantidad = 0;
+
+        for (ViajeProducto viaje : viajesProducto) {
+
+            if (viaje.vivo() && viaje.estado != EstadoViajeProducto.PROGRAMADO) {
+                cantidad++;
+            }
+        }
+
+        return cantidad;
+    }
+
+    void medirFlotaDelDia() {
+        if (!usaFlotaMultidiaria()) {
+            return;
+        }
+
+        int enRuta = camionesProductoEnRuta(time());
+
+        picoCamionesProductoEnRuta = max(picoCamionesProductoEnRuta, enRuta);
+        camionesEnRutaDiaAcumulado += enRuta;
+        diasFlotaMedidos++;
+    }
+
+    double camionesProductoPromedioEnRuta() {
+        return diasFlotaMedidos <= 0
+            ? 0
+            : camionesEnRutaDiaAcumulado / diasFlotaMedidos;
+    }
+
+    double esperaMediaFlotaProductoDias() {
+        return movimientosConEsperaFlota <= 0
+            ? 0
+            : esperaFlotaProductoDiasAcumulada / movimientosConEsperaFlota;
+    }
+
+    void reconciliarFlotaProducto() {
+        // C-04: la agenda de camiones tiene que ser fisicamente posible. Un camion con dos
+        // viajes al mismo tiempo o un viaje que ingresa carga que nunca retiro son errores del
+        // modelo, no datos (ADR-061).
+        if (!usaFlotaMultidiaria()) {
+            return;
+        }
+
+        java.util.List<String> errores = new java.util.ArrayList<String>();
+
+        for (UnidadFlotaProducto camion : unidadesFlotaProducto) {
+
+            java.util.List<ViajeProducto> propios = new java.util.ArrayList<ViajeProducto>();
+
+            double ultimoRegreso = 0;
+
+            for (ViajeProducto viaje : viajesProducto) {
+
+                if (viaje.idCamion != camion.idCamion || !viaje.vivo()) {
+                    continue;
+                }
+
+                propios.add(viaje);
+                ultimoRegreso = max(ultimoRegreso, viaje.diaRegreso);
+            }
+
+            // Un camion puede tener el viaje en curso y el siguiente ya programado para cuando
+            // vuelve: eso es una agenda, no un error. Lo imposible es estar en dos viajes al mismo
+            // tiempo, y eso es lo que se audita (ADR-061).
+            for (int i = 0; i < propios.size(); i++) {
+
+                for (int j = i + 1; j < propios.size(); j++) {
+
+                    ViajeProducto a = propios.get(i);
+                    ViajeProducto b = propios.get(j);
+
+                    if (
+                        a.diaSalida < b.diaRegreso - 0.0001
+                        && b.diaSalida < a.diaRegreso - 0.0001
+                    ) {
+                        errores.add(
+                            "el camion " + camion.idCamion + " superpone los viajes " + a.idViaje
+                            + " (" + a.diaSalida + " a " + a.diaRegreso + ") y " + b.idViaje
+                            + " (" + b.diaSalida + " a " + b.diaRegreso + ")");
+                    }
+                }
+            }
+
+            if (camion.disponibleDesde + 0.0001 < ultimoRegreso) {
+                errores.add(
+                    "el camion " + camion.idCamion + " esta libre desde " + camion.disponibleDesde
+                    + " y su ultimo viaje regresa " + ultimoRegreso);
+            }
+        }
+
+        double enTransito = 0;
+
+        double reservadas = 0;
+
+        for (ViajeProducto viaje : viajesProducto) {
+
+            if (viaje.vivo() && viaje.toneladas <= 0.0001 && !viaje.ocupaSoloFlota) {
+                errores.add("el viaje " + viaje.idViaje + " no lleva carga");
+            }
+
+            if (viaje.toneladas > datos.escenario.capacidadCamionTn + 0.0001) {
+                errores.add(
+                    "el viaje " + viaje.idViaje + " lleva " + viaje.toneladas
+                    + " tn, mas que un camion");
+            }
+
+            if (
+                viaje.diaSalida > viaje.diaLlegadaDestino + 0.0001
+                || viaje.diaLlegadaDestino > viaje.diaRegreso + 0.0001
+            ) {
+                errores.add("el viaje " + viaje.idViaje + " tiene fechas incoherentes");
+            }
+
+            if (viaje.stockIngresadoDestino && !viaje.stockRetiradoOrigen) {
+                errores.add("el viaje " + viaje.idViaje + " ingreso carga que no retiro");
+            }
+
+            if (viaje.enTransito() && !viaje.ocupaSoloFlota) {
+                enTransito += viaje.toneladas;
+            }
+
+            if (viaje.estado == EstadoViajeProducto.PROGRAMADO && !viaje.ocupaSoloFlota) {
+                reservadas += inventario.reservadoDeClave(viaje.claveReservaStock());
+            }
+        }
+
+        if (abs(enTransito - toneladasProductoEnTransito) > 0.001) {
+            errores.add(
+                "el transito de los viajes es " + enTransito
+                + " y el contador dice " + toneladasProductoEnTransito);
+        }
+
+        if (abs(reservadas - toneladasReservadasParaTransporte) > 0.001) {
+            errores.add(
+                "lo reservado para viajes es " + reservadas
+                + " y el contador dice " + toneladasReservadasParaTransporte);
+        }
+
+        if (!errores.isEmpty()) {
+
+            StringBuilder detalle = new StringBuilder();
+
+            for (String linea : errores) {
+                detalle.append("\n - ").append(linea);
+            }
+
+            error(
+                "Flota de producto inconsistente el dia " + (int) floor(time())
+                + " (" + errores.size() + "):" + detalle);
+        }
+    }
+
+    double limiteLlegadaTransferencia(String origen, String destino, double toneladas) {
+        // Hasta cuando sirve programar una transferencia: el horizonte de compromiso de la agenda
+        // mas lo que tarda el viaje. Un viaje que llega despues no ayuda a nadie y deja el stock
+        // inmovilizado (ADR-061).
+        return time()
+            + datos.escenario.diasMaxProgramacionFlota
+            + duracionIdaProductoDias(origen, destino)
+            + horasManipuleoViajeProducto(
+                origen, destino, min(toneladas, datos.escenario.capacidadCamionTn))
+                / max(0.0001, datos.escenario.horasOperativasDia);
+    }
+
+    boolean cruceLlegaEnElDia(String origen, String destino, double toneladas) {
+        // El cross dock es, por definicion, producto que llega y sale el mismo dia sin ingresar al
+        // stock (ADR-010). Con viajes fisicos eso deja de ser gratis: si el camion no llega dentro
+        // de la jornada, ese sitio no puede cruzar y el pedido tiene que usar otro circuito. Antes
+        // el producto se teletransportaba y cualquier distancia cruzaba.
+        if (!usaFlotaMultidiaria()) {
+            return true;
+        }
+
+        double salida = fechaSalidaMasTempranaProducto(time());
+
+        if (salida < 0) {
+            return false;
+        }
+
+        double llegada =
+            salida
+            + duracionIdaProductoDias(origen, destino)
+            + horasManipuleoViajeProducto(
+                origen, destino, min(toneladas, datos.escenario.capacidadCamionTn))
+                / max(0.0001, datos.escenario.horasOperativasDia);
+
+        return llegada < floor(time()) + 1;
+    }
+
+    double programarTransferenciaLote(LoteProducto lote, Deposito destino, double toneladas, boolean cruza) {
+        // Transferencia planta-deposito con viajes fisicos (ADR-061). Aca solo se programa: el
+        // producto sigue en planta, reservado, hasta que el viaje sale. El flete se devenga al
+        // salir y el ingreso al deposito al llegar.
+        double aMover =
+            min(
+                min(toneladas, inventario.libreDeLoteEn(lote.idLote, "PLANTA")),
+                espacioDisponibleEfectivo(destino, lote.producto));
+
+        if (aMover <= 0.0001) {
+            return 0;
+        }
+
+        double limiteSalida =
+            cruza
+            ? floor(time()) + 1 - 0.001
+            : time() + datos.escenario.diasMaxProgramacionFlota;
+
+        if (cruza) {
+
+            // Cruzar es llegar y salir el mismo dia: se acota el volumen a los viajes que llegan
+            // hoy, y si no llega ninguno el sitio no puede cruzar (ADR-010).
+            ResultadoDisponibilidadFlota disponibilidad =
+                evaluarDisponibilidadFlotaProducto(
+                    "PLANTA", destino.idUbicacion, aMover, time(), floor(time()) + 1);
+
+            if (!disponibilidad.puedeProgramarAlgo()) {
+                contarDescarteFlota(ViajeProducto.CRUCE_SIN_LLEGADA_EN_EL_DIA, "");
+                return 0;
+            }
+
+            aMover = min(aMover, disponibilidad.toneladasProgramables);
+        }
+
+        double programadas =
+            programarMovimientoProducto(
+                "PLANTA",
+                destino.idUbicacion,
+                lote.producto,
+                aMover,
+                lote.idLote,
+                "",
+                cruza
+                ? EstrategiaLogistica.CROSS_DOCK_DEPOSITO
+                : EstrategiaLogistica.SIN_DEFINIR,
+                cruza,
+                "TRA-" + diaCampania() + "-" + lote.idLote + "-" + destino.idUbicacion
+                    + "-" + cantidadTransferenciasDepositos,
+                time(),
+                limiteSalida,
+                false);
+
+        toneladasTransferidasProgramadas += programadas;
+
+        return programadas;
+    }
+
+    boolean flotaProductoDisponibleParaGranel(Pedido pedido, ContenedorExportacion contenedor) {
+        // Circuito 4: el producto va a granel en camion propio hasta la terminal. El contenedor es
+        // una unidad fisica indivisible, asi que o hay camiones para toda su carga hoy o espera:
+        // media carga en la terminal no arma un contenedor (ADR-050, ADR-061).
+        String terminal = pedido.puertoSalida.idUbicacion;
+
+        double toneladas = contenedor.cantidadAsignadaTon;
+
+        if (!usaFlotaMultidiaria()) {
+            return flotaProductoAlcanza(contenedor.idSitioOrigen, terminal, toneladas);
+        }
+
+        ResultadoDisponibilidadFlota disponibilidad =
+            evaluarDisponibilidadFlotaProducto(
+                contenedor.idSitioOrigen, terminal, toneladas, time(),
+                limiteLlegadaTransferencia(contenedor.idSitioOrigen, terminal, toneladas));
+
+        boolean salenHoy =
+            disponibilidad.ultimaSalida >= 0
+            && disponibilidad.ultimaSalida < floor(time()) + 1;
+
+        if (!disponibilidad.puedeProgramarTodo() || !salenHoy) {
+
+            contarDescarteFlota(
+                disponibilidad.motivo.isEmpty()
+                ? ViajeProducto.ESPERA_FLOTA
+                : disponibilidad.motivo,
+                pedido.codigoPedido);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    void ocuparFlotaParaGranel(Pedido pedido, ContenedorExportacion contenedor) {
+        // El viaje de granel solo ocupa el camion: el movimiento fisico del producto y su flete
+        // los hace el envio, que ya modela el ciclo con sus delays. Dos duraciones para el mismo
+        // viaje serian dos verdades (ADR-050, ADR-061).
+        String terminal = pedido.puertoSalida.idUbicacion;
+
+        if (!usaFlotaMultidiaria()) {
+
+            tomarFlotaProducto(
+                contenedor.idSitioOrigen,
+                terminal,
+                viajesNecesariosCamion(contenedor.cantidadAsignadaTon));
+
+            return;
+        }
+
+        double programadas =
+            programarMovimientoProducto(
+                contenedor.idSitioOrigen,
+                terminal,
+                pedido.producto,
+                contenedor.cantidadAsignadaTon,
+                0,
+                pedido.codigoPedido,
+                EstrategiaLogistica.CONSOLIDACION_TERMINAL,
+                false,
+                "GRA-" + contenedor.idContenedor,
+                time(),
+                floor(time()) + 1 - 0.001,
+                true);
+
+        if (programadas + 0.0001 < contenedor.cantidadAsignadaTon) {
+            error(
+                "El contenedor " + contenedor.idContenedor + " salio a granel con "
+                + programadas + " de " + contenedor.cantidadAsignadaTon
+                + " tn de flota: la disponibilidad se verifico antes de crear el envio");
+        }
+    }
+
+    void acotarAlternativaPorFlota(Pedido pedido, AlternativaCircuito alternativa) {
+        // Flota antes de costo (ADR-060 dejo el orden capacidad -> factibilidad -> costo -> reserva;
+        // ADR-061 agrega la flota al primer paso). La alternativa vale por lo que la agenda de
+        // camiones puede mover dentro de la ventana, no por lo que hay en stock. Esta consulta no
+        // muta la agenda: simula sobre una copia de las fechas de disponibilidad.
+        if (!usaFlotaMultidiaria() || alternativa == null || pedido == null) {
+            return;
+        }
+
+        boolean granel =
+            alternativa.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+        // Los circuitos que no mueven producto con la flota propia no dependen de ella: el
+        // contenedor se arma donde el producto ya esta y despues viaja en portacontenedor.
+        if (!alternativa.esCrossDock && !granel) {
+            return;
+        }
+
+        String origen = alternativa.esCrossDock ? "PLANTA" : alternativa.idOrigen;
+
+        String destino =
+            alternativa.esCrossDock
+            ? alternativa.idOrigen
+            : pedido.puertoSalida.idUbicacion;
+
+        alternativa.requiereFlotaProducto = true;
+
+        if (alternativa.toneladas <= 0.0001) {
+            return;
+        }
+
+        // Cruzar es hoy; el granel puede esperar hasta el cut-off, y si el pedido ya lo perdio
+        // igual conviene medirlo contra el horizonte de compromiso de la agenda.
+        double fechaLimite =
+            alternativa.esCrossDock
+            ? floor(time()) + 1
+            : max(
+                pedido.diaLimite,
+                limiteLlegadaTransferencia(origen, destino, alternativa.toneladas));
+
+        ResultadoDisponibilidadFlota disponibilidad =
+            evaluarDisponibilidadFlotaProducto(
+                origen, destino, alternativa.toneladas, time(), fechaLimite);
+
+        alternativa.toneladasFactiblesPorFlota = disponibilidad.toneladasProgramables;
+        alternativa.viajesFactiblesPorFlota = disponibilidad.viajesProgramables;
+        alternativa.primeraSalidaProducto = disponibilidad.primeraSalida;
+        alternativa.ultimaSalidaProducto = disponibilidad.ultimaSalida;
+        alternativa.ultimaLlegadaProducto = disponibilidad.ultimaLlegada;
+        alternativa.ultimoRegresoProducto = disponibilidad.ultimoRegreso;
+        alternativa.esperaFlotaDias = disponibilidad.esperaMaximaDias;
+        alternativa.flotaCompleta = disponibilidad.puedeProgramarTodo();
+        alternativa.flotaParcial =
+            disponibilidad.puedeProgramarAlgo() && !disponibilidad.puedeProgramarTodo();
+        alternativa.diagnosticoFlota = disponibilidad.motivo;
+
+        // Parcial no es cero: la alternativa entra por lo que la flota puede mover y el saldo
+        // vuelve a competir manana con los demas pedidos (ADR-055).
+        alternativa.toneladas =
+            max(0, min(alternativa.toneladas, disponibilidad.toneladasProgramables));
+
+        if (
+            alternativa.esCrossDock
+            && alternativa.toneladas > 0.0001
+            && !cruceLlegaEnElDia(origen, destino, alternativa.toneladas)
+        ) {
+
+            alternativa.toneladas = 0;
+            alternativa.flotaCompleta = false;
+            alternativa.flotaParcial = false;
+            alternativa.diagnosticoFlota = ViajeProducto.CRUCE_SIN_LLEGADA_EN_EL_DIA;
+        }
+
+        alternativa.contenedores =
+            contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+    }
+
     // ----- Eventos -----
 
     // evento pasoDiario [timeout cyclic] cada 1 day
@@ -6158,6 +7511,15 @@ class Main extends Agent {
         // definicion: cambiarlo cambia el costo y el servicio del dia.
         refrescarTarifasDelDia();                // 0. tarifa vigente de hoy (ADR-051)
         abrirFlotaDelDia();                      // 0b. abrir la capacidad de flota del dia
+
+        // Flota multidiaria (ADR-061). Los tres pasos van antes de producir y de planificar:
+        // primero vuelven los camiones, despues llega el producto que estaba en ruta y solo
+        // entonces salen los viajes del dia. Al reves, un pedido podria usar producto que
+        // todavia esta arriba de un camion.
+        completarViajesProductoDelDia();    // 0c. regresos: el camion vuelve a estar libre
+        recibirViajesProductoDelDia();      // 0d. llegadas: recien aca el producto esta
+        iniciarViajesProductoDelDia();      // 0e. salidas del dia
+
         producirEnPlantas();                     // 1. producir
         registrarPedidosDelDia();                // 2. planificar y comprometer
         actualizarVentanasRetiroDelDia();        // 2b. abrir la ventana de retiro del vacio
@@ -6174,10 +7536,12 @@ class Main extends Agent {
         registrarOcupacionPlanta();              // 10c. medir la sobrecarga del dia
         registrarAtrasos();                      // 11. registrar indicadores del dia
         registrarPerdidaDeCutoff();              // 11b. que pedidos perdieron su buque
+        medirFlotaDelDia();                      // 11c. camiones en ruta y pico (ADR-061)
         validarInventario();              // invariantes de las capas (ADR-023)
         validarBalancePedidos();          // C-01: el pedido cierra por partes (ADR-055)
         validarBalanceProducido();        // C-02: nada de lo producido se pierde (ADR-048)
         reconciliarCapacidad();           // C-03: la capacidad reservada reconcilia (ADR-060)
+        reconciliarFlotaProducto();       // C-04: la agenda de camiones es posible (ADR-061)
         reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
         exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)
     }

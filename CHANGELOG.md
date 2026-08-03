@@ -6,6 +6,34 @@ Formato: una entrada por cambio relevante del modelo o de las definiciones. Las 
 
 ### Agregado
 
+- Modelo, **flota de producto como camiones discretos con viajes multidiarios** (ADR-061). Un viaje que no entra en una jornada ya puede empezar: el camion queda ocupado hasta que vuelve, el producto sale del origen al salir el viaje y entra al inventario del destino al llegar.
+- `UnidadFlotaProducto`: el camion como objeto, con `disponibleDesde`, base, ubicacion actual, viaje en curso, camion-dia acumulado y viajes completados. Es la **unica** fuente de disponibilidad de la flota de producto.
+- `ViajeProducto`: el viaje fisico, con origen, destino, lote, pedido, toneladas, fechas de programacion, salida, llegada, inicio de retorno y regreso, duraciones, distancia, estrategia, cross dock, y las banderas de retiro, ingreso y flete. `EstadoViajeProducto` va de `PROGRAMADO` a `COMPLETADO`, con `CANCELADO` para lo que nunca salio.
+- `ResultadoDisponibilidadFlota`: lo que la agenda puede prometer **sin mutarla**. Reemplaza el si/no de `flotaProductoAlcanza()`: una alternativa que solo puede mover una parte del volumen compite por esa parte.
+- Agenda de flota en `Main`: `inicializarFlotaProducto()`, `duracionIdaProductoDias()`, `duracionRetornoProductoDias()`, `horasManipuleoViajeProducto()`, `duracionTotalViajeProductoDias()`, `buscarCamionDisponibleMasTemprano()`, `fechaSalidaMasTempranaProducto()`, `camionesDisponiblesEn()`, `camionesProductoEnRuta()`, `evaluarDisponibilidadFlotaProducto()`, `programarViajeProducto()`, `programarMovimientoProducto()`, `iniciarViajeProducto()`, `recibirViajeProducto()`, `completarViajeProducto()`, `cancelarViajeProducto()` y los tres pasos diarios `completarViajesProductoDelDia()`, `recibirViajesProductoDelDia()` e `iniciarViajesProductoDelDia()`.
+- Inventario en transito como estado real: `toneladasProductoEnTransito`, `toneladasEnTransitoHacia()`, `toneladasComprometidasParaViajesDe()` y `espacioDisponibleEfectivo()`, que descuenta del espacio del deposito lo que ya viene en camino.
+- Cota por flota en el evaluador: `acotarAlternativaPorFlota()` y los campos `toneladasFactiblesPorFlota`, `viajesFactiblesPorFlota`, `primeraSalidaProducto`, `ultimaSalidaProducto`, `ultimaLlegadaProducto`, `ultimoRegresoProducto`, `esperaFlotaDias`, `flotaCompleta`, `flotaParcial`, `requiereFlotaProducto` y `diagnosticoFlota` en `AlternativaCircuito`. La fecha estimada de entrega incluye la espera de flota.
+- Diagnosticos diferenciados de falta de flota: `SIN_CAMIONES_CONFIGURADOS`, `SIN_FLOTA_ANTES_CUTOFF`, `FLOTA_PARCIAL`, `ESPERA_FLOTA`, `VIAJE_FUERA_HORIZONTE`, `STOCK_NO_RESERVABLE`, `RUTA_SIN_DISTANCIA`, `DURACION_RUTA_INVALIDA` y `CRUCE_SIN_LLEGADA_EN_EL_DIA`.
+- **C-04**, reconciliacion diaria de flota (`reconciliarFlotaProducto()`): ningun camion con viajes superpuestos, `disponibleDesde` nunca anterior al ultimo regreso, viajes con carga y dentro de la capacidad, fechas coherentes, nada que ingrese sin haber salido ni se complete sin haber ingresado, y los contadores de transito y de reservado iguales a la suma de los viajes.
+- Diecisiete KPIs de flota en el CSV del barrido y en el tablero (viajes programados, iniciados, completados y cancelados; camiones promedio y pico en ruta; espera media y maxima; toneladas reservadas, en transito, no programadas y programadas parcialmente; movimientos parciales; pedidos que perdieron el cut-off con descarte de flota; viajes en curso al cierre).
+- Dos parametros nuevos de `Escenario`: `habilita_flota_producto_multidiaria` (default `true`) y `dias_max_programacion_flota` (default `2`), con columnas nuevas en la hoja `Escenario` del libro de ejemplo.
+- Casos de validacion V-FLOTA-MD-01 a V-FLOTA-MD-12, con la forma de medicion declarada caso por caso.
+
+### Cambiado
+
+- La transferencia planta→deposito deja de ser instantanea: `transferirToneladasLote()` programa viajes fisicos y el ingreso al deposito ocurre el dia de la llegada, con `dia_ingreso` de la capa igual a esa fecha. El cross dock exige que el viaje **llegue dentro de la jornada**; si no llega, no cruza.
+- El flete del tramo se devenga **al salir** el viaje, una sola vez por viaje fisico, y el IN del deposito **al llegar**. Un viaje cancelado antes de salir no paga.
+- El evaluador ya no usa `flotaProductoAlcanza()` cuando la agenda esta activa: acota por disponibilidad real y descarta con motivo de flota.
+- El pedido cancelado por perder el cut-off (`politica_reprogramacion_buque = CANCELAR`) tambien cancela sus viajes no salidos, que liberan stock reservado y camion.
+- `Inventario.validar()` acepta una reserva de viaje sin pedido: una transferencia a deposito mueve inventario propio y no tiene comprador todavia. Toda reserva sigue necesitando dueno.
+- El panel *Transporte y flota* del tablero muestra camiones en ruta, pico, viajes iniciados sobre programados, espera media, toneladas en transito y toneladas sin flota cuando la agenda esta activa; con la agenda apagada sigue mostrando el camion-dia de ADR-044.
+
+### Corregido
+
+- `Distancia` declara **un solo sentido por tramo**, asi que el retorno del camion no puede pedir la fila inversa: la lectura pasa a ser simetrica (`distanciaKmSimetrica()`) y un tramo faltante da `RUTA_SIN_DISTANCIA` en vez de abortar la corrida con `Falta la distancia ZARATE -> PLANTA`.
+
+### Agregado
+
 - Modelo, **capacidad finita y menor costo factible** (MOD, ADR-060). La capacidad de posiciones deja de ser diagnóstica y pasa a ser una restricción del plan, resuelta en el orden `capacidad → factibilidad → costo → reserva → asignación`: una alternativa sin posiciones en la ventana se descarta **antes** de compararse por costo, con motivo escrito.
 - `ReservaCapacidad`: la posición comprometida como objeto, con `(recurso, sitio, día)`, día original, límite de ventana, reprogramaciones, contenedor asociado, estado y motivo de baja. Los recursos son dos y no comparten cupo: `CONSOLIDACION` y `CROSS_DOCK`.
 - Agenda de capacidad en `Main`: `capacidadNominalDia()`, `capacidadReservadaDia()`, `capacidadDisponibleDia()`, `capacidadDisponibleEnVentana()`, `diasDisponiblesEnVentana()`, `reservarCapacidad()`, `consumirReservaCapacidad()`, `liberarCapacidadPorAsignacion()`, `reprogramarReservasCapacidad()` (paso diario, antes del despacho) y `reconciliarCapacidad()` (C-03, invariante diario).

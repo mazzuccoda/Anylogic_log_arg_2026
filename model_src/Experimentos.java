@@ -15,7 +15,7 @@ class Escenarios extends ParamVariationExperiment {
     void additionalClassCode() {
         // Version del modelo con la que se corrio el barrido: sin esto un csv de
         // resultados no se puede volver a atar al codigo que lo produjo.
-        static final String VERSION_MODELO = "fase-26";
+        static final String VERSION_MODELO = "fase-27";
 
         static final int REPLICAS = 30;
 
@@ -57,7 +57,16 @@ class Escenarios extends ParamVariationExperiment {
         	"servicio_toneladas_cutoff", "toneladas_dentro_cutoff", "toneladas_fuera_cutoff",
         	"pedidos_perdieron_cutoff", "buques_cumplidos", "buques_perdidos",
         	"holgura_promedio_dias", "pedidos_ventana_inviable",
-        	"contenedores_sin_posicion_futura"
+        	"contenedores_sin_posicion_futura",
+        	"viajes_producto_programados", "viajes_producto_iniciados",
+        	"viajes_producto_completados", "viajes_producto_cancelados",
+        	"camiones_producto_promedio_en_ruta", "pico_camiones_producto_en_ruta",
+        	"espera_media_flota_producto_dias", "espera_maxima_flota_producto_dias",
+        	"toneladas_reservadas_para_transporte", "toneladas_producto_en_transito",
+        	"toneladas_no_programadas_por_flota", "toneladas_programadas_parcialmente",
+        	"movimientos_parciales_por_flota", "pedidos_perdieron_cutoff_por_flota",
+        	"viajes_en_curso_fin_campania", "toneladas_transferidas_programadas",
+        	"toneladas_transferidas_salidas"
         };
 
         // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -432,7 +441,24 @@ class Escenarios extends ParamVariationExperiment {
         	root.buquesPerdidos(),
         	root.holguraPromedioDias(),
         	root.pedidosVentanaInviable,
-        	root.contenedoresSinPosicionFutura
+        	root.contenedoresSinPosicionFutura,
+        	root.viajesProductoProgramados,
+        	root.viajesProductoIniciados,
+        	root.viajesProductoCompletados,
+        	root.viajesProductoCancelados,
+        	root.camionesProductoPromedioEnRuta(),
+        	root.picoCamionesProductoEnRuta,
+        	root.esperaMediaFlotaProductoDias(),
+        	root.esperaFlotaProductoDiasMaxima,
+        	root.toneladasReservadasParaTransporte,
+        	root.toneladasProductoEnTransito,
+        	root.toneladasNoProgramadasPorFlota,
+        	root.toneladasProgramadasParcialmente,
+        	root.movimientosParcialesPorFlota,
+        	root.pedidosPerdieronCutoffPorFlota,
+        	root.viajesProductoEnCurso(),
+        	root.toneladasTransferidasProgramadas,
+        	root.toneladasTransferidasSalidas
         };
 
         corridas.add(c);

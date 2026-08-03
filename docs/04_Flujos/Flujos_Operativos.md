@@ -222,3 +222,16 @@ No se libera el recurso durante la espera de carga.
 - fallo parcial de transferencia.
 
 Cada excepción debe dejar motivo explícito y no producir costos silenciosos.
+
+## 12. Transferencia planta→depósito con viajes físicos (ADR-061)
+
+Desde ADR-061 el movimiento planta→depósito no es instantáneo. La secuencia es:
+
+1. **Programación.** El modelo decide mover `X` toneladas de un lote a un depósito. `programarMovimientoProducto()` parte `X` en viajes de hasta `capacidad_camion_tn` y, para cada uno, toma el camión que puede salir antes. El stock queda **reservado** en su capa de origen con la clave del viaje: sigue estando en planta y ya no está libre para otro pedido.
+2. **Salida.** El día de la salida el producto deja el origen físicamente, pasa a **tránsito** y el viaje devenga el flete del tramo. Un viaje cancelado antes de este momento no paga y devuelve el stock y el camión.
+3. **Llegada.** El producto entra al inventario del destino con `dia_ingreso` igual a la fecha de llegada, conservando lote y día de producción, y devenga el IN del depósito. Lo que cruza (cross dock) no entra al almacenamiento y no lo paga.
+4. **Regreso.** El camión vuelve a su base y recién ahí queda disponible. Un viaje de 1 200 km con jornada de 10 horas ocupa el camión 3,43 días: eso antes era imposible y ahora es una agenda.
+
+El cross dock exige que el viaje **llegue dentro de la jornada**: si no llega, no cruza y la alternativa se descarta con `CRUCE_SIN_LLEGADA_EN_EL_DIA`. El tramo hacia la terminal ya tenía duración física en el flujo del envío, así que el viaje a terminal solo ocupa camión (`ocupaSoloFlota`) y no mueve producto ni cobra por segunda vez.
+
+Con `habilita_flota_producto_multidiaria = false` el flujo vuelve a ser el instantáneo de ADR-044.

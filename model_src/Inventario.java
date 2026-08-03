@@ -386,6 +386,52 @@ public class Inventario implements java.io.Serializable {
 		return toneladas - pendiente;
 	}
 
+	/** Igual que reservar(), pero limitado a las capas de un lote en una ubicacion. */
+	public double reservarDeLote(int idLote, String idUbicacion, double toneladas,
+			String clave, String codigoPedido, double dia) {
+		double pendiente = toneladas;
+		for (Capa c : fifoDeLote(idLote, idUbicacion)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, c.libres());
+			if (toma <= EPS) {
+				continue;
+			}
+			c.reservar(clave, codigoPedido, toma, dia);
+			pendiente -= toma;
+		}
+		return toneladas - pendiente;
+	}
+
+	/** Saca fisicamente toneladas ya reservadas por una clave, dentro de un lote. */
+	public double despacharDeLote(int idLote, String idUbicacion, double toneladas, String clave) {
+		double pendiente = toneladas;
+		for (Capa c : fifoDeLote(idLote, idUbicacion)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, Math.min(c.reservadasDe(clave), c.toneladas));
+			if (toma <= EPS) {
+				continue;
+			}
+			c.quitarReserva(clave, toma);
+			c.toneladas -= toma;
+			pendiente -= toma;
+		}
+		limpiar();
+		return toneladas - pendiente;
+	}
+
+	/** Total reservado con una clave, en cualquier ubicacion: lo comprometido por un viaje. */
+	public double reservadoDeClave(String clave) {
+		double total = 0;
+		for (Capa c : capas) {
+			total += c.reservadasDe(clave);
+		}
+		return total;
+	}
+
 	// -------------------------------------------------------------- integridad
 
 	private void limpiar() {
@@ -414,7 +460,11 @@ public class Inventario implements java.io.Serializable {
 				if (r.toneladas < -EPS) {
 					errores.add("Reserva negativa de " + r.codigoPedido + " en " + c + ".");
 				}
-				if (r.codigoPedido == null || r.codigoPedido.length() == 0) {
+				// Un viaje de producto reserva stock sin pedido: una transferencia a deposito
+				// mueve inventario propio y no tiene comprador todavia (ADR-061). Lo que no
+				// puede faltar nunca es el dueno de la reserva, y ahi es el viaje.
+				boolean deViaje = r.clave != null && r.clave.startsWith("VIAJE|");
+				if (!deViaje && (r.codigoPedido == null || r.codigoPedido.length() == 0)) {
 					errores.add("Reserva sin pedido en " + c + ".");
 				}
 				if (r.clave == null || r.clave.length() == 0) {

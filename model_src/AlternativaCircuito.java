@@ -40,6 +40,21 @@ public class AlternativaCircuito implements java.io.Serializable {
 	public double costoUnitarioSinRestriccion = Double.POSITIVE_INFINITY;
 
 	public java.util.List<Integer> diasCapacidadDisponibles = new java.util.ArrayList<Integer>();
+
+	// Flota multidiaria (ADR-061): el camion de producto se compromete por la duracion
+	// real del viaje, asi que la alternativa vale por lo que la agenda puede mover antes
+	// del cut-off, no por lo que entra en una jornada.
+	public boolean requiereFlotaProducto = false;
+	public double toneladasFactiblesPorFlota = 0;
+	public int viajesFactiblesPorFlota = 0;
+	public double primeraSalidaProducto = -1;
+	public double ultimaSalidaProducto = -1;
+	public double ultimaLlegadaProducto = -1;
+	public double ultimoRegresoProducto = -1;
+	public double esperaFlotaDias = 0;
+	public boolean flotaCompleta = true;
+	public boolean flotaParcial = false;
+	public String diagnosticoFlota = "";
 	public String motivoNoFactible = "";
 
 	public double diaEntregaEstimado = 0;

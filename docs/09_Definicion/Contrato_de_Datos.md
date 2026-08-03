@@ -197,7 +197,7 @@ Los datos operativos de la planta (velocidades, `contenedores_por_dia`, tarifa d
 | `dias_operativos_semana` | int | Default 6 |
 | `cantidad_replicas` | int | Default 30 |
 | `semilla_base` | int | |
-| `camiones_producto` | int | Flota planta→depósito, contada en camión-día (ADR-044) |
+| `camiones_producto` | int | Flota planta→depósito. Con ADR-061 son camiones **físicos** con agenda propia; con `habilita_flota_producto_multidiaria = false`, camión-día agregado (ADR-044) |
 | `camiones_portacontenedor` | int | Flota depósito→terminal, capacidad del pool `flotaPortacontenedores` |
 | `capacidad_camion_tn` | double | Toneladas por viaje: mover más son más viajes |
 | `velocidad_camion_kmh` | double | Define cuánta jornada consume un viaje |
@@ -384,3 +384,14 @@ Simétricas a la entrada, siempre con `id_escenario`, `replica`, `semilla` y `ve
 | `series_diarias.csv` | Stock, reservado, producción, excedente y utilización por día, producto y ubicación |
 | `esperas_recursos.csv` | Operaciones postergadas por día, recurso y causa |
 | `errores_entrada.csv` | Validaciones fallidas |
+
+## 12. Columnas de flota multidiaria (ADR-061)
+
+Dos columnas nuevas, opcionales, en la hoja `Escenario`. Un libro que no las trae corre igual con los valores por defecto.
+
+| Columna | Tipo | Default | Significado |
+|---|---|---|---|
+| `habilita_flota_producto_multidiaria` | bool | `true` | Con `true` la flota de producto son camiones físicos con viajes que pueden durar varios días. Con `false` el modelo vuelve exactamente a la capacidad diaria agregada de ADR-044, con movimiento instantáneo y sin tránsito |
+| `dias_max_programacion_flota` | double | `2` | Horizonte de compromiso de la agenda: hasta cuántos días adelante se programa un viaje que no puede salir hoy. Más días adelantan producto que todavía no tiene pedido; menos días dejan camiones ociosos |
+
+Las duraciones **no** se cargan: se derivan de `Distancia`, de `velocidad_camion_kmh`, de `horas_operativas_dia` y de las velocidades de carga y descarga de cada ubicación. La tabla `Distancia` declara **un solo sentido por tramo** y el modelo la lee de forma simétrica; un tramo que no está en la tabla no aborta la corrida, se descarta el movimiento con `RUTA_SIN_DISTANCIA`.
