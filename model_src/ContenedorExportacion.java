@@ -32,4 +32,8 @@ class ContenedorExportacion extends Agent {
     String claveReserva = "";
     String idSitioOrigen = "";
     EstrategiaLogistica circuito = EstrategiaLogistica.SIN_DEFINIR;
+    String claveReservaCapacidad = "";
+    int diaPlanificadoOperacion = -1;
+    String idUbicacionOperacion = "";
+    String tipoRecursoOperacion = "";
 }

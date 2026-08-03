@@ -78,6 +78,19 @@ public class DatosEntrada implements java.io.Serializable {
 		public boolean permiteReservaAntesRetiro = true;
 		public boolean permiteTransferenciaAntesRetiro = true;
 		public boolean permiteReservaCapacidadFutura = true;
+
+		/**
+		 * Con politica fija y sin capacidad, que hacer con el saldo (ADR-060). Sin
+		 * fallback el saldo queda sin cubrir, que es lo que mide la saturacion del
+		 * circuito fijo; con fallback se evaluan las demas alternativas factibles.
+		 */
+		public boolean permiteFallbackPoliticaFija = false;
+
+		/**
+		 * Escribir el diagnostico de capacidad al cierre de la corrida (ADR-060). Apagado
+		 * en el barrido: son millones de filas que nadie lee.
+		 */
+		public boolean exportarDiagnosticoCapacidad = false;
 		public String politicaReprogramacionBuque = "CONTINUAR";   // CONTINUAR | CANCELAR
 	}
 

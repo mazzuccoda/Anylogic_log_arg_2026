@@ -6,6 +6,29 @@ Formato: una entrada por cambio relevante del modelo o de las definiciones. Las 
 
 ### Agregado
 
+- Modelo, **capacidad finita y menor costo factible** (MOD, ADR-060). La capacidad de posiciones deja de ser diagnóstica y pasa a ser una restricción del plan, resuelta en el orden `capacidad → factibilidad → costo → reserva → asignación`: una alternativa sin posiciones en la ventana se descarta **antes** de compararse por costo, con motivo escrito.
+- `ReservaCapacidad`: la posición comprometida como objeto, con `(recurso, sitio, día)`, día original, límite de ventana, reprogramaciones, contenedor asociado, estado y motivo de baja. Los recursos son dos y no comparten cupo: `CONSOLIDACION` y `CROSS_DOCK`.
+- Agenda de capacidad en `Main`: `capacidadNominalDia()`, `capacidadReservadaDia()`, `capacidadDisponibleDia()`, `capacidadDisponibleEnVentana()`, `diasDisponiblesEnVentana()`, `reservarCapacidad()`, `consumirReservaCapacidad()`, `liberarCapacidadPorAsignacion()`, `reprogramarReservasCapacidad()` (paso diario, antes del despacho) y `reconciliarCapacidad()` (C-03, invariante diario).
+- Campos de capacidad en `AlternativaCircuito` —`capacidadReservable`, `contenedoresConCapacidad`, `toneladasCapacidadDisponible`, `diasCapacidadDisponibles`, `toneladasSinRestriccionCapacidad`, `costoUnitarioSinRestriccion`— y en `ContenedorExportacion` la reserva que va a consumir (`claveReservaCapacidad`, `diaPlanificadoOperacion`, `idUbicacionOperacion`, `tipoRecursoOperacion`).
+- Dos parámetros nuevos de `Escenario`: `permite_fallback_politica_fija` (default `false`) y `exportar_diagnostico_capacidad` (default `false`).
+- Tres CSV de diagnóstico en `resultados/`: `capacidad_por_dia.csv` (nominal, reservada, consumida, liberada, ocupada, libre y cola por recurso, sitio y día), `asignaciones_capacidad.csv` (una fila por posición, con su historia) y `asignaciones_capacidad_decisiones.csv` (por qué se eligió o se descartó cada alternativa, con el sobrecosto de saturación).
+- KPI `sobrecosto_saturacion_usd`: lo que cuesta de más no poder usar la alternativa más barata por falta de posiciones. Es la métrica que hace visible el precio de la restricción en vez de esconderlo como backlog.
+- Panel **Capacidad finita** en el tablero de campaña y casos de validación CAP-01 a CAP-16, con la forma de medición declarada caso por caso.
+
+### Cambiado
+
+- `contenedores_por_dia` queda documentado como **capacidad diaria total procesable** del sitio, no como posiciones simultáneas.
+- Una posición se ocupa **una sola vez**: reservar ocupa, consumir convierte reserva→consumo sin volver a ocupar y liberar devuelve el cupo. Sin esa regla, reserva y conteo al ejecutar le sacaban la mitad de la capacidad a cada sitio.
+- La reserva se toma al crear la **asignación** (`ceil(tn / capacidad)`), no al crear cada contenedor, y el último contenedor parcial consume una posición completa, igual que la paga (ADR-053).
+- Las políticas `FIJA_*` respetan la capacidad: el circuito fijo se usa mientras sea factible y, con `permite_fallback_politica_fija`, el saldo que no entra pasa al evaluador en vez de perderse.
+- `datos/entrada_ejemplo.xlsx`: la hoja `Escenario` suma las dos columnas nuevas.
+
+### Corregido
+
+- Un pedido cancelado por perder el cut-off (`politica_reprogramacion_buque = CANCELAR`) **seguía bloqueando las posiciones** que tenía tomadas: nadie llamaba a `liberarCapacidadPorAsignacion()`. Ahora la cancelación libera las posiciones con motivo. La ruta no se activó en los libros CAP y así queda anotado en el plan de validación.
+
+### Agregado
+
 - Modelo, **ventana marítima y cut-off** (MOD, ADR-059), versión `fase-26`. Un pedido deja de tener una sola fecha límite y pasa a tener cuatro: `dia_conocimiento` (desde cuándo existe, reserva, asigna, transfiere y planifica), `dia_apertura_retiro_vacio` (primer día en que el vacío puede salir de la terminal), `dia_cutoff_fisico` (último ingreso del cargado a terminal) y `dia_etd` (zarpada). El contrato exige `conocimiento <= apertura <= cut-off <= etd` y el importador lo valida fila por fila.
 - Metadatos marítimos del pedido en el contrato: `naviera`, `incoterm`, `buque` y `viaje_buque`. `buque` es lo que agrupa el cluster real de cut-off, así que el servicio se puede leer por buque y no sólo por pedido.
 - Siete parámetros nuevos de `Escenario`: `dias_anticipacion_planificacion_default` (14), `dias_anticipacion_retiro_default` (7), `dias_entre_cutoff_y_etd_default` (1), `permite_reserva_antes_retiro`, `permite_transferencia_antes_retiro`, `permite_reserva_capacidad_futura` (los tres en `true`) y `politica_reprogramacion_buque` (`CONTINUAR`).

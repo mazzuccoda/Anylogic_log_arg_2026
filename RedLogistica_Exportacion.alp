@@ -724,21 +724,6 @@ cargarStockInicial();]]></StartupCode>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
-					<Id>1785000203</Id>
-					<Name><![CDATA[consolidacionesDelDia]]></Name>
-					<X>1030</X><Y>-360</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.HashMap<String, Integer>]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new java.util.HashMap<String, Integer>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
 					<Id>1785000204</Id>
 					<Name><![CDATA[contenedoresEnEspera]]></Name>
 					<X>1030</X><Y>-320</Y>
@@ -795,21 +780,6 @@ cargarStockInicial();]]></StartupCode>
 						<Type><![CDATA[double]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785010310</Id>
-					<Name><![CDATA[crossDockDelDia]]></Name>
-					<X>-300</X><Y>360</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.HashMap<String, Integer>]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new java.util.HashMap<String, Integer>()]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -1963,10 +1933,267 @@ cargarStockInicial();]]></StartupCode>
 						</InitialValue>
 					</Properties>
 				</Variable>
+			
 				<Variable Class="PlainVariable">
-					<Id>1785950070</Id>
-					<Name><![CDATA[posicionesPlanificadas]]></Name>
-					<X>-700</X><Y>1540</Y>
+					<Id>1792600000101</Id>
+					<Name><![CDATA[reservasCapacidad]]></Name>
+					<X>-420</X><Y>2100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.ArrayList<ReservaCapacidad>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.ArrayList<ReservaCapacidad>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000103</Id>
+					<Name><![CDATA[reservaPorClave]]></Name>
+					<X>-420</X><Y>2140</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, ReservaCapacidad>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, ReservaCapacidad>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000105</Id>
+					<Name><![CDATA[reservasPorAsignacion]]></Name>
+					<X>-420</X><Y>2180</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, java.util.ArrayList<ReservaCapacidad>>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, java.util.ArrayList<ReservaCapacidad>>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000107</Id>
+					<Name><![CDATA[asignacionPorId]]></Name>
+					<X>-420</X><Y>2220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, AsignacionPedido>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, AsignacionPedido>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000109</Id>
+					<Name><![CDATA[ocupacionCapacidad]]></Name>
+					<X>-420</X><Y>2260</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, LinkedHashMap<Integer, Integer>>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000111</Id>
+					<Name><![CDATA[siguienteIdReservaCapacidad]]></Name>
+					<X>-420</X><Y>2300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000113</Id>
+					<Name><![CDATA[capacidadReservadaTotal]]></Name>
+					<X>-420</X><Y>2340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000115</Id>
+					<Name><![CDATA[capacidadConsumidaTotal]]></Name>
+					<X>-420</X><Y>2380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000117</Id>
+					<Name><![CDATA[capacidadLiberadaTotal]]></Name>
+					<X>-420</X><Y>2420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000119</Id>
+					<Name><![CDATA[reservasReprogramadas]]></Name>
+					<X>-420</X><Y>2460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000121</Id>
+					<Name><![CDATA[toneladasReasignadasPorCapacidad]]></Name>
+					<X>-420</X><Y>2500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000123</Id>
+					<Name><![CDATA[fallbacksPoliticaFija]]></Name>
+					<X>-420</X><Y>2540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000125</Id>
+					<Name><![CDATA[costoAdicionalSaturacion]]></Name>
+					<X>-420</X><Y>2580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000127</Id>
+					<Name><![CDATA[pedidosMultiCircuito]]></Name>
+					<X>-420</X><Y>2620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000129</Id>
+					<Name><![CDATA[contenedoresPorCircuito]]></Name>
+					<X>-420</X><Y>2660</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, Integer>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, Integer>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000131</Id>
+					<Name><![CDATA[diagnosticoAsignaciones]]></Name>
+					<X>-420</X><Y>2700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.ArrayList<String>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.ArrayList<String>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000133</Id>
+					<Name><![CDATA[exportarDiagnosticoCapacidad]]></Name>
+					<X>-420</X><Y>2740</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1792600003000</Id>
+					<Name><![CDATA[colaCapacidad]]></Name>
+					<X>-300</X><Y>4400</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2516,6 +2743,7 @@ registrarPedidosDelDia();                // 2. planificar y comprometer
 actualizarVentanasRetiroDelDia();        // 2b. abrir la ventana de retiro del vacio
 abrirPosicionesConsolidacionDelDia();    // 3. abrir la capacidad de estiba del dia
 abrirPosicionesCrossDockDelDia();        // 4. abrir la capacidad de cross dock del dia
+reprogramarReservasCapacidad();          // 4b. mover las posiciones no usadas (ADR-060)
 programarCrossDockDelDia();              // 5. cruzar lo que no necesita guardarse
 revisarTransferenciasPlanta();           // 6. sacar de planta solo lo necesario
 revisarPedidosPendientes();              // 7. reservar contra stock
@@ -2529,7 +2757,9 @@ registrarPerdidaDeCutoff();              // 11b. que pedidos perdieron su buque
 validarInventario();              // invariantes de las capas (ADR-023)
 validarBalancePedidos();          // C-01: el pedido cierra por partes (ADR-055)
 validarBalanceProducido();        // C-02: nada de lo producido se pierde (ADR-048)
-reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)]]></Action>
+reconciliarCapacidad();           // C-03: la capacidad reservada reconcilia (ADR-060)
+reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
+exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -4366,8 +4596,6 @@ return contenedor == null
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[// Las posiciones son un recurso de conteo diario (definicion, seccion 3): cada
 // dia se abre la capacidad del sitio y lo que no entra espera al dia siguiente.
-consolidacionesDelDia.clear();
-
 // La capacidad se ofrece donde el escenario arma contenedores: en el circuito de
 // terminal es el puerto y en los demas el sitio de origen. Con consolidacion en
 // planta los depositos siguen ofreciendo capacidad porque el pedido que no entra
@@ -4407,25 +4635,49 @@ for (Deposito deposito : depositos) {
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[idUbicacion]]></Name>
-						<Type><![CDATA[String]]></Type>
+						<Name><![CDATA[contenedor]]></Name>
+						<Type><![CDATA[ContenedorExportacion]]></Type>
 					</Parameter>
-					<Body><![CDATA[int usadas =
-    consolidacionesDelDia.containsKey(idUbicacion)
-    ? consolidacionesDelDia.get(idUbicacion)
-    : 0;
+					<Body><![CDATA[// Ejecutar la estiba de un contenedor. Con reserva se consume la posicion ya
+// comprometida y la ocupacion del dia no se incrementa dos veces; sin reserva -con la
+// agenda apagada, o despues de perder la posicion- solo puede usar lo que quedo libre.
+String idUbicacion = sitioConsolidacion(contenedor);
+
+int hoy = diaCampania();
+
+ReservaCapacidad reserva = reservaDeContenedor(contenedor);
 
 if (
-    usadas + 1
-    > datos.capacidadConsolidacionDia(idUbicacion)
+    reserva != null
+    && reserva.activa
+    && !reserva.consumida
+    && !reserva.liberada
+) {
+
+    // Todavia no es su dia: la posicion esta comprometida mas adelante en la ventana.
+    if (reserva.diaPlanificado > hoy) {
+        return false;
+    }
+
+    if (!consumirReservaCapacidad(reserva, hoy)) {
+        return false;
+    }
+
+    contenedor.diaPlanificadoOperacion = hoy;
+
+    consolidacionesRealizadas++;
+
+    return true;
+}
+
+if (
+    capacidadDisponibleDia(
+        ReservaCapacidad.CONSOLIDACION, idUbicacion, hoy) < 1
 ) {
     return false;
 }
 
-consolidacionesDelDia.put(
-    idUbicacion,
-    usadas + 1
-);
+ocuparCapacidad(ReservaCapacidad.CONSOLIDACION, idUbicacion, hoy, 1);
 
 consolidacionesRealizadas++;
 
@@ -4535,10 +4787,22 @@ for (
 
     if (
         !contenedor.esCrossDock
-        && !tomarPosicionConsolidacion(
-            sitioConsolidacion(contenedor)
-        )
+        && !tomarPosicionConsolidacion(contenedor)
     ) {
+        // La cola mide falta de lugar, no espera planificada: el contenedor que todavia
+        // no llego al dia de su posicion no esta haciendo cola, esta esperando su turno.
+        ReservaCapacidad reservaEnEspera = reservaDeContenedor(contenedor);
+
+        if (
+            reservaEnEspera == null
+            || reservaEnEspera.diaPlanificado <= diaCampania()
+        ) {
+            registrarColaCapacidad(
+                ReservaCapacidad.CONSOLIDACION,
+                sitioConsolidacion(contenedor)
+            );
+        }
+
         contenedor.diasEsperaPosicion++;
         esperaConsolidacionContenedorDia++;
         contenedoresEnEspera++;
@@ -4620,8 +4884,6 @@ return true;]]></Body>
 					<Body><![CDATA[// Las posiciones de cross dock se cuentan por dia, igual que las de
 // consolidacion (ADR-039): una operacion es un contenedor armado con producto
 // que llega y sale el mismo dia.
-crossDockDelDia.clear();
-
 capacidadCrossDockOfrecida = 0;
 
 if (!habilitaCrossDock) {
@@ -4638,11 +4900,6 @@ for (Deposito deposito : depositos) {
         datos.capacidadCrossDockDia(
             deposito.idUbicacion
         );
-
-    crossDockDelDia.put(
-        deposito.idUbicacion,
-        0
-    );
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -4659,43 +4916,13 @@ for (Deposito deposito : depositos) {
 						<Name><![CDATA[idUbicacion]]></Name>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
-					<Body><![CDATA[if (!crossDockDelDia.containsKey(idUbicacion)) {
-    return 0;
-}
-
-return datos.capacidadCrossDockDia(idUbicacion)
-    - crossDockDelDia.get(idUbicacion);]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
-					<Id>1785010404</Id>
-					<Name><![CDATA[tomarPosicionesCrossDock]]></Name>
-					<X>-300</X><Y>1480</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[idUbicacion]]></Name>
-						<Type><![CDATA[String]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[cantidad]]></Name>
-						<Type><![CDATA[int]]></Type>
-					</Parameter>
-					<Body><![CDATA[if (capacidadCrossDockLibre(idUbicacion) < cantidad) {
-    return false;
-}
-
-crossDockDelDia.put(
+					<Body><![CDATA[// Cupo de cross dock libre hoy en ese deposito. Sale de la misma agenda que la
+// consolidacion pero con recurso propio: cruzar no consume posiciones de estiba y la
+// estiba no consume cupo de cruce (ADR-041, ADR-060).
+return capacidadDisponibleDia(
+    ReservaCapacidad.CROSS_DOCK,
     idUbicacion,
-    crossDockDelDia.get(idUbicacion) + cantidad
-);
-
-operacionesCrossDock += cantidad;
-
-return true;]]></Body>
+    diaCampania());]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -4929,14 +5156,12 @@ if (
     return 0;
 }
 
-int necesarios =
-    contenedoresNecesarios(pedido.producto, toneladas);
-
+// El cupo de cross dock se toma como reserva de la asignacion y no como un conteo
+// aparte: asi el contenedor que cruza tiene su posicion y la agenda no cuenta dos veces
+// la misma operacion (ADR-060). El volumen ya vino acotado por el cupo libre de hoy.
 if (
-    !tomarPosicionesCrossDock(
-        sitio.idUbicacion,
-        necesarios
-    )
+    capacidadCrossDockLibre(sitio.idUbicacion)
+    < contenedoresNecesarios(pedido.producto, toneladas)
 ) {
     crossDockReprogramados++;
     return 0;
@@ -5052,6 +5277,7 @@ DatosEntrada.Escenario escenario = datos.escenario;
 
 duracionCampaniaDias = escenario.duracionCampaniaDias;
 habilitaCrossDock = escenario.habilitaCrossDock;
+exportarDiagnosticoCapacidad = escenario.exportarDiagnosticoCapacidad;
 politicaSeleccion = datos.politicaSeleccion();
 
 if (
@@ -7291,6 +7517,43 @@ String terminal = pedido.puertoSalida.idUbicacion;
 
 double toneladas = alternativa.toneladas;
 
+// Sin capacidad no hay alternativa (ADR-060): habia producto, lo que falta es donde
+// procesarlo antes del cut-off. Se costea igual, con el volumen que el stock permitia,
+// para poder medir despues cuanto cuesta la saturacion.
+if (
+    toneladas <= 0.0001
+    && usaAgendaCapacidad()
+    && alternativa.toneladasSinRestriccionCapacidad > 0.0001
+) {
+
+    alternativa.toneladas = alternativa.toneladasSinRestriccionCapacidad;
+
+    alternativa.contenedores =
+        contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+
+    costearAlternativa(pedido, alternativa);
+
+    alternativa.costoUnitarioSinRestriccion =
+        alternativa.costoUnitarioSegun(decideEndToEnd());
+
+    alternativa.toneladas = 0;
+    alternativa.contenedores = 0;
+
+    alternativa.descartar(
+        "SIN_CAPACIDAD_ANTES_CUTOFF en " + alternativa.idUbicacionCapacidad);
+
+    if (exportarDiagnosticoCapacidad) {
+        diagnosticoAsignaciones.add(
+            diaCampania() + "," + pedido.codigoPedido + ","
+            + alternativa.clave() + "," + alternativa.tipoRecursoCapacidad + ","
+            + alternativa.idUbicacionCapacidad + ","
+            + Math.round(alternativa.toneladasSinRestriccionCapacidad * 100) / 100.0
+            + ",0,0,SIN_CAPACIDAD_ANTES_CUTOFF");
+    }
+
+    return;
+}
+
 // Con asignacion parcial el volumen ya viene acotado a lo posible: si quedo en cero, el
 // origen no tiene nada que ofrecer hoy (ADR-055).
 if (toneladas <= 0.0001) {
@@ -7378,6 +7641,9 @@ if (
 }
 
 costearAlternativa(pedido, alternativa);
+
+alternativa.costoUnitarioSinRestriccion =
+    alternativa.costoUnitarioSegun(decideEndToEnd());
 
 // Un dia para armar y programar el contenedor mas el ciclo fisico del circuito,
 // contados desde que la ventana de retiro abre: antes de esa fecha el circuito
@@ -7769,6 +8035,8 @@ while (
 
         registrarPlan(pedido, alternativas, elegida, tomadas);
 
+        registrarSaturacion(pedido, alternativas, elegida, tomadas);
+
         break;
     }
 
@@ -7965,6 +8233,8 @@ asignacion.prioridad = pedido.asignaciones.size() + 1;
 
 pedido.asignaciones.add(asignacion);
 
+asignacionPorId.put(asignacion.idAsignacion, asignacion);
+
 asignacionesCreadas++;
 
 return asignacion;]]></Body>
@@ -8031,6 +8301,42 @@ if (aReservar <= 0.0001) {
     return 0;
 }
 
+// Capacidad antes que compromiso (ADR-060): solo se reserva inventario para lo que el
+// sitio puede procesar dentro de la ventana del pedido. El cross dock cruza hoy, con su
+// cupo propio; la estiba usa las posiciones del sitio donde se arma el contenedor.
+String tipoRecurso =
+    cruza
+    ? ReservaCapacidad.CROSS_DOCK
+    : ReservaCapacidad.CONSOLIDACION;
+
+String sitioRecurso =
+    cruza
+    ? idSitio
+    : sitioEstiba(idSitio, circuito, pedido.puertoSalida);
+
+int desdeDia = cruza ? diaCampania() : primerDiaVentanaCapacidad(pedido);
+int hastaDia = cruza ? diaCampania() : ultimoDiaVentanaCapacidad(pedido);
+
+boolean reservaPosiciones = usaAgendaCapacidad() || cruza;
+
+if (reservaPosiciones) {
+
+    double capacidadContenedor =
+        obtenerCapacidadContenedorTon(
+            obtenerTipoContenedor(pedido.producto));
+
+    aReservar =
+        min(
+            aReservar,
+            capacidadDisponibleEnVentana(
+                tipoRecurso, sitioRecurso, desdeDia, hastaDia)
+            * capacidadContenedor);
+
+    if (aReservar <= 0.0001) {
+        return 0;
+    }
+}
+
 AsignacionPedido asignacion =
     crearAsignacion(pedido, idSitio, circuito, cruza, motivo);
 
@@ -8048,6 +8354,7 @@ if (reservadas <= 0.0001) {
 
     // Nada que anotar: la asignacion no existe si no reservo.
     pedido.asignaciones.remove(asignacion);
+    asignacionPorId.remove(asignacion.idAsignacion);
     asignacionesCreadas--;
 
     return 0;
@@ -8055,6 +8362,37 @@ if (reservadas <= 0.0001) {
 
 asignacion.toneladasAsignadas = reservadas;
 asignacion.toneladasReservadasActivas = reservadas;
+
+if (reservaPosiciones) {
+
+    int necesarias =
+        contenedoresNecesarios(pedido.producto, reservadas);
+
+    java.util.List<ReservaCapacidad> posiciones =
+        reservarCapacidad(
+            asignacion.idAsignacion,
+            pedido.codigoPedido,
+            tipoRecurso,
+            sitioRecurso,
+            desdeDia,
+            hastaDia,
+            necesarias);
+
+    if (posiciones.size() < necesarias) {
+
+        // No deberia pasar: la capacidad se verifico contra la misma agenda un
+        // instante antes. Si pasa, la agenda dejo de ser una restriccion.
+        error(
+            "La asignacion " + asignacion.idAsignacion
+            + " reservo " + reservadas + " tn en " + sitioRecurso
+            + " y solo consiguio " + posiciones.size()
+            + " de " + necesarias + " posiciones.");
+    }
+
+    if (cruza) {
+        operacionesCrossDock += posiciones.size();
+    }
+}
 
 if (reservadas + 0.0001 < pedido.toneladasSolicitadas) {
     asignacionesParciales++;
@@ -8090,6 +8428,8 @@ if (pedido == null || pedido.toneladasPendientesAsignar() <= 0.0001) {
 
 double antes = pedido.cantidadOrigenes();
 
+int circuitosAntes = circuitosDePedido(pedido);
+
 double asignadas =
     usaEvaluador()
     ? asignarConEvaluador(pedido)
@@ -8097,6 +8437,10 @@ double asignadas =
 
 if (antes <= 1 && pedido.cantidadOrigenes() > 1) {
     pedidosMultiOrigen++;
+}
+
+if (circuitosAntes <= 1 && circuitosDePedido(pedido) > 1) {
+    pedidosMultiCircuito++;
 }
 
 // Marca historica: el estado final no alcanza para medir por donde paso el pedido, porque
@@ -8159,6 +8503,22 @@ for (String idSitio : candidatos) {
             false,
             "politica " + politicaSeleccion
         );
+}
+
+// Politica fija con capacidad finita (ADR-060): el circuito fijo se usa mientras sea
+// factible. Si el saldo no entra y el escenario habilita el fallback, se evaluan las
+// demas alternativas en vez de dejarlo sin cubrir; sin permiso, el saldo no es factible.
+if (
+    pedido.toneladasPendientesAsignar() > 0.0001
+    && datos.escenario.permiteFallbackPoliticaFija
+) {
+
+    double porFallback = asignarConEvaluador(pedido);
+
+    if (porFallback > 0.0001) {
+        fallbacksPoliticaFija++;
+        asignadas += porFallback;
+    }
 }
 
 return asignadas;]]></Body>
@@ -8350,25 +8710,77 @@ return min(
 						<Name><![CDATA[cruza]]></Name>
 						<Type><![CDATA[boolean]]></Type>
 					</Parameter>
-					<Body><![CDATA[// Una alternativa por el volumen que su origen puede resolver hoy, acotado por el saldo
-// pendiente del pedido. Cero toneladas es una alternativa que existe y se descarta con
-// motivo, no una que desaparece.
-double toneladas =
+					<Body><![CDATA[// Una alternativa por el volumen que su origen puede resolver, acotado por el saldo
+// pendiente y por la capacidad del sitio dentro de la ventana del pedido. Cero toneladas
+// es una alternativa que existe y se descarta con motivo, no una que desaparece.
+double stock =
     min(
         pendiente,
         toneladasDisponiblesParaAlternativa(idOrigen, pedido.producto, cruza)
     );
 
-toneladas = max(0, toneladas);
+stock = max(0, stock);
 
-return new AlternativaCircuito(
-    idOrigen,
-    sitioEstiba,
-    circuito,
-    cruza,
-    toneladas,
-    contenedoresNecesarios(pedido.producto, toneladas)
-);]]></Body>
+AlternativaCircuito alternativa =
+    new AlternativaCircuito(
+        idOrigen,
+        sitioEstiba,
+        circuito,
+        cruza,
+        stock,
+        contenedoresNecesarios(pedido.producto, stock)
+    );
+
+alternativa.toneladasSinRestriccionCapacidad = stock;
+
+// El recurso que consume la alternativa: cruzar usa el cupo de cross dock del deposito
+// de paso y estibar usa las posiciones del sitio donde se arma el contenedor.
+alternativa.tipoRecursoCapacidad =
+    cruza
+    ? ReservaCapacidad.CROSS_DOCK
+    : ReservaCapacidad.CONSOLIDACION;
+
+alternativa.idUbicacionCapacidad = cruza ? idOrigen : sitioEstiba;
+
+if (!usaAgendaCapacidad()) {
+    return alternativa;
+}
+
+// Capacidad antes que costo (ADR-060): cuantos contenedores puede procesar el sitio
+// entre la apertura del retiro y el cut-off. El cross dock se ejecuta el mismo dia en
+// que el producto cruza, asi que su ventana es hoy.
+int desde = cruza ? diaCampania() : primerDiaVentanaCapacidad(pedido);
+int hasta = cruza ? diaCampania() : ultimoDiaVentanaCapacidad(pedido);
+
+alternativa.contenedoresConCapacidad =
+    capacidadDisponibleEnVentana(
+        alternativa.tipoRecursoCapacidad,
+        alternativa.idUbicacionCapacidad,
+        desde,
+        hasta);
+
+alternativa.diasCapacidadDisponibles =
+    diasDisponiblesEnVentana(
+        alternativa.tipoRecursoCapacidad,
+        alternativa.idUbicacionCapacidad,
+        desde,
+        hasta);
+
+alternativa.capacidadReservable =
+    alternativa.contenedoresConCapacidad > 0;
+
+alternativa.toneladasCapacidadDisponible =
+    alternativa.contenedoresConCapacidad
+    * obtenerCapacidadContenedorTon(
+        obtenerTipoContenedor(pedido.producto));
+
+alternativa.toneladas =
+    max(0, min(stock, alternativa.toneladasCapacidadDisponible));
+
+alternativa.contenedores =
+    contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+
+return alternativa;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -8516,9 +8928,16 @@ double saldoCapa =
 
 boolean ultimoParcial = permitirUltimoParcial(pedido);
 
+// Un contenedor por posicion reservada (ADR-060): no se arma un contenedor que el sitio
+// no puede procesar dentro de la ventana, por mas stock reservado que haya.
+int posicionesLibres =
+    (usaAgendaCapacidad() || asignacion.esCrossDock)
+    ? reservasLibresDe(asignacion.idAsignacion)
+    : Integer.MAX_VALUE;
+
 int creados = 0;
 
-while (disponible > 0.0001) {
+while (disponible > 0.0001 && creados < posicionesLibres) {
 
     boolean completo =
         disponible + 0.0001 >= pedido.capacidadContenedorTon;
@@ -8571,7 +8990,26 @@ while (disponible > 0.0001) {
         ? EstadoContenedor.ESPERANDO_PROGRAMACION
         : EstadoContenedor.CREADO;
 
-    planificarPosicionFutura(pedido, sitioDeEstiba);
+    ReservaCapacidad posicion =
+        reservaLibreDe(asignacion.idAsignacion);
+
+    if (posicion != null) {
+
+        posicion.idContenedor = contenedor.idContenedor;
+
+        contenedor.claveReservaCapacidad = posicion.claveReserva;
+        contenedor.diaPlanificadoOperacion = posicion.diaPlanificado;
+        contenedor.idUbicacionOperacion = posicion.idUbicacion;
+        contenedor.tipoRecursoOperacion = posicion.tipoRecurso;
+
+        // El cruce ocurre el dia en que el producto sale de planta: la posicion de cross
+        // dock se consume al armar el contenedor y no espera al despacho.
+        if (asignacion.esCrossDock) {
+            consumirReservaCapacidad(posicion, diaCampania());
+        }
+    }
+
+    registrarContenedorPorCircuito(asignacion.circuito, asignacion.esCrossDock);
 
     contenedor.costoEstimado =
         datos.roundTripUsdContenedor(
@@ -9521,8 +9959,15 @@ for (Pedido pedido : pedidos) {
     if ("CANCELAR".equals(datos.escenario.politicaReprogramacionBuque)) {
 
         // Politica dura: lo que no llega al buque no viaja. El saldo se cancela y
-        // deja de competir por recursos.
+        // deja de competir por recursos, incluidas las posiciones que tenia tomadas:
+        // si no se liberan, un pedido cancelado sigue bloqueando el sitio (CAP-05).
         pedido.estado = EstadoPedido.CANCELADO;
+
+        for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+            liberarCapacidadPorAsignacion(
+                asignacion.idAsignacion, "pedido cancelado por cut-off");
+        }
 
     } else {
 
@@ -9531,63 +9976,6 @@ for (Pedido pedido : pedidos) {
         pedido.cantidadReprogramaciones++;
     }
 }]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1786900050</Id>
-					<Name><![CDATA[planificarPosicionFutura]]></Name>
-					<X>-700</X><Y>1700</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[pedido]]></Name>
-						<Type><![CDATA[Pedido]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[sitioEstiba]]></Name>
-						<Type><![CDATA[String]]></Type>
-					</Parameter>
-					<Body><![CDATA[// Reserva de capacidad futura (ADR-059): al comprometer un contenedor se le busca un
-// dia de estiba dentro de su ventana, contra la capacidad declarada del sitio. No
-// restringe la ejecucion, que sigue decidiendose dia a dia con la capacidad real: lo
-// que hace es avisar antes del cut-off que la capacidad no da.
-if (!datos.escenario.permiteReservaCapacidadFutura) {
-    return;
-}
-
-int capacidad = (int) Math.floor(datos.capacidadConsolidacionDia(sitioEstiba));
-
-if (capacidad <= 0) {
-    return;
-}
-
-LinkedHashMap<Integer, Integer> porDia = posicionesPlanificadas.get(sitioEstiba);
-
-if (porDia == null) {
-    porDia = new LinkedHashMap<Integer, Integer>();
-    posicionesPlanificadas.put(sitioEstiba, porDia);
-}
-
-int desde = (int) Math.max(diaCampania(), Math.floor(pedido.diaAperturaRetiroVacio));
-int hasta = (int) Math.floor(pedido.diaLimite);
-
-for (int dia = desde; dia <= hasta; dia++) {
-
-    Integer usadas = porDia.get(dia);
-    int ocupadas = usadas == null ? 0 : usadas.intValue();
-
-    if (ocupadas < capacidad) {
-        porDia.put(dia, ocupadas + 1);
-        return;
-    }
-}
-
-// Ningun dia de la ventana tiene posicion libre: el contenedor va a existir igual,
-// pero se sabe hoy que no tiene donde armarse antes del cut-off.
-contenedoresSinPosicionFutura++;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -9730,6 +10118,1215 @@ return pedidosConHolguraMedida == 0
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[// Contenedores comprometidos que todavia esperan que abra su ventana de retiro.
 return contarContenedores(EstadoContenedor.CREADO);]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792600001000</Id>
+					<Name><![CDATA[usaAgendaCapacidad]]></Name>
+					<X>-300</X><Y>3000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Interruptor maestro de la capacidad finita (ADR-060). Con el permiso apagado la
+// agenda no reserva nada y el modelo vuelve a la conducta anterior: la capacidad se
+// verifica el dia de la operacion y la futura es solo diagnostico.
+return datos != null
+    && datos.escenario != null
+    && datos.escenario.permiteReservaCapacidadFutura;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1792600001002</Id>
+					<Name><![CDATA[claveRecurso]]></Name>
+					<X>-300</X><Y>3040</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// La unidad de capacidad es el par recurso-sitio: la consolidacion y el cross dock de
+// un mismo deposito son cupos distintos y no se prestan posiciones (ADR-041).
+return tipoRecurso + "|" + idUbicacion;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600001004</Id>
+					<Name><![CDATA[capacidadNominalDia]]></Name>
+					<X>-300</X><Y>3080</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[dia]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Capacidad declarada del sitio para ese dia. contenedores_por_dia es capacidad diaria
+// total y no posiciones simultaneas (ADR-060, seccion 4.1); los factores del escenario
+// ya vienen aplicados en el dato de Ubicacion, aplicarlos aca los contaria dos veces.
+if (idUbicacion == null || idUbicacion.isEmpty()) {
+    return 0;
+}
+
+if (dia < 0 || dia > duracionCampaniaDias) {
+    return 0;
+}
+
+if (!datos.existeUbicacion(idUbicacion)) {
+    return 0;
+}
+
+DatosEntrada.Ubicacion sitio = datos.ubicacion(idUbicacion);
+
+if (!sitio.habilitada) {
+    return 0;
+}
+
+double nominal =
+    ReservaCapacidad.CROSS_DOCK.equals(tipoRecurso)
+    ? (habilitaCrossDock ? datos.capacidadCrossDockDia(idUbicacion) : 0)
+    : datos.capacidadConsolidacionDia(idUbicacion);
+
+return (int) Math.floor(nominal + 0.0001);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600001006</Id>
+					<Name><![CDATA[capacidadOcupadaDia]]></Name>
+					<X>-300</X><Y>3120</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[dia]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Ocupacion unica del dia: reservas vivas mas operaciones ejecutadas sin reserva. Que
+// sea un solo contador es lo que evita el doble conteo entre planificar y ejecutar.
+LinkedHashMap<Integer, Integer> porDia =
+    ocupacionCapacidad.get(claveRecurso(tipoRecurso, idUbicacion));
+
+if (porDia == null) {
+    return 0;
+}
+
+Integer ocupadas = porDia.get(dia);
+
+return ocupadas == null ? 0 : ocupadas.intValue();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792600001008</Id>
+					<Name><![CDATA[ocuparCapacidad]]></Name>
+					<X>-300</X><Y>3160</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[dia]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[delta]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[String clave = claveRecurso(tipoRecurso, idUbicacion);
+
+LinkedHashMap<Integer, Integer> porDia = ocupacionCapacidad.get(clave);
+
+if (porDia == null) {
+    porDia = new LinkedHashMap<Integer, Integer>();
+    ocupacionCapacidad.put(clave, porDia);
+}
+
+Integer ocupadas = porDia.get(dia);
+
+int total = (ocupadas == null ? 0 : ocupadas.intValue()) + delta;
+
+if (total < 0) {
+    error("La ocupacion de " + clave + " el dia " + dia + " quedo negativa.");
+}
+
+porDia.put(dia, total);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600001010</Id>
+					<Name><![CDATA[capacidadDisponibleDia]]></Name>
+					<X>-300</X><Y>3200</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[dia]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[return Math.max(
+    0,
+    capacidadNominalDia(tipoRecurso, idUbicacion, dia)
+    - capacidadOcupadaDia(tipoRecurso, idUbicacion, dia));]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600001012</Id>
+					<Name><![CDATA[capacidadDisponibleEnVentana]]></Name>
+					<X>-300</X><Y>3240</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[desde]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[hasta]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Cuantos contenedores puede procesar el sitio entre dos dias inclusive. Es la
+// pregunta que el evaluador tiene que hacerse antes de comparar costos: una alternativa
+// barata sin dias disponibles no es una alternativa (ADR-060).
+int total = 0;
+
+for (int dia = Math.max(0, desde); dia <= hasta; dia++) {
+    total += capacidadDisponibleDia(tipoRecurso, idUbicacion, dia);
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[java.util.List<Integer>]]></ReturnType>
+					<Id>1792600001014</Id>
+					<Name><![CDATA[diasDisponiblesEnVentana]]></Name>
+					<X>-300</X><Y>3280</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[desde]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[hasta]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Los dias con lugar, del mas temprano al mas tardio: reservar temprano es lo que baja
+// el riesgo de perder el cut-off.
+java.util.List<Integer> dias = new java.util.ArrayList<Integer>();
+
+for (int dia = Math.max(0, desde); dia <= hasta; dia++) {
+
+    if (capacidadDisponibleDia(tipoRecurso, idUbicacion, dia) > 0) {
+        dias.add(Integer.valueOf(dia));
+    }
+}
+
+return dias;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600001016</Id>
+					<Name><![CDATA[primerDiaVentanaCapacidad]]></Name>
+					<X>-300</X><Y>3320</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El circuito fisico no puede empezar antes de que abra el retiro del vacio (ADR-059).
+return (int) Math.max(
+    diaCampania(),
+    Math.ceil(pedido.diaAperturaRetiroVacio - 0.0001));]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600001018</Id>
+					<Name><![CDATA[ultimoDiaVentanaCapacidad]]></Name>
+					<X>-300</X><Y>3360</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[// No se reserva despues del cut-off (CAP-15). La unica excepcion es el pedido que ya lo
+// perdio y sigue viajando por politica CONTINUAR: si tampoco pudiera reservar, su saldo
+// quedaria inmovilizado con el inventario tomado y nadie lo despacharia nunca.
+int cutoff = (int) Math.floor(pedido.diaLimite + 0.0001);
+
+return cutoff >= primerDiaVentanaCapacidad(pedido)
+    ? cutoff
+    : duracionCampaniaDias;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[java.util.List<ReservaCapacidad>]]></ReturnType>
+					<Id>1792600001020</Id>
+					<Name><![CDATA[reservarCapacidad]]></Name>
+					<X>-300</X><Y>3400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[claveAsignacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[codigoPedido]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[desde]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[hasta]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cantidad]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Reserva hasta la capacidad disponible y devuelve lo que consiguio: la asignacion
+// parcial necesita poder reservar menos de lo pedido, y nunca mas que el cupo del dia.
+java.util.List<ReservaCapacidad> creadas =
+    new java.util.ArrayList<ReservaCapacidad>();
+
+if (cantidad <= 0 || idUbicacion == null || idUbicacion.isEmpty()) {
+    return creadas;
+}
+
+for (
+    int dia = Math.max(0, desde);
+    dia <= hasta && creadas.size() < cantidad;
+    dia++
+) {
+
+    int libres = capacidadDisponibleDia(tipoRecurso, idUbicacion, dia);
+
+    for (int i = 0; i < libres && creadas.size() < cantidad; i++) {
+
+        ReservaCapacidad reserva =
+            new ReservaCapacidad(
+                "RES-" + siguienteIdReservaCapacidad,
+                codigoPedido,
+                claveAsignacion,
+                tipoRecurso,
+                idUbicacion,
+                dia,
+                hasta);
+
+        siguienteIdReservaCapacidad++;
+
+        reservasCapacidad.add(reserva);
+        reservaPorClave.put(reserva.claveReserva, reserva);
+
+        java.util.ArrayList<ReservaCapacidad> deLaAsignacion =
+            reservasPorAsignacion.get(claveAsignacion);
+
+        if (deLaAsignacion == null) {
+            deLaAsignacion = new java.util.ArrayList<ReservaCapacidad>();
+            reservasPorAsignacion.put(claveAsignacion, deLaAsignacion);
+        }
+
+        deLaAsignacion.add(reserva);
+
+        ocuparCapacidad(tipoRecurso, idUbicacion, dia, 1);
+
+        capacidadReservadaTotal++;
+
+        creadas.add(reserva);
+    }
+}
+
+return creadas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792600001022</Id>
+					<Name><![CDATA[liberarReserva]]></Name>
+					<X>-300</X><Y>3440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[reserva]]></Name>
+						<Type><![CDATA[ReservaCapacidad]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[motivo]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Liberar devuelve la posicion al dia: la capacidad no se pierde en silencio.
+if (reserva == null || reserva.liberada || reserva.consumida) {
+    return;
+}
+
+reserva.activa = false;
+reserva.liberada = true;
+reserva.motivoBaja = motivo == null ? "" : motivo;
+reserva.idContenedor = "";
+
+ocuparCapacidad(
+    reserva.tipoRecurso,
+    reserva.idUbicacion,
+    reserva.diaPlanificado,
+    -1);
+
+capacidadLiberadaTotal++;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600001024</Id>
+					<Name><![CDATA[liberarCapacidadPorAsignacion]]></Name>
+					<X>-300</X><Y>3480</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[claveAsignacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[motivo]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Se usa al cancelar una asignacion, al cambiar de circuito y al cerrar la asignacion
+// con posiciones de mas: lo que no se va a usar vuelve al cupo del sitio.
+java.util.ArrayList<ReservaCapacidad> reservas =
+    reservasPorAsignacion.get(claveAsignacion);
+
+if (reservas == null) {
+    return 0;
+}
+
+int liberadas = 0;
+
+for (ReservaCapacidad reserva : reservas) {
+
+    if (reserva.activa && !reserva.consumida && !reserva.liberada) {
+        liberarReserva(reserva, motivo);
+        liberadas++;
+    }
+}
+
+return liberadas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[ReservaCapacidad]]></ReturnType>
+					<Id>1792600001026</Id>
+					<Name><![CDATA[reservaLibreDe]]></Name>
+					<X>-300</X><Y>3520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[claveAsignacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// La primera posicion libre de la asignacion, la mas temprana: es la que va a tomar el
+// proximo contenedor.
+java.util.ArrayList<ReservaCapacidad> reservas =
+    reservasPorAsignacion.get(claveAsignacion);
+
+if (reservas == null) {
+    return null;
+}
+
+ReservaCapacidad mejor = null;
+
+for (ReservaCapacidad reserva : reservas) {
+
+    if (
+        reserva.disponible()
+        && (mejor == null || reserva.diaPlanificado < mejor.diaPlanificado)
+    ) {
+        mejor = reserva;
+    }
+}
+
+return mejor;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600001028</Id>
+					<Name><![CDATA[reservasLibresDe]]></Name>
+					<X>-300</X><Y>3560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[claveAsignacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[java.util.ArrayList<ReservaCapacidad> reservas =
+    reservasPorAsignacion.get(claveAsignacion);
+
+if (reservas == null) {
+    return 0;
+}
+
+int libres = 0;
+
+for (ReservaCapacidad reserva : reservas) {
+
+    if (reserva.disponible()) {
+        libres++;
+    }
+}
+
+return libres;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[ReservaCapacidad]]></ReturnType>
+					<Id>1792600001030</Id>
+					<Name><![CDATA[reservaDeContenedor]]></Name>
+					<X>-300</X><Y>3600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[contenedor]]></Name>
+						<Type><![CDATA[ContenedorExportacion]]></Type>
+					</Parameter>
+					<Body><![CDATA[if (
+    contenedor == null
+    || contenedor.claveReservaCapacidad == null
+    || contenedor.claveReservaCapacidad.isEmpty()
+) {
+    return null;
+}
+
+return reservaPorClave.get(contenedor.claveReservaCapacidad);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792600001032</Id>
+					<Name><![CDATA[consumirReservaCapacidad]]></Name>
+					<X>-300</X><Y>3640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[reserva]]></Name>
+						<Type><![CDATA[ReservaCapacidad]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[dia]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Ejecutar lo comprometido: la reserva pasa a consumida y la ocupacion del dia no se
+// vuelve a incrementar. Si la operacion cae mas tarde que el dia reservado, la ocupacion
+// se mueve al dia real para que ninguna ubicacion supere su capacidad diaria.
+if (
+    reserva == null
+    || !reserva.activa
+    || reserva.consumida
+    || reserva.liberada
+    || reserva.diaPlanificado > dia
+) {
+    return false;
+}
+
+if (reserva.diaPlanificado < dia) {
+
+    if (
+        capacidadDisponibleDia(reserva.tipoRecurso, reserva.idUbicacion, dia) < 1
+    ) {
+        return false;
+    }
+
+    ocuparCapacidad(
+        reserva.tipoRecurso, reserva.idUbicacion, reserva.diaPlanificado, -1);
+
+    ocuparCapacidad(reserva.tipoRecurso, reserva.idUbicacion, dia, 1);
+
+    reserva.diaPlanificado = dia;
+    reserva.reprogramaciones++;
+    reservasReprogramadas++;
+}
+
+reserva.consumida = true;
+reserva.activa = false;
+
+capacidadConsumidaTotal++;
+
+return true;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1792600001034</Id>
+					<Name><![CDATA[asignacionNecesitaReserva]]></Name>
+					<X>-300</X><Y>3680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[claveAsignacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[AsignacionPedido asignacion = asignacionPorId.get(claveAsignacion);
+
+if (asignacion == null || asignacion.cancelada) {
+    return false;
+}
+
+return asignacion.toneladasPorContenerizar() > 0.0001;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792600001036</Id>
+					<Name><![CDATA[reprogramarReservasCapacidad]]></Name>
+					<X>-300</X><Y>3720</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Paso diario: una posicion que no se uso el dia comprometido no se pierde y tampoco
+// bloquea el sitio. Se mueve al proximo dia con lugar dentro de la ventana; si no queda
+// ninguno antes del cut-off, se libera con motivo y el contenedor queda sin posicion.
+if (!usaAgendaCapacidad()) {
+    return;
+}
+
+int hoy = diaCampania();
+
+for (ReservaCapacidad reserva : reservasCapacidad) {
+
+    if (!reserva.activa || reserva.consumida || reserva.liberada) {
+        continue;
+    }
+
+    // Posicion de mas: la asignacion ya tiene contenedor para todo lo comprometido.
+    if (
+        reserva.idContenedor.isEmpty()
+        && !asignacionNecesitaReserva(reserva.claveAsignacion)
+    ) {
+        liberarReserva(reserva, "sobrante de la asignacion");
+        continue;
+    }
+
+    if (reserva.diaPlanificado >= hoy) {
+        continue;
+    }
+
+    int destino = -1;
+
+    for (int dia = hoy; dia <= reserva.diaLimiteVentana; dia++) {
+
+        if (
+            capacidadDisponibleDia(reserva.tipoRecurso, reserva.idUbicacion, dia) > 0
+        ) {
+            destino = dia;
+            break;
+        }
+    }
+
+    if (destino < 0) {
+        liberarReserva(reserva, "SIN_CAPACIDAD_ANTES_CUTOFF");
+        contenedoresSinPosicionFutura++;
+        continue;
+    }
+
+    ocuparCapacidad(
+        reserva.tipoRecurso, reserva.idUbicacion, reserva.diaPlanificado, -1);
+
+    ocuparCapacidad(reserva.tipoRecurso, reserva.idUbicacion, destino, 1);
+
+    reserva.diaPlanificado = destino;
+    reserva.reprogramaciones++;
+    reservasReprogramadas++;
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792600001038</Id>
+					<Name><![CDATA[reconciliarCapacidad]]></Name>
+					<X>-300</X><Y>3760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// C-03 (CAP-12): lo reservado se explica siempre por lo consumido, lo activo y lo
+// liberado, y ninguna ubicacion supera su capacidad diaria. Si alguna de las dos cosas
+// falla, la agenda dejo de ser una restriccion y la corrida no sirve. Se controla
+// tambien con la agenda apagada: ahi el cross dock sigue reservando y la consolidacion
+// ocupa al ejecutar, y el techo diario tiene que valer igual.
+int activas = 0;
+int consumidas = 0;
+int liberadas = 0;
+
+for (ReservaCapacidad reserva : reservasCapacidad) {
+
+    if (reserva.consumida) {
+        consumidas++;
+    } else if (reserva.liberada) {
+        liberadas++;
+    } else {
+        activas++;
+    }
+}
+
+if (
+    activas + consumidas + liberadas != capacidadReservadaTotal
+    || consumidas != capacidadConsumidaTotal
+    || liberadas != capacidadLiberadaTotal
+) {
+    error(
+        "C-03: la capacidad no reconcilia el dia " + diaCampania()
+        + " (reservada " + capacidadReservadaTotal
+        + ", activa " + activas
+        + ", consumida " + consumidas + "/" + capacidadConsumidaTotal
+        + ", liberada " + liberadas + "/" + capacidadLiberadaTotal + ").");
+}
+
+for (String clave : ocupacionCapacidad.keySet()) {
+
+    int corte = clave.indexOf('|');
+
+    String tipoRecurso = clave.substring(0, corte);
+    String idUbicacion = clave.substring(corte + 1);
+
+    LinkedHashMap<Integer, Integer> porDia = ocupacionCapacidad.get(clave);
+
+    for (Integer dia : porDia.keySet()) {
+
+        int nominal = capacidadNominalDia(tipoRecurso, idUbicacion, dia.intValue());
+
+        if (porDia.get(dia).intValue() > nominal) {
+            error(
+                "C-03: " + clave + " tiene " + porDia.get(dia)
+                + " posiciones ocupadas el dia " + dia
+                + " y su capacidad es " + nominal + ".");
+        }
+    }
+}]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792600002000</Id>
+					<Name><![CDATA[registrarContenedorPorCircuito]]></Name>
+					<X>-300</X><Y>3900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[circuito]]></Name>
+						<Type><![CDATA[EstrategiaLogistica]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cruza]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Contenedores planificados por circuito (ADR-060): con capacidad finita el mismo
+// pedido puede repartirse entre circuitos y el reparto es el resultado a leer.
+String clave = cruza ? "CROSS_DOCK_DEPOSITO" : ("" + circuito);
+
+Integer previos = contenedoresPorCircuito.get(clave);
+
+contenedoresPorCircuito.put(
+    clave,
+    Integer.valueOf((previos == null ? 0 : previos.intValue()) + 1));]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600002002</Id>
+					<Name><![CDATA[circuitosDePedido]]></Name>
+					<X>-300</X><Y>3940</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Body><![CDATA[java.util.List<String> vistos = new java.util.ArrayList<String>();
+
+for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+    String clave =
+        asignacion.esCrossDock
+        ? "CROSS_DOCK_DEPOSITO"
+        : ("" + asignacion.circuito);
+
+    if (!vistos.contains(clave)) {
+        vistos.add(clave);
+    }
+}
+
+return vistos.size();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792600002004</Id>
+					<Name><![CDATA[registrarSaturacion]]></Name>
+					<X>-300</X><Y>3980</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativas]]></Name>
+						<Type><![CDATA[java.util.List<AlternativaCircuito>]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[elegida]]></Name>
+						<Type><![CDATA[AlternativaCircuito]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Cuanto cuesta la saturacion (ADR-060): la diferencia entre lo que se pago y lo que
+// habria costado la alternativa mas barata si hubiera tenido capacidad. Es cero cuando la
+// capacidad no ata: mide la restriccion, no el costo.
+boolean endToEnd = decideEndToEnd();
+
+double costoElegido = elegida.costoUnitarioSegun(endToEnd);
+
+double mejorSinRestriccion = costoElegido;
+
+for (AlternativaCircuito alternativa : alternativas) {
+
+    if (
+        alternativa.factible
+        || alternativa.costoUnitarioSinRestriccion == Double.POSITIVE_INFINITY
+    ) {
+        continue;
+    }
+
+    if (alternativa.costoUnitarioSinRestriccion < mejorSinRestriccion) {
+        mejorSinRestriccion = alternativa.costoUnitarioSinRestriccion;
+    }
+}
+
+if (mejorSinRestriccion + 0.0001 < costoElegido) {
+    costoAdicionalSaturacion +=
+        (costoElegido - mejorSinRestriccion) * toneladas;
+
+    toneladasReasignadasPorCapacidad += toneladas;
+}
+
+if (exportarDiagnosticoCapacidad) {
+    diagnosticoAsignaciones.add(
+        diaCampania() + "," + pedido.codigoPedido + ","
+        + elegida.clave() + "," + elegida.tipoRecursoCapacidad + ","
+        + elegida.idUbicacionCapacidad + ","
+        + Math.round(toneladas * 100) / 100.0 + ","
+        + elegida.contenedoresConCapacidad + ","
+        + Math.round((costoElegido - mejorSinRestriccion) * toneladas * 100) / 100.0
+        + ",SELECCIONADA");
+}]]></Body>
+				</Function>
+			
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792600003010</Id>
+					<Name><![CDATA[registrarColaCapacidad]]></Name>
+					<X>-300</X><Y>4450</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Cola del dia por recurso y sitio: contenedores que estaban listos y no encontraron
+// posicion. Es el numero que dimensiona posiciones, porque la ocupacion sola no dice si
+// falto lugar o falto trabajo.
+String clave = claveRecurso(tipoRecurso, idUbicacion);
+
+LinkedHashMap<Integer, Integer> porDia = colaCapacidad.get(clave);
+
+if (porDia == null) {
+    porDia = new LinkedHashMap<Integer, Integer>();
+    colaCapacidad.put(clave, porDia);
+}
+
+Integer previos = porDia.get(Integer.valueOf(diaCampania()));
+
+porDia.put(
+    Integer.valueOf(diaCampania()),
+    Integer.valueOf((previos == null ? 0 : previos.intValue()) + 1));]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600003012</Id>
+					<Name><![CDATA[colaCapacidadDia]]></Name>
+					<X>-300</X><Y>4490</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[dia]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[LinkedHashMap<Integer, Integer> porDia =
+    colaCapacidad.get(claveRecurso(tipoRecurso, idUbicacion));
+
+if (porDia == null) {
+    return 0;
+}
+
+Integer cola = porDia.get(Integer.valueOf(dia));
+
+return cola == null ? 0 : cola.intValue();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1792600003014</Id>
+					<Name><![CDATA[reservasDelDia]]></Name>
+					<X>-300</X><Y>4530</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[tipoRecurso]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[dia]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[estado]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Reservas de ese recurso, sitio y dia en un estado: ACTIVA, CONSUMIDA o LIBERADA.
+int total = 0;
+
+for (ReservaCapacidad reserva : reservasCapacidad) {
+
+    if (
+        !reserva.tipoRecurso.equals(tipoRecurso)
+        || !reserva.idUbicacion.equals(idUbicacion)
+        || reserva.diaPlanificado != dia
+    ) {
+        continue;
+    }
+
+    if ("CONSUMIDA".equals(estado) ? reserva.consumida
+        : ("LIBERADA".equals(estado) ? reserva.liberada
+            : (!reserva.consumida && !reserva.liberada))) {
+        total++;
+    }
+}
+
+return total;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1792600003016</Id>
+					<Name><![CDATA[resumenCapacidad]]></Name>
+					<X>-300</X><Y>4570</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Linea del tablero: la capacidad como restriccion, no como dato de catalogo.
+return "Capacidad · reservadas " + capacidadReservadaTotal
+    + " · consumidas " + capacidadConsumidaTotal
+    + " · liberadas " + capacidadLiberadaTotal
+    + " · reprogramadas " + reservasReprogramadas
+    + " · sin posición antes del cut-off " + contenedoresSinPosicionFutura
+    + " | multi-circuito " + pedidosMultiCircuito
+    + " · fallback política fija " + fallbacksPoliticaFija
+    + " · sobrecosto por saturación USD "
+    + String.format("%,.0f", costoAdicionalSaturacion);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792600003018</Id>
+					<Name><![CDATA[exportarCapacidadSiCorresponde]]></Name>
+					<X>-300</X><Y>4610</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// El diagnostico se escribe una vez, el ultimo dia, y solo si el escenario lo pide: en
+// el barrido son millones de filas que nadie lee.
+if (
+    !exportarDiagnosticoCapacidad
+    || diaCampania() < duracionCampaniaDias - 1
+) {
+    return;
+}
+
+exportarCapacidadPorDia("resultados/capacidad_por_dia.csv");
+exportarAsignacionesCapacidad("resultados/asignaciones_capacidad.csv");]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792600003020</Id>
+					<Name><![CDATA[exportarCapacidadPorDia]]></Name>
+					<X>-300</X><Y>4650</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[ruta]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[java.io.PrintWriter salida = null;
+
+try {
+    salida = new java.io.PrintWriter(ruta, "UTF-8");
+
+    salida.println(
+        "escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
+        + "reservada,consumida,liberada,ocupada,libre,cola");
+
+    for (String clave : ocupacionCapacidad.keySet()) {
+
+        int corte = clave.indexOf('|');
+
+        String tipoRecurso = clave.substring(0, corte);
+        String idUbicacion = clave.substring(corte + 1);
+
+        for (int dia = 0; dia < duracionCampaniaDias; dia++) {
+
+            int nominal = capacidadNominalDia(tipoRecurso, idUbicacion, dia);
+            int ocupada = capacidadOcupadaDia(tipoRecurso, idUbicacion, dia);
+            int cola = colaCapacidadDia(tipoRecurso, idUbicacion, dia);
+
+            if (nominal <= 0 && ocupada <= 0 && cola <= 0) {
+                continue;
+            }
+
+            salida.println(
+                idEscenario + "," + replica + "," + dia + ","
+                + tipoRecurso + "," + idUbicacion + "," + nominal + ","
+                + reservasDelDia(tipoRecurso, idUbicacion, dia, "ACTIVA") + ","
+                + reservasDelDia(tipoRecurso, idUbicacion, dia, "CONSUMIDA") + ","
+                + reservasDelDia(tipoRecurso, idUbicacion, dia, "LIBERADA") + ","
+                + ocupada + "," + Math.max(0, nominal - ocupada) + "," + cola);
+        }
+    }
+
+} catch (java.io.IOException e) {
+    traceln("No se pudo escribir " + ruta + ": " + e.getMessage());
+
+} finally {
+    if (salida != null) {
+        salida.close();
+    }
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1792600003022</Id>
+					<Name><![CDATA[exportarAsignacionesCapacidad]]></Name>
+					<X>-300</X><Y>4690</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[ruta]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Dos bloques en un archivo no sirven, asi que van dos archivos: este es la vida de
+// cada posicion reservada -quien la pidio, para cuando, que contenedor la uso y por que
+// se dio de baja- y el de decisiones queda al lado con el sufijo _decisiones.
+java.io.PrintWriter salida = null;
+
+try {
+    salida = new java.io.PrintWriter(ruta, "UTF-8");
+
+    salida.println(
+        "escenario,replica,reserva,pedido,asignacion,tipo_recurso,ubicacion,"
+        + "dia_planificado,dia_original,dia_limite,reprogramaciones,contenedor,"
+        + "estado,motivo_baja");
+
+    for (ReservaCapacidad reserva : reservasCapacidad) {
+
+        salida.println(
+            idEscenario + "," + replica + "," + reserva.claveReserva + ","
+            + reserva.codigoPedido + "," + reserva.claveAsignacion + ","
+            + reserva.tipoRecurso + "," + reserva.idUbicacion + ","
+            + reserva.diaPlanificado + "," + reserva.diaOriginal + ","
+            + reserva.diaLimiteVentana + "," + reserva.reprogramaciones + ","
+            + reserva.idContenedor + ","
+            + (reserva.consumida
+                ? "CONSUMIDA"
+                : (reserva.liberada ? "LIBERADA" : "ACTIVA"))
+            + "," + reserva.motivoBaja);
+    }
+
+} catch (java.io.IOException e) {
+    traceln("No se pudo escribir " + ruta + ": " + e.getMessage());
+
+} finally {
+    if (salida != null) {
+        salida.close();
+    }
+}
+
+if (diagnosticoAsignaciones.isEmpty()) {
+    return;
+}
+
+String rutaDecisiones = ruta.replace(".csv", "_decisiones.csv");
+
+salida = null;
+
+try {
+    salida = new java.io.PrintWriter(rutaDecisiones, "UTF-8");
+
+    salida.println(
+        "escenario,replica,dia,pedido,alternativa,tipo_recurso,ubicacion,"
+        + "toneladas,contenedores_con_capacidad,sobrecosto_saturacion_usd,resultado");
+
+    for (String linea : diagnosticoAsignaciones) {
+        salida.println(idEscenario + "," + replica + "," + linea);
+    }
+
+} catch (java.io.IOException e) {
+    traceln("No se pudo escribir " + rutaDecisiones + ": " + e.getMessage());
+
+} finally {
+    if (salida != null) {
+        salida.close();
+    }
+}]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -13734,6 +15331,122 @@ if (!retirado) {
 					<Text><![CDATA[text]]></Text>
 					<TextCode><![CDATA["Planificados sin ejecutar: " + contenedoresPlanificadosSinEjecutar()
 + " · sin posición: " + contenedoresSinPosicionFutura]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1792600004000</Id>
+					<Name><![CDATA[panelCapacidad]]></Name>
+					<X>1480</X><Y>210</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>-1</Z>
+					<ZHeight>1</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4342339</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>95</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-657931</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1792600004001</Id>
+					<Name><![CDATA[panelCapacidadTitulo]]></Name>
+					<X>1494</X><Y>220</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-12629812</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["CAPACIDAD FINITA (ADR-060)"]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>11</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792600004003</Id>
+					<Name><![CDATA[panelCapacidadLinea1]]></Name>
+					<X>1494</X><Y>248</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Posiciones: reservadas " + capacidadReservadaTotal
++ " · consumidas " + capacidadConsumidaTotal
++ " · liberadas " + capacidadLiberadaTotal]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792600004005</Id>
+					<Name><![CDATA[panelCapacidadLinea2]]></Name>
+					<X>1494</X><Y>268</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Reprogramadas: " + reservasReprogramadas
++ " · sin posición antes del cut-off: " + contenedoresSinPosicionFutura]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1792600004007</Id>
+					<Name><![CDATA[panelCapacidadLinea3]]></Name>
+					<X>1494</X><Y>288</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA["Pedidos multi-circuito: " + pedidosMultiCircuito
++ " · fallback fija: " + fallbacksPoliticaFija
++ " · sobrecosto saturación USD " + round(costoAdicionalSaturacion)]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -21017,6 +22730,67 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+			
+				<Variable Class="PlainVariable">
+					<Id>1792600000011</Id>
+					<Name><![CDATA[claveReservaCapacidad]]></Name>
+					<X>-140</X><Y>640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000013</Id>
+					<Name><![CDATA[diaPlanificadoOperacion]]></Name>
+					<X>-140</X><Y>680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000015</Id>
+					<Name><![CDATA[idUbicacionOperacion]]></Name>
+					<X>-140</X><Y>720</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000017</Id>
+					<Name><![CDATA[tipoRecursoOperacion]]></Name>
+					<X>-140</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<AgentLinks>
 				<AgentLink>
@@ -22220,6 +23994,9 @@ estado = factible
 				</Parameter>
 				<Parameter>
 					<ParameterName><![CDATA[rutaExcel]]></ParameterName>
+					<ParameterValue Class="CodeValue">
+						<Code><![CDATA["datos/entrada_ejemplo.xlsx"]]></Code>
+					</ParameterValue>
 				</Parameter>
 				<Parameter>
 					<ParameterName><![CDATA[idEscenario]]></ParameterName>
@@ -23294,6 +25071,19 @@ public class DatosEntrada implements java.io.Serializable {
 		public boolean permiteReservaAntesRetiro = true;
 		public boolean permiteTransferenciaAntesRetiro = true;
 		public boolean permiteReservaCapacidadFutura = true;
+
+		/**
+		 * Con politica fija y sin capacidad, que hacer con el saldo (ADR-060). Sin
+		 * fallback el saldo queda sin cubrir, que es lo que mide la saturacion del
+		 * circuito fijo; con fallback se evaluan las demas alternativas factibles.
+		 */
+		public boolean permiteFallbackPoliticaFija = false;
+
+		/**
+		 * Escribir el diagnostico de capacidad al cierre de la corrida (ADR-060). Apagado
+		 * en el barrido: son millones de filas que nadie lee.
+		 */
+		public boolean exportarDiagnosticoCapacidad = false;
 		public String politicaReprogramacionBuque = "CONTINUAR";   // CONTINUAR | CANCELAR
 	}
 
@@ -25393,6 +27183,10 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.booleanoOpcional("permite_transferencia_antes_retiro", true);
 			e.permiteReservaCapacidadFutura =
 					f.booleanoOpcional("permite_reserva_capacidad_futura", true);
+			e.permiteFallbackPoliticaFija =
+					f.booleanoOpcional("permite_fallback_politica_fija", false);
+			e.exportarDiagnosticoCapacidad =
+					f.booleanoOpcional("exportar_diagnostico_capacidad", false);
 			e.politicaReprogramacionBuque =
 					f.textoOpcional("politica_reprogramacion_buque", "CONTINUAR").toUpperCase();
 			datos.escenario = e;
@@ -26334,6 +28128,24 @@ public class AlternativaCircuito implements java.io.Serializable {
 	public int contenedores = 0;
 
 	public boolean factible = false;
+
+	// Capacidad finita (ADR-060): una alternativa vale por lo que puede procesar antes
+	// del cut-off, no por su costo. El recurso es la unidad de capacidad que consume.
+	public String tipoRecursoCapacidad = ReservaCapacidad.CONSOLIDACION;
+	public String idUbicacionCapacidad = "";
+	public int contenedoresConCapacidad = 0;
+
+	/** Si el sitio tiene al menos una posicion libre en la ventana del pedido. */
+	public boolean capacidadReservable = true;
+	public double toneladasCapacidadDisponible = 0;
+
+	/** Lo que el origen podria dar si la capacidad no existiera: mide la saturacion. */
+	public double toneladasSinRestriccionCapacidad = 0;
+
+	/** Costo unitario que tendria sin la restriccion de capacidad (KPI de saturacion). */
+	public double costoUnitarioSinRestriccion = Double.POSITIVE_INFINITY;
+
+	public java.util.List<Integer> diasCapacidadDisponibles = new java.util.ArrayList<Integer>();
 	public String motivoNoFactible = "";
 
 	public double diaEntregaEstimado = 0;
@@ -27308,6 +29120,89 @@ public class Inventario implements java.io.Serializable {
 		return errores;
 	}
 }]]></Text>
+		</JavaClass>
+		<JavaClass>
+			<Id>1792600000001</Id>
+			<Name><![CDATA[ReservaCapacidad]]></Name>
+			<Text><![CDATA[/**
+ * Una posicion comprometida en un sitio para un dia (ADR-060). La capacidad futura deja
+ * de ser un diagnostico y pasa a ser un compromiso: se reserva al asignar, la toma un
+ * contenedor al crearse y se consume al ejecutar la operacion.
+ *
+ * Es un dato y no un agente: PLE admite 10 tipos y el modelo ya los usa (ADR-030),
+ * igual que Capa, AlternativaCircuito y AsignacionPedido.
+ */
+public class ReservaCapacidad implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	/** Estiba de un contenedor: planta, deposito o terminal. */
+	public static final String CONSOLIDACION = "CONSOLIDACION";
+
+	/** Cruce en deposito: cupo propio, no consume consolidacion (ADR-041). */
+	public static final String CROSS_DOCK = "CROSS_DOCK";
+
+	public String claveReserva = "";
+	public String codigoPedido = "";
+	public String claveAsignacion = "";
+	public String tipoRecurso = CONSOLIDACION;
+	public String idUbicacion = "";
+
+	/** Dia en el que la posicion esta comprometida. Puede moverse dentro de la ventana. */
+	public int diaPlanificado = 0;
+
+	/** Dia en el que se reservo por primera vez: sirve para medir reprogramaciones. */
+	public int diaOriginal = 0;
+
+	/** Ultimo dia util de la ventana del pedido: mas alla no se reprograma. */
+	public int diaLimiteVentana = 0;
+
+	public int reprogramaciones = 0;
+
+	/** Contenedor que tomo la posicion. Vacio mientras la reserva esta libre. */
+	public String idContenedor = "";
+
+	public boolean activa = true;
+	public boolean consumida = false;
+	public boolean liberada = false;
+	public String motivoBaja = "";
+
+	public ReservaCapacidad(String claveReserva, String codigoPedido, String claveAsignacion,
+			String tipoRecurso, String idUbicacion, int diaPlanificado, int diaLimiteVentana) {
+		this.claveReserva = claveReserva;
+		this.codigoPedido = codigoPedido;
+		this.claveAsignacion = claveAsignacion;
+		this.tipoRecurso = tipoRecurso;
+		this.idUbicacion = idUbicacion;
+		this.diaPlanificado = diaPlanificado;
+		this.diaOriginal = diaPlanificado;
+		this.diaLimiteVentana = diaLimiteVentana;
+	}
+
+	/** Clave del recurso: es la unidad de capacidad, tipo mas sitio. */
+	public String claveRecurso() {
+		return tipoRecurso + "|" + idUbicacion;
+	}
+
+	/** Ocupa el dia mientras no se libere: consumir no libera, ejecuta lo comprometido. */
+	public boolean ocupa() {
+		return !liberada;
+	}
+
+	/** Libre para que un contenedor la tome. */
+	public boolean disponible() {
+		return activa && !consumida && !liberada && idContenedor.isEmpty();
+	}
+
+	public String descripcion() {
+		return claveReserva + " " + codigoPedido + " " + claveAsignacion
+				+ " " + tipoRecurso + " en " + idUbicacion
+				+ " dia " + diaPlanificado
+				+ (consumida ? " | consumida" : (liberada ? " | liberada: " + motivoBaja : " | activa"))
+				+ (idContenedor.isEmpty() ? "" : " | " + idContenedor);
+	}
+}]]></Text>
+			<ImportSection><![CDATA[]]></ImportSection>
 		</JavaClass>
 	</JavaClasses>
     <RequiredLibraryReference>

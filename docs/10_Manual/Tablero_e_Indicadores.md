@@ -87,6 +87,19 @@ El nivel de servicio se lee contra el **cut-off físico**, no contra el ETD, y v
 
 Las dos últimas son de dimensionamiento y conviene leerlas juntas: muchos contenedores sin posición futura con holgura media alta significa que falta capacidad de consolidación, no ventana.
 
+### Capacidad finita (ADR-060)
+
+| Línea | Cálculo |
+|---|---|
+| Posiciones reservadas / consumidas / liberadas | `capacidadReservadaTotal`, `capacidadConsumidaTotal` y `capacidadLiberadaTotal`. La primera es el total histórico de posiciones comprometidas, no las vivas |
+| Reprogramadas | `reservasReprogramadas`: posiciones que no se usaron el día comprometido y se movieron dentro de la ventana |
+| Sin posición antes del cut-off | `contenedoresSinPosicionFutura`: la ventana se agotó sin lugar. Es demanda de posiciones que el sitio no tiene |
+| Pedidos multi-circuito | `pedidosMultiCircuito`: pedidos cubiertos por más de un circuito, que es lo que produce el reparto por capacidad |
+| Fallback política fija | `fallbacksPoliticaFija`: veces que una política `FIJA_*` delegó el saldo en el evaluador (sólo con `permite_fallback_politica_fija`) |
+| Sobrecosto saturación | `sobrecostoSaturacionUsd`: lo que costó de más no poder usar la alternativa más barata por falta de posiciones |
+
+Se lee junto con *Espera de posición* del panel de consolidación: con la agenda encendida la espera es planificada (el contenedor espera **su** día) y no falta de capacidad; con la agenda apagada la espera vuelve a ser cola real.
+
 ### Inventario y reservas (tn)
 
 Capas vivas, toneladas reservadas y libres en depósito, transferencias y reservas acumuladas. Es la vista del motor de inventario: una capa es `(lote, producto, ubicación, día de ingreso, toneladas, reservas)` y el stock siempre se deriva de ellas. Los invariantes se verifican todos los días y abortan la corrida si se rompen.
