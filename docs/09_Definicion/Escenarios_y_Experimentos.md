@@ -172,3 +172,9 @@ Para cada pregunta P1..P8, una tabla y un gráfico:
 - P7: costo y servicio en campaña alta/baja.
 
 La salida final del proyecto es un informe con esas curvas, no el modelo en sí.
+
+## Flota multidiaria (ADR-061)
+
+Los diecisiete KPIs de flota se agregan al CSV del barrido y el CSV pasa a `fase-27`. **El barrido no se corrió en la tanda de ADR-061 por pedido explícito**: la evidencia es la campaña completa más corridas dirigidas (ver V-FLOTA-MD en el plan de validación), así que `fase-26` sigue siendo el último barrido publicado.
+
+Los escenarios de flota que valen la pena cuando se corra el barrido: flota chica con viaje largo (donde la agenda cambia el resultado), horizonte de programación `dias_max_programacion_flota` en 1, 2 y 5, y el interruptor apagado como control.

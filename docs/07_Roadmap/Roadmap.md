@@ -258,6 +258,7 @@ Implementado en el modelo y verificado en PLE (ADR-055/056), versión `fase-24`.
 - [x] Trece KPIs nuevos en el CSV y las validaciones diarias C-01 (identidad del pedido) y C-02 (nada de lo producido se pierde).
 - [x] Verificado en PLE: build limpio, campaña completa sin excepciones y 1 080 corridas `Finished` con CSV `fase-24`.
 - [ ] Pendiente: no hay reoptimización ni cancelación de asignaciones vivas; una reserva parcial retiene stock que otro pedido podría usar mejor.
+- [x] **Resuelto (ADR-061):** la flota de producto son camiones físicos con viajes que pueden durar varios días. Queda pendiente sólo el barrido de escenarios de flota.
 - [ ] Pendiente, y bloqueante para los datos reales: un viaje que no cabe en una jornada no puede empezar. La flota de producto se consume como capacidad diaria (ADR-044) y un viaje redondo de 1 200 km cuesta 3,43 camión-día, así que con 3 camiones el destino es inalcanzable y el diagnóstico responde `SIN_FLOTA` siempre. En `datos/entrada_ejemplo.xlsx` eso deja las 12 031 tn de cáscara encerradas en planta, porque su única capacidad de depósito está a 1 200 km. Hay que permitir que un viaje ocupe un camión durante varios días.
 
 ## 11j. MOD — Stock inicial de campaña

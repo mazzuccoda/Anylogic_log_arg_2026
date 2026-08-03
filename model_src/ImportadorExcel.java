@@ -108,6 +108,10 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.booleanoOpcional("permite_fallback_politica_fija", false);
 			e.exportarDiagnosticoCapacidad =
 					f.booleanoOpcional("exportar_diagnostico_capacidad", false);
+			e.habilitaFlotaProductoMultidiaria =
+					f.booleanoOpcional("habilita_flota_producto_multidiaria", true);
+			e.diasMaxProgramacionFlota =
+					f.numeroOpcional("dias_max_programacion_flota", 2);
 			e.politicaReprogramacionBuque =
 					f.textoOpcional("politica_reprogramacion_buque", "CONTINUAR").toUpperCase();
 			datos.escenario = e;
@@ -696,6 +700,11 @@ public class ImportadorExcel implements java.io.Serializable {
 		private int enteroOpcional(String nombre, int porDefecto) {
 			return tiene(nombre) && comoTexto(columna(nombre)).length() > 0
 					? entero(nombre) : porDefecto;
+		}
+
+		private double numeroOpcional(String nombre, double porDefecto) {
+			return tiene(nombre) && comoTexto(columna(nombre)).length() > 0
+					? numero(nombre) : porDefecto;
 		}
 
 		private boolean booleanoOpcional(String nombre, boolean porDefecto) {

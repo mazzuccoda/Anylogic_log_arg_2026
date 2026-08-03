@@ -414,3 +414,43 @@ Pendientes:
 - usar `traceln` temporalmente y un registro estructurado en la versión final;
 - no tratar tarifa inexistente como cero;
 - documentar todas las variables modificadas.
+
+## 10. Funciones de flota de producto multidiaria (ADR-061)
+
+**Estado:** implementadas.
+
+### 10.1 Agenda de camiones
+
+`inicializarFlotaProducto()` crea `camiones_producto` unidades una sola vez por corrida, con base en planta. No se recrean cada dia: un camion que salio sigue ocupado manana, y ese es todo el cambio respecto de ADR-044.
+
+`buscarCamionDisponibleMasTemprano(noAntesDe)` devuelve el camion que puede salir antes, con `max(noAntesDe, disponibleDesde)` como criterio y el menor `idCamion` como desempate, para que dos corridas iguales asignen los mismos camiones a los mismos viajes. `fechaSalidaMasTempranaProducto()`, `camionesDisponiblesEn()` y `camionesProductoEnRuta()` son consultas sin efecto.
+
+### 10.2 Duraciones
+
+`duracionIdaProductoDias(origen, destino)` es `distancia / velocidad / jornada`, con la distancia leida de forma simetrica (`DatosEntrada.distanciaKmSimetrica()`, porque la tabla declara un solo sentido por tramo) y la velocidad y la jornada del escenario. `duracionRetornoProductoDias()` es la ida al revés. `horasManipuleoViajeProducto()` suma carga en el origen y descarga en el destino con las velocidades declaradas de cada sitio —los mismos campos que usa `crearEnvio()`—, y `duracionTotalViajeProductoDias()` es lo que el camion queda ocupado. No hay ninguna duracion cableada ni una segunda duracion para el mismo tramo.
+
+### 10.3 Disponibilidad sin mutar la agenda
+
+`evaluarDisponibilidadFlotaProducto(origen, destino, toneladas, noAntesDe, fechaLimite)` simula la asignacion sobre una **copia** de las fechas de disponibilidad y devuelve un `ResultadoDisponibilidadFlota`: toneladas y viajes programables, primera y ultima salida, ultima llegada, ultimo regreso, espera maxima y motivo. Es lo que reemplaza al si/no de `flotaProductoAlcanza()`.
+
+### 10.4 Programacion
+
+`programarViajeProducto(...)` crea **un** viaje de hasta `capacidad_camion_tn`: elige el camion mas temprano, calcula salida, llegada y regreso, ocupa el camion hasta el regreso, reserva el stock con `clave = VIAJE|<id>` y deja el viaje en `PROGRAMADO`. Programar **no** mueve producto.
+
+`programarMovimientoProducto(...)` parte el volumen en viajes y programa los que puede, devolviendo lo programado. La parcialidad es valida y no se revierte; el saldo se cuenta en `toneladas_no_programadas_por_flota`.
+
+### 10.5 Ciclo del viaje
+
+`iniciarViajeProducto()` saca la carga del origen (consumiendo la reserva), la pasa a transito y devenga el flete, una sola vez por viaje. `recibirViajeProducto()` ingresa la carga al inventario del destino con la fecha de llegada, conservando lote y dia de produccion, y devenga el IN del deposito salvo que el producto cruce. `completarViajeProducto()` devuelve el camion a su base y lo libera. `cancelarViajeProducto()` solo actua antes de la salida: libera la reserva y el camion, y no cobra flete.
+
+Los tres pasos diarios corren en este orden, antes de producir: `completarViajesProductoDelDia()`, `recibirViajesProductoDelDia()`, `iniciarViajesProductoDelDia()`. Un viaje fechado dentro de la jornada de hoy se procesa hoy, incluida la llegada y el regreso si entran en el dia.
+
+### 10.6 Transito y espacio
+
+`toneladasEnTransitoHacia()`, `toneladasComprometidasParaViajesDe()`, `toneladasProductoEnTransitoDe()` y `espacioDisponibleEfectivo()` evitan comprometer dos veces el mismo lugar: el producto en ruta no esta en el stock del destino, pero su lugar ya esta tomado.
+
+### 10.7 Cota del evaluador y reconciliacion
+
+`acotarAlternativaPorFlota()` acota las toneladas de la alternativa por lo que la agenda puede prometer y escribe el diagnostico. `reconciliarFlotaProducto()` es C-04 y corre todos los dias.
+
+`usaFlotaMultidiaria()` es el interruptor: en `false` todo lo anterior queda inactivo y el modelo vuelve a la capacidad diaria agregada de ADR-044.
