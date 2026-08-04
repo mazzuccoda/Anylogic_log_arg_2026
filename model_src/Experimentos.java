@@ -4,6 +4,13 @@
 // Experimentos del modelo
 
 class Simulation extends SimulationExperiment {
+
+    // después de la corrida
+    void afterSimulationRunCode() {
+        // Cierre de la auditoria de red (ADR-064): la corrida sigue moviendo envios despues del
+        // ultimo paso diario, asi que las tablas se cierran cuando la corrida termina.
+        root.cerrarAuditoriaRed();
+    }
 }
 
 class Escenarios extends ParamVariationExperiment {
@@ -350,6 +357,10 @@ class Escenarios extends ParamVariationExperiment {
 
     // después de la corrida
     void afterSimulationRunCode() {
+        // Cierra las tablas de auditoria de esta corrida (ADR-064). En el barrido el nivel es
+        // DESACTIVADA y no hace nada; si se activa, cada corrida anexa sus filas con su run_id.
+        root.cerrarAuditoriaRed();
+
         // Antes de leer un KPI de costo, el registro tiene que cerrar contra los
         // acumuladores del modelo (ADR-052).
         root.reconciliarCostos();

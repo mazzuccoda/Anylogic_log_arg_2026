@@ -5,6 +5,7 @@
 class Main extends Agent {
 
     // ----- Parámetros -----
+    AuditoriaRed.Nivel nivelAuditoriaRed = AuditoriaRed.Nivel.DESACTIVADA;
     OrigenDatos origenDatos = OrigenDatos.SINTETICO;
     String rutaExcel = "datos/entrada_ejemplo.xlsx";
     String idEscenario = "E-00";
@@ -32,6 +33,18 @@ class Main extends Agent {
     Inventario inventario = new Inventario();
     int contenedoresEnEspera = 0;
     double toleranciaRetencionEnvioDias = 1.0;
+    AuditoriaRed auditoria = new AuditoriaRed();
+    long secuenciaArcoAuditoria = 0;
+    String idDecisionActual = "";
+    String idAlternativaActual = "";
+    java.util.LinkedHashMap<String, Double> stockInicialDelDia = new java.util.LinkedHashMap<String, Double>();
+    java.util.LinkedHashMap<String, Long> motivosAuditoria = new java.util.LinkedHashMap<String, Long>();
+    java.util.LinkedHashMap<String, double[]> arcosAuditoria = new java.util.LinkedHashMap<String, double[]>();
+    java.util.LinkedHashMap<String, Double> costoRealPorAsignacion = new java.util.LinkedHashMap<String, Double>();
+    int descuadresInventarioAuditoria = 0;
+    long decisionesAuditadas = 0;
+    long alternativasElegidasAuditadas = 0;
+    double sobrecostoVsMasBarataAuditoria = 0;
     int enviosEnCurso = 0;
     int enviosRetenidos = 0;
     int enviosRetenidosPico = 0;
@@ -1714,6 +1727,10 @@ class Main extends Agent {
 
             envio.contenedor = contenedor;
 
+            // La espera por una posicion es un arco de espera: sin ella la suma de las etapas no
+            // reconstruye el tiempo del envio (ADR-064).
+            registrarArcoEsperaPosicion(contenedor, contenedor.diasEsperaPosicion);
+
             if (granel) {
                 ocuparFlotaParaGranel(pedido, contenedor);
             }
@@ -2679,12 +2696,1181 @@ class Main extends Agent {
         envio.diaListoEnTerminal = time();
     }
 
+    void abrirAuditoriaRed() {
+        // ADR-064: abre las tablas de auditoria de la corrida. El nivel es del escenario: en el
+        // barrido son mil corridas y la auditoria completa escribe decenas de miles de filas por
+        // corrida, asi que el default es DESACTIVADA y el modelo decide igual con auditoria o sin
+        // ella (V-AUD-10).
+        auditoria.nivel = nivelAuditoriaRed;
+
+        if (!auditoria.activa()) {
+            return;
+        }
+
+        // run_id es la clave que hace que dos corridas puedan convivir en la misma tabla. Es
+        // deterministico a proposito: dos corridas iguales tienen que dar tablas iguales.
+        auditoria.runId = idEscenario + "-R" + replica;
+
+        auditoria.directorio = "resultados";
+
+        new java.io.File(auditoria.directorio).mkdirs();
+
+        auditoria.abrir(AuditoriaRed.DECISIONES, RegistroDecisionAlternativa.encabezadoCsv());
+        auditoria.abrir(AuditoriaRed.ASIGNACIONES, AsignacionPedido.encabezadoCsv());
+        auditoria.abrir(AuditoriaRed.ARCOS, RegistroEjecucionArco.encabezadoCsv());
+        auditoria.abrir(AuditoriaRed.COSTOS, encabezadoCostosEventos());
+        auditoria.abrir(AuditoriaRed.INVENTARIO, SnapshotInventario.encabezadoCsv());
+    }
+
+    String encabezadoCostosEventos() {
+        // Encabezado de costos_eventos. La tabla es una vista de RegistroCostos y no una segunda
+        // lista de cargos: si fueran dos fuentes, reconciliarlas solo probaria que dos
+        // exportaciones coinciden, no que el modelo cobro una sola vez (ADR-064).
+        return "run_id,escenario,replica,id_costo,dia,dia_campania,tipo_contable,categoria,"
+            + "codigo_pedido,id_asignacion,id_decision,id_contenedor,id_lote,producto,circuito,"
+            + "origen,destino,sitio,proveedor,unidad,cantidad,tarifa,importe_usd,id_operacion,"
+            + "alcance,es_incremental,motivo";
+    }
+
+    void exportarCostosEventos() {
+        // costos_eventos sale del mismo registro que paga la campania (ADR-052). La asignacion y la
+        // decision no se guardan en el cargo: se resuelven aca por el contenedor, que ya lleva
+        // idAsignacionPedido. Un cargo del lote (almacenaje, IN, flete de guarda) no pertenece a
+        // ninguna asignacion y su alcance queda declarado como LOTE en vez de repartirse.
+        if (!auditoria.activa()) {
+            return;
+        }
+
+        costoRealPorAsignacion.clear();
+
+        if (!registro.guardarDetalle) {
+            traceln(
+                "Auditoria de red: el registro de costos corre sin detalle, costos_eventos"
+                + " queda vacio y asignaciones_elegidas informa costo real cero.");
+            return;
+        }
+
+        java.util.LinkedHashMap<String, String> asignacionDeContenedor =
+            new java.util.LinkedHashMap<String, String>();
+
+        java.util.LinkedHashMap<String, String> decisionDeAsignacion =
+            new java.util.LinkedHashMap<String, String>();
+
+        java.util.LinkedHashMap<String, Double> diaDecisionDePedido =
+            new java.util.LinkedHashMap<String, Double>();
+
+        for (Pedido pedido : pedidos) {
+
+            for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+                decisionDeAsignacion.put(asignacion.idAsignacion, asignacion.idDecision);
+
+                Double primera = diaDecisionDePedido.get(pedido.codigoPedido);
+
+                if (primera == null || asignacion.diaAsignacion < primera) {
+                    diaDecisionDePedido.put(pedido.codigoPedido, asignacion.diaAsignacion);
+                }
+            }
+
+            for (ContenedorExportacion contenedor : pedido.contenedores) {
+                asignacionDeContenedor.put(
+                    contenedor.idContenedor, contenedor.idAsignacionPedido);
+            }
+        }
+
+        for (RegistroCostos.Cargo cargo : registro.detalle()) {
+
+            String idAsignacion =
+                cargo.codigoContenedor == null || cargo.codigoContenedor.isEmpty()
+                ? ""
+                : asignacionDeContenedor.get(cargo.codigoContenedor);
+
+            if (idAsignacion == null) {
+                idAsignacion = "";
+            }
+
+            String idDecision =
+                idAsignacion.isEmpty() ? "" : decisionDeAsignacion.get(idAsignacion);
+
+            if (idDecision == null) {
+                idDecision = "";
+            }
+
+            String alcance =
+                !idAsignacion.isEmpty()
+                ? "CONTENEDOR"
+                : (cargo.codigoPedido != null && !cargo.codigoPedido.isEmpty()
+                    ? "PEDIDO"
+                    : (cargo.idLote != null && !cargo.idLote.isEmpty() ? "LOTE" : "RED"));
+
+            // Incremental es el cargo devengado desde que el pedido comprometio producto: antes de
+            // esa fecha el costo existia igual y el evaluador lo trata como hundido (ADR-054).
+            Double diaDecision =
+                cargo.codigoPedido == null ? null : diaDecisionDePedido.get(cargo.codigoPedido);
+
+            boolean incremental =
+                diaDecision != null && cargo.dia >= diaDecision.doubleValue() - 0.0001;
+
+            if (!idAsignacion.isEmpty()) {
+
+                Double acumulado = costoRealPorAsignacion.get(idAsignacion);
+
+                costoRealPorAsignacion.put(
+                    idAsignacion,
+                    (acumulado == null ? 0 : acumulado.doubleValue()) + cargo.importe);
+            }
+
+            auditoria.escribir(
+                AuditoriaRed.COSTOS,
+                AuditoriaRed.txt(auditoria.runId) + "," + AuditoriaRed.txt(idEscenario) + ","
+                + AuditoriaRed.ent(replica) + "," + AuditoriaRed.ent(cargo.id) + ","
+                + AuditoriaRed.num(cargo.dia) + "," + AuditoriaRed.ent((long) Math.floor(cargo.dia))
+                + "," + AuditoriaRed.txt("" + cargo.tipo) + ","
+                + AuditoriaRed.txt("" + cargo.categoria) + ","
+                + AuditoriaRed.txt(cargo.codigoPedido) + "," + AuditoriaRed.txt(idAsignacion) + ","
+                + AuditoriaRed.txt(idDecision) + "," + AuditoriaRed.txt(cargo.codigoContenedor) + ","
+                + AuditoriaRed.txt(cargo.idLote) + "," + AuditoriaRed.txt("" + cargo.producto) + ","
+                + AuditoriaRed.txt("" + cargo.estrategia) + "," + AuditoriaRed.txt(cargo.origen) + ","
+                + AuditoriaRed.txt(cargo.destino) + "," + AuditoriaRed.txt(cargo.sitio) + ","
+                + AuditoriaRed.txt(cargo.proveedor) + "," + AuditoriaRed.txt("" + cargo.unidad) + ","
+                + AuditoriaRed.num(cargo.cantidad) + "," + AuditoriaRed.num(cargo.tarifa) + ","
+                + AuditoriaRed.num(cargo.importe) + "," + AuditoriaRed.txt(cargo.idOperacion) + ","
+                + AuditoriaRed.txt(alcance) + "," + AuditoriaRed.si(incremental) + ","
+                + AuditoriaRed.txt(cargo.motivo));
+        }
+    }
+
+    void exportarAsignacionesElegidas() {
+        // asignaciones_elegidas sale de AsignacionPedido, que ya es la unidad de compromiso del
+        // pedido (ADR-055): no hay una lista paralela de asignaciones auditadas que pueda quedar
+        // desincronizada. Se escribe al cierre porque el ciclo real y el costo recien existen ahi.
+        if (!auditoria.activa()) {
+            return;
+        }
+
+        for (Pedido pedido : pedidos) {
+
+            for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+                int creados = 0;
+                int entregados = 0;
+
+                for (ContenedorExportacion contenedor : pedido.contenedores) {
+
+                    if (!asignacion.idAsignacion.equals(contenedor.idAsignacionPedido)) {
+                        continue;
+                    }
+
+                    creados++;
+
+                    if (contenedor.estado == EstadoContenedor.EXPORTADO) {
+                        entregados++;
+                    }
+                }
+
+                Double costoReal = costoRealPorAsignacion.get(asignacion.idAsignacion);
+
+                auditoria.escribir(
+                    AuditoriaRed.ASIGNACIONES,
+                    asignacion.toCsv(
+                        auditoria.runId, idEscenario, replica,
+                        costoReal == null ? 0 : costoReal.doubleValue(),
+                        creados, entregados));
+            }
+        }
+    }
+
+    void cerrarAuditoriaRed() {
+        // Cierre de la auditoria: las tablas que solo existen al final (asignaciones y costos), las
+        // reconciliaciones y el manifiesto que el tablero web va a leer para saber que hay. Corre al
+        // terminar la corrida y no el ultimo dia de campania: el flujo sigue moviendo envios despues
+        // del ultimo paso diario y esos arcos tambien son hechos de la corrida.
+        if (!auditoria.activa() || auditoria.cerrada) {
+            return;
+        }
+
+        exportarCostosEventos();
+        exportarAsignacionesElegidas();
+        reconciliarAuditoriaRed();
+        escribirManifiestoAuditoria();
+        escribirEsquemaAuditoria();
+
+        auditoria.cerrar();
+
+        traceln(resumenAuditoriaRed());
+        traceln(auditoria.resumen());
+    }
+
+    void escribirManifiestoAuditoria() {
+        // Manifiesto de la corrida: que tablas hay, cuantas filas y con que claves se unen. Lo
+        // escribe el modelo y no un documento aparte para que el esquema no pueda quedar viejo: el
+        // tablero web lee esto, no una convencion.
+        java.io.PrintWriter salida = null;
+
+        try {
+            salida =
+                new java.io.PrintWriter(
+                    auditoria.directorio + "/manifiesto_auditoria_" + auditoria.runId + ".json",
+                    "UTF-8");
+
+            salida.println("{");
+            salida.println("  \"run_id\": \"" + auditoria.runId + "\",");
+            salida.println("  \"version_esquema\": \"" + AuditoriaRed.VERSION_ESQUEMA + "\",");
+            salida.println("  \"escenario\": \"" + idEscenario + "\",");
+            salida.println("  \"replica\": " + replica + ",");
+            salida.println("  \"nivel_auditoria\": \"" + auditoria.nivel + "\",");
+            salida.println("  \"duracion_campania_dias\": " + duracionCampaniaDias + ",");
+            salida.println("  \"generado\": \"" + new java.util.Date() + "\",");
+            salida.println("  \"tablas\": {");
+
+            String[] tablas = {
+                AuditoriaRed.DECISIONES, AuditoriaRed.ASIGNACIONES, AuditoriaRed.ARCOS,
+                AuditoriaRed.COSTOS, AuditoriaRed.INVENTARIO
+            };
+
+            for (int i = 0; i < tablas.length; i++) {
+                salida.println(
+                    "    \"" + tablas[i] + "\": {\"archivo\": \"" + tablas[i] + ".csv\","
+                    + " \"filas\": " + auditoria.filasDe(tablas[i]) + "},");
+            }
+
+            salida.println(
+                "    \"" + AuditoriaRed.CAPACIDAD + "\": {\"archivo\":"
+                + " \"capacidad_por_dia.csv\", \"filas\": -1}");
+
+            salida.println("  },");
+            salida.println("  \"claves\": {");
+            salida.println("    \"decisiones_alternativas\": [\"run_id\", \"id_alternativa\"],");
+            salida.println("    \"asignaciones_elegidas\": [\"run_id\", \"id_asignacion\"],");
+            salida.println("    \"ejecucion_arcos\": [\"run_id\", \"id_evento_arco\"],");
+            salida.println("    \"costos_eventos\": [\"run_id\", \"id_costo\"],");
+            salida.println(
+                "    \"snapshot_inventario\": [\"run_id\", \"dia\", \"ubicacion\","
+                + " \"producto\"],");
+            salida.println(
+                "    \"snapshot_capacidad_recursos\": [\"run_id\", \"dia\","
+                + " \"tipo_recurso\", \"ubicacion\"]");
+            salida.println("  }");
+            salida.println("}");
+
+        } catch (java.io.IOException e) {
+            traceln("No se pudo escribir el manifiesto de auditoria: " + e.getMessage());
+
+        } finally {
+
+            if (salida != null) {
+                salida.close();
+            }
+        }
+    }
+
+    void fotografiarStockInicialDelDia() {
+        // Stock de cada nodo antes de que el dia haga nada. Sin esta foto el balance diario se
+        // derivaria del propio stock final y C-12 no podria fallar nunca (ADR-064).
+        if (!auditoria.activa()) {
+            return;
+        }
+
+        stockInicialDelDia.clear();
+
+        inventario.reiniciarFlujoDia();
+
+        for (TipoProducto producto : TipoProducto.values()) {
+
+            stockInicialDelDia.put(
+                "PLANTA|" + producto, inventario.stock("PLANTA", producto));
+
+            for (Deposito deposito : depositos) {
+                stockInicialDelDia.put(
+                    deposito.idUbicacion + "|" + producto,
+                    inventario.stock(deposito.idUbicacion, producto));
+            }
+
+            for (Terminal terminal : terminales) {
+                stockInicialDelDia.put(
+                    terminal.idUbicacion + "|" + producto,
+                    inventario.stock(terminal.idUbicacion, producto));
+            }
+        }
+    }
+
+    void tomarSnapshotInventarioDelDia() {
+        // Foto diaria del inventario por nodo y producto, con el balance del dia (C-12):
+        //
+        //     stock inicial + ingresos - egresos = stock final
+        //
+        // validarInventario() ya verificaba el total de la red; esto lo verifica por nodo, que es
+        // donde se ve un deposito lleno o un nodo que pierde producto.
+        if (!auditoria.activa()) {
+            return;
+        }
+
+        int dia = diaCampania();
+
+        for (TipoProducto producto : TipoProducto.values()) {
+
+            for (int i = 0; i <= depositos.size() + terminales.size(); i++) {
+
+                String idUbicacion;
+                String tipoUbicacion;
+                double capacidad;
+                double costoTnDia;
+
+                if (i == 0) {
+                    idUbicacion = "PLANTA";
+                    tipoUbicacion = "PLANTA";
+                    capacidad = planta.getCapacidad(producto);
+                    costoTnDia = 0;
+
+                } else if (i <= depositos.size()) {
+                    Deposito deposito = depositos.get(i - 1);
+                    idUbicacion = deposito.idUbicacion;
+                    tipoUbicacion = "DEPOSITO";
+                    capacidad = deposito.getCapacidad(producto);
+                    costoTnDia = deposito.getTarifaAlmacenamiento(producto);
+
+                } else {
+                    Terminal terminal = terminales.get(i - 1 - depositos.size());
+                    idUbicacion = terminal.idUbicacion;
+                    tipoUbicacion = "TERMINAL";
+                    capacidad = 0;
+                    costoTnDia = 0;
+                }
+
+                double stock = inventario.stock(idUbicacion, producto);
+                double ingresos = inventario.ingresosDia(idUbicacion, producto);
+                double egresos = inventario.egresosDia(idUbicacion, producto);
+
+                Double inicial = stockInicialDelDia.get(idUbicacion + "|" + producto);
+
+                if (stock <= 0.0001 && ingresos <= 0.0001 && egresos <= 0.0001) {
+                    continue;
+                }
+
+                SnapshotInventario fila = new SnapshotInventario();
+
+                fila.runId = auditoria.runId;
+                fila.escenario = idEscenario;
+                fila.replica = replica;
+                fila.dia = dia;
+                fila.ubicacion = idUbicacion;
+                fila.tipoUbicacion = tipoUbicacion;
+                fila.producto = "" + producto;
+                fila.capacidadTn = capacidad;
+                fila.stockInicialDiaTn = inicial == null ? 0 : inicial.doubleValue();
+                fila.stockFisicoTn = stock;
+                fila.stockLibreTn = inventario.libre(idUbicacion, producto);
+                fila.stockReservadoPedidosTn = inventario.reservado(idUbicacion, producto);
+                fila.stockEnTransitoEntradaTn = toneladasEnTransitoHacia(idUbicacion, producto);
+                fila.ingresosDiaTn = ingresos;
+                fila.egresosDiaTn = egresos;
+                fila.produccionDiaTn =
+                    "PLANTA".equals(idUbicacion) ? datos.produccionDelDia(dia, producto) : 0;
+                fila.ocupacionPct = capacidad <= 0 ? 0 : 100.0 * stock / capacidad;
+                fila.costoAlmacenajeDiaUsd = stock * costoTnDia;
+                fila.lotesAbiertos = inventario.cantidadLotes(idUbicacion, producto);
+
+                double masAntiguo = 0;
+                double sumaDias = 0;
+                double sumaTn = 0;
+
+                for (Capa capa : inventario.fifo(idUbicacion, producto)) {
+                    double antiguedad = Math.max(0, time() - capa.diaIngreso);
+                    masAntiguo = Math.max(masAntiguo, antiguedad);
+                    sumaDias += antiguedad * capa.toneladas;
+                    sumaTn += capa.toneladas;
+                }
+
+                fila.loteMasAntiguoDias = masAntiguo;
+                fila.diasStockPromedio = sumaTn <= 0.0001 ? 0 : sumaDias / sumaTn;
+
+                // El viaje reserva su carga en el origen con clave VIAJE| (ADR-061): lo que ya esta
+                // comprometido para salir no es stock libre del nodo.
+                fila.stockReservadoViajesTn = 0;
+                fila.stockEnTransitoSalidaTn = 0;
+
+                for (ViajeProducto viaje : viajesProducto) {
+
+                    if (viaje.producto != producto) {
+                        continue;
+                    }
+
+                    if (viaje.origen.equals(idUbicacion) && !viaje.stockRetiradoOrigen && viaje.vivo()) {
+                        fila.stockReservadoViajesTn += viaje.toneladas;
+                    }
+
+                    if (viaje.origen.equals(idUbicacion) && viaje.enTransito()) {
+                        fila.stockEnTransitoSalidaTn += viaje.toneladas;
+                    }
+                }
+
+                if (Math.abs(fila.descuadre()) > 0.001) {
+                    descuadresInventarioAuditoria++;
+                    error(
+                        "C-12: el balance de " + idUbicacion + " " + producto + " el dia " + dia
+                        + " no cierra: inicial " + fila.stockInicialDiaTn
+                        + " + ingresos " + fila.ingresosDiaTn
+                        + " - egresos " + fila.egresosDiaTn
+                        + " != final " + fila.stockFisicoTn);
+                }
+
+                auditoria.escribir(AuditoriaRed.INVENTARIO, fila.toCsv());
+            }
+        }
+    }
+
+    void etiquetarAlternativas(String idDecision, java.util.List<AlternativaCircuito> alternativas) {
+        // Identidad de cada alternativa de la ronda (ADR-064). Se etiqueta despues de generarlas y
+        // antes de ejecutar, asi la asignacion puede apuntar a la alternativa exacta que la creo.
+        for (int i = 0; i < alternativas.size(); i++) {
+            alternativas.get(i).idAlternativa = idDecision + "-A" + (i + 1);
+        }
+    }
+
+    double[] componentesCicloFisico(Pedido pedido, String idOrigen, EstrategiaLogistica circuito, boolean esCrossDock, double toneladas) {
+        // Las mismas componentes que suma horasCicloFisico(), separadas para poder auditar el
+        // tiempo por etapa. No se refactoriza horasCicloFisico() para que las use: cambiar el orden
+        // de una suma de doubles cambia el ultimo decimal, y el evaluador decide con ese numero.
+        // La suma se verifica contra el original antes de escribirla (C-13).
+        boolean granel = circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+        String terminal = pedido.puertoSalida.idUbicacion;
+
+        double velocidad = datos.escenario.velocidadCamionKmh;
+
+        DatosEntrada.Ubicacion origen = datos.ubicacion(idOrigen);
+
+        DatosEntrada.Ubicacion puerto = datos.ubicacion(terminal);
+
+        double distancia = datos.distanciaKm(idOrigen, terminal);
+
+        double[] componentes = new double[6];
+
+        componentes[0] = esCrossDock ? datos.distanciaKm("PLANTA", idOrigen) / velocidad : 0;
+
+        componentes[1] =
+            granel
+            ? toneladas / origen.velocidadCargaTnHora
+            : toneladas / origen.velocidadConsolidacionTnHora;
+
+        componentes[2] = granel ? 0 : distancia / velocidad;
+
+        componentes[3] = distancia / velocidad;
+
+        componentes[4] = toneladas / puerto.velocidadDescargaTnHora;
+
+        componentes[5] = granel ? toneladas / puerto.velocidadConsolidacionTnHora : 0;
+
+        return componentes;
+    }
+
+    RegistroDecisionAlternativa filaDecision(Pedido pedido, AlternativaCircuito alternativa) {
+        // La parte de la fila que describe al pedido, la alternativa y lo que el modelo veia
+        // cuando la evaluo. Nada de esto se calcula: se lee de donde ya estaba.
+        RegistroDecisionAlternativa fila = new RegistroDecisionAlternativa();
+
+        fila.runId = auditoria.runId;
+        fila.escenario = idEscenario;
+        fila.replica = replica;
+        fila.diaSimulacion = time();
+        fila.diaCampania = diaCampania();
+        fila.politicaSeleccion = "" + politicaSeleccion;
+        fila.criterioOrden =
+            (datos.escenario.servicioMinimoProyectado > 0 ? "servicio_y_" : "")
+            + (decideEndToEnd() ? "menor_costo_unitario_end_to_end" : "menor_costo_unitario_incremental");
+
+        fila.codigoPedido = pedido.codigoPedido;
+        fila.producto = "" + pedido.producto;
+        fila.tipoContenedor = "" + pedido.tipoContenedor;
+        fila.terminal = pedido.puertoSalida.idUbicacion;
+        fila.estadoPedidoAntes = "" + pedido.estado;
+        fila.toneladasSolicitadas = pedido.toneladasSolicitadas;
+        fila.toneladasEntregadasPrevias = pedido.toneladasEntregadas;
+        fila.toneladasEnProcesoPrevias = pedido.toneladasDespachadas - pedido.toneladasEntregadas;
+        fila.toneladasReservadasPrevias = pedido.toneladasReservadas;
+        fila.toneladasPendientesAsignar = pedido.toneladasPendientesAsignar();
+        fila.contenedoresPendientesEstimados =
+            contenedoresNecesarios(pedido.producto, pedido.toneladasPendientesAsignar());
+        fila.diaConocimiento = pedido.diaConocimiento;
+        fila.diaAperturaRetiro = pedido.diaAperturaRetiroVacio;
+        fila.diaCutoff = pedido.fechaLimiteTerminal;
+        fila.diasHastaCutoff = pedido.fechaLimiteTerminal - time();
+        fila.cantidadOrigenesPrevios = pedido.asignaciones.size();
+
+        fila.circuito = "" + alternativa.circuito;
+        fila.esCrossDock = alternativa.esCrossDock;
+        fila.origenStock = alternativa.idOrigen;
+        fila.sitioEstiba = alternativa.sitioEstiba;
+        fila.destinoFinal = pedido.puertoSalida.idUbicacion;
+        fila.requiereFlotaProducto = alternativa.requiereFlotaProducto;
+        fila.requierePortacontenedor =
+            alternativa.circuito != EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+        fila.requierePosicion = !alternativa.esCrossDock;
+        fila.tipoRecursoCapacidad = alternativa.tipoRecursoCapacidad;
+        fila.ubicacionRecursoCapacidad = alternativa.idUbicacionCapacidad;
+
+        fila.stockFisicoOrigenTn = inventario.stock(alternativa.idOrigen, pedido.producto);
+        fila.stockLibreOrigenTn = inventario.libre(alternativa.idOrigen, pedido.producto);
+        fila.stockReservadoOrigenTn = inventario.reservado(alternativa.idOrigen, pedido.producto);
+        fila.stockEnTransitoHaciaOrigenTn =
+            toneladasEnTransitoHacia(alternativa.idOrigen, pedido.producto);
+
+        Deposito sitio = buscarDeposito(alternativa.sitioEstiba);
+
+        if (sitio != null) {
+            fila.espacioFisicoSitioTn = sitio.getEspacioDisponible(pedido.producto);
+            fila.espacioEfectivoSitioTn = espacioDisponibleEfectivo(sitio, pedido.producto);
+            fila.ocupacionSitioPct =
+                sitio.getCapacidad(pedido.producto) <= 0
+                ? 0
+                : 100.0 * inventario.stock(sitio.idUbicacion, pedido.producto)
+                    / sitio.getCapacidad(pedido.producto);
+        }
+
+        fila.cupoCrossdockLibreCont =
+            alternativa.esCrossDock
+            ? (int) Math.round(capacidadCrossDockLibre(alternativa.idOrigen))
+            : 0;
+        fila.posicionesDisponiblesAntesCutoff = alternativa.contenedoresConCapacidad;
+        fila.flotaProductoDisponible = flotaProductoLibreHoy();
+        fila.primeraSalidaFlota = alternativa.primeraSalidaProducto;
+        fila.ultimaLlegadaFlota = alternativa.ultimaLlegadaProducto;
+        fila.esperaFlotaDias = alternativa.esperaFlotaDias;
+        fila.portacontenedoresLibres = (int) Math.round(flotaPortacontenedores.idle());
+        fila.portacontenedoresOcupados = (int) Math.round(flotaPortacontenedores.busy());
+
+        fila.toneladasSinRestriccionCapacidad = alternativa.toneladasSinRestriccionCapacidad;
+        fila.toneladasFactibles = alternativa.toneladas;
+        fila.contenedoresFactibles = alternativa.contenedores;
+        fila.contenedoresConCapacidad = alternativa.contenedoresConCapacidad;
+        fila.viajesProductoRequeridos = viajesNecesariosCamion(alternativa.toneladas);
+        fila.viajesProductoFactibles = alternativa.viajesFactiblesPorFlota;
+        fila.esAsignacionParcial =
+            alternativa.toneladas + 0.0001 < pedido.toneladasPendientesAsignar();
+        fila.porcentajePedidoCubierto =
+            pedido.toneladasSolicitadas <= 0.0001
+            ? 0
+            : 100.0 * alternativa.toneladas / pedido.toneladasSolicitadas;
+
+        // generarAlternativas() agrega una alternativa de transferencia deposito-deposito cuyo
+        // origen no es un nodo de la red: existe solo para dejar escrito que el modelo no la
+        // mueve. Esa no tiene ciclo fisico que descomponer.
+        if (datos.existeUbicacion(alternativa.idOrigen)) {
+
+            double[] etapas =
+                componentesCicloFisico(
+                    pedido, alternativa.idOrigen, alternativa.circuito, alternativa.esCrossDock,
+                    alternativa.toneladas);
+
+            double suma = 0;
+
+            for (int i = 0; i < etapas.length; i++) {
+                suma += etapas[i];
+            }
+
+            double total = horasCicloAlternativa(pedido, alternativa);
+
+            // C-13: el tiempo por etapa tiene que sumar el ciclo con el que se decidio.
+            if (Math.abs(suma - total) > 0.0001) {
+                error(
+                    "C-13: las etapas de " + alternativa.clave() + " suman " + suma
+                    + " y el ciclo del evaluador es " + total);
+            }
+
+            fila.horasFleteProducto = etapas[0];
+            fila.horasCargaEstiba = etapas[1];
+            fila.horasViajeVacio = etapas[2];
+            fila.horasViajeCargado = etapas[3];
+            fila.horasDescargaTerminal = etapas[4];
+            fila.horasConsolidacionTerminal = etapas[5];
+            fila.horasCicloFisicoTotal = total;
+        }
+
+        fila.diaEntregaEstimado = alternativa.diaEntregaEstimado;
+        fila.holguraEstimadaDias = pedido.fechaLimiteTerminal - alternativa.diaEntregaEstimado;
+        fila.llegaATiempoEstimado = alternativa.llegaATiempo;
+
+        fila.costoFleteProducto = alternativa.costoFleteProducto;
+        fila.costoRoundTrip = alternativa.costoRoundTrip;
+        fila.costoEstiba = alternativa.costoEstiba;
+        fila.costoOut = alternativa.costoOut;
+        fila.costoThc = alternativa.costoTHC;
+        fila.costoTerminal = alternativa.costoTerminal;
+        fila.costoDespachante = alternativa.costoDespachante;
+        fila.costoInHundido = alternativa.costoInHundido;
+        fila.costoAlmacenajeHundido = alternativa.costoAlmacenajeHundido;
+        fila.costoFleteHundido = alternativa.costoFleteHundido;
+        fila.costoHistorico = alternativa.costoHistorico;
+        fila.costoIncremental = alternativa.costoIncremental;
+        fila.costoEndToEnd = alternativa.costoEndToEnd;
+        fila.costoIncrementalUsdTn = alternativa.costoUnitarioSegun(false);
+        fila.costoEndToEndUsdTn = alternativa.costoUnitarioSegun(true);
+        fila.costoIncrementalUsdCont =
+            alternativa.contenedores <= 0
+            ? 0
+            : alternativa.costoIncremental / alternativa.contenedores;
+        fila.costoUnitarioSinRestriccion = alternativa.costoUnitarioSinRestriccion;
+
+        fila.factible = alternativa.factible;
+        fila.codigoMotivo = alternativa.codigoMotivo;
+        fila.detalleMotivo = alternativa.motivoNoFactible;
+        fila.idAlternativa = alternativa.idAlternativa;
+
+        return fila;
+    }
+
+    void registrarDecisionRonda(Pedido pedido, String idDecision, int ronda, java.util.List<AlternativaCircuito> alternativas, java.util.List<AlternativaCircuito> ranking, AlternativaCircuito ejecutada, double tomadas, double saldoAntes) {
+        // Una fila por alternativa de la ronda. La ronda es parte de la identidad porque
+        // asignarConEvaluador() vuelve a generar las alternativas en cada vuelta: la misma
+        // alternativa evaluada dos veces en el mismo dia son dos hechos distintos (ADR-055).
+        //
+        // El nivel RESUMIDA escribe solo la elegida: las descartadas son el grueso del volumen y
+        // solo hacen falta para explicar por que no gano otra.
+        if (!auditoria.activa()) {
+            return;
+        }
+
+        decisionesAuditadas++;
+
+        double costoElegida =
+            ejecutada == null ? 0 : ejecutada.costoUnitarioSegun(decideEndToEnd());
+
+        for (AlternativaCircuito alternativa : alternativas) {
+
+            boolean elegida = alternativa == ejecutada;
+
+            String resultado =
+                elegida
+                ? RegistroDecisionAlternativa.ELEGIDA
+                : (AlternativaCircuito.NO_TOMADA_AL_EJECUTAR.equals(alternativa.codigoMotivo)
+                    ? RegistroDecisionAlternativa.INTENTADA_FALLIDA
+                    : (alternativa.factible
+                        ? RegistroDecisionAlternativa.NO_INTENTADA
+                        : RegistroDecisionAlternativa.NO_FACTIBLE));
+
+            if (!alternativa.codigoMotivo.isEmpty()) {
+
+                Long cantidad = motivosAuditoria.get(alternativa.codigoMotivo);
+
+                motivosAuditoria.put(
+                    alternativa.codigoMotivo,
+                    (cantidad == null ? 0L : cantidad.longValue()) + 1);
+            }
+
+            if (elegida) {
+                alternativasElegidasAuditadas++;
+            }
+
+            if (!elegida && !auditoria.registraDescartadas()) {
+                continue;
+            }
+
+            RegistroDecisionAlternativa fila = filaDecision(pedido, alternativa);
+
+            fila.idDecision = idDecision;
+            fila.ronda = ronda;
+            fila.ordenRanking = ranking.indexOf(alternativa) + 1;
+            fila.resultadoEjecucion = resultado;
+            fila.toneladasTomadas = elegida ? tomadas : 0;
+            fila.costoElegidaUsdTn = costoElegida;
+            fila.saldoPedidoAntes = saldoAntes;
+            fila.saldoPedidoDespues = pedido.toneladasPendientesAsignar();
+
+            double unitario = fila.costoIncrementalUsdTn;
+
+            if (decideEndToEnd()) {
+                unitario = fila.costoEndToEndUsdTn;
+            }
+
+            fila.diferenciaVsElegidaUsdTn =
+                ejecutada == null || Double.isInfinite(unitario) ? 0 : unitario - costoElegida;
+
+            // La alternativa mas barata que no se pudo usar es el precio de la restriccion: es el
+            // numero que explica cuanto cuesta la capacidad que falta (ADR-060).
+            fila.esMasBarataNoFactible =
+                !alternativa.factible
+                && ejecutada != null
+                && !Double.isInfinite(alternativa.costoUnitarioSinRestriccion)
+                && alternativa.costoUnitarioSinRestriccion < costoElegida - 0.0001;
+
+            if (fila.esMasBarataNoFactible) {
+                sobrecostoVsMasBarataAuditoria +=
+                    (costoElegida - alternativa.costoUnitarioSinRestriccion) * tomadas;
+            }
+
+            auditoria.escribir(AuditoriaRed.DECISIONES, fila.toCsv());
+        }
+    }
+
+    void emitirArco(RegistroEjecucionArco arco) {
+        // Una fila de ejecucion_arcos, con el agregado que alimenta la vista de lectura.
+        if (!auditoria.activa()) {
+            return;
+        }
+
+        arco.runId = auditoria.runId;
+        arco.escenario = idEscenario;
+        arco.replica = replica;
+        arco.idEventoArco = ++secuenciaArcoAuditoria;
+
+        double[] agregado = arcosAuditoria.get(arco.tipoArco);
+
+        if (agregado == null) {
+            agregado = new double[4];
+            arcosAuditoria.put(arco.tipoArco, agregado);
+        }
+
+        agregado[0]++;
+        agregado[1] += arco.toneladas;
+        agregado[2] += arco.duracionRealHoras;
+        agregado[3] += arco.duracionEsperadaHoras < 0 ? 0 : arco.duracionEsperadaHoras;
+
+        auditoria.escribir(AuditoriaRed.ARCOS, arco.toCsv());
+    }
+
+    String tipoArcoDeBloque(String bloque) {
+        // Traduccion del bloque del flowchart al arco fisico que representa. Un bloque que no es un
+        // movimiento ni una espera fisica no es un arco: el almacenaje y los cargos de deposito ya
+        // viven en costos_eventos y duplicarlos aca haria que el costo por arco no reconcilie.
+        if ("colaCamiones".equals(bloque)) {
+            return RegistroEjecucionArco.ESPERA_PORTACONTENEDOR;
+        }
+
+        if ("viajarVacioAlOrigen".equals(bloque)) {
+            return RegistroEjecucionArco.TERMINAL_ORIGEN_VACIO;
+        }
+
+        if ("cargarCamion".equals(bloque) || "cargarGranel".equals(bloque)) {
+            return RegistroEjecucionArco.CARGA_CONSOLIDACION;
+        }
+
+        if ("viajarPuerto".equals(bloque) || "viajarTerminalGranel".equals(bloque)) {
+            return RegistroEjecucionArco.ORIGEN_TERMINAL_CARGADO;
+        }
+
+        if ("descargarPuerto".equals(bloque) || "descargarTerminal".equals(bloque)) {
+            return RegistroEjecucionArco.DESCARGA_TERMINAL;
+        }
+
+        if ("consolidarCarga".equals(bloque)) {
+            return RegistroEjecucionArco.CONSOLIDACION_TERMINAL;
+        }
+
+        return "";
+    }
+
+    void cerrarArcoEnvio(Envio envio) {
+        // Cierra el arco en el que estaba el envio. Se cierra al salir y no al entrar porque recien
+        // al salir existen la duracion real y el estado final; los campos de etapa que ADR-063 ya
+        // puso para C-05 son los que dicen donde estaba y cuanto deberia haber durado.
+        if (!auditoria.activa() || envio == null) {
+            return;
+        }
+
+        if (envio.bloqueActual == null || envio.bloqueActual.isEmpty() || envio.diaEntradaBloque < 0) {
+            return;
+        }
+
+        String tipo = tipoArcoDeBloque(envio.bloqueActual);
+
+        if (tipo.isEmpty()) {
+            return;
+        }
+
+        String terminal =
+            envio.pedido == null ? "" : envio.pedido.puertoSalida.idUbicacion;
+
+        RegistroEjecucionArco arco = new RegistroEjecucionArco();
+
+        arco.tipoArco = tipo;
+        arco.codigoPedido = envio.pedido == null ? "" : envio.pedido.codigoPedido;
+        arco.idEnvio = envio.codigoEnvio;
+        arco.idContenedor = envio.contenedor == null ? "" : envio.contenedor.idContenedor;
+        arco.idAsignacion = envio.idAsignacionPedido;
+
+        AsignacionPedido asignacion = asignacionDeEnvio(envio);
+
+        if (asignacion != null) {
+            arco.idDecision = asignacion.idDecision;
+            arco.idAlternativa = asignacion.idAlternativa;
+        }
+
+        arco.idLote =
+            envio.contenedor == null || envio.contenedor.lote == null
+            ? ""
+            : "" + envio.contenedor.lote.idLote;
+
+        arco.producto = "" + envio.producto;
+        arco.circuito = "" + envio.circuito;
+        arco.esCrossDock = envio.esCrossDock;
+        arco.toneladas = envio.toneladas;
+        arco.contenedores = envio.contenedor == null ? 0 : 1;
+        arco.viajes = 1;
+
+        if (RegistroEjecucionArco.TERMINAL_ORIGEN_VACIO.equals(tipo)) {
+            arco.origen = terminal;
+            arco.destino = envio.idSitioOrigen;
+
+        } else if (RegistroEjecucionArco.ORIGEN_TERMINAL_CARGADO.equals(tipo)) {
+            arco.origen = envio.idSitioOrigen;
+            arco.destino = terminal;
+
+        } else if (RegistroEjecucionArco.ESPERA_PORTACONTENEDOR.equals(tipo)) {
+            arco.origen = terminal;
+            arco.destino = envio.idSitioOrigen;
+
+        } else if (
+            RegistroEjecucionArco.DESCARGA_TERMINAL.equals(tipo)
+            || RegistroEjecucionArco.CONSOLIDACION_TERMINAL.equals(tipo)
+        ) {
+            arco.origen = terminal;
+            arco.destino = terminal;
+
+        } else {
+            arco.origen = envio.idSitioOrigen;
+            arco.destino = envio.idSitioOrigen;
+        }
+
+        // La tabla Distancia declara un solo sentido por tramo (ADR-061): el arco del vacio va
+        // terminal -> origen y su fila es la de la ida.
+        arco.distanciaKm =
+            arco.origen.equals(arco.destino)
+            ? 0
+            : Math.max(0, datos.distanciaKmSimetrica(arco.origen, arco.destino));
+
+        arco.diaProgramacion = envio.diaCreacion;
+        arco.diaInicio = envio.diaEntradaBloque;
+        arco.diaFin = time();
+        arco.duracionRealHoras = Math.max(0, (time() - envio.diaEntradaBloque) * 24.0);
+        arco.duracionEsperadaHoras = envio.horasEsperadasBloque;
+
+        arco.recursoUtilizado =
+            RegistroEjecucionArco.CARGA_CONSOLIDACION.equals(tipo)
+                || RegistroEjecucionArco.CONSOLIDACION_TERMINAL.equals(tipo)
+            ? "POSICION_CONSOLIDACION"
+            : (envio.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL
+                ? "FLOTA_PRODUCTO"
+                : "PORTACONTENEDOR");
+
+        arco.idRecurso = envio.bloqueActual;
+        arco.estadoFinal = "COMPLETADO";
+
+        emitirArco(arco);
+    }
+
+    void registrarArcoViajeProducto(ViajeProducto viaje) {
+        // El viaje de producto es un arco: el producto sale del origen al salir el camion y entra al
+        // destino al llegar (ADR-061). Se emite al llegar, cuando la duracion real existe. Un viaje
+        // cancelado no genera arco: no hubo movimiento, y el motivo ya queda en la decision.
+        if (!auditoria.activa() || viaje == null || viaje.ocupaSoloFlota) {
+            return;
+        }
+
+        RegistroEjecucionArco arco = new RegistroEjecucionArco();
+
+        arco.tipoArco =
+            "PLANTA".equals(viaje.origen)
+            ? RegistroEjecucionArco.PLANTA_DEPOSITO
+            : RegistroEjecucionArco.DEPOSITO_DEPOSITO;
+
+        if (viaje.crossDock) {
+            arco.tipoArco = RegistroEjecucionArco.CROSS_DOCK;
+        }
+
+        arco.codigoPedido = viaje.codigoPedido;
+        arco.idLote = viaje.idLote > 0 ? "" + viaje.idLote : "";
+        arco.producto = "" + viaje.producto;
+        arco.circuito = "" + viaje.estrategia;
+        arco.esCrossDock = viaje.crossDock;
+        arco.origen = viaje.origen;
+        arco.destino = viaje.destino;
+        arco.toneladas = viaje.toneladas;
+        arco.viajes = 1;
+        arco.distanciaKm = viaje.distanciaKmIda;
+        arco.diaProgramacion = viaje.diaProgramacion;
+        arco.diaInicio = viaje.diaSalida;
+        arco.diaFin = viaje.diaLlegadaDestino;
+        arco.duracionRealHoras = Math.max(0, (viaje.diaLlegadaDestino - viaje.diaSalida) * 24.0);
+        arco.duracionEsperadaHoras = viaje.duracionIdaDias * 24.0;
+        arco.recursoUtilizado = "FLOTA_PRODUCTO";
+        arco.idRecurso = "CAMION-" + viaje.idCamion;
+        arco.estadoFinal = "COMPLETADO";
+        arco.idAsignacion = viaje.idOperacion;
+
+        emitirArco(arco);
+    }
+
+    void registrarArcoEsperaPosicion(ContenedorExportacion contenedor, int diasEspera) {
+        // La espera por una posicion de consolidacion es un arco de espera: sin ella la suma de las
+        // etapas no reconstruye el tiempo del envio, y es una de las dos esperas que explican el
+        // atraso (ADR-060).
+        if (!auditoria.activa() || contenedor == null || diasEspera <= 0) {
+            return;
+        }
+
+        RegistroEjecucionArco arco = new RegistroEjecucionArco();
+
+        arco.tipoArco = RegistroEjecucionArco.ESPERA_POSICION;
+        arco.codigoPedido = contenedor.Pedido == null ? "" : contenedor.Pedido.codigoPedido;
+        arco.idContenedor = contenedor.idContenedor;
+        arco.idAsignacion = contenedor.idAsignacionPedido;
+        arco.producto = "" + contenedor.producto;
+        arco.circuito = "" + contenedor.circuito;
+        arco.esCrossDock = contenedor.esCrossDock;
+        arco.origen = contenedor.idUbicacionOperacion;
+        arco.destino = contenedor.idUbicacionOperacion;
+        arco.toneladas = contenedor.cantidadAsignadaTon;
+        arco.contenedores = 1;
+        arco.diaInicio = time() - diasEspera;
+        arco.diaFin = time();
+        arco.duracionRealHoras = diasEspera * 24.0;
+
+        // Esperar una posicion no tiene techo fisico, igual que esperar un portacontenedor: la
+        // duracion esperada negativa es "no aplica", no cero (ADR-063).
+        arco.duracionEsperadaHoras = -1;
+        arco.recursoUtilizado = contenedor.tipoRecursoOperacion;
+        arco.idRecurso = contenedor.idUbicacionOperacion;
+        arco.estadoFinal = "COMPLETADO";
+
+        emitirArco(arco);
+    }
+
+    void reconciliarAuditoriaRed() {
+        // Reconciliaciones de la auditoria. Ninguna compara dos exportaciones entre si: comparan la
+        // tabla contra el estado del modelo, que es la unica forma de que puedan fallar.
+        if (!auditoria.activa()) {
+            return;
+        }
+
+        // C-06: toda asignacion viva tiene decision y alternativa. Una asignacion sin decision es
+        // producto comprometido que nadie puede explicar.
+        long sinDecision = 0;
+
+        long asignaciones = 0;
+
+        for (Pedido pedido : pedidos) {
+
+            for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+                asignaciones++;
+
+                if (asignacion.idDecision.isEmpty() || asignacion.idAlternativa.isEmpty()) {
+                    sinDecision++;
+                }
+            }
+        }
+
+        // La politica fija no evalua alternativas: sus asignaciones no tienen decision porque no
+        // hubo eleccion, y ahi la falta de identidad es el dato correcto (ADR-054).
+        if (sinDecision > 0 && usaEvaluador()) {
+            error(
+                "C-06: " + sinDecision + " de " + asignaciones + " asignaciones decididas por el"
+                + " evaluador no tienen decision de origen. La trazabilidad esta cortada.");
+        }
+
+        if (sinDecision > 0) {
+            traceln(
+                "Auditoria de red: " + sinDecision + " de " + asignaciones + " asignaciones sin"
+                + " decision (politica fija, sin eleccion de alternativa).");
+        }
+
+        if (auditoria.filasDe(AuditoriaRed.ASIGNACIONES) != asignaciones) {
+            error(
+                "C-07: asignaciones_elegidas tiene "
+                + auditoria.filasDe(AuditoriaRed.ASIGNACIONES)
+                + " filas y el modelo tiene " + asignaciones + " asignaciones.");
+        }
+
+        // C-09: el importe de costos_eventos es el total de la campania, no una parte.
+        if (registro.guardarDetalle) {
+
+            double sumaEventos = 0;
+
+            for (RegistroCostos.Cargo cargo : registro.detalle()) {
+                sumaEventos += cargo.importe;
+            }
+
+            if (Math.abs(sumaEventos - registro.total()) > 0.01) {
+                error(
+                    "C-09: costos_eventos suma " + sumaEventos + " y el registro de la campania"
+                    + " dice " + registro.total());
+            }
+
+            if (auditoria.filasDe(AuditoriaRed.COSTOS) != registro.detalle().size()) {
+                error(
+                    "C-09: costos_eventos tiene " + auditoria.filasDe(AuditoriaRed.COSTOS)
+                    + " filas y el registro tiene " + registro.detalle().size() + " cargos.");
+            }
+        }
+
+        // C-10: todo envio entregado dejo la secuencia completa de sus arcos. Sin la ultima etapa
+        // el tiempo del envio no se puede reconstruir sumando arcos.
+        long arcosEsperados = 0;
+
+        for (String tipo : arcosAuditoria.keySet()) {
+            arcosEsperados += (long) arcosAuditoria.get(tipo)[0];
+        }
+
+        if (arcosEsperados != auditoria.filasDe(AuditoriaRed.ARCOS)) {
+            error(
+                "C-10: el agregado de arcos cuenta " + arcosEsperados + " y la tabla tiene "
+                + auditoria.filasDe(AuditoriaRed.ARCOS) + " filas.");
+        }
+
+        if (descuadresInventarioAuditoria > 0) {
+            error(
+                "C-12: " + descuadresInventarioAuditoria + " balances diarios de inventario no"
+                + " cerraron.");
+        }
+    }
+
+    String encabezadoCapacidadRecursos() {
+        // snapshot_capacidad_recursos de ADR-064 es la tabla de capacidad de ADR-060: la ocupacion
+        // por (recurso, sitio, dia) ya vive en una sola agenda y duplicarla en otra tabla obligaria
+        // a reconciliar dos calendarios que pueden diferir. El encabezado es una funcion para que el
+        // esquema publicado y el csv no puedan divergir.
+        return "run_id,escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
+            + "reservada,consumida,liberada,ocupada,libre,cola";
+    }
+
+    void escribirEsquemaAuditoria() {
+        // Esquema de las tablas de auditoria: archivo, columnas y clave primaria de cada una. Se
+        // genera desde los mismos encabezados que escriben los csv, asi que no puede quedar viejo:
+        // si alguien agrega una columna, aparece aca sin tocar nada (ADR-064).
+        String[] tablas = {
+            AuditoriaRed.DECISIONES, AuditoriaRed.ASIGNACIONES, AuditoriaRed.ARCOS,
+            AuditoriaRed.COSTOS, AuditoriaRed.INVENTARIO, AuditoriaRed.CAPACIDAD
+        };
+
+        String[] archivos = {
+            AuditoriaRed.DECISIONES + ".csv", AuditoriaRed.ASIGNACIONES + ".csv",
+            AuditoriaRed.ARCOS + ".csv", AuditoriaRed.COSTOS + ".csv",
+            AuditoriaRed.INVENTARIO + ".csv", "capacidad_por_dia.csv"
+        };
+
+        String[] encabezados = {
+            RegistroDecisionAlternativa.encabezadoCsv(), AsignacionPedido.encabezadoCsv(),
+            RegistroEjecucionArco.encabezadoCsv(), encabezadoCostosEventos(),
+            SnapshotInventario.encabezadoCsv(), encabezadoCapacidadRecursos()
+        };
+
+        String[] claves = {
+            "run_id|id_alternativa", "run_id|id_asignacion", "run_id|id_evento_arco",
+            "run_id|id_costo", "run_id|dia|ubicacion|producto",
+            "run_id|dia|tipo_recurso|ubicacion"
+        };
+
+        java.io.PrintWriter salida = null;
+
+        try {
+            salida =
+                new java.io.PrintWriter(auditoria.directorio + "/esquema_auditoria.json", "UTF-8");
+
+            salida.println("{");
+            salida.println("  \"version_esquema\": \"" + AuditoriaRed.VERSION_ESQUEMA + "\",");
+            salida.println("  \"tablas\": [");
+
+            for (int i = 0; i < tablas.length; i++) {
+
+                salida.println("    {");
+                salida.println("      \"tabla\": \"" + tablas[i] + "\",");
+                salida.println("      \"archivo\": \"" + archivos[i] + "\",");
+
+                salida.print("      \"clave\": [");
+
+                String[] partes = claves[i].split("\\|");
+
+                for (int k = 0; k < partes.length; k++) {
+                    salida.print((k == 0 ? "" : ", ") + "\"" + partes[k] + "\"");
+                }
+
+                salida.println("],");
+
+                String[] columnas = encabezados[i].split(",");
+
+                salida.println("      \"columnas\": [");
+
+                for (int j = 0; j < columnas.length; j++) {
+                    salida.println(
+                        "        \"" + columnas[j] + "\"" + (j == columnas.length - 1 ? "" : ","));
+                }
+
+                salida.println("      ]");
+                salida.println("    }" + (i == tablas.length - 1 ? "" : ","));
+            }
+
+            salida.println("  ]");
+            salida.println("}");
+
+        } catch (java.io.IOException e) {
+            traceln("No se pudo escribir el esquema de auditoria: " + e.getMessage());
+
+        } finally {
+
+            if (salida != null) {
+                salida.close();
+            }
+        }
+    }
+
+    String resumenAuditoriaRed() {
+        // Vista de lectura de la auditoria (ADR-064). Es un resumen, no un tablero con filtros: el
+        // tablero se construye sobre los csv en otro proyecto, y PLE no exporta vistas.
+        if (!auditoria.activa()) {
+            return "Auditoria de red: DESACTIVADA";
+        }
+
+        String texto =
+            "AUDITORIA DE RED · " + auditoria.nivel + " · run " + auditoria.runId
+            + "\n\nDECISIONES\n"
+            + "  rondas auditadas " + decisionesAuditadas
+            + " · alternativas elegidas " + alternativasElegidasAuditadas
+            + " · filas " + auditoria.filasDe(AuditoriaRed.DECISIONES)
+            + "\n  costo de la restriccion (mas barata no factible) USD "
+            + String.format("%,.0f", sobrecostoVsMasBarataAuditoria);
+
+        texto += "\n\nMOTIVOS DE DESCARTE";
+
+        for (String motivo : motivosAuditoria.keySet()) {
+            texto += "\n  " + motivo + " " + motivosAuditoria.get(motivo);
+        }
+
+        texto += "\n\nARCOS EJECUTADOS (real vs esperado, horas)";
+
+        for (String tipo : arcosAuditoria.keySet()) {
+
+            double[] agregado = arcosAuditoria.get(tipo);
+
+            texto +=
+                "\n  " + tipo + " · " + (long) agregado[0] + " arcos · "
+                + String.format("%,.0f", agregado[1]) + " tn · "
+                + String.format("%,.1f", agregado[0] <= 0 ? 0 : agregado[2] / agregado[0]) + " h"
+                + " (esperado "
+                + String.format("%,.1f", agregado[0] <= 0 ? 0 : agregado[3] / agregado[0]) + " h)";
+        }
+
+        texto +=
+            "\n\nTABLAS\n  " + AuditoriaRed.INVENTARIO + " "
+            + auditoria.filasDe(AuditoriaRed.INVENTARIO)
+            + " filas · descuadres " + descuadresInventarioAuditoria
+            + "\n  " + AuditoriaRed.COSTOS + " " + auditoria.filasDe(AuditoriaRed.COSTOS) + " filas"
+            + "\n  " + AuditoriaRed.ARCOS + " " + auditoria.filasDe(AuditoriaRed.ARCOS) + " filas";
+
+        return texto;
+    }
+
     void registrarEtapaEnvio(Envio envio, String bloque, double horasEsperadas) {
         // C-05: cada envio declara en que bloque del flujo esta y cuanto deberia durar. Una
         // espera de recurso no tiene techo (horasEsperadas < 0); un Delay si (ADR-063).
         if (envio == null) {
             return;
         }
+
+        // El arco anterior se cierra antes de declarar el nuevo: recien al salir del bloque
+        // existen la duracion real y el estado final (ADR-064). Los tres campos que ADR-063 puso
+        // para C-05 son los mismos que describen el arco, asi que no hay una segunda etapa que
+        // pueda quedar desincronizada de la que vigila C-05.
+        cerrarArcoEnvio(envio);
 
         envio.bloqueActual = bloque;
         envio.diaEntradaBloque = time();
@@ -2810,6 +3996,8 @@ class Main extends Agent {
         envio.diaCargosCierre = diaCampania();
 
         // El envio ya no esta en ningun bloque del flujo (C-05, ADR-063).
+        cerrarArcoEnvio(envio);
+
         envio.bloqueActual = "";
         envio.diaEntradaBloque = -1;
 
@@ -3682,6 +4870,7 @@ class Main extends Agent {
                 EstrategiaLogistica.CONSOLIDACION_DEPOSITO, false);
 
         transferencia.descartar(
+            AlternativaCircuito.TRANSFERENCIA_DEPOSITO_DEPOSITO,
             "transferencia deposito-deposito sin movimiento fisico en el modelo (C7)");
 
         alternativas.add(transferencia);
@@ -3722,7 +4911,8 @@ class Main extends Agent {
             alternativa.contenedores = 0;
 
             alternativa.descartar(
-                "SIN_CAPACIDAD_ANTES_CUTOFF en " + alternativa.idUbicacionCapacidad);
+                AlternativaCircuito.SIN_CAPACIDAD_ANTES_CUTOFF,
+                "sin capacidad antes del cutoff en " + alternativa.idUbicacionCapacidad);
 
             if (exportarDiagnosticoCapacidad) {
                 diagnosticoAsignaciones.add(
@@ -3751,6 +4941,7 @@ class Main extends Agent {
                 : alternativa.diagnosticoFlota;
 
             alternativa.descartar(
+                motivoFlota,
                 motivoFlota + " "
                 + (alternativa.esCrossDock ? "PLANTA" : alternativa.idOrigen)
                 + "->"
@@ -3766,6 +4957,9 @@ class Main extends Agent {
         if (toneladas <= 0.0001) {
             alternativa.descartar(
                 alternativa.esCrossDock
+                ? AlternativaCircuito.SIN_STOCK_ESPACIO_O_CUPO
+                : AlternativaCircuito.SIN_STOCK,
+                alternativa.esCrossDock
                 ? "sin stock, espacio o cupo para cruzar por " + alternativa.idOrigen
                 : "sin stock libre en " + alternativa.idOrigen);
             return;
@@ -3774,7 +4968,8 @@ class Main extends Agent {
         if (alternativa.esCrossDock) {
 
             if (!habilitaCrossDock) {
-                alternativa.descartar("cross dock deshabilitado en el escenario");
+                alternativa.descartar(
+            AlternativaCircuito.CROSS_DOCK_DESHABILITADO, "cross dock deshabilitado en el escenario");
                 return;
             }
 
@@ -3784,14 +4979,16 @@ class Main extends Agent {
                 inventario.libre("PLANTA", pedido.producto) + 0.0001
                 < toneladas
             ) {
-                alternativa.descartar("sin stock libre en planta para cruzar");
+                alternativa.descartar(
+            AlternativaCircuito.SIN_STOCK_PLANTA_PARA_CRUZAR, "sin stock libre en planta para cruzar");
                 return;
             }
 
             Deposito sitio = buscarDeposito(alternativa.idOrigen);
 
             if (sitio == null || !sitio.habilitado) {
-                alternativa.descartar("deposito no habilitado");
+                alternativa.descartar(
+            AlternativaCircuito.ORIGEN_NO_HABILITADO, "deposito no habilitado");
                 return;
             }
 
@@ -3799,7 +4996,8 @@ class Main extends Agent {
                 capacidadCrossDockLibre(alternativa.idOrigen)
                 < alternativa.contenedores
             ) {
-                alternativa.descartar("sin cupo de cross dock hoy");
+                alternativa.descartar(
+            AlternativaCircuito.SIN_CUPO_CROSS_DOCK, "sin cupo de cross dock hoy");
                 return;
             }
 
@@ -3807,7 +5005,8 @@ class Main extends Agent {
                 espacioDisponibleEfectivo(sitio, pedido.producto) + 0.0001
                 < toneladas
             ) {
-                alternativa.descartar("sin espacio de paso en el deposito");
+                alternativa.descartar(
+            AlternativaCircuito.SIN_ESPACIO_DE_PASO, "sin espacio de paso en el deposito");
                 return;
             }
 
@@ -3817,7 +5016,8 @@ class Main extends Agent {
                 !usaFlotaMultidiaria()
                 && !flotaProductoAlcanza("PLANTA", alternativa.idOrigen, toneladas)
             ) {
-                alternativa.descartar("sin flota de producto planta-deposito");
+                alternativa.descartar(
+            AlternativaCircuito.SIN_FLOTA_PLANTA_DEPOSITO, "sin flota de producto planta-deposito");
                 return;
             }
 
@@ -3827,7 +5027,8 @@ class Main extends Agent {
                 inventario.libre(alternativa.idOrigen, pedido.producto) + 0.0001
                 < toneladas
             ) {
-                alternativa.descartar("sin stock libre en " + alternativa.idOrigen);
+                alternativa.descartar(
+            AlternativaCircuito.SIN_STOCK, "sin stock libre en " + alternativa.idOrigen);
                 return;
             }
 
@@ -3836,7 +5037,8 @@ class Main extends Agent {
                 && !usaFlotaMultidiaria()
                 && !flotaProductoAlcanza(alternativa.idOrigen, terminal, toneladas)
             ) {
-                alternativa.descartar("sin flota de producto para el granel a terminal");
+                alternativa.descartar(
+            AlternativaCircuito.SIN_FLOTA_GRANEL_TERMINAL, "sin flota de producto para el granel a terminal");
                 return;
             }
         }
@@ -3847,7 +5049,8 @@ class Main extends Agent {
             !alternativa.esCrossDock
             && datos.ubicacion(alternativa.sitioEstiba).contenedoresPorDia <= 0
         ) {
-            alternativa.descartar("sin capacidad de estiba en " + alternativa.sitioEstiba);
+            alternativa.descartar(
+            AlternativaCircuito.CAPACIDAD_ESTIBA_CERO, "sin capacidad de estiba en " + alternativa.sitioEstiba);
             return;
         }
 
@@ -4119,22 +5322,41 @@ class Main extends Agent {
         ) {
             vueltas++;
 
+            // Identidad de la ronda (ADR-064). La vuelta es parte de la identidad: la misma
+            // alternativa evaluada en dos vueltas del mismo dia son dos hechos distintos, porque
+            // entre una y otra el pedido ya se llevo stock y capacidad.
+            idDecisionActual = pedido.codigoPedido + "-D" + vueltas;
+
+            double saldoAntes = pedido.toneladasPendientesAsignar();
+
             java.util.List<AlternativaCircuito> alternativas =
                 generarAlternativas(pedido);
+
+            etiquetarAlternativas(idDecisionActual, alternativas);
 
             java.util.List<AlternativaCircuito> ranking =
                 ordenarAlternativas(pedido, alternativas);
 
             double tomadas = 0;
 
+            AlternativaCircuito ejecutada = null;
+
             for (AlternativaCircuito elegida : ranking) {
+
+                idAlternativaActual = elegida.idAlternativa;
 
                 tomadas = ejecutarAlternativa(pedido, elegida);
 
                 if (tomadas <= 0.0001) {
-                    elegida.descartar("el flujo no pudo tomarla al ejecutar");
+                    // No es una restriccion del sitio: la alternativa era factible y otro pedido del
+                    // mismo dia se llevo lo que faltaba. Se distingue para poder medirlo (ADR-064).
+                    elegida.descartar(
+                        AlternativaCircuito.NO_TOMADA_AL_EJECUTAR,
+                        "el flujo no pudo tomarla al ejecutar");
                     continue;
                 }
+
+                ejecutada = elegida;
 
                 registrarPlan(pedido, alternativas, elegida, tomadas);
 
@@ -4142,6 +5364,14 @@ class Main extends Agent {
 
                 break;
             }
+
+            idAlternativaActual = "";
+
+            registrarDecisionRonda(
+                pedido, idDecisionActual, vueltas, alternativas, ranking, ejecutada, tomadas,
+                saldoAntes);
+
+            idDecisionActual = "";
 
             if (tomadas <= 0.0001) {
                 break;
@@ -4269,6 +5499,12 @@ class Main extends Agent {
 
         asignacion.motivoAsignacion = motivo == null ? "" : motivo;
         asignacion.prioridad = pedido.asignaciones.size() + 1;
+
+        // Decision que creo esta asignacion (ADR-064). Se toma del contexto y no por parametro para
+        // no cambiar la firma de las cinco funciones que crean asignaciones; queda vacio cuando la
+        // asignacion no viene del evaluador (cross dock heuristico), y eso es un dato, no una falla.
+        asignacion.idDecision = idDecisionActual;
+        asignacion.idAlternativa = idAlternativaActual;
 
         pedido.asignaciones.add(asignacion);
 
@@ -6309,7 +7545,7 @@ class Main extends Agent {
         // El diagnostico se escribe una vez, el ultimo dia, y solo si el escenario lo pide: en
         // el barrido son millones de filas que nadie lee.
         if (
-            !exportarDiagnosticoCapacidad
+            (!exportarDiagnosticoCapacidad && !auditoria.activa())
             || diaCampania() < duracionCampaniaDias - 1
         ) {
             return;
@@ -6325,9 +7561,7 @@ class Main extends Agent {
         try {
             salida = new java.io.PrintWriter(ruta, "UTF-8");
 
-            salida.println(
-                "escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
-                + "reservada,consumida,liberada,ocupada,libre,cola");
+            salida.println(encabezadoCapacidadRecursos());
 
             for (String clave : ocupacionCapacidad.keySet()) {
 
@@ -6347,7 +7581,8 @@ class Main extends Agent {
                     }
 
                     salida.println(
-                        idEscenario + "," + replica + "," + dia + ","
+                        AuditoriaRed.txt(auditoria.runId) + ","
+                        + idEscenario + "," + replica + "," + dia + ","
                         + tipoRecurso + "," + idUbicacion + "," + nominal + ","
                         + reservasDelDia(tipoRecurso, idUbicacion, dia, "ACTIVA") + ","
                         + reservasDelDia(tipoRecurso, idUbicacion, dia, "CONSUMIDA") + ","
@@ -6404,7 +7639,10 @@ class Main extends Agent {
             }
         }
 
-        if (diagnosticoAsignaciones.isEmpty()) {
+        // Deprecado por ADR-064: decisiones_alternativas registra la misma decision con la
+        // identidad de la ronda y el resultado de ejecucion, asi que con la auditoria activa este
+        // archivo seria una segunda version incompleta del mismo hecho.
+        if (diagnosticoAsignaciones.isEmpty() || auditoria.activa()) {
             return;
         }
 
@@ -6969,6 +8207,10 @@ class Main extends Agent {
 
         toneladasProductoEnTransito -= viaje.toneladas;
         viaje.stockIngresadoDestino = true;
+
+        // El viaje ya recorrio el arco: sale del origen al salir y entra al destino al llegar
+        // (ADR-061), asi que la duracion real existe recien aca (ADR-064).
+        registrarArcoViajeProducto(viaje);
 
         Deposito destino = buscarDeposito(viaje.destino);
 
@@ -7648,6 +8890,7 @@ class Main extends Agent {
     void pasoDiario_accion() {
         // Secuencia diaria del modelo (ADR-034). El orden es parte de la
         // definicion: cambiarlo cambia el costo y el servicio del dia.
+        fotografiarStockInicialDelDia();         // 0a. foto del inventario antes del dia (ADR-064)
         refrescarTarifasDelDia();                // 0. tarifa vigente de hoy (ADR-051)
         abrirFlotaDelDia();                      // 0b. abrir la capacidad de flota del dia
 
@@ -7683,6 +8926,7 @@ class Main extends Agent {
         reconciliarFlotaProducto();       // C-04: la agenda de camiones es posible (ADR-061)
         reconciliarEnviosEnCurso();       // C-05: ningun bloque del flujo retiene envios (ADR-063)
         reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
+        tomarSnapshotInventarioDelDia();  // C-12: el balance de cada nodo cierra (ADR-064)
         exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)
     }
 }

@@ -4,6 +4,32 @@ Formato: una entrada por cambio relevante del modelo o de las definiciones. Las 
 
 ## [Sin publicar]
 
+### Agregado
+
+- Modelo, **tabla maestra de auditoria de red** (ADR-064): seis tablas por corrida que dejan escrito que alternativas existian, cual se eligio, por que se descartaron las demas, que paso fisicamente despues y cuanto costo. `decisiones_alternativas.csv` (97 columnas), `asignaciones_elegidas.csv` (30), `ejecucion_arcos.csv` (29), `costos_eventos.csv` (27), `snapshot_inventario.csv` (24) y `capacidad_por_dia.csv` (13). La auditoria **observa**: no toca la factibilidad, el ranking ni la politica economica.
+- **Identidad de la decision.** `id_decision = <codigo_pedido>-D<n>` por pedido y por **ronda** del asignador —`asignarConEvaluador()` regenera las alternativas despues de cada asignacion parcial (ADR-055)— e `id_alternativa = <id_decision>-A<n>`, propagados a la asignacion, al contenedor, al envio, a los arcos y al `Cargo`. `run_id = <id_escenario>-R<replica>` es la primera columna de las seis tablas.
+- `AuditoriaRed` (nivel, streaming a csv, conteo de filas y resumen), `RegistroDecisionAlternativa`, `RegistroEjecucionArco` y `SnapshotInventario`.
+- Parametro `nivelAuditoriaRed`: `DESACTIVADA` (default y barrido), `RESUMIDA` (campania normal) y `COMPLETA` (corrida puntual auditada). El experimento `Simulation` corre en `COMPLETA`.
+- `resultados/esquema_auditoria.json`, generado desde los mismos `encabezadoCsv()` que escriben los csv —archivo, columnas y clave de cada tabla, con `version_esquema = ADR-064.1`— y `resultados/manifiesto_auditoria_<run_id>.json` con el conteo de filas de la corrida.
+- Diez tipos de arco fisico, incluidas las **dos esperas** que explican el atraso (portacontenedor y posicion de consolidacion) que el requerimiento no tenia. Un arco se emite al salir del bloque, cuando existen la duracion real y el estado final, reusando los campos que ADR-063 puso para C-05.
+- Catorce codigos de motivo normalizados, entre ellos `NO_TOMADA_AL_EJECUTAR`: una alternativa factible al evaluar que fallo al ejecutar porque otro pedido del mismo dia se llevo el recurso.
+- Reconciliaciones **C-06** (elegidas = asignaciones), **C-07** (toneladas tomadas contra el saldo del pedido por ronda), **C-09** (asignaciones, contenedores y envios), **C-10** (agregado de arcos contra filas escritas), **C-12** (balance diario de cada nodo: `stock_fisico = stock_inicial + ingresos - egresos`) y las aserciones **C-13** (las etapas suman el ciclo del evaluador) y **C-14** (los cargos exportados son los del registro).
+- Documentacion: [Auditoria de red](docs/09_Definicion/Auditoria_de_Red.md) con el diccionario de campos de las seis tablas, las claves, las uniones y la guia para el tablero web, y casos V-AUD-01 a V-AUD-11 en el plan de validacion.
+
+### Cambiado
+
+- `RegistroCostos.Cargo` y la tabla de capacidad de ADR-060 se **extienden** con `run_id` y la identidad de la decision en vez de copiarse a tablas nuevas: duplicarlas armaria una segunda fuente de verdad de costos y un segundo calendario de capacidad. `asignaciones_capacidad_decisiones.csv` queda **deprecado** y se sigue escribiendo solo cuando la auditoria esta apagada.
+- El arco **no lleva importe**: el costo se une por `id_envio`, `id_contenedor`, `id_lote` o `codigo_pedido` contra `costos_eventos`. Un importe repetido en dos tablas es un importe que puede diferir.
+- Las tablas se cierran al **terminar la corrida** (`AfterSimulationRunCode` de los dos experimentos), no el ultimo dia de campania: el flujo sigue moviendo envios despues del ultimo paso diario y esos arcos tambien son hechos de la corrida. El cierre es idempotente y `AuditoriaRed` distingue "activa" de "ya cerrada".
+- `duracion_esperada_horas` negativa significa "no aplica": esperar un portacontenedor o una posicion no tiene techo fisico, igual que en C-05.
+
+### Verificado
+
+- Campania completa de 365 dias `Finished` en `COMPLETA` con `datos/entrada_ejemplo.xlsx`: 25 524 alternativas evaluadas en 1 418 decisiones de hasta 3 rondas, 11 020 arcos de 9 tipos, 108 007 cargos, 3 385 snapshots con **descuadre 0**, 398 alternativas mas baratas no factibles y espera de posicion promedio de 65,7 h.
+- **Corrida pareada** con la auditoria apagada: mismas 1 987 asignaciones **byte a byte**, mismas 3 276 filas de capacidad salvo el `run_id`, y los mismos KPIs (30 343 tn exportadas, servicio 95 %, 5 870 256 USD de caja). Sin diferencia material de tiempo de ejecucion.
+- El **barrido no se corrio**, por pedido explicito.
+
+
 ### Corregido
 
 - Modelo, **la concurrencia del flujo la fijan los recursos, no la capacidad de un bloque** (ADR-063). `cargarCamion`, `viajarPuerto`, `descargarPuerto` y `consolidarCarga` habian quedado con la capacidad por default de la libreria, que es **1**. Con `viajarPuerto` en capacidad 1 solo podia haber un contenedor viajando a terminal en toda la red y, a 17,14 h por tramo, el techo era de **511 contenedores por campania**: con `datos/entrada_ejemplo.xlsx` quedaban **1 066 envios congelados** dentro de `viajarVacioAlOrigen` y 1 069 de los 1 500 portacontenedores tomados. Los cuatro bloques pasan a `maximumCapacity = true`.

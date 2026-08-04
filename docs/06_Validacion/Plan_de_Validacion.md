@@ -943,3 +943,28 @@ El **barrido no se corrio** en esta tanda, por pedido explicito. La comparacion 
 | Envios retenidos | 1 066 (sin deteccion) | **0**, C-05 verde los 365 dias |
 
 Ambas corridas son 365 dias `Finished` con `datos/entrada_ejemplo.xlsx`, con C-01 a C-04 en verde. El **barrido no se corrio**: todos los barridos anteriores (`fase-26`, `fase-27`) se midieron contra el techo artificial de 511 contenedores y **no son comparables**; la comparacion entre escenarios queda pendiente para `fase-28`.
+
+## V-AUD. Auditoria de red (ADR-064)
+
+**Que se valida:** que las tablas digan la verdad sobre lo que el modelo hizo, que no dupliquen ninguna fuente de verdad y que activar la auditoria **no cambie ninguna decision**.
+
+Corrida de referencia: `datos/entrada_ejemplo.xlsx`, escenario `E-00`, replica 0, 365 dias `Finished`, `nivelAuditoriaRed = COMPLETA`.
+
+| Caso | Que verifica | Como se midio |
+|---|---|---|
+| V-AUD-01 | Las seis tablas se escriben y cierran completas | **Verificado** por corrida: 25 524 filas de decisiones (97 columnas), 1 418 asignaciones (30), 11 020 arcos (29), 108 007 cargos (27), 3 385 snapshots de inventario (24) y 3 276 filas de capacidad (13), 45 MB en total. El resumen al cierre no informa ninguna fila posterior al cierre, o sea que no se perdio ni una |
+| V-AUD-02 | Las claves primarias son unicas | **Verificado** por lectura de los csv: 0 duplicados en `(run_id, id_alternativa)`, `(run_id, id_asignacion)`, `(run_id, id_evento_arco)`, `(run_id, id_costo)`, `(run_id, dia, ubicacion, producto)` y `(run_id, dia, tipo_recurso, ubicacion)`. `run_id` es unico y no vacio en las seis tablas (`E-00-R0`) |
+| V-AUD-03 | El esquema publicado no puede divergir del csv | **Verificado** por comparacion: para las seis tablas, la lista de columnas de `esquema_auditoria.json` es **igual** al encabezado real del archivo, y cada clave declarada existe entre las columnas. `version_esquema = ADR-064.1` aparece tambien en el manifiesto |
+| V-AUD-04 | C-06: las alternativas `ELEGIDA` son las asignaciones ejecutadas | **Verificado** por corrida y por lectura: 1 418 `ELEGIDA` y 1 418 asignaciones, todas con `id_alternativa`, y **0** asignaciones cuyo `id_alternativa` no este en la tabla de decisiones. C-06 corre como reconciliacion al cierre y no aborto |
+| V-AUD-05 | La identidad de la decision llega hasta el costo | **Verificado** por lectura: 9 375 de 11 020 arcos traen `id_decision` —los 1 645 que no son los viajes preventivos planta-deposito, el cross dock y la espera de posicion, que no nacen de una decision de circuito— y los 10 698 cargos de alcance `CONTENEDOR` traen `id_asignacion`. La ronda existe: 1 418 decisiones con hasta 3 rondas por pedido |
+| V-AUD-06 | C-12: el balance diario de cada nodo cierra | **Verificado** por corrida: 3 385 filas, `descuadre_tn` maximo **0,0001 tn** y **0** filas por encima de la tolerancia, en los 365 dias y las 6 ubicaciones con movimiento. C-12 aborta si algun dia no cierra |
+| V-AUD-07 | Los motivos de descarte son los que el codigo produce | **Verificado** por lectura: `SIN_STOCK` 6 652, `SIN_STOCK_ESPACIO_O_CUPO` 5 220, `TRANSFERENCIA_DEPOSITO_DEPOSITO` 1 418, `SIN_CAPACIDAD_ANTES_CUTOFF` 501, y vacio en las 11 733 filas que no son descartes. `resultado_ejecucion` reparte 1 418 `ELEGIDA`, 10 315 `NO_INTENTADA` y 13 791 `NO_FACTIBLE` |
+| V-AUD-08 | La tabla mide el costo de la restriccion | **Verificado** por lectura: **398 alternativas mas baratas no factibles** (`es_mas_barata_no_factible`), y la espera de posicion de consolidacion promedia **65,7 h** sobre 585 arcos. Son las dos preguntas que antes no se podian responder |
+| V-AUD-09 | Ninguna tabla duplica una fuente de verdad | **Verificado** por construccion auditada y por lectura: los importes salen solo de `costos_eventos` (`CAJA` 5 870 256 USD, que es el total del tablero, y `ECONOMICO` 411 140 aparte), el arco **no** tiene columna de importe, y la capacidad sale de la agenda de ADR-060 con `run_id` agregado, sin un segundo calendario |
+| V-AUD-10 | La auditoria no cambia ninguna decision (corrida pareada) | **Verificado** por corrida pareada `COMPLETA` / `DESACTIVADA` con el mismo libro y la misma semilla: `asignaciones_capacidad.csv` (1 987 filas) sale **identico byte a byte** y las 3 276 filas de `capacidad_por_dia.csv` son identicas salvo el `run_id`, que solo existe con la auditoria activa. Los KPIs coinciden en todo el tablero: 30 343 tn exportadas, servicio 95 %, 1 987 contenedores, 1 060 viajes planta-deposito, 1 887 consolidaciones, 4 atrasados, atraso 0,8 dias y 5 870 256 USD de caja |
+| V-AUD-11 | Costo de rendimiento de la auditoria | **Medido, sin diferencia material**: las dos campanias de 365 dias tardaron aproximadamente lo mismo (unos 8 minutos de reloj en PLE); la corrida auditada escribe 45 MB en streaming y no acumula registros en memoria. No se probo el barrido con auditoria activada: el barrido corre en `DESACTIVADA` |
+
+Dos errores reales aparecieron corriendo estos casos y quedaron arreglados: la alternativa sintetica de transferencia deposito-deposito usa `DEPOSITO` como marcador y no es un nodo de la red (la auditoria de etapas abortaba con `Falta la ubicacion DEPOSITO`), y el arco del contenedor vacio va terminal -> origen mientras la tabla `Distancia` declara un solo sentido por tramo (abortaba con `Falta la distancia T4 -> DODERO`). La instrumentacion usa la lectura simetrica; la logica fisica original no cambio.
+
+El **barrido no se corrio** en esta tanda, por pedido explicito.
+

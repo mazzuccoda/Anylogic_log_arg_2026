@@ -385,6 +385,8 @@ Simétricas a la entrada, siempre con `id_escenario`, `replica`, `semilla` y `ve
 | `esperas_recursos.csv` | Operaciones postergadas por día, recurso y causa |
 | `errores_entrada.csv` | Validaciones fallidas |
 
+Las salidas de **auditoría de red** (ADR-064) tienen contrato propio, con diccionario de campos, claves y uniones: [Auditoría de red](Auditoria_de_Red.md). Son seis tablas por corrida, todas con `run_id`, y su esquema se publica en `resultados/esquema_auditoria.json` generado desde el propio modelo.
+
 ## 12. Columnas de flota multidiaria (ADR-061)
 
 Dos columnas nuevas, opcionales, en la hoja `Escenario`. Un libro que no las trae corre igual con los valores por defecto.

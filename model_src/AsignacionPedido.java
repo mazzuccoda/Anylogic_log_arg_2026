@@ -19,6 +19,14 @@ public class AsignacionPedido implements java.io.Serializable {
 	public String codigoPedido = "";
 	public String idSitioOrigen = "";
 
+	/**
+	 * Decision y alternativa que crearon esta asignacion (ADR-064). Es la unica copia de la
+	 * identidad de la decision en el mundo fisico: el contenedor y el envio ya llevan
+	 * idAsignacionPedido, asi que repetirla en ellos seria una copia que puede quedar vieja.
+	 */
+	public String idDecision = "";
+	public String idAlternativa = "";
+
 	public TipoProducto producto = TipoProducto.JUGO;
 	public EstrategiaLogistica circuito = EstrategiaLogistica.SIN_DEFINIR;
 	public boolean esCrossDock = false;
@@ -89,6 +97,53 @@ public class AsignacionPedido implements java.io.Serializable {
 		if (!cancelada && toneladasEntregadas >= toneladasAsignadas - EPS) {
 			cerrada = true;
 		}
+	}
+
+	public static String encabezadoCsv() {
+		return "run_id,escenario,replica,id_asignacion,id_decision,id_alternativa,"
+				+ "codigo_pedido,producto,origen,circuito,es_cross_dock,prioridad,"
+				+ "dia_asignacion,dia_primer_despacho,dia_ultima_entrega,"
+				+ "toneladas_asignadas,toneladas_reservadas_activas,toneladas_contenerizadas,"
+				+ "toneladas_despachadas,toneladas_entregadas,"
+				+ "contenedores_creados,contenedores_entregados,"
+				+ "costo_incremental_estimado,costo_end_to_end_estimado,"
+				+ "costo_real_contenedores_usd,desvio_costo_usd,"
+				+ "dias_ciclo_real,cerrada,cancelada,motivo_asignacion";
+	}
+
+	/**
+	 * Fila de asignaciones_elegidas. El costo real es el de los cargos de sus contenedores:
+	 * el almacenaje y el flete de guarda se devengan contra el lote y no contra una
+	 * asignacion, asi que repartirlos aca seria inventar una atribucion.
+	 */
+	public String toCsv(String runId, String escenario, int replica, double costoRealContenedores,
+			int contenedoresCreados, int contenedoresEntregados) {
+		double ciclo =
+				diaUltimaEntrega < 0 || diaAsignacion < 0
+				? -1
+				: diaUltimaEntrega - diaAsignacion;
+
+		return AuditoriaRed.txt(runId) + "," + AuditoriaRed.txt(escenario) + ","
+				+ AuditoriaRed.ent(replica) + "," + AuditoriaRed.txt(idAsignacion) + ","
+				+ AuditoriaRed.txt(idDecision) + "," + AuditoriaRed.txt(idAlternativa) + ","
+				+ AuditoriaRed.txt(codigoPedido) + "," + AuditoriaRed.txt("" + producto) + ","
+				+ AuditoriaRed.txt(idSitioOrigen) + "," + AuditoriaRed.txt("" + circuito) + ","
+				+ AuditoriaRed.si(esCrossDock) + "," + AuditoriaRed.ent(prioridad) + ","
+				+ AuditoriaRed.num(diaAsignacion) + "," + AuditoriaRed.num(diaPrimerDespacho) + ","
+				+ AuditoriaRed.num(diaUltimaEntrega) + ","
+				+ AuditoriaRed.num(toneladasAsignadas) + ","
+				+ AuditoriaRed.num(toneladasReservadasActivas) + ","
+				+ AuditoriaRed.num(toneladasContenerizadas) + ","
+				+ AuditoriaRed.num(toneladasDespachadas) + ","
+				+ AuditoriaRed.num(toneladasEntregadas) + ","
+				+ AuditoriaRed.ent(contenedoresCreados) + ","
+				+ AuditoriaRed.ent(contenedoresEntregados) + ","
+				+ AuditoriaRed.num(costoIncrementalEstimado) + ","
+				+ AuditoriaRed.num(costoEndToEndEstimado) + ","
+				+ AuditoriaRed.num(costoRealContenedores) + ","
+				+ AuditoriaRed.num(costoRealContenedores - costoIncrementalEstimado) + ","
+				+ AuditoriaRed.num(ciclo) + "," + AuditoriaRed.si(cerrada) + ","
+				+ AuditoriaRed.si(cancelada) + "," + AuditoriaRed.txt(motivoAsignacion);
 	}
 
 	public String descripcion() {

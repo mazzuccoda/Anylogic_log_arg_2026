@@ -8,6 +8,7 @@ Este directorio contiene la documentación técnica viva del modelo.
 - [Definición del proyecto](09_Definicion/Definicion_del_Proyecto.md) — alcance vigente, prevalece ante conflicto
 - [Contrato de datos de entrada](09_Definicion/Contrato_de_Datos.md)
 - [Escenarios y experimentos](09_Definicion/Escenarios_y_Experimentos.md)
+- [Auditoría de red: tablas de salida](09_Definicion/Auditoria_de_Red.md) — las seis tablas de auditoría, su diccionario de campos y cómo consumirlas
 
 ## Manual
 

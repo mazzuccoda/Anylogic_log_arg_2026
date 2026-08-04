@@ -42,6 +42,44 @@ public class Inventario implements java.io.Serializable {
 
 	private static final PorAntiguedad FIFO = new PorAntiguedad();
 
+	/**
+	 * Ingresos y egresos fisicos del dia por ubicacion y producto (ADR-064): [ingreso, egreso].
+	 *
+	 * Se cuenta aca y no en quien llama porque aca estan todas las mutaciones: contarlo en el
+	 * modelo obligaria a acordarse en cada punto nuevo, y un movimiento no contado hace que el
+	 * balance diario del nodo cierre por casualidad.
+	 */
+	public final java.util.LinkedHashMap<String, double[]> flujoDia =
+			new java.util.LinkedHashMap<String, double[]>();
+
+	private void anotarFlujo(String idUbicacion, TipoProducto producto, double toneladas,
+			boolean ingreso) {
+		if (toneladas <= EPS) {
+			return;
+		}
+		String clave = idUbicacion + "|" + producto;
+		double[] flujo = flujoDia.get(clave);
+		if (flujo == null) {
+			flujo = new double[2];
+			flujoDia.put(clave, flujo);
+		}
+		flujo[ingreso ? 0 : 1] += toneladas;
+	}
+
+	public double ingresosDia(String idUbicacion, TipoProducto producto) {
+		double[] flujo = flujoDia.get(idUbicacion + "|" + producto);
+		return flujo == null ? 0 : flujo[0];
+	}
+
+	public double egresosDia(String idUbicacion, TipoProducto producto) {
+		double[] flujo = flujoDia.get(idUbicacion + "|" + producto);
+		return flujo == null ? 0 : flujo[1];
+	}
+
+	public void reiniciarFlujoDia() {
+		flujoDia.clear();
+	}
+
 	public Capa ingresar(int idLote, TipoProducto producto, String idUbicacion,
 			double toneladas, double dia, double diaProduccion) {
 		if (toneladas <= EPS) {
@@ -50,6 +88,7 @@ public class Inventario implements java.io.Serializable {
 		Capa capa = new Capa(idLote, producto, idUbicacion, toneladas, dia, diaProduccion);
 		capa.idCapa = ++secuenciaCapa;
 		capas.add(capa);
+		anotarFlujo(idUbicacion, producto, toneladas, true);
 		return capa;
 	}
 
@@ -269,6 +308,7 @@ public class Inventario implements java.io.Serializable {
 			pendiente -= toma;
 		}
 		limpiar();
+		anotarFlujo(idUbicacion, producto, toneladas - pendiente, false);
 		return toneladas - pendiente;
 	}
 
@@ -291,6 +331,8 @@ public class Inventario implements java.io.Serializable {
 		}
 		capas.addAll(nuevas);
 		limpiar();
+		anotarFlujo(origen, producto, toneladas - pendiente, false);
+		anotarFlujo(destino, producto, toneladas - pendiente, true);
 		return toneladas - pendiente;
 	}
 
@@ -321,6 +363,10 @@ public class Inventario implements java.io.Serializable {
 		}
 		capas.addAll(nuevas);
 		limpiar();
+		if (!nuevas.isEmpty()) {
+			anotarFlujo(origen, nuevas.get(0).producto, toneladas - pendiente, false);
+			anotarFlujo(destino, nuevas.get(0).producto, toneladas - pendiente, true);
+		}
 		return toneladas - pendiente;
 	}
 
@@ -383,6 +429,7 @@ public class Inventario implements java.io.Serializable {
 			pendiente -= toma;
 		}
 		limpiar();
+		anotarFlujo(idUbicacion, producto, toneladas - pendiente, false);
 		return toneladas - pendiente;
 	}
 
@@ -418,6 +465,7 @@ public class Inventario implements java.io.Serializable {
 			c.quitarReserva(clave, toma);
 			c.toneladas -= toma;
 			pendiente -= toma;
+			anotarFlujo(idUbicacion, c.producto, toma, false);
 		}
 		limpiar();
 		return toneladas - pendiente;
