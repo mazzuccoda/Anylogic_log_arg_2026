@@ -198,6 +198,14 @@ stateDiagram-v2
 
 No se libera el recurso durante la espera de carga.
 
+### 9.1 El round trip empieza y termina en la terminal (ADR-062)
+
+El ciclo físico del portacontenedor tiene **tres tramos**, no cuatro: retiro del vacío en terminal, viaje vacío al sitio de consolidación, carga, viaje cargado a terminal, descarga/ingreso y liberación del recurso. La cadena del flowchart para los circuitos 1 a 3 es `colaCamiones → tomarCamion → viajarVacioAlOrigen → cargarCamion → viajarPuerto → descargarPuerto → liberarCamion`: el portacontenedor queda disponible **en la terminal**, que es donde empieza el ciclo siguiente, y no se simula ningún regreso al origen. `tiempoRetornoHoras` queda en 0 y sobrevive sólo por compatibilidad de datos.
+
+Los ocho Delay del flujo están expresados en **horas** (`HOUR`), no en días: `viajarVacioAlOrigen`, `cargarGranel`, `viajarTerminalGranel`, `descargarTerminal`, `cargarCamion`, `viajarPuerto`, `descargarPuerto` y `consolidarCarga`.
+
+La **fecha de servicio** del envío es el instante en que el producto queda listo en terminal (`diaListoEnTerminal`): fin de `descargarPuerto` en los circuitos 1 a 3 y fin de `consolidarCarga` en el circuito 4, que es cuando el contenedor existe. Con esa fecha se miden la entrega, el cut-off y el atraso. El **día de devengo** de los cargos de cierre es otro dato (`diaCargosCierre`, el día de campaña del registro): el servicio es físico y el cargo es contable, y confundirlos hacía fallar la auditoría por envío cuando el cierre cruzaba la medianoche.
+
 ## 10. Ingreso a terminal
 
 1. El contenedor llega cargado.

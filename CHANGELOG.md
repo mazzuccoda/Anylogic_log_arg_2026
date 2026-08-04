@@ -4,6 +4,18 @@ Formato: una entrada por cambio relevante del modelo o de las definiciones. Las 
 
 ## [Sin publicar]
 
+### Cambiado
+
+- Modelo, **el round trip del portacontenedor termina en la terminal** (ADR-062). El flujo de los circuitos 1 a 3 pasa a ser `... → viajarPuerto → descargarPuerto → liberarCamion`: se elimina el bloque `retornarDeposito`, que agregaba un **cuarto tramo fisico** (terminal → origen → terminal → origen) que no existe en la operacion. El portacontenedor queda disponible en la terminal, que es donde empieza el ciclo siguiente.
+- `envio.tiempoRetornoHoras = 0`. El campo se conserva por compatibilidad de datos, pero ya no representa ningun Delay.
+- La **fecha de servicio** del envio es `diaListoEnTerminal` —fin de `descargarPuerto` en los circuitos 1 a 3 y fin de `consolidarCarga` en el circuito 4, que es cuando el contenedor existe— y con ella se fijan `envio.diaEntrega`, `asignacion.diaUltimaEntrega`, las toneladas dentro y fuera del cut-off, `pedido.diaEntrega` y `pedido.diasAtraso`. `finalizarEnvio()` sigue siendo el unico punto de cierre.
+- Casos de validacion V-RT-S-01 a V-RT-S-07, medidos con corridas pareadas antes/despues: el ciclo pasa de 9 h a 7 h a 100 km y de 54,4 h a 37,3 h a 1 200 km, y en el caso de dos contenedores por pedido las toneladas dentro del cut-off pasan de 0 a 144 de 288.
+
+### Agregado
+
+- `Envio.diaListoEnTerminal`: el instante fisico en que el producto queda listo en terminal, separado de `diaLlegadaTerminal` (gate-in) y del cierre administrativo.
+- `Envio.diaCargosCierre`: el dia de campania en que se devengan los cargos de cierre. `costoEsperadoCircuito()` derivaba la tarifa con `floor(envio.diaEntrega)` mientras el devengo usaba `diaCampania()`, asi que al adelantar la fecha de servicio un cruce de medianoche cortaba la corrida en la auditoria por envio. El servicio es fisico; el cargo es contable.
+
 ### Agregado
 
 - Modelo, **flota de producto como camiones discretos con viajes multidiarios** (ADR-061). Un viaje que no entra en una jornada ya puede empezar: el camion queda ocupado hasta que vuelve, el producto sale del origen al salir el viaje y entra al inventario del destino al llegar.

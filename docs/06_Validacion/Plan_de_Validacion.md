@@ -883,3 +883,36 @@ Doce casos. El barrido **no** se corrio en esta tanda por pedido explicito: la e
 | Flota chica, agenda apagada | 3 camiones, 10 h | 365 dias `Finished`; utilizacion 7 %, 548 viajes, servicio 4 %, exportado 7 436 tn |
 
 Dos errores reales aparecieron en estas corridas y estan corregidos: el retorno pedia la fila inversa de `Distancia` (que la tabla no trae) y C-04 contaba como superposicion tener el viaje en curso con el siguiente ya programado para cuando el camion vuelve, que es una agenda legitima.
+
+## V-RT-S. El round trip del portacontenedor termina en la terminal (ADR-062)
+
+Siete casos. El barrido **no** se corrio, por pedido explicito. La evidencia son corridas pareadas **antes/despues** con tres libros minimos deterministas (`/home/ubuntu/rt_tests/`, 20 dias, sin produccion, stock inicial en FRINOA, `politica_seleccion = FIJA_DEPOSITO`, cross dock apagado) mas la campana completa desde el libro real. "Antes" es el modelo de `main` en ADR-061 y "despues" es este cambio; los dos se corrieron con la misma instrumentacion temporal, que solo vuelca tiempos y fechas y no toca ninguna decision.
+
+| Caso | Qué verifica | Resultado |
+|---|---|---|
+| V-RT-S-01 | El ciclo fisico no tiene un cuarto tramo | **Verificado** por corrida pareada (RT-01: 100 km, 50 km/h, carga 2 h, descarga 1 h). Antes: llegada a terminal en 6 h y cierre en **9 h** (0,375 d). Despues: cierre en **7 h** (0,2916667 d) = 2 + 2 + 2 + 1. El viaje de 2 h de mas desaparecio y `ret=0.0` en las seis trazas |
+| V-RT-S-02 | Los Delay estan en horas, no en dias | **Verificado** por corrida (RT-02: 1 200 km, 70 km/h). Cada tramo dura `17,142857` **horas** (0,714286 d), no 17,14 dias: la llegada a terminal cae en el dia 3,5119 para un envio creado el dia 2. El ciclo pasa de **54,4 h** (antes) a **37,3 h** (despues) |
+| V-RT-S-03 | El servicio se mide con el instante fisico, no con el cierre administrativo | **Verificado** por corrida pareada (RT-03, cut-off dos dias despues del conocimiento). El primer contenedor de cada pedido llega a terminal el dia 3,5119 y queda listo el 3,5536, **dentro** del cut-off del dia 4; antes cerraba el dia 4,2679 y lo perdia. Ademas la fecha de servicio y la de devengo quedan separadas y visibles: `entrega = 4,2679` con `cargos = 4` |
+| V-RT-S-04 | El pedido de dos contenedores se entrega con el segundo | **Verificado** por corrida (RT-03, 48 tn = 2 contenedores). Al cerrar el primero el pedido sigue abierto (`pedido.diaEntrega = -1`); al cerrar el segundo toma **su** fecha de servicio (`4,267857`), que es `diaListoEnTerminal` del segundo contenedor |
+| V-RT-S-05 | El portacontenedor se libera al terminar la descarga | **Verificado** por corrida: en las 24 trazas de cierre de las tres corridas `cierre == diaListoEnTerminal` con diferencia 0, es decir el envio sale del flujo en el mismo instante en que termina `descargarPuerto`, y el tablero cierra con 0 portacontenedores ocupados |
+| V-RT-S-06 | Un solo round trip por contenedor | **Verificado** por corrida: 12 contenedores, 12 registros de round trip, `rt = 2 700 USD` en cada uno y ninguno repetido. El importe es **identico** antes y despues: el cambio es fisico, no tarifario |
+| V-RT-S-07 | Las toneladas dentro y fuera del cut-off reconcilian | **Verificado** por corrida (RT-03): `144 + 144 = 288 tn`, exactamente las toneladas de los 12 envios entregados y las 288 tn que informa el tablero como exportadas |
+
+### Corridas de esta tanda
+
+**Ejecutado:** 2026-07-24 en AnyLogic PLE 8.9.9, modelo `fase-28`.
+
+| Corrida | Libro | Antes (ADR-061) | Despues (ADR-062) |
+|---|---|---|---|
+| RT-01 — 100 km, 50 km/h | `rt_tests/RT-01.xlsx` | ciclo 9,0 h; atraso medio 0,4 d | ciclo **7,0 h**; atraso medio **0,3 d** |
+| RT-02 — 1 200 km, 70 km/h | `rt_tests/RT-02.xlsx` | ciclo 54,4 h; atraso medio 2,3 d | ciclo **37,3 h**; atraso medio **1,6 d** |
+| RT-03 — 2 contenedores por pedido, cut-off a 2 dias | `rt_tests/RT-03.xlsx` | 0 de 288 tn dentro del cut-off (servicio 0 %); atraso medio 1,0 d | **144 de 288 tn** dentro del cut-off (servicio 50 %); atraso medio **0,3 d** |
+
+Las tres corridas mueven las mismas 288 tn (RT-03) o 144 tn (RT-01/02) y devengan el mismo round trip: lo unico que cambia es el tiempo.
+
+| Corrida | Libro | Resultado |
+|---|---|---|
+| Build | — | `Build completed successfully`, 0 errores |
+| Campana completa | `datos/entrada_ejemplo.xlsx` | 365 dias `Finished` sin excepciones; C-01 a C-04 en verde; 1 983 contenedores, 979 envios entregados, 989 viajes planta→deposito y 23 417 tn transferidas —los mismos volumenes fisicos que ADR-061—, servicio 28 % (contra 27 %) y exportado 14 612 tn (contra 14 611). El ciclo del portacontenedor se sigue devengando una vez por contenedor |
+
+El **barrido no se corrio** en esta tanda, por pedido explicito. La comparacion entre escenarios con estos tiempos queda pendiente para la proxima tanda de `fase-28`.
