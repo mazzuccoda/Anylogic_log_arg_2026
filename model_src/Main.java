@@ -170,7 +170,6 @@ class Main extends Agent {
     //  viajarPuerto
     //  descargarPuerto
     //  consolidarCarga
-    //  retornarDeposito
     //  liberarCamion
     //  salidaEnvios
     //  entradaEnvios
@@ -733,10 +732,10 @@ class Main extends Agent {
                 / envio.terminalDestino
                     .velocidadConsolidacionTnHora;
 
-        envio.tiempoRetornoHoras =
-            conPortacontenedor
-            ? distancia / velocidadCamion
-            : 0;
+        // El round trip del portacontenedor empieza y termina en la terminal: el tramo vacio y
+        // el cargado ya son el ciclo completo. El retorno a origen era un cuarto tramo que no
+        // existe en la operacion (ADR-062). El campo queda por compatibilidad, en cero.
+        envio.tiempoRetornoHoras = 0;
 
         // El ciclo del portacontenedor se cotiza por contenedor y por circuito, no por
         // kilometro: la tarifa cubre terminal -> origen -> terminal (ADR-051). El circuito de
@@ -2668,6 +2667,10 @@ class Main extends Agent {
         // de terminal en el circuito de terminal (ADR-053).
         envio.costoCargosReal +=
             registrarCargosTerminal(envio);
+
+        // Circuito 4: el servicio no queda cumplido cuando llega el granel sino cuando el
+        // contenedor esta armado, que es lo que el evaluador prometio (ADR-062).
+        envio.diaListoEnTerminal = time();
     }
 
     void finalizarEnvio(Envio envio) {
@@ -2676,8 +2679,19 @@ class Main extends Agent {
         envio.estado =
             EstadoEnvio.ENTREGADO;
 
-        envio.diaEntrega =
-            time();
+        // El servicio se mide en el instante fisico en que el envio queda listo en la terminal
+        // (fin de descarga en los circuitos 1 a 3, fin de consolidacion en el 4) y no cuando
+        // corre el cierre administrativo (ADR-062).
+        double fechaEntrega =
+            envio.diaListoEnTerminal >= 0
+            ? envio.diaListoEnTerminal
+            : time();
+
+        envio.diaEntrega = fechaEntrega;
+
+        // Los cargos, en cambio, se devengan el dia en que se registran: la auditoria por envio
+        // tiene que reconstruirlos con la tarifa de ese dia y no con la del servicio (ADR-062).
+        envio.diaCargosCierre = diaCampania();
 
         Pedido pedido =
             envio.pedido;
@@ -2692,13 +2706,13 @@ class Main extends Agent {
         if (asignacion != null) {
 
             asignacion.toneladasEntregadas += envio.toneladas;
-            asignacion.diaUltimaEntrega = time();
+            asignacion.diaUltimaEntrega = fechaEntrega;
             asignacion.cerrarSiCompleta();
         }
 
         // El servicio se mide contra el cut-off fisico y por tonelada: media entrega a
         // tiempo no es medio buque perdido, pero tampoco es servicio completo (ADR-059).
-        if (time() <= pedido.diaLimite + 0.0001) {
+        if (fechaEntrega <= pedido.diaLimite + 0.0001) {
             toneladasEntregadasAntesCutoff += envio.toneladas;
         } else {
             toneladasEntregadasFueraCutoff += envio.toneladas;
@@ -2712,7 +2726,7 @@ class Main extends Agent {
                 EstadoPedido.ENTREGADO;
 
             pedido.diaEntrega =
-                time();
+                fechaEntrega;
 
             pedido.diasAtraso =
                 max(
@@ -3361,7 +3375,12 @@ class Main extends Agent {
 
         int diaLlegada = (int) Math.floor(envio.diaLlegadaTerminal);
 
-        int diaCierre = (int) Math.floor(envio.diaEntrega);
+        // Dia del devengo del cierre, no el del servicio: el envio puede quedar listo en la
+        // terminal un dia y cerrarse en otro, y la tarifa cobrada es la del registro (ADR-062).
+        int diaCierre =
+            envio.diaCargosCierre >= 0
+            ? (int) envio.diaCargosCierre
+            : (int) Math.floor(envio.diaEntrega);
 
         int contenedores =
             contenedoresNecesarios(envio.producto, envio.toneladas);
