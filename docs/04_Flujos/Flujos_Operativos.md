@@ -206,6 +206,14 @@ Los ocho Delay del flujo están expresados en **horas** (`HOUR`), no en días: `
 
 La **fecha de servicio** del envío es el instante en que el producto queda listo en terminal (`diaListoEnTerminal`): fin de `descargarPuerto` en los circuitos 1 a 3 y fin de `consolidarCarga` en el circuito 4, que es cuando el contenedor existe. Con esa fecha se miden la entrega, el cut-off y el atraso. El **día de devengo** de los cargos de cierre es otro dato (`diaCargosCierre`, el día de campaña del registro): el servicio es físico y el cargo es contable, y confundirlos hacía fallar la auditoría por envío cuando el cierre cruzaba la medianoche.
 
+### 9.2 Ningún bloque del flujo limita la concurrencia (ADR-063)
+
+Los `Delay` del flowchart representan **duración**, no capacidad. Los nueve bloques del flujo (`colaCamiones`, `viajarVacioAlOrigen`, `cargarCamion`, `viajarPuerto`, `descargarPuerto`, `cargarGranel`, `viajarTerminalGranel`, `descargarTerminal` y `consolidarCarga`) corren con `maximumCapacity = true`. Cuántas operaciones simultáneas hay lo fijan los recursos, que son los que se dimensionan y se cobran: el pool de portacontenedores, las posiciones de consolidación por sitio y día (ADR-060), el cupo de cross dock, `contenedores_por_dia` y la flota de producto (ADR-061).
+
+Dejar la capacidad por default de la librería (1) convierte un tramo en un cuello de botella que no existe: con `viajarPuerto` en capacidad 1 sólo puede haber un contenedor viajando a terminal en toda la red y, a 17,14 h por tramo, el techo es de 511 contenedores por campaña.
+
+**C-05** lo audita todos los días. Cada envío declara en qué bloque está, desde cuándo y cuánto debería durar; un envío que supera su duración física más `toleranciaRetencionEnvioDias` aborta la corrida nombrando el bloque que más retiene. La espera de un recurso finito (`colaCamiones`) no tiene techo: esperar ahí es la conducta correcta. El tablero muestra `Envíos: N · en curso: M` con el detalle por bloque.
+
 ## 10. Ingreso a terminal
 
 1. El contenedor llega cargado.

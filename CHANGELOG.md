@@ -4,6 +4,18 @@ Formato: una entrada por cambio relevante del modelo o de las definiciones. Las 
 
 ## [Sin publicar]
 
+### Corregido
+
+- Modelo, **la concurrencia del flujo la fijan los recursos, no la capacidad de un bloque** (ADR-063). `cargarCamion`, `viajarPuerto`, `descargarPuerto` y `consolidarCarga` habian quedado con la capacidad por default de la libreria, que es **1**. Con `viajarPuerto` en capacidad 1 solo podia haber un contenedor viajando a terminal en toda la red y, a 17,14 h por tramo, el techo era de **511 contenedores por campania**: con `datos/entrada_ejemplo.xlsx` quedaban **1 066 envios congelados** dentro de `viajarVacioAlOrigen` y 1 069 de los 1 500 portacontenedores tomados. Los cuatro bloques pasan a `maximumCapacity = true`.
+- Con el arreglo, la campania completa pasa de **13 749 a 30 343 tn** exportadas de 30 656 recibidas, el servicio de **25 % a 95 %**, los pedidos atrasados de **708 a 4** y el atraso medio de **46,2 a 0,8 dias**, sin relajar ninguna restriccion real: los portacontenedores ocupados al cierre pasan de 1 069 a **21 de 1 500**.
+- Los KPIs de todas las corridas anteriores —incluidos los barridos `fase-26` y `fase-27`— se midieron contra ese techo artificial y **no son comparables**. El CSV pasa a `fase-28`.
+
+### Agregado
+
+- **C-05**, reconciliacion diaria de envios en curso (`reconciliarEnviosEnCurso()`): cada envio declara en que bloque esta, desde cuando y cuanto deberia durar, y la corrida aborta nombrando el bloque que mas retiene si alguno supera su duracion fisica mas `toleranciaRetencionEnvioDias`. La espera de un recurso finito (`colaCamiones`) no tiene techo. Devuelta la capacidad de 1 a `viajarPuerto`, C-05 aborta el dia 10.
+- `Envio.bloqueActual`, `Envio.diaEntradaBloque` y `Envio.horasEsperadasBloque`, que registra `registrarEtapaEnvio()` en el `onEnter` de los nueve bloques del flujo.
+- KPIs `enviosEnCurso`, `enviosRetenidos`, `enviosRetenidosPico`, `toneladasEnviosEnCurso` y `detalleEnviosEnCurso`. El tablero muestra `Envios: N · en curso: M` con el detalle por bloque; el KPI anterior (`en transito`) contaba transito de flota de producto y mostraba 0 mientras 1 066 envios estaban congelados en el flowchart.
+
 ### Cambiado
 
 - Modelo, **el round trip del portacontenedor termina en la terminal** (ADR-062). El flujo de los circuitos 1 a 3 pasa a ser `... → viajarPuerto → descargarPuerto → liberarCamion`: se elimina el bloque `retornarDeposito`, que agregaba un **cuarto tramo fisico** (terminal → origen → terminal → origen) que no existe en la operacion. El portacontenedor queda disponible en la terminal, que es donde empieza el ciclo siguiente.

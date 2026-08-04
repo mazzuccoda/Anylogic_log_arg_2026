@@ -31,6 +31,12 @@ class Main extends Agent {
     double costoConsolidacionReal = 0;
     Inventario inventario = new Inventario();
     int contenedoresEnEspera = 0;
+    double toleranciaRetencionEnvioDias = 1.0;
+    int enviosEnCurso = 0;
+    int enviosRetenidos = 0;
+    int enviosRetenidosPico = 0;
+    double toneladasEnviosEnCurso = 0;
+    String detalleEnviosEnCurso = "";
     double esperaConsolidacionContenedorDia = 0;
     int consolidacionesRealizadas = 0;
     double capacidadConsolidacionOfrecida = 0;
@@ -2673,6 +2679,116 @@ class Main extends Agent {
         envio.diaListoEnTerminal = time();
     }
 
+    void registrarEtapaEnvio(Envio envio, String bloque, double horasEsperadas) {
+        // C-05: cada envio declara en que bloque del flujo esta y cuanto deberia durar. Una
+        // espera de recurso no tiene techo (horasEsperadas < 0); un Delay si (ADR-063).
+        if (envio == null) {
+            return;
+        }
+
+        envio.bloqueActual = bloque;
+        envio.diaEntradaBloque = time();
+        envio.horasEsperadasBloque = horasEsperadas;
+    }
+
+    void reconciliarEnviosEnCurso() {
+        // C-05: ningun bloque del flujo puede retener un envio mas alla de su duracion fisica.
+        // La concurrencia la limitan el pool de portacontenedores, las posiciones de
+        // consolidacion (ADR-060) y la flota de producto (ADR-061), nunca la capacidad de un
+        // Delay. Un envio retenido es un error del modelo, no un dato (ADR-063).
+        enviosEnCurso = 0;
+        enviosRetenidos = 0;
+        toneladasEnviosEnCurso = 0;
+
+        java.util.LinkedHashMap<String, Integer> porBloque =
+            new java.util.LinkedHashMap<String, Integer>();
+
+        java.util.LinkedHashMap<String, Integer> retenidosPorBloque =
+            new java.util.LinkedHashMap<String, Integer>();
+
+        for (Envio envio : envios) {
+
+            if (
+                envio.estado == EstadoEnvio.ENTREGADO
+                || envio.bloqueActual == null
+                || envio.bloqueActual.isEmpty()
+                || envio.diaEntradaBloque < 0
+            ) {
+                continue;
+            }
+
+            enviosEnCurso++;
+            toneladasEnviosEnCurso += envio.toneladas;
+
+            String bloque = envio.bloqueActual;
+
+            porBloque.put(
+                bloque,
+                (porBloque.containsKey(bloque) ? porBloque.get(bloque) : 0) + 1);
+
+            // La cola que espera portacontenedor no tiene techo: es lista de espera de un
+            // recurso finito y esperar ahi es la conducta correcta.
+            if (envio.horasEsperadasBloque < 0) {
+                continue;
+            }
+
+            double permanencia = time() - envio.diaEntradaBloque;
+
+            double techo =
+                envio.horasEsperadasBloque / 24.0
+                + toleranciaRetencionEnvioDias;
+
+            if (permanencia > techo) {
+
+                enviosRetenidos++;
+
+                retenidosPorBloque.put(
+                    bloque,
+                    (retenidosPorBloque.containsKey(bloque) ? retenidosPorBloque.get(bloque) : 0) + 1);
+            }
+        }
+
+        enviosRetenidosPico = max(enviosRetenidosPico, enviosRetenidos);
+
+        StringBuilder detalle = new StringBuilder();
+
+        for (String bloque : porBloque.keySet()) {
+
+            if (detalle.length() > 0) {
+                detalle.append(" · ");
+            }
+
+            detalle.append(bloque).append(" ").append(porBloque.get(bloque));
+
+            if (retenidosPorBloque.containsKey(bloque)) {
+                detalle.append(" (retenidos ").append(retenidosPorBloque.get(bloque)).append(")");
+            }
+        }
+
+        detalleEnviosEnCurso = detalle.toString();
+
+        if (enviosRetenidos > 0 && !retenidosPorBloque.isEmpty()) {
+
+            String peor = "";
+
+            int cuantos = 0;
+
+            for (String bloque : retenidosPorBloque.keySet()) {
+
+                if (retenidosPorBloque.get(bloque) > cuantos) {
+                    cuantos = retenidosPorBloque.get(bloque);
+                    peor = bloque;
+                }
+            }
+
+            error(
+                "C-05: el dia " + diaCampania() + " hay " + enviosRetenidos
+                + " envios retenidos en el flujo mas alla de su duracion fisica; el bloque que mas"
+                + " retiene es " + peor + " con " + cuantos
+                + ". Un bloque del flujo no puede limitar la concurrencia (ADR-063).");
+        }
+    }
+
     void finalizarEnvio(Envio envio) {
         // Cierre del envio, comun a los cuatro circuitos: el contenedor de terminal sale
         // por su propia salida y no puede tener otra contabilidad que el resto.
@@ -2692,6 +2808,10 @@ class Main extends Agent {
         // Los cargos, en cambio, se devengan el dia en que se registran: la auditoria por envio
         // tiene que reconstruirlos con la tarifa de ese dia y no con la del servicio (ADR-062).
         envio.diaCargosCierre = diaCampania();
+
+        // El envio ya no esta en ningun bloque del flujo (C-05, ADR-063).
+        envio.bloqueActual = "";
+        envio.diaEntradaBloque = -1;
 
         Pedido pedido =
             envio.pedido;
@@ -7561,6 +7681,7 @@ class Main extends Agent {
         validarBalanceProducido();        // C-02: nada de lo producido se pierde (ADR-048)
         reconciliarCapacidad();           // C-03: la capacidad reservada reconcilia (ADR-060)
         reconciliarFlotaProducto();       // C-04: la agenda de camiones es posible (ADR-061)
+        reconciliarEnviosEnCurso();       // C-05: ningun bloque del flujo retiene envios (ADR-063)
         reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
         exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)
     }

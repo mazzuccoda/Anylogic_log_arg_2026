@@ -916,3 +916,30 @@ Las tres corridas mueven las mismas 288 tn (RT-03) o 144 tn (RT-01/02) y devenga
 | Campana completa | `datos/entrada_ejemplo.xlsx` | 365 dias `Finished` sin excepciones; C-01 a C-04 en verde; 1 983 contenedores, 979 envios entregados, 989 viajes planta→deposito y 23 417 tn transferidas —los mismos volumenes fisicos que ADR-061—, servicio 28 % (contra 27 %) y exportado 14 612 tn (contra 14 611). El ciclo del portacontenedor se sigue devengando una vez por contenedor |
 
 El **barrido no se corrio** en esta tanda, por pedido explicito. La comparacion entre escenarios con estos tiempos queda pendiente para la proxima tanda de `fase-28`.
+
+## Capacidad de los bloques del flujo (ADR-063)
+
+**Que se valida:** que ningun bloque del flowchart limite la concurrencia, que la limiten los recursos que se dimensionan, y que C-05 detecte el dia en que un bloque empieza a retener envios.
+
+| Caso | Que verifica | Como se midio |
+|---|---|---|
+| V-BLQ-01 | Los nueve bloques del flujo corren con capacidad ilimitada | **Verificado** por lectura del `.alp`: `colaCamiones`, `viajarVacioAlOrigen`, `cargarCamion`, `viajarPuerto`, `descargarPuerto`, `cargarGranel`, `viajarTerminalGranel`, `descargarTerminal` y `consolidarCarga` tienen `maximumCapacity = true` |
+| V-BLQ-02 | El techo artificial existia y era el de `viajarPuerto` | **Verificado** por aritmetica y corrida: 1 200 km a 70 km/h son 17,14 h por tramo, y con capacidad 1 el techo es `365 × 24 / 17,14 = 511` contenedores por campania. La corrida anterior al cambio entrego **417** por esa rama, con **1 066 envios congelados** en `viajarVacioAlOrigen` y 1 069 de los 1 500 portacontenedores tomados |
+| V-BLQ-03 | Quitar la capacidad de bloque no relaja ninguna restriccion real | **Verificado** por corrida: al cierre de la campania corregida hay **21 portacontenedores ocupados de 1 500** (contra 1 069), uso de posiciones de consolidacion 20 %, `Esperando posicion: 0` y utilizacion de flota de producto 1 %. Ningun recurso queda saturado, o sea que la red nunca lo habia estado |
+| V-BLQ-04 | C-05 detecta la retencion y nombra el bloque | **Verificado** por corrida dirigida: se devolvio `viajarPuerto` a la capacidad por default y la corrida aborto el **dia 10** con `C-05: el dia 10 hay 5 envios retenidos en el flujo mas alla de su duracion fisica; el bloque que mas retiene es cargarCamion con 5`. Es la regresion del error que estuvo silencioso hasta ahora |
+| V-BLQ-05 | La espera de un recurso finito no cuenta como retencion | **Verificado** por construccion auditada: `colaCamiones` se registra con `horasEsperadas = -1` y C-05 la cuenta como envio en curso pero nunca como retenido. En los 365 dias de la campania corregida no hubo un solo envio retenido |
+| V-BLQ-06 | El tablero informa donde estan los envios en curso | **Verificado** por corrida: al cierre muestra `Envios: 1 983 · en curso: 13` y `viajarPuerto 13`, que son los envios legitimamente en viaje el ultimo dia. El KPI anterior (`en transito`) mostraba 0 mientras 1 066 envios estaban congelados, porque contaba transito de flota de producto |
+
+### Campania completa antes y despues
+
+| Indicador | Antes (ADR-062) | Despues (ADR-063) |
+|---|---|---|
+| Exportado | 13 749 tn | **30 343 tn** de 30 656 recibidas |
+| Nivel de servicio | 25 % | **95 %** |
+| Pedidos entregados / atrasados | 629 / 708 | **1 378 / 4** |
+| Atraso promedio | 46,2 dias | **0,8 dias** |
+| Envios entregados | 919 | **1 962** |
+| Portacontenedores ocupados al cierre | 1 069 de 1 500 | **21 de 1 500** |
+| Envios retenidos | 1 066 (sin deteccion) | **0**, C-05 verde los 365 dias |
+
+Ambas corridas son 365 dias `Finished` con `datos/entrada_ejemplo.xlsx`, con C-01 a C-04 en verde. El **barrido no se corrio**: todos los barridos anteriores (`fase-26`, `fase-27`) se midieron contra el techo artificial de 511 contenedores y **no son comparables**; la comparacion entre escenarios queda pendiente para `fase-28`.
