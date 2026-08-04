@@ -419,7 +419,8 @@ terminales.add(terminalT4);
 
 cargarDatosEntrada();
 inicializarFlotaProducto();
-cargarStockInicial();]]></StartupCode>
+cargarStockInicial();
+abrirAuditoriaRed();]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1784231466973</Id>
@@ -784,6 +785,210 @@ cargarStockInicial();]]></StartupCode>
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[1.0]]></Code>
 						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000001</Id>
+					<Name><![CDATA[auditoria]]></Name>
+					<X>1030</X><Y>-1600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[AuditoriaRed]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new AuditoriaRed()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000002</Id>
+					<Name><![CDATA[secuenciaArcoAuditoria]]></Name>
+					<X>1030</X><Y>-1560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[long]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000003</Id>
+					<Name><![CDATA[idDecisionActual]]></Name>
+					<X>1030</X><Y>-1520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000004</Id>
+					<Name><![CDATA[idAlternativaActual]]></Name>
+					<X>1030</X><Y>-1480</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000005</Id>
+					<Name><![CDATA[stockInicialDelDia]]></Name>
+					<X>1030</X><Y>-1440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.LinkedHashMap<String, Double>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.LinkedHashMap<String, Double>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000006</Id>
+					<Name><![CDATA[motivosAuditoria]]></Name>
+					<X>1030</X><Y>-1400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.LinkedHashMap<String, Long>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.LinkedHashMap<String, Long>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000007</Id>
+					<Name><![CDATA[arcosAuditoria]]></Name>
+					<X>1030</X><Y>-1360</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.LinkedHashMap<String, double[]>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.LinkedHashMap<String, double[]>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000008</Id>
+					<Name><![CDATA[costoRealPorAsignacion]]></Name>
+					<X>1030</X><Y>-1320</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.LinkedHashMap<String, Double>]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.LinkedHashMap<String, Double>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000009</Id>
+					<Name><![CDATA[descuadresInventarioAuditoria]]></Name>
+					<X>1030</X><Y>-1280</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000010</Id>
+					<Name><![CDATA[decisionesAuditadas]]></Name>
+					<X>1030</X><Y>-1240</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[long]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000011</Id>
+					<Name><![CDATA[alternativasElegidasAuditadas]]></Name>
+					<X>1030</X><Y>-1200</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[long]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1786410000012</Id>
+					<Name><![CDATA[sobrecostoVsMasBarataAuditoria]]></Name>
+					<X>1030</X><Y>-1160</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1786410000021</Id>
+					<Name><![CDATA[nivelAuditoriaRed]]></Name>
+					<X>1030</X><Y>-1120</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[AuditoriaRed.Nivel]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[AuditoriaRed.Nivel.DESACTIVADA]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1786410000022</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
@@ -3202,6 +3407,7 @@ cargarStockInicial();]]></StartupCode>
 					</Properties>
 					<Action><![CDATA[// Secuencia diaria del modelo (ADR-034). El orden es parte de la
 // definicion: cambiarlo cambia el costo y el servicio del dia.
+fotografiarStockInicialDelDia();         // 0a. foto del inventario antes del dia (ADR-064)
 refrescarTarifasDelDia();                // 0. tarifa vigente de hoy (ADR-051)
 abrirFlotaDelDia();                      // 0b. abrir la capacidad de flota del dia
 
@@ -3237,7 +3443,9 @@ reconciliarCapacidad();           // C-03: la capacidad reservada reconcilia (AD
 reconciliarFlotaProducto();       // C-04: la agenda de camiones es posible (ADR-061)
 reconciliarEnviosEnCurso();       // C-05: ningun bloque del flujo retiene envios (ADR-063)
 reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
-exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)]]></Action>
+tomarSnapshotInventarioDelDia();  // C-12: el balance de cada nodo cierra (ADR-064)
+exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)
+cerrarAuditoriaSiCorresponde();   // tablas de auditoria de la corrida (ADR-064)]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -5313,6 +5521,10 @@ for (
 
     envio.contenedor = contenedor;
 
+    // La espera por una posicion es un arco de espera: sin ella la suma de las etapas no
+    // reconstruye el tiempo del envio (ADR-064).
+    registrarArcoEsperaPosicion(contenedor, contenedor.diasEsperaPosicion);
+
     if (granel) {
         ocuparFlotaParaGranel(pedido, contenedor);
     }
@@ -6728,6 +6940,1324 @@ envio.diaListoEnTerminal = time();]]></Body>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000001</Id>
+					<Name><![CDATA[abrirAuditoriaRed]]></Name>
+					<X>-300</X><Y>3400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// ADR-064: abre las tablas de auditoria de la corrida. El nivel es del escenario: en el
+// barrido son mil corridas y la auditoria completa escribe decenas de miles de filas por
+// corrida, asi que el default es DESACTIVADA y el modelo decide igual con auditoria o sin
+// ella (V-AUD-10).
+auditoria.nivel = nivelAuditoriaRed;
+
+if (!auditoria.activa()) {
+    return;
+}
+
+// run_id es la clave que hace que dos corridas puedan convivir en la misma tabla. Es
+// deterministico a proposito: dos corridas iguales tienen que dar tablas iguales.
+auditoria.runId = idEscenario + "-R" + replica;
+
+auditoria.directorio = "resultados";
+
+new java.io.File(auditoria.directorio).mkdirs();
+
+auditoria.abrir(AuditoriaRed.DECISIONES, RegistroDecisionAlternativa.encabezadoCsv());
+auditoria.abrir(AuditoriaRed.ASIGNACIONES, AsignacionPedido.encabezadoCsv());
+auditoria.abrir(AuditoriaRed.ARCOS, RegistroEjecucionArco.encabezadoCsv());
+auditoria.abrir(AuditoriaRed.COSTOS, encabezadoCostosEventos());
+auditoria.abrir(AuditoriaRed.INVENTARIO, SnapshotInventario.encabezadoCsv());]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1786420000003</Id>
+					<Name><![CDATA[encabezadoCostosEventos]]></Name>
+					<X>-300</X><Y>3420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Encabezado de costos_eventos. La tabla es una vista de RegistroCostos y no una segunda
+// lista de cargos: si fueran dos fuentes, reconciliarlas solo probaria que dos
+// exportaciones coinciden, no que el modelo cobro una sola vez (ADR-064).
+return "run_id,escenario,replica,id_costo,dia,dia_campania,tipo_contable,categoria,"
+    + "codigo_pedido,id_asignacion,id_decision,id_contenedor,id_lote,producto,circuito,"
+    + "origen,destino,sitio,proveedor,unidad,cantidad,tarifa,importe_usd,id_operacion,"
+    + "alcance,es_incremental,motivo";]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000005</Id>
+					<Name><![CDATA[exportarCostosEventos]]></Name>
+					<X>-300</X><Y>3440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// costos_eventos sale del mismo registro que paga la campania (ADR-052). La asignacion y la
+// decision no se guardan en el cargo: se resuelven aca por el contenedor, que ya lleva
+// idAsignacionPedido. Un cargo del lote (almacenaje, IN, flete de guarda) no pertenece a
+// ninguna asignacion y su alcance queda declarado como LOTE en vez de repartirse.
+if (!auditoria.activa()) {
+    return;
+}
+
+costoRealPorAsignacion.clear();
+
+if (!registro.guardarDetalle) {
+    traceln(
+        "Auditoria de red: el registro de costos corre sin detalle, costos_eventos"
+        + " queda vacio y asignaciones_elegidas informa costo real cero.");
+    return;
+}
+
+java.util.LinkedHashMap<String, String> asignacionDeContenedor =
+    new java.util.LinkedHashMap<String, String>();
+
+java.util.LinkedHashMap<String, String> decisionDeAsignacion =
+    new java.util.LinkedHashMap<String, String>();
+
+java.util.LinkedHashMap<String, Double> diaDecisionDePedido =
+    new java.util.LinkedHashMap<String, Double>();
+
+for (Pedido pedido : pedidos) {
+
+    for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+        decisionDeAsignacion.put(asignacion.idAsignacion, asignacion.idDecision);
+
+        Double primera = diaDecisionDePedido.get(pedido.codigoPedido);
+
+        if (primera == null || asignacion.diaAsignacion < primera) {
+            diaDecisionDePedido.put(pedido.codigoPedido, asignacion.diaAsignacion);
+        }
+    }
+
+    for (ContenedorExportacion contenedor : pedido.contenedores) {
+        asignacionDeContenedor.put(
+            contenedor.idContenedor, contenedor.idAsignacionPedido);
+    }
+}
+
+for (RegistroCostos.Cargo cargo : registro.detalle()) {
+
+    String idAsignacion =
+        cargo.codigoContenedor == null || cargo.codigoContenedor.isEmpty()
+        ? ""
+        : asignacionDeContenedor.get(cargo.codigoContenedor);
+
+    if (idAsignacion == null) {
+        idAsignacion = "";
+    }
+
+    String idDecision =
+        idAsignacion.isEmpty() ? "" : decisionDeAsignacion.get(idAsignacion);
+
+    if (idDecision == null) {
+        idDecision = "";
+    }
+
+    String alcance =
+        !idAsignacion.isEmpty()
+        ? "CONTENEDOR"
+        : (cargo.codigoPedido != null && !cargo.codigoPedido.isEmpty()
+            ? "PEDIDO"
+            : (cargo.idLote != null && !cargo.idLote.isEmpty() ? "LOTE" : "RED"));
+
+    // Incremental es el cargo devengado desde que el pedido comprometio producto: antes de
+    // esa fecha el costo existia igual y el evaluador lo trata como hundido (ADR-054).
+    Double diaDecision =
+        cargo.codigoPedido == null ? null : diaDecisionDePedido.get(cargo.codigoPedido);
+
+    boolean incremental =
+        diaDecision != null && cargo.dia >= diaDecision.doubleValue() - 0.0001;
+
+    if (!idAsignacion.isEmpty()) {
+
+        Double acumulado = costoRealPorAsignacion.get(idAsignacion);
+
+        costoRealPorAsignacion.put(
+            idAsignacion,
+            (acumulado == null ? 0 : acumulado.doubleValue()) + cargo.importe);
+    }
+
+    auditoria.escribir(
+        AuditoriaRed.COSTOS,
+        AuditoriaRed.txt(auditoria.runId) + "," + AuditoriaRed.txt(idEscenario) + ","
+        + AuditoriaRed.ent(replica) + "," + AuditoriaRed.ent(cargo.id) + ","
+        + AuditoriaRed.num(cargo.dia) + "," + AuditoriaRed.ent((long) Math.floor(cargo.dia))
+        + "," + AuditoriaRed.txt("" + cargo.tipo) + ","
+        + AuditoriaRed.txt("" + cargo.categoria) + ","
+        + AuditoriaRed.txt(cargo.codigoPedido) + "," + AuditoriaRed.txt(idAsignacion) + ","
+        + AuditoriaRed.txt(idDecision) + "," + AuditoriaRed.txt(cargo.codigoContenedor) + ","
+        + AuditoriaRed.txt(cargo.idLote) + "," + AuditoriaRed.txt("" + cargo.producto) + ","
+        + AuditoriaRed.txt("" + cargo.estrategia) + "," + AuditoriaRed.txt(cargo.origen) + ","
+        + AuditoriaRed.txt(cargo.destino) + "," + AuditoriaRed.txt(cargo.sitio) + ","
+        + AuditoriaRed.txt(cargo.proveedor) + "," + AuditoriaRed.txt("" + cargo.unidad) + ","
+        + AuditoriaRed.num(cargo.cantidad) + "," + AuditoriaRed.num(cargo.tarifa) + ","
+        + AuditoriaRed.num(cargo.importe) + "," + AuditoriaRed.txt(cargo.idOperacion) + ","
+        + AuditoriaRed.txt(alcance) + "," + AuditoriaRed.si(incremental) + ","
+        + AuditoriaRed.txt(cargo.motivo));
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000007</Id>
+					<Name><![CDATA[exportarAsignacionesElegidas]]></Name>
+					<X>-300</X><Y>3460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// asignaciones_elegidas sale de AsignacionPedido, que ya es la unidad de compromiso del
+// pedido (ADR-055): no hay una lista paralela de asignaciones auditadas que pueda quedar
+// desincronizada. Se escribe al cierre porque el ciclo real y el costo recien existen ahi.
+if (!auditoria.activa()) {
+    return;
+}
+
+for (Pedido pedido : pedidos) {
+
+    for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+        int creados = 0;
+        int entregados = 0;
+
+        for (ContenedorExportacion contenedor : pedido.contenedores) {
+
+            if (!asignacion.idAsignacion.equals(contenedor.idAsignacionPedido)) {
+                continue;
+            }
+
+            creados++;
+
+            if (contenedor.estado == EstadoContenedor.EXPORTADO) {
+                entregados++;
+            }
+        }
+
+        Double costoReal = costoRealPorAsignacion.get(asignacion.idAsignacion);
+
+        auditoria.escribir(
+            AuditoriaRed.ASIGNACIONES,
+            asignacion.toCsv(
+                auditoria.runId, idEscenario, replica,
+                costoReal == null ? 0 : costoReal.doubleValue(),
+                creados, entregados));
+    }
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000009</Id>
+					<Name><![CDATA[cerrarAuditoriaRed]]></Name>
+					<X>-300</X><Y>3480</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Cierre de la auditoria: las tablas que solo existen al final (asignaciones y costos), las
+// reconciliaciones y el manifiesto que el tablero web va a leer para saber que hay.
+if (!auditoria.activa()) {
+    return;
+}
+
+exportarCostosEventos();
+exportarAsignacionesElegidas();
+reconciliarAuditoriaRed();
+escribirManifiestoAuditoria();
+
+auditoria.cerrar();
+
+traceln(auditoria.resumen());]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000011</Id>
+					<Name><![CDATA[escribirManifiestoAuditoria]]></Name>
+					<X>-300</X><Y>3500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Manifiesto de la corrida: que tablas hay, cuantas filas y con que claves se unen. Lo
+// escribe el modelo y no un documento aparte para que el esquema no pueda quedar viejo: el
+// tablero web lee esto, no una convencion.
+java.io.PrintWriter salida = null;
+
+try {
+    salida =
+        new java.io.PrintWriter(
+            auditoria.directorio + "/manifiesto_auditoria_" + auditoria.runId + ".json",
+            "UTF-8");
+
+    salida.println("{");
+    salida.println("  \"run_id\": \"" + auditoria.runId + "\",");
+    salida.println("  \"escenario\": \"" + idEscenario + "\",");
+    salida.println("  \"replica\": " + replica + ",");
+    salida.println("  \"nivel_auditoria\": \"" + auditoria.nivel + "\",");
+    salida.println("  \"duracion_campania_dias\": " + duracionCampaniaDias + ",");
+    salida.println("  \"generado\": \"" + new java.util.Date() + "\",");
+    salida.println("  \"tablas\": {");
+
+    String[] tablas = {
+        AuditoriaRed.DECISIONES, AuditoriaRed.ASIGNACIONES, AuditoriaRed.ARCOS,
+        AuditoriaRed.COSTOS, AuditoriaRed.INVENTARIO
+    };
+
+    for (int i = 0; i < tablas.length; i++) {
+        salida.println(
+            "    \"" + tablas[i] + "\": {\"archivo\": \"" + tablas[i] + ".csv\","
+            + " \"filas\": " + auditoria.filasDe(tablas[i]) + "},");
+    }
+
+    salida.println(
+        "    \"" + AuditoriaRed.CAPACIDAD + "\": {\"archivo\":"
+        + " \"capacidad_por_dia.csv\", \"filas\": -1}");
+
+    salida.println("  },");
+    salida.println("  \"claves\": {");
+    salida.println("    \"decisiones_alternativas\": [\"run_id\", \"id_alternativa\"],");
+    salida.println("    \"asignaciones_elegidas\": [\"run_id\", \"id_asignacion\"],");
+    salida.println("    \"ejecucion_arcos\": [\"run_id\", \"id_evento_arco\"],");
+    salida.println("    \"costos_eventos\": [\"run_id\", \"id_costo\"],");
+    salida.println(
+        "    \"snapshot_inventario\": [\"run_id\", \"dia\", \"ubicacion\","
+        + " \"producto\"],");
+    salida.println(
+        "    \"snapshot_capacidad_recursos\": [\"run_id\", \"dia\","
+        + " \"tipo_recurso\", \"ubicacion\"]");
+    salida.println("  }");
+    salida.println("}");
+
+} catch (java.io.IOException e) {
+    traceln("No se pudo escribir el manifiesto de auditoria: " + e.getMessage());
+
+} finally {
+
+    if (salida != null) {
+        salida.close();
+    }
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000013</Id>
+					<Name><![CDATA[fotografiarStockInicialDelDia]]></Name>
+					<X>-300</X><Y>3520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Stock de cada nodo antes de que el dia haga nada. Sin esta foto el balance diario se
+// derivaria del propio stock final y C-12 no podria fallar nunca (ADR-064).
+if (!auditoria.activa()) {
+    return;
+}
+
+stockInicialDelDia.clear();
+
+inventario.reiniciarFlujoDia();
+
+for (TipoProducto producto : TipoProducto.values()) {
+
+    stockInicialDelDia.put(
+        "PLANTA|" + producto, inventario.stock("PLANTA", producto));
+
+    for (Deposito deposito : depositos) {
+        stockInicialDelDia.put(
+            deposito.idUbicacion + "|" + producto,
+            inventario.stock(deposito.idUbicacion, producto));
+    }
+
+    for (Terminal terminal : terminales) {
+        stockInicialDelDia.put(
+            terminal.idUbicacion + "|" + producto,
+            inventario.stock(terminal.idUbicacion, producto));
+    }
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000015</Id>
+					<Name><![CDATA[tomarSnapshotInventarioDelDia]]></Name>
+					<X>-300</X><Y>3540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Foto diaria del inventario por nodo y producto, con el balance del dia (C-12):
+//
+//     stock inicial + ingresos - egresos = stock final
+//
+// validarInventario() ya verificaba el total de la red; esto lo verifica por nodo, que es
+// donde se ve un deposito lleno o un nodo que pierde producto.
+if (!auditoria.activa()) {
+    return;
+}
+
+int dia = diaCampania();
+
+for (TipoProducto producto : TipoProducto.values()) {
+
+    for (int i = 0; i <= depositos.size() + terminales.size(); i++) {
+
+        String idUbicacion;
+        String tipoUbicacion;
+        double capacidad;
+        double costoTnDia;
+
+        if (i == 0) {
+            idUbicacion = "PLANTA";
+            tipoUbicacion = "PLANTA";
+            capacidad = planta.getCapacidad(producto);
+            costoTnDia = 0;
+
+        } else if (i <= depositos.size()) {
+            Deposito deposito = depositos.get(i - 1);
+            idUbicacion = deposito.idUbicacion;
+            tipoUbicacion = "DEPOSITO";
+            capacidad = deposito.getCapacidad(producto);
+            costoTnDia = deposito.getTarifaAlmacenamiento(producto);
+
+        } else {
+            Terminal terminal = terminales.get(i - 1 - depositos.size());
+            idUbicacion = terminal.idUbicacion;
+            tipoUbicacion = "TERMINAL";
+            capacidad = 0;
+            costoTnDia = 0;
+        }
+
+        double stock = inventario.stock(idUbicacion, producto);
+        double ingresos = inventario.ingresosDia(idUbicacion, producto);
+        double egresos = inventario.egresosDia(idUbicacion, producto);
+
+        Double inicial = stockInicialDelDia.get(idUbicacion + "|" + producto);
+
+        if (stock <= 0.0001 && ingresos <= 0.0001 && egresos <= 0.0001) {
+            continue;
+        }
+
+        SnapshotInventario fila = new SnapshotInventario();
+
+        fila.runId = auditoria.runId;
+        fila.escenario = idEscenario;
+        fila.replica = replica;
+        fila.dia = dia;
+        fila.ubicacion = idUbicacion;
+        fila.tipoUbicacion = tipoUbicacion;
+        fila.producto = "" + producto;
+        fila.capacidadTn = capacidad;
+        fila.stockInicialDiaTn = inicial == null ? 0 : inicial.doubleValue();
+        fila.stockFisicoTn = stock;
+        fila.stockLibreTn = inventario.libre(idUbicacion, producto);
+        fila.stockReservadoPedidosTn = inventario.reservado(idUbicacion, producto);
+        fila.stockEnTransitoEntradaTn = toneladasEnTransitoHacia(idUbicacion, producto);
+        fila.ingresosDiaTn = ingresos;
+        fila.egresosDiaTn = egresos;
+        fila.produccionDiaTn =
+            "PLANTA".equals(idUbicacion) ? datos.produccionDelDia(dia, producto) : 0;
+        fila.ocupacionPct = capacidad <= 0 ? 0 : 100.0 * stock / capacidad;
+        fila.costoAlmacenajeDiaUsd = stock * costoTnDia;
+        fila.lotesAbiertos = inventario.cantidadLotes(idUbicacion, producto);
+
+        double masAntiguo = 0;
+        double sumaDias = 0;
+        double sumaTn = 0;
+
+        for (Capa capa : inventario.fifo(idUbicacion, producto)) {
+            double antiguedad = Math.max(0, time() - capa.diaIngreso);
+            masAntiguo = Math.max(masAntiguo, antiguedad);
+            sumaDias += antiguedad * capa.toneladas;
+            sumaTn += capa.toneladas;
+        }
+
+        fila.loteMasAntiguoDias = masAntiguo;
+        fila.diasStockPromedio = sumaTn <= 0.0001 ? 0 : sumaDias / sumaTn;
+
+        // El viaje reserva su carga en el origen con clave VIAJE| (ADR-061): lo que ya esta
+        // comprometido para salir no es stock libre del nodo.
+        fila.stockReservadoViajesTn = 0;
+        fila.stockEnTransitoSalidaTn = 0;
+
+        for (ViajeProducto viaje : viajesProducto) {
+
+            if (viaje.producto != producto) {
+                continue;
+            }
+
+            if (viaje.origen.equals(idUbicacion) && !viaje.stockRetiradoOrigen && viaje.vivo()) {
+                fila.stockReservadoViajesTn += viaje.toneladas;
+            }
+
+            if (viaje.origen.equals(idUbicacion) && viaje.enTransito()) {
+                fila.stockEnTransitoSalidaTn += viaje.toneladas;
+            }
+        }
+
+        if (Math.abs(fila.descuadre()) > 0.001) {
+            descuadresInventarioAuditoria++;
+            error(
+                "C-12: el balance de " + idUbicacion + " " + producto + " el dia " + dia
+                + " no cierra: inicial " + fila.stockInicialDiaTn
+                + " + ingresos " + fila.ingresosDiaTn
+                + " - egresos " + fila.egresosDiaTn
+                + " != final " + fila.stockFisicoTn);
+        }
+
+        auditoria.escribir(AuditoriaRed.INVENTARIO, fila.toCsv());
+    }
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000017</Id>
+					<Name><![CDATA[etiquetarAlternativas]]></Name>
+					<X>-300</X><Y>3560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idDecision]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativas]]></Name>
+						<Type><![CDATA[java.util.List<AlternativaCircuito>]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Identidad de cada alternativa de la ronda (ADR-064). Se etiqueta despues de generarlas y
+// antes de ejecutar, asi la asignacion puede apuntar a la alternativa exacta que la creo.
+for (int i = 0; i < alternativas.size(); i++) {
+    alternativas.get(i).idAlternativa = idDecision + "-A" + (i + 1);
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double[]]]></ReturnType>
+					<Id>1786420000019</Id>
+					<Name><![CDATA[componentesCicloFisico]]></Name>
+					<X>-300</X><Y>3580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idOrigen]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[circuito]]></Name>
+						<Type><![CDATA[EstrategiaLogistica]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[esCrossDock]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Las mismas componentes que suma horasCicloFisico(), separadas para poder auditar el
+// tiempo por etapa. No se refactoriza horasCicloFisico() para que las use: cambiar el orden
+// de una suma de doubles cambia el ultimo decimal, y el evaluador decide con ese numero.
+// La suma se verifica contra el original antes de escribirla (C-13).
+boolean granel = circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+
+String terminal = pedido.puertoSalida.idUbicacion;
+
+double velocidad = datos.escenario.velocidadCamionKmh;
+
+DatosEntrada.Ubicacion origen = datos.ubicacion(idOrigen);
+
+DatosEntrada.Ubicacion puerto = datos.ubicacion(terminal);
+
+double distancia = datos.distanciaKm(idOrigen, terminal);
+
+double[] componentes = new double[6];
+
+componentes[0] = esCrossDock ? datos.distanciaKm("PLANTA", idOrigen) / velocidad : 0;
+
+componentes[1] =
+    granel
+    ? toneladas / origen.velocidadCargaTnHora
+    : toneladas / origen.velocidadConsolidacionTnHora;
+
+componentes[2] = granel ? 0 : distancia / velocidad;
+
+componentes[3] = distancia / velocidad;
+
+componentes[4] = toneladas / puerto.velocidadDescargaTnHora;
+
+componentes[5] = granel ? toneladas / puerto.velocidadConsolidacionTnHora : 0;
+
+return componentes;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[RegistroDecisionAlternativa]]></ReturnType>
+					<Id>1786420000021</Id>
+					<Name><![CDATA[filaDecision]]></Name>
+					<X>-300</X><Y>3600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativa]]></Name>
+						<Type><![CDATA[AlternativaCircuito]]></Type>
+					</Parameter>
+					<Body><![CDATA[// La parte de la fila que describe al pedido, la alternativa y lo que el modelo veia
+// cuando la evaluo. Nada de esto se calcula: se lee de donde ya estaba.
+RegistroDecisionAlternativa fila = new RegistroDecisionAlternativa();
+
+fila.runId = auditoria.runId;
+fila.escenario = idEscenario;
+fila.replica = replica;
+fila.diaSimulacion = time();
+fila.diaCampania = diaCampania();
+fila.politicaSeleccion = "" + politicaSeleccion;
+fila.criterioOrden =
+    (datos.escenario.servicioMinimoProyectado > 0 ? "servicio_y_" : "")
+    + (decideEndToEnd() ? "menor_costo_unitario_end_to_end" : "menor_costo_unitario_incremental");
+
+fila.codigoPedido = pedido.codigoPedido;
+fila.producto = "" + pedido.producto;
+fila.tipoContenedor = "" + pedido.tipoContenedor;
+fila.terminal = pedido.puertoSalida.idUbicacion;
+fila.estadoPedidoAntes = "" + pedido.estado;
+fila.toneladasSolicitadas = pedido.toneladasSolicitadas;
+fila.toneladasEntregadasPrevias = pedido.toneladasEntregadas;
+fila.toneladasEnProcesoPrevias = pedido.toneladasDespachadas - pedido.toneladasEntregadas;
+fila.toneladasReservadasPrevias = pedido.toneladasReservadas;
+fila.toneladasPendientesAsignar = pedido.toneladasPendientesAsignar();
+fila.contenedoresPendientesEstimados =
+    contenedoresNecesarios(pedido.producto, pedido.toneladasPendientesAsignar());
+fila.diaConocimiento = pedido.diaConocimiento;
+fila.diaAperturaRetiro = pedido.diaAperturaRetiroVacio;
+fila.diaCutoff = pedido.fechaLimiteTerminal;
+fila.diasHastaCutoff = pedido.fechaLimiteTerminal - time();
+fila.cantidadOrigenesPrevios = pedido.asignaciones.size();
+
+fila.circuito = "" + alternativa.circuito;
+fila.esCrossDock = alternativa.esCrossDock;
+fila.origenStock = alternativa.idOrigen;
+fila.sitioEstiba = alternativa.sitioEstiba;
+fila.destinoFinal = pedido.puertoSalida.idUbicacion;
+fila.requiereFlotaProducto = alternativa.requiereFlotaProducto;
+fila.requierePortacontenedor =
+    alternativa.circuito != EstrategiaLogistica.CONSOLIDACION_TERMINAL;
+fila.requierePosicion = !alternativa.esCrossDock;
+fila.tipoRecursoCapacidad = alternativa.tipoRecursoCapacidad;
+fila.ubicacionRecursoCapacidad = alternativa.idUbicacionCapacidad;
+
+fila.stockFisicoOrigenTn = inventario.stock(alternativa.idOrigen, pedido.producto);
+fila.stockLibreOrigenTn = inventario.libre(alternativa.idOrigen, pedido.producto);
+fila.stockReservadoOrigenTn = inventario.reservado(alternativa.idOrigen, pedido.producto);
+fila.stockEnTransitoHaciaOrigenTn =
+    toneladasEnTransitoHacia(alternativa.idOrigen, pedido.producto);
+
+Deposito sitio = buscarDeposito(alternativa.sitioEstiba);
+
+if (sitio != null) {
+    fila.espacioFisicoSitioTn = sitio.getEspacioDisponible(pedido.producto);
+    fila.espacioEfectivoSitioTn = espacioDisponibleEfectivo(sitio, pedido.producto);
+    fila.ocupacionSitioPct =
+        sitio.getCapacidad(pedido.producto) <= 0
+        ? 0
+        : 100.0 * inventario.stock(sitio.idUbicacion, pedido.producto)
+            / sitio.getCapacidad(pedido.producto);
+}
+
+fila.cupoCrossdockLibreCont =
+    alternativa.esCrossDock
+    ? (int) Math.round(capacidadCrossDockLibre(alternativa.idOrigen))
+    : 0;
+fila.posicionesDisponiblesAntesCutoff = alternativa.contenedoresConCapacidad;
+fila.flotaProductoDisponible = flotaProductoLibreHoy();
+fila.primeraSalidaFlota = alternativa.primeraSalidaProducto;
+fila.ultimaLlegadaFlota = alternativa.ultimaLlegadaProducto;
+fila.esperaFlotaDias = alternativa.esperaFlotaDias;
+fila.portacontenedoresLibres = (int) Math.round(flotaPortacontenedores.idle());
+fila.portacontenedoresOcupados = (int) Math.round(flotaPortacontenedores.busy());
+
+fila.toneladasSinRestriccionCapacidad = alternativa.toneladasSinRestriccionCapacidad;
+fila.toneladasFactibles = alternativa.toneladas;
+fila.contenedoresFactibles = alternativa.contenedores;
+fila.contenedoresConCapacidad = alternativa.contenedoresConCapacidad;
+fila.viajesProductoRequeridos = viajesNecesariosCamion(alternativa.toneladas);
+fila.viajesProductoFactibles = alternativa.viajesFactiblesPorFlota;
+fila.esAsignacionParcial =
+    alternativa.toneladas + 0.0001 < pedido.toneladasPendientesAsignar();
+fila.porcentajePedidoCubierto =
+    pedido.toneladasSolicitadas <= 0.0001
+    ? 0
+    : 100.0 * alternativa.toneladas / pedido.toneladasSolicitadas;
+
+double[] etapas =
+    componentesCicloFisico(
+        pedido, alternativa.idOrigen, alternativa.circuito, alternativa.esCrossDock,
+        alternativa.toneladas);
+
+double suma = 0;
+
+for (int i = 0; i < etapas.length; i++) {
+    suma += etapas[i];
+}
+
+double total = horasCicloAlternativa(pedido, alternativa);
+
+// C-13: el tiempo por etapa tiene que sumar el ciclo con el que se decidio.
+if (Math.abs(suma - total) > 0.0001) {
+    error(
+        "C-13: las etapas de " + alternativa.clave() + " suman " + suma
+        + " y el ciclo del evaluador es " + total);
+}
+
+fila.horasFleteProducto = etapas[0];
+fila.horasCargaEstiba = etapas[1];
+fila.horasViajeVacio = etapas[2];
+fila.horasViajeCargado = etapas[3];
+fila.horasDescargaTerminal = etapas[4];
+fila.horasConsolidacionTerminal = etapas[5];
+fila.horasCicloFisicoTotal = total;
+fila.diaEntregaEstimado = alternativa.diaEntregaEstimado;
+fila.holguraEstimadaDias = pedido.fechaLimiteTerminal - alternativa.diaEntregaEstimado;
+fila.llegaATiempoEstimado = alternativa.llegaATiempo;
+
+fila.costoFleteProducto = alternativa.costoFleteProducto;
+fila.costoRoundTrip = alternativa.costoRoundTrip;
+fila.costoEstiba = alternativa.costoEstiba;
+fila.costoOut = alternativa.costoOut;
+fila.costoThc = alternativa.costoTHC;
+fila.costoTerminal = alternativa.costoTerminal;
+fila.costoDespachante = alternativa.costoDespachante;
+fila.costoInHundido = alternativa.costoInHundido;
+fila.costoAlmacenajeHundido = alternativa.costoAlmacenajeHundido;
+fila.costoFleteHundido = alternativa.costoFleteHundido;
+fila.costoHistorico = alternativa.costoHistorico;
+fila.costoIncremental = alternativa.costoIncremental;
+fila.costoEndToEnd = alternativa.costoEndToEnd;
+fila.costoIncrementalUsdTn = alternativa.costoUnitarioSegun(false);
+fila.costoEndToEndUsdTn = alternativa.costoUnitarioSegun(true);
+fila.costoIncrementalUsdCont =
+    alternativa.contenedores <= 0
+    ? 0
+    : alternativa.costoIncremental / alternativa.contenedores;
+fila.costoUnitarioSinRestriccion = alternativa.costoUnitarioSinRestriccion;
+
+fila.factible = alternativa.factible;
+fila.codigoMotivo = alternativa.codigoMotivo;
+fila.detalleMotivo = alternativa.motivoNoFactible;
+fila.idAlternativa = alternativa.idAlternativa;
+
+return fila;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000023</Id>
+					<Name><![CDATA[registrarDecisionRonda]]></Name>
+					<X>-300</X><Y>3620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idDecision]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[ronda]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[alternativas]]></Name>
+						<Type><![CDATA[java.util.List<AlternativaCircuito>]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[ranking]]></Name>
+						<Type><![CDATA[java.util.List<AlternativaCircuito>]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[ejecutada]]></Name>
+						<Type><![CDATA[AlternativaCircuito]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[tomadas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[saldoAntes]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Una fila por alternativa de la ronda. La ronda es parte de la identidad porque
+// asignarConEvaluador() vuelve a generar las alternativas en cada vuelta: la misma
+// alternativa evaluada dos veces en el mismo dia son dos hechos distintos (ADR-055).
+//
+// El nivel RESUMIDA escribe solo la elegida: las descartadas son el grueso del volumen y
+// solo hacen falta para explicar por que no gano otra.
+if (!auditoria.activa()) {
+    return;
+}
+
+decisionesAuditadas++;
+
+double costoElegida =
+    ejecutada == null ? 0 : ejecutada.costoUnitarioSegun(decideEndToEnd());
+
+for (AlternativaCircuito alternativa : alternativas) {
+
+    boolean elegida = alternativa == ejecutada;
+
+    String resultado =
+        elegida
+        ? RegistroDecisionAlternativa.ELEGIDA
+        : (AlternativaCircuito.NO_TOMADA_AL_EJECUTAR.equals(alternativa.codigoMotivo)
+            ? RegistroDecisionAlternativa.INTENTADA_FALLIDA
+            : (alternativa.factible
+                ? RegistroDecisionAlternativa.NO_INTENTADA
+                : RegistroDecisionAlternativa.NO_FACTIBLE));
+
+    if (!alternativa.codigoMotivo.isEmpty()) {
+
+        Long cantidad = motivosAuditoria.get(alternativa.codigoMotivo);
+
+        motivosAuditoria.put(
+            alternativa.codigoMotivo,
+            (cantidad == null ? 0L : cantidad.longValue()) + 1);
+    }
+
+    if (elegida) {
+        alternativasElegidasAuditadas++;
+    }
+
+    if (!elegida && !auditoria.registraDescartadas()) {
+        continue;
+    }
+
+    RegistroDecisionAlternativa fila = filaDecision(pedido, alternativa);
+
+    fila.idDecision = idDecision;
+    fila.ronda = ronda;
+    fila.ordenRanking = ranking.indexOf(alternativa) + 1;
+    fila.resultadoEjecucion = resultado;
+    fila.toneladasTomadas = elegida ? tomadas : 0;
+    fila.costoElegidaUsdTn = costoElegida;
+    fila.saldoPedidoAntes = saldoAntes;
+    fila.saldoPedidoDespues = pedido.toneladasPendientesAsignar();
+
+    double unitario = fila.costoIncrementalUsdTn;
+
+    if (decideEndToEnd()) {
+        unitario = fila.costoEndToEndUsdTn;
+    }
+
+    fila.diferenciaVsElegidaUsdTn =
+        ejecutada == null || Double.isInfinite(unitario) ? 0 : unitario - costoElegida;
+
+    // La alternativa mas barata que no se pudo usar es el precio de la restriccion: es el
+    // numero que explica cuanto cuesta la capacidad que falta (ADR-060).
+    fila.esMasBarataNoFactible =
+        !alternativa.factible
+        && ejecutada != null
+        && !Double.isInfinite(alternativa.costoUnitarioSinRestriccion)
+        && alternativa.costoUnitarioSinRestriccion < costoElegida - 0.0001;
+
+    if (fila.esMasBarataNoFactible) {
+        sobrecostoVsMasBarataAuditoria +=
+            (costoElegida - alternativa.costoUnitarioSinRestriccion) * tomadas;
+    }
+
+    auditoria.escribir(AuditoriaRed.DECISIONES, fila.toCsv());
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000025</Id>
+					<Name><![CDATA[emitirArco]]></Name>
+					<X>-300</X><Y>3640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[arco]]></Name>
+						<Type><![CDATA[RegistroEjecucionArco]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Una fila de ejecucion_arcos, con el agregado que alimenta la vista de lectura.
+if (!auditoria.activa()) {
+    return;
+}
+
+arco.runId = auditoria.runId;
+arco.escenario = idEscenario;
+arco.replica = replica;
+arco.idEventoArco = ++secuenciaArcoAuditoria;
+
+double[] agregado = arcosAuditoria.get(arco.tipoArco);
+
+if (agregado == null) {
+    agregado = new double[4];
+    arcosAuditoria.put(arco.tipoArco, agregado);
+}
+
+agregado[0]++;
+agregado[1] += arco.toneladas;
+agregado[2] += arco.duracionRealHoras;
+agregado[3] += arco.duracionEsperadaHoras < 0 ? 0 : arco.duracionEsperadaHoras;
+
+auditoria.escribir(AuditoriaRed.ARCOS, arco.toCsv());]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1786420000027</Id>
+					<Name><![CDATA[tipoArcoDeBloque]]></Name>
+					<X>-300</X><Y>3660</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[bloque]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Traduccion del bloque del flowchart al arco fisico que representa. Un bloque que no es un
+// movimiento ni una espera fisica no es un arco: el almacenaje y los cargos de deposito ya
+// viven en costos_eventos y duplicarlos aca haria que el costo por arco no reconcilie.
+if ("colaCamiones".equals(bloque)) {
+    return RegistroEjecucionArco.ESPERA_PORTACONTENEDOR;
+}
+
+if ("viajarVacioAlOrigen".equals(bloque)) {
+    return RegistroEjecucionArco.TERMINAL_ORIGEN_VACIO;
+}
+
+if ("cargarCamion".equals(bloque) || "cargarGranel".equals(bloque)) {
+    return RegistroEjecucionArco.CARGA_CONSOLIDACION;
+}
+
+if ("viajarPuerto".equals(bloque) || "viajarTerminalGranel".equals(bloque)) {
+    return RegistroEjecucionArco.ORIGEN_TERMINAL_CARGADO;
+}
+
+if ("descargarPuerto".equals(bloque) || "descargarTerminal".equals(bloque)) {
+    return RegistroEjecucionArco.DESCARGA_TERMINAL;
+}
+
+if ("consolidarCarga".equals(bloque)) {
+    return RegistroEjecucionArco.CONSOLIDACION_TERMINAL;
+}
+
+return "";]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000029</Id>
+					<Name><![CDATA[cerrarArcoEnvio]]></Name>
+					<X>-300</X><Y>3680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Cierra el arco en el que estaba el envio. Se cierra al salir y no al entrar porque recien
+// al salir existen la duracion real y el estado final; los campos de etapa que ADR-063 ya
+// puso para C-05 son los que dicen donde estaba y cuanto deberia haber durado.
+if (!auditoria.activa() || envio == null) {
+    return;
+}
+
+if (envio.bloqueActual == null || envio.bloqueActual.isEmpty() || envio.diaEntradaBloque < 0) {
+    return;
+}
+
+String tipo = tipoArcoDeBloque(envio.bloqueActual);
+
+if (tipo.isEmpty()) {
+    return;
+}
+
+String terminal =
+    envio.pedido == null ? "" : envio.pedido.puertoSalida.idUbicacion;
+
+RegistroEjecucionArco arco = new RegistroEjecucionArco();
+
+arco.tipoArco = tipo;
+arco.codigoPedido = envio.pedido == null ? "" : envio.pedido.codigoPedido;
+arco.idEnvio = envio.codigoEnvio;
+arco.idContenedor = envio.contenedor == null ? "" : envio.contenedor.idContenedor;
+arco.idAsignacion = envio.idAsignacionPedido;
+
+AsignacionPedido asignacion = asignacionDeEnvio(envio);
+
+if (asignacion != null) {
+    arco.idDecision = asignacion.idDecision;
+    arco.idAlternativa = asignacion.idAlternativa;
+}
+
+arco.idLote =
+    envio.contenedor == null || envio.contenedor.lote == null
+    ? ""
+    : "" + envio.contenedor.lote.idLote;
+
+arco.producto = "" + envio.producto;
+arco.circuito = "" + envio.circuito;
+arco.esCrossDock = envio.esCrossDock;
+arco.toneladas = envio.toneladas;
+arco.contenedores = envio.contenedor == null ? 0 : 1;
+arco.viajes = 1;
+
+if (RegistroEjecucionArco.TERMINAL_ORIGEN_VACIO.equals(tipo)) {
+    arco.origen = terminal;
+    arco.destino = envio.idSitioOrigen;
+
+} else if (RegistroEjecucionArco.ORIGEN_TERMINAL_CARGADO.equals(tipo)) {
+    arco.origen = envio.idSitioOrigen;
+    arco.destino = terminal;
+
+} else if (RegistroEjecucionArco.ESPERA_PORTACONTENEDOR.equals(tipo)) {
+    arco.origen = terminal;
+    arco.destino = envio.idSitioOrigen;
+
+} else if (
+    RegistroEjecucionArco.DESCARGA_TERMINAL.equals(tipo)
+    || RegistroEjecucionArco.CONSOLIDACION_TERMINAL.equals(tipo)
+) {
+    arco.origen = terminal;
+    arco.destino = terminal;
+
+} else {
+    arco.origen = envio.idSitioOrigen;
+    arco.destino = envio.idSitioOrigen;
+}
+
+arco.distanciaKm =
+    arco.origen.equals(arco.destino) ? 0 : datos.distanciaKm(arco.origen, arco.destino);
+
+arco.diaProgramacion = envio.diaCreacion;
+arco.diaInicio = envio.diaEntradaBloque;
+arco.diaFin = time();
+arco.duracionRealHoras = Math.max(0, (time() - envio.diaEntradaBloque) * 24.0);
+arco.duracionEsperadaHoras = envio.horasEsperadasBloque;
+
+arco.recursoUtilizado =
+    RegistroEjecucionArco.CARGA_CONSOLIDACION.equals(tipo)
+        || RegistroEjecucionArco.CONSOLIDACION_TERMINAL.equals(tipo)
+    ? "POSICION_CONSOLIDACION"
+    : (envio.circuito == EstrategiaLogistica.CONSOLIDACION_TERMINAL
+        ? "FLOTA_PRODUCTO"
+        : "PORTACONTENEDOR");
+
+arco.idRecurso = envio.bloqueActual;
+arco.estadoFinal = "COMPLETADO";
+
+emitirArco(arco);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000031</Id>
+					<Name><![CDATA[registrarArcoViajeProducto]]></Name>
+					<X>-300</X><Y>3700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[viaje]]></Name>
+						<Type><![CDATA[ViajeProducto]]></Type>
+					</Parameter>
+					<Body><![CDATA[// El viaje de producto es un arco: el producto sale del origen al salir el camion y entra al
+// destino al llegar (ADR-061). Se emite al llegar, cuando la duracion real existe. Un viaje
+// cancelado no genera arco: no hubo movimiento, y el motivo ya queda en la decision.
+if (!auditoria.activa() || viaje == null || viaje.ocupaSoloFlota) {
+    return;
+}
+
+RegistroEjecucionArco arco = new RegistroEjecucionArco();
+
+arco.tipoArco =
+    "PLANTA".equals(viaje.origen)
+    ? RegistroEjecucionArco.PLANTA_DEPOSITO
+    : RegistroEjecucionArco.DEPOSITO_DEPOSITO;
+
+if (viaje.crossDock) {
+    arco.tipoArco = RegistroEjecucionArco.CROSS_DOCK;
+}
+
+arco.codigoPedido = viaje.codigoPedido;
+arco.idLote = viaje.idLote > 0 ? "" + viaje.idLote : "";
+arco.producto = "" + viaje.producto;
+arco.circuito = "" + viaje.estrategia;
+arco.esCrossDock = viaje.crossDock;
+arco.origen = viaje.origen;
+arco.destino = viaje.destino;
+arco.toneladas = viaje.toneladas;
+arco.viajes = 1;
+arco.distanciaKm = viaje.distanciaKmIda;
+arco.diaProgramacion = viaje.diaProgramacion;
+arco.diaInicio = viaje.diaSalida;
+arco.diaFin = viaje.diaLlegadaDestino;
+arco.duracionRealHoras = Math.max(0, (viaje.diaLlegadaDestino - viaje.diaSalida) * 24.0);
+arco.duracionEsperadaHoras = viaje.duracionIdaDias * 24.0;
+arco.recursoUtilizado = "FLOTA_PRODUCTO";
+arco.idRecurso = "CAMION-" + viaje.idCamion;
+arco.estadoFinal = "COMPLETADO";
+arco.idAsignacion = viaje.idOperacion;
+
+emitirArco(arco);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000033</Id>
+					<Name><![CDATA[registrarArcoEsperaPosicion]]></Name>
+					<X>-300</X><Y>3720</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[contenedor]]></Name>
+						<Type><![CDATA[ContenedorExportacion]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[diasEspera]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[// La espera por una posicion de consolidacion es un arco de espera: sin ella la suma de las
+// etapas no reconstruye el tiempo del envio, y es una de las dos esperas que explican el
+// atraso (ADR-060).
+if (!auditoria.activa() || contenedor == null || diasEspera <= 0) {
+    return;
+}
+
+RegistroEjecucionArco arco = new RegistroEjecucionArco();
+
+arco.tipoArco = RegistroEjecucionArco.ESPERA_POSICION;
+arco.codigoPedido = contenedor.Pedido == null ? "" : contenedor.Pedido.codigoPedido;
+arco.idContenedor = contenedor.idContenedor;
+arco.idAsignacion = contenedor.idAsignacionPedido;
+arco.producto = "" + contenedor.producto;
+arco.circuito = "" + contenedor.circuito;
+arco.esCrossDock = contenedor.esCrossDock;
+arco.origen = contenedor.idUbicacionOperacion;
+arco.destino = contenedor.idUbicacionOperacion;
+arco.toneladas = contenedor.cantidadAsignadaTon;
+arco.contenedores = 1;
+arco.diaInicio = time() - diasEspera;
+arco.diaFin = time();
+arco.duracionRealHoras = diasEspera * 24.0;
+arco.duracionEsperadaHoras = 0;
+arco.recursoUtilizado = contenedor.tipoRecursoOperacion;
+arco.idRecurso = contenedor.idUbicacionOperacion;
+arco.estadoFinal = "COMPLETADO";
+
+emitirArco(arco);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000035</Id>
+					<Name><![CDATA[reconciliarAuditoriaRed]]></Name>
+					<X>-300</X><Y>3740</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Reconciliaciones de la auditoria. Ninguna compara dos exportaciones entre si: comparan la
+// tabla contra el estado del modelo, que es la unica forma de que puedan fallar.
+if (!auditoria.activa()) {
+    return;
+}
+
+// C-06: toda asignacion viva tiene decision y alternativa. Una asignacion sin decision es
+// producto comprometido que nadie puede explicar.
+long sinDecision = 0;
+
+long asignaciones = 0;
+
+for (Pedido pedido : pedidos) {
+
+    for (AsignacionPedido asignacion : pedido.asignaciones) {
+
+        asignaciones++;
+
+        if (asignacion.idDecision.isEmpty() || asignacion.idAlternativa.isEmpty()) {
+            sinDecision++;
+        }
+    }
+}
+
+// La politica fija no evalua alternativas: sus asignaciones no tienen decision porque no
+// hubo eleccion, y ahi la falta de identidad es el dato correcto (ADR-054).
+if (sinDecision > 0 && usaEvaluador()) {
+    error(
+        "C-06: " + sinDecision + " de " + asignaciones + " asignaciones decididas por el"
+        + " evaluador no tienen decision de origen. La trazabilidad esta cortada.");
+}
+
+if (sinDecision > 0) {
+    traceln(
+        "Auditoria de red: " + sinDecision + " de " + asignaciones + " asignaciones sin"
+        + " decision (politica fija, sin eleccion de alternativa).");
+}
+
+if (auditoria.filasDe(AuditoriaRed.ASIGNACIONES) != asignaciones) {
+    error(
+        "C-07: asignaciones_elegidas tiene "
+        + auditoria.filasDe(AuditoriaRed.ASIGNACIONES)
+        + " filas y el modelo tiene " + asignaciones + " asignaciones.");
+}
+
+// C-09: el importe de costos_eventos es el total de la campania, no una parte.
+if (registro.guardarDetalle) {
+
+    double sumaEventos = 0;
+
+    for (RegistroCostos.Cargo cargo : registro.detalle()) {
+        sumaEventos += cargo.importe;
+    }
+
+    if (Math.abs(sumaEventos - registro.total()) > 0.01) {
+        error(
+            "C-09: costos_eventos suma " + sumaEventos + " y el registro de la campania"
+            + " dice " + registro.total());
+    }
+
+    if (auditoria.filasDe(AuditoriaRed.COSTOS) != registro.detalle().size()) {
+        error(
+            "C-09: costos_eventos tiene " + auditoria.filasDe(AuditoriaRed.COSTOS)
+            + " filas y el registro tiene " + registro.detalle().size() + " cargos.");
+    }
+}
+
+// C-10: todo envio entregado dejo la secuencia completa de sus arcos. Sin la ultima etapa
+// el tiempo del envio no se puede reconstruir sumando arcos.
+long arcosEsperados = 0;
+
+for (String tipo : arcosAuditoria.keySet()) {
+    arcosEsperados += (long) arcosAuditoria.get(tipo)[0];
+}
+
+if (arcosEsperados != auditoria.filasDe(AuditoriaRed.ARCOS)) {
+    error(
+        "C-10: el agregado de arcos cuenta " + arcosEsperados + " y la tabla tiene "
+        + auditoria.filasDe(AuditoriaRed.ARCOS) + " filas.");
+}
+
+if (descuadresInventarioAuditoria > 0) {
+    error(
+        "C-12: " + descuadresInventarioAuditoria + " balances diarios de inventario no"
+        + " cerraron.");
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000039</Id>
+					<Name><![CDATA[cerrarAuditoriaSiCorresponde]]></Name>
+					<X>-300</X><Y>3780</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Las tablas se cierran el ultimo dia, igual que el diagnostico de capacidad: el csv se
+// escribe en streaming, asi que una corrida interrumpida ya dejo su evidencia y lo unico
+// que falta al cierre son las tablas agregadas y las reconciliaciones.
+if (!auditoria.activa() || diaCampania() < duracionCampaniaDias - 1) {
+    return;
+}
+
+cerrarAuditoriaRed();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1786420000037</Id>
+					<Name><![CDATA[resumenAuditoriaRed]]></Name>
+					<X>-300</X><Y>3760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Vista de lectura de la auditoria (ADR-064). Es un resumen, no un tablero con filtros: el
+// tablero se construye sobre los csv en otro proyecto, y PLE no exporta vistas.
+if (!auditoria.activa()) {
+    return "Auditoria de red: DESACTIVADA";
+}
+
+String texto =
+    "AUDITORIA DE RED · " + auditoria.nivel + " · run " + auditoria.runId
+    + "\n\nDECISIONES\n"
+    + "  rondas auditadas " + decisionesAuditadas
+    + " · alternativas elegidas " + alternativasElegidasAuditadas
+    + " · filas " + auditoria.filasDe(AuditoriaRed.DECISIONES)
+    + "\n  costo de la restriccion (mas barata no factible) USD "
+    + String.format("%,.0f", sobrecostoVsMasBarataAuditoria);
+
+texto += "\n\nMOTIVOS DE DESCARTE";
+
+for (String motivo : motivosAuditoria.keySet()) {
+    texto += "\n  " + motivo + " " + motivosAuditoria.get(motivo);
+}
+
+texto += "\n\nARCOS EJECUTADOS (real vs esperado, horas)";
+
+for (String tipo : arcosAuditoria.keySet()) {
+
+    double[] agregado = arcosAuditoria.get(tipo);
+
+    texto +=
+        "\n  " + tipo + " · " + (long) agregado[0] + " arcos · "
+        + String.format("%,.0f", agregado[1]) + " tn · "
+        + String.format("%,.1f", agregado[0] <= 0 ? 0 : agregado[2] / agregado[0]) + " h"
+        + " (esperado "
+        + String.format("%,.1f", agregado[0] <= 0 ? 0 : agregado[3] / agregado[0]) + " h)";
+}
+
+texto +=
+    "\n\nTABLAS\n  " + AuditoriaRed.INVENTARIO + " "
+    + auditoria.filasDe(AuditoriaRed.INVENTARIO)
+    + " filas · descuadres " + descuadresInventarioAuditoria
+    + "\n  " + AuditoriaRed.COSTOS + " " + auditoria.filasDe(AuditoriaRed.COSTOS) + " filas"
+    + "\n  " + AuditoriaRed.ARCOS + " " + auditoria.filasDe(AuditoriaRed.ARCOS) + " filas";
+
+return texto;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1785849620001</Id>
 					<Name><![CDATA[registrarEtapaEnvio]]></Name>
 					<X>-300</X><Y>2900</Y>
@@ -6752,6 +8282,12 @@ envio.diaListoEnTerminal = time();]]></Body>
 if (envio == null) {
     return;
 }
+
+// El arco anterior se cierra antes de declarar el nuevo: recien al salir del bloque
+// existen la duracion real y el estado final (ADR-064). Los tres campos que ADR-063 puso
+// para C-05 son los mismos que describen el arco, asi que no hay una segunda etapa que
+// pueda quedar desincronizada de la que vigila C-05.
+cerrarArcoEnvio(envio);
 
 envio.bloqueActual = bloque;
 envio.diaEntradaBloque = time();
@@ -6897,6 +8433,8 @@ envio.diaEntrega = fechaEntrega;
 envio.diaCargosCierre = diaCampania();
 
 // El envio ya no esta en ningun bloque del flujo (C-05, ADR-063).
+cerrarArcoEnvio(envio);
+
 envio.bloqueActual = "";
 envio.diaEntradaBloque = -1;
 
@@ -8161,6 +9699,7 @@ AlternativaCircuito transferencia =
         EstrategiaLogistica.CONSOLIDACION_DEPOSITO, false);
 
 transferencia.descartar(
+    AlternativaCircuito.TRANSFERENCIA_DEPOSITO_DEPOSITO,
     "transferencia deposito-deposito sin movimiento fisico en el modelo (C7)");
 
 alternativas.add(transferencia);
@@ -8217,7 +9756,8 @@ if (
     alternativa.contenedores = 0;
 
     alternativa.descartar(
-        "SIN_CAPACIDAD_ANTES_CUTOFF en " + alternativa.idUbicacionCapacidad);
+        AlternativaCircuito.SIN_CAPACIDAD_ANTES_CUTOFF,
+        "sin capacidad antes del cutoff en " + alternativa.idUbicacionCapacidad);
 
     if (exportarDiagnosticoCapacidad) {
         diagnosticoAsignaciones.add(
@@ -8246,6 +9786,7 @@ if (
         : alternativa.diagnosticoFlota;
 
     alternativa.descartar(
+        motivoFlota,
         motivoFlota + " "
         + (alternativa.esCrossDock ? "PLANTA" : alternativa.idOrigen)
         + "->"
@@ -8261,6 +9802,9 @@ if (
 if (toneladas <= 0.0001) {
     alternativa.descartar(
         alternativa.esCrossDock
+        ? AlternativaCircuito.SIN_STOCK_ESPACIO_O_CUPO
+        : AlternativaCircuito.SIN_STOCK,
+        alternativa.esCrossDock
         ? "sin stock, espacio o cupo para cruzar por " + alternativa.idOrigen
         : "sin stock libre en " + alternativa.idOrigen);
     return;
@@ -8269,7 +9813,8 @@ if (toneladas <= 0.0001) {
 if (alternativa.esCrossDock) {
 
     if (!habilitaCrossDock) {
-        alternativa.descartar("cross dock deshabilitado en el escenario");
+        alternativa.descartar(
+    AlternativaCircuito.CROSS_DOCK_DESHABILITADO, "cross dock deshabilitado en el escenario");
         return;
     }
 
@@ -8279,14 +9824,16 @@ if (alternativa.esCrossDock) {
         inventario.libre("PLANTA", pedido.producto) + 0.0001
         < toneladas
     ) {
-        alternativa.descartar("sin stock libre en planta para cruzar");
+        alternativa.descartar(
+    AlternativaCircuito.SIN_STOCK_PLANTA_PARA_CRUZAR, "sin stock libre en planta para cruzar");
         return;
     }
 
     Deposito sitio = buscarDeposito(alternativa.idOrigen);
 
     if (sitio == null || !sitio.habilitado) {
-        alternativa.descartar("deposito no habilitado");
+        alternativa.descartar(
+    AlternativaCircuito.ORIGEN_NO_HABILITADO, "deposito no habilitado");
         return;
     }
 
@@ -8294,7 +9841,8 @@ if (alternativa.esCrossDock) {
         capacidadCrossDockLibre(alternativa.idOrigen)
         < alternativa.contenedores
     ) {
-        alternativa.descartar("sin cupo de cross dock hoy");
+        alternativa.descartar(
+    AlternativaCircuito.SIN_CUPO_CROSS_DOCK, "sin cupo de cross dock hoy");
         return;
     }
 
@@ -8302,7 +9850,8 @@ if (alternativa.esCrossDock) {
         espacioDisponibleEfectivo(sitio, pedido.producto) + 0.0001
         < toneladas
     ) {
-        alternativa.descartar("sin espacio de paso en el deposito");
+        alternativa.descartar(
+    AlternativaCircuito.SIN_ESPACIO_DE_PASO, "sin espacio de paso en el deposito");
         return;
     }
 
@@ -8312,7 +9861,8 @@ if (alternativa.esCrossDock) {
         !usaFlotaMultidiaria()
         && !flotaProductoAlcanza("PLANTA", alternativa.idOrigen, toneladas)
     ) {
-        alternativa.descartar("sin flota de producto planta-deposito");
+        alternativa.descartar(
+    AlternativaCircuito.SIN_FLOTA_PLANTA_DEPOSITO, "sin flota de producto planta-deposito");
         return;
     }
 
@@ -8322,7 +9872,8 @@ if (alternativa.esCrossDock) {
         inventario.libre(alternativa.idOrigen, pedido.producto) + 0.0001
         < toneladas
     ) {
-        alternativa.descartar("sin stock libre en " + alternativa.idOrigen);
+        alternativa.descartar(
+    AlternativaCircuito.SIN_STOCK, "sin stock libre en " + alternativa.idOrigen);
         return;
     }
 
@@ -8331,7 +9882,8 @@ if (alternativa.esCrossDock) {
         && !usaFlotaMultidiaria()
         && !flotaProductoAlcanza(alternativa.idOrigen, terminal, toneladas)
     ) {
-        alternativa.descartar("sin flota de producto para el granel a terminal");
+        alternativa.descartar(
+    AlternativaCircuito.SIN_FLOTA_GRANEL_TERMINAL, "sin flota de producto para el granel a terminal");
         return;
     }
 }
@@ -8342,7 +9894,8 @@ if (
     !alternativa.esCrossDock
     && datos.ubicacion(alternativa.sitioEstiba).contenedoresPorDia <= 0
 ) {
-    alternativa.descartar("sin capacidad de estiba en " + alternativa.sitioEstiba);
+    alternativa.descartar(
+    AlternativaCircuito.CAPACIDAD_ESTIBA_CERO, "sin capacidad de estiba en " + alternativa.sitioEstiba);
     return;
 }
 
@@ -8726,22 +10279,41 @@ while (
 ) {
     vueltas++;
 
+    // Identidad de la ronda (ADR-064). La vuelta es parte de la identidad: la misma
+    // alternativa evaluada en dos vueltas del mismo dia son dos hechos distintos, porque
+    // entre una y otra el pedido ya se llevo stock y capacidad.
+    idDecisionActual = pedido.codigoPedido + "-D" + vueltas;
+
+    double saldoAntes = pedido.toneladasPendientesAsignar();
+
     java.util.List<AlternativaCircuito> alternativas =
         generarAlternativas(pedido);
+
+    etiquetarAlternativas(idDecisionActual, alternativas);
 
     java.util.List<AlternativaCircuito> ranking =
         ordenarAlternativas(pedido, alternativas);
 
     double tomadas = 0;
 
+    AlternativaCircuito ejecutada = null;
+
     for (AlternativaCircuito elegida : ranking) {
+
+        idAlternativaActual = elegida.idAlternativa;
 
         tomadas = ejecutarAlternativa(pedido, elegida);
 
         if (tomadas <= 0.0001) {
-            elegida.descartar("el flujo no pudo tomarla al ejecutar");
+            // No es una restriccion del sitio: la alternativa era factible y otro pedido del
+            // mismo dia se llevo lo que faltaba. Se distingue para poder medirlo (ADR-064).
+            elegida.descartar(
+                AlternativaCircuito.NO_TOMADA_AL_EJECUTAR,
+                "el flujo no pudo tomarla al ejecutar");
             continue;
         }
+
+        ejecutada = elegida;
 
         registrarPlan(pedido, alternativas, elegida, tomadas);
 
@@ -8749,6 +10321,14 @@ while (
 
         break;
     }
+
+    idAlternativaActual = "";
+
+    registrarDecisionRonda(
+        pedido, idDecisionActual, vueltas, alternativas, ranking, ejecutada, tomadas,
+        saldoAntes);
+
+    idDecisionActual = "";
 
     if (tomadas <= 0.0001) {
         break;
@@ -8940,6 +10520,12 @@ siguienteIdAsignacion++;
 
 asignacion.motivoAsignacion = motivo == null ? "" : motivo;
 asignacion.prioridad = pedido.asignaciones.size() + 1;
+
+// Decision que creo esta asignacion (ADR-064). Se toma del contexto y no por parametro para
+// no cambiar la firma de las cinco funciones que crean asignaciones; queda vacio cuando la
+// asignacion no viene del evaluador (cross dock heuristico), y eso es un dato, no una falla.
+asignacion.idDecision = idDecisionActual;
+asignacion.idAlternativa = idAlternativaActual;
 
 pedido.asignaciones.add(asignacion);
 
@@ -11940,7 +13526,7 @@ return "Capacidad · reservadas " + capacidadReservadaTotal
 					<Body><![CDATA[// El diagnostico se escribe una vez, el ultimo dia, y solo si el escenario lo pide: en
 // el barrido son millones de filas que nadie lee.
 if (
-    !exportarDiagnosticoCapacidad
+    (!exportarDiagnosticoCapacidad && !auditoria.activa())
     || diaCampania() < duracionCampaniaDias - 1
 ) {
     return;
@@ -11968,8 +13554,11 @@ exportarAsignacionesCapacidad("resultados/asignaciones_capacidad.csv");]]></Body
 try {
     salida = new java.io.PrintWriter(ruta, "UTF-8");
 
+    // snapshot_capacidad_recursos de ADR-064 es esta tabla: la ocupacion por
+    // (recurso, sitio, dia) ya vive en una sola agenda (ADR-060) y duplicarla en otra
+    // tabla obligaria a reconciliar dos calendarios que pueden diferir.
     salida.println(
-        "escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
+        "run_id,escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
         + "reservada,consumida,liberada,ocupada,libre,cola");
 
     for (String clave : ocupacionCapacidad.keySet()) {
@@ -11990,7 +13579,8 @@ try {
             }
 
             salida.println(
-                idEscenario + "," + replica + "," + dia + ","
+                AuditoriaRed.txt(auditoria.runId) + ","
+                + idEscenario + "," + replica + "," + dia + ","
                 + tipoRecurso + "," + idUbicacion + "," + nominal + ","
                 + reservasDelDia(tipoRecurso, idUbicacion, dia, "ACTIVA") + ","
                 + reservasDelDia(tipoRecurso, idUbicacion, dia, "CONSUMIDA") + ","
@@ -12059,7 +13649,10 @@ try {
     }
 }
 
-if (diagnosticoAsignaciones.isEmpty()) {
+// Deprecado por ADR-064: decisiones_alternativas registra la misma decision con la
+// identidad de la ronda y el resultado de ejecucion, asi que con la auditoria activa este
+// archivo seria una segunda version incompleta del mismo hecho.
+if (diagnosticoAsignaciones.isEmpty() || auditoria.activa()) {
     return;
 }
 
@@ -12961,6 +14554,10 @@ inventario.ingresar(
 
 toneladasProductoEnTransito -= viaje.toneladas;
 viaje.stockIngresadoDestino = true;
+
+// El viaje ya recorrio el arco: sale del origen al salir y entra al destino al llegar
+// (ADR-061), asi que la duracion real existe recien aca (ADR-064).
+registrarArcoViajeProducto(viaje);
 
 Deposito destino = buscarDeposito(viaje.destino);
 
@@ -30744,6 +32341,14 @@ public class AsignacionPedido implements java.io.Serializable {
 	public String codigoPedido = "";
 	public String idSitioOrigen = "";
 
+	/**
+	 * Decision y alternativa que crearon esta asignacion (ADR-064). Es la unica copia de la
+	 * identidad de la decision en el mundo fisico: el contenedor y el envio ya llevan
+	 * idAsignacionPedido, asi que repetirla en ellos seria una copia que puede quedar vieja.
+	 */
+	public String idDecision = "";
+	public String idAlternativa = "";
+
 	public TipoProducto producto = TipoProducto.JUGO;
 	public EstrategiaLogistica circuito = EstrategiaLogistica.SIN_DEFINIR;
 	public boolean esCrossDock = false;
@@ -30816,6 +32421,53 @@ public class AsignacionPedido implements java.io.Serializable {
 		}
 	}
 
+	public static String encabezadoCsv() {
+		return "run_id,escenario,replica,id_asignacion,id_decision,id_alternativa,"
+				+ "codigo_pedido,producto,origen,circuito,es_cross_dock,prioridad,"
+				+ "dia_asignacion,dia_primer_despacho,dia_ultima_entrega,"
+				+ "toneladas_asignadas,toneladas_reservadas_activas,toneladas_contenerizadas,"
+				+ "toneladas_despachadas,toneladas_entregadas,"
+				+ "contenedores_creados,contenedores_entregados,"
+				+ "costo_incremental_estimado,costo_end_to_end_estimado,"
+				+ "costo_real_contenedores_usd,desvio_costo_usd,"
+				+ "dias_ciclo_real,cerrada,cancelada,motivo_asignacion";
+	}
+
+	/**
+	 * Fila de asignaciones_elegidas. El costo real es el de los cargos de sus contenedores:
+	 * el almacenaje y el flete de guarda se devengan contra el lote y no contra una
+	 * asignacion, asi que repartirlos aca seria inventar una atribucion.
+	 */
+	public String toCsv(String runId, String escenario, int replica, double costoRealContenedores,
+			int contenedoresCreados, int contenedoresEntregados) {
+		double ciclo =
+				diaUltimaEntrega < 0 || diaAsignacion < 0
+				? -1
+				: diaUltimaEntrega - diaAsignacion;
+
+		return AuditoriaRed.txt(runId) + "," + AuditoriaRed.txt(escenario) + ","
+				+ AuditoriaRed.ent(replica) + "," + AuditoriaRed.txt(idAsignacion) + ","
+				+ AuditoriaRed.txt(idDecision) + "," + AuditoriaRed.txt(idAlternativa) + ","
+				+ AuditoriaRed.txt(codigoPedido) + "," + AuditoriaRed.txt("" + producto) + ","
+				+ AuditoriaRed.txt(idSitioOrigen) + "," + AuditoriaRed.txt("" + circuito) + ","
+				+ AuditoriaRed.si(esCrossDock) + "," + AuditoriaRed.ent(prioridad) + ","
+				+ AuditoriaRed.num(diaAsignacion) + "," + AuditoriaRed.num(diaPrimerDespacho) + ","
+				+ AuditoriaRed.num(diaUltimaEntrega) + ","
+				+ AuditoriaRed.num(toneladasAsignadas) + ","
+				+ AuditoriaRed.num(toneladasReservadasActivas) + ","
+				+ AuditoriaRed.num(toneladasContenerizadas) + ","
+				+ AuditoriaRed.num(toneladasDespachadas) + ","
+				+ AuditoriaRed.num(toneladasEntregadas) + ","
+				+ AuditoriaRed.ent(contenedoresCreados) + ","
+				+ AuditoriaRed.ent(contenedoresEntregados) + ","
+				+ AuditoriaRed.num(costoIncrementalEstimado) + ","
+				+ AuditoriaRed.num(costoEndToEndEstimado) + ","
+				+ AuditoriaRed.num(costoRealContenedores) + ","
+				+ AuditoriaRed.num(costoRealContenedores - costoIncrementalEstimado) + ","
+				+ AuditoriaRed.num(ciclo) + "," + AuditoriaRed.si(cerrada) + ","
+				+ AuditoriaRed.si(cancelada) + "," + AuditoriaRed.txt(motivoAsignacion);
+	}
+
 	public String descripcion() {
 		return idAsignacion + " " + codigoPedido + " desde " + idSitioOrigen
 				+ " por " + circuito
@@ -30855,6 +32507,32 @@ public class AlternativaCircuito implements java.io.Serializable {
 
 	// Capacidad finita (ADR-060): una alternativa vale por lo que puede procesar antes
 	// del cut-off, no por su costo. El recurso es la unidad de capacidad que consume.
+	/** Identidad de la alternativa dentro de la ronda de decision (ADR-064). */
+	public String idAlternativa = "";
+
+	/**
+	 * Motivo normalizado del descarte. El texto libre queda en motivoNoFactible: el codigo
+	 * es para agrupar y el detalle para leer, y ninguno de los dos reemplaza al otro.
+	 */
+	public String codigoMotivo = "";
+
+	public static final String TRANSFERENCIA_DEPOSITO_DEPOSITO = "TRANSFERENCIA_DEPOSITO_DEPOSITO";
+	public static final String SIN_CAPACIDAD_ANTES_CUTOFF = "SIN_CAPACIDAD_ANTES_CUTOFF";
+	public static final String CAPACIDAD_ESTIBA_CERO = "CAPACIDAD_ESTIBA_CERO";
+	public static final String SIN_FLOTA_ANTES_CUTOFF = "SIN_FLOTA_ANTES_CUTOFF";
+	public static final String SIN_FLOTA_PLANTA_DEPOSITO = "SIN_FLOTA_PLANTA_DEPOSITO";
+	public static final String SIN_FLOTA_GRANEL_TERMINAL = "SIN_FLOTA_GRANEL_TERMINAL";
+	public static final String SIN_STOCK = "SIN_STOCK";
+	public static final String SIN_STOCK_PLANTA_PARA_CRUZAR = "SIN_STOCK_PLANTA_PARA_CRUZAR";
+	public static final String SIN_STOCK_ESPACIO_O_CUPO = "SIN_STOCK_ESPACIO_O_CUPO";
+	public static final String CROSS_DOCK_DESHABILITADO = "CROSS_DOCK_DESHABILITADO";
+	public static final String ORIGEN_NO_HABILITADO = "ORIGEN_NO_HABILITADO";
+	public static final String SIN_CUPO_CROSS_DOCK = "SIN_CUPO_CROSS_DOCK";
+	public static final String SIN_ESPACIO_DE_PASO = "SIN_ESPACIO_DE_PASO";
+
+	/** No es una restriccion del sitio: otro pedido del mismo dia se llevo lo que faltaba. */
+	public static final String NO_TOMADA_AL_EJECUTAR = "NO_TOMADA_AL_EJECUTAR";
+
 	public String tipoRecursoCapacidad = ReservaCapacidad.CONSOLIDACION;
 	public String idUbicacionCapacidad = "";
 	public int contenedoresConCapacidad = 0;
@@ -30932,9 +32610,14 @@ public class AlternativaCircuito implements java.io.Serializable {
 		costoEndToEnd = costoHistorico + costoIncremental;
 	}
 
-	public void descartar(String motivo) {
+	/**
+	 * Descarta con codigo y detalle. No hay version de un solo argumento a proposito: un
+	 * descarte sin codigo no se puede agrupar y la tabla de motivos deja de servir.
+	 */
+	public void descartar(String codigo, String detalle) {
 		factible = false;
-		motivoNoFactible = motivo;
+		codigoMotivo = codigo;
+		motivoNoFactible = detalle;
 	}
 
 	public double costoSegun(boolean endToEnd) {
@@ -31476,6 +33159,44 @@ public class Inventario implements java.io.Serializable {
 
 	private static final PorAntiguedad FIFO = new PorAntiguedad();
 
+	/**
+	 * Ingresos y egresos fisicos del dia por ubicacion y producto (ADR-064): [ingreso, egreso].
+	 *
+	 * Se cuenta aca y no en quien llama porque aca estan todas las mutaciones: contarlo en el
+	 * modelo obligaria a acordarse en cada punto nuevo, y un movimiento no contado hace que el
+	 * balance diario del nodo cierre por casualidad.
+	 */
+	public final java.util.LinkedHashMap<String, double[]> flujoDia =
+			new java.util.LinkedHashMap<String, double[]>();
+
+	private void anotarFlujo(String idUbicacion, TipoProducto producto, double toneladas,
+			boolean ingreso) {
+		if (toneladas <= EPS) {
+			return;
+		}
+		String clave = idUbicacion + "|" + producto;
+		double[] flujo = flujoDia.get(clave);
+		if (flujo == null) {
+			flujo = new double[2];
+			flujoDia.put(clave, flujo);
+		}
+		flujo[ingreso ? 0 : 1] += toneladas;
+	}
+
+	public double ingresosDia(String idUbicacion, TipoProducto producto) {
+		double[] flujo = flujoDia.get(idUbicacion + "|" + producto);
+		return flujo == null ? 0 : flujo[0];
+	}
+
+	public double egresosDia(String idUbicacion, TipoProducto producto) {
+		double[] flujo = flujoDia.get(idUbicacion + "|" + producto);
+		return flujo == null ? 0 : flujo[1];
+	}
+
+	public void reiniciarFlujoDia() {
+		flujoDia.clear();
+	}
+
 	public Capa ingresar(int idLote, TipoProducto producto, String idUbicacion,
 			double toneladas, double dia, double diaProduccion) {
 		if (toneladas <= EPS) {
@@ -31484,6 +33205,7 @@ public class Inventario implements java.io.Serializable {
 		Capa capa = new Capa(idLote, producto, idUbicacion, toneladas, dia, diaProduccion);
 		capa.idCapa = ++secuenciaCapa;
 		capas.add(capa);
+		anotarFlujo(idUbicacion, producto, toneladas, true);
 		return capa;
 	}
 
@@ -31703,6 +33425,7 @@ public class Inventario implements java.io.Serializable {
 			pendiente -= toma;
 		}
 		limpiar();
+		anotarFlujo(idUbicacion, producto, toneladas - pendiente, false);
 		return toneladas - pendiente;
 	}
 
@@ -31725,6 +33448,8 @@ public class Inventario implements java.io.Serializable {
 		}
 		capas.addAll(nuevas);
 		limpiar();
+		anotarFlujo(origen, producto, toneladas - pendiente, false);
+		anotarFlujo(destino, producto, toneladas - pendiente, true);
 		return toneladas - pendiente;
 	}
 
@@ -31755,6 +33480,10 @@ public class Inventario implements java.io.Serializable {
 		}
 		capas.addAll(nuevas);
 		limpiar();
+		if (!nuevas.isEmpty()) {
+			anotarFlujo(origen, nuevas.get(0).producto, toneladas - pendiente, false);
+			anotarFlujo(destino, nuevas.get(0).producto, toneladas - pendiente, true);
+		}
 		return toneladas - pendiente;
 	}
 
@@ -31817,6 +33546,7 @@ public class Inventario implements java.io.Serializable {
 			pendiente -= toma;
 		}
 		limpiar();
+		anotarFlujo(idUbicacion, producto, toneladas - pendiente, false);
 		return toneladas - pendiente;
 	}
 
@@ -31852,6 +33582,7 @@ public class Inventario implements java.io.Serializable {
 			c.quitarReserva(clave, toma);
 			c.toneladas -= toma;
 			pendiente -= toma;
+			anotarFlujo(idUbicacion, c.producto, toma, false);
 		}
 		limpiar();
 		return toneladas - pendiente;
@@ -32206,6 +33937,704 @@ public class ResultadoDisponibilidadFlota implements java.io.Serializable {
 				+ " en " + viajesProgramables + " de " + viajesRequeridos + " viajes"
 				+ " | espera " + Math.round(esperaMaximaDias * 100) / 100.0 + " d"
 				+ (motivo.isEmpty() ? "" : " | " + motivo);
+	}
+}]]></Text>
+			<ImportSection><![CDATA[]]></ImportSection>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
+			<Id>1786400000001</Id>
+			<Name><![CDATA[AuditoriaRed]]></Name>
+			<Text><![CDATA[/**
+ * Capa de auditoria de la red (ADR-064): escribe los hechos de la corrida a csv.
+ *
+ * Escribe en streaming y no acumula filas en memoria: una campania genera decenas de
+ * miles de decisiones y cientos de miles de cargos, y el barrido corre mil corridas en
+ * la misma JVM. Guardarlas para exportarlas al cierre no entra en memoria y una corrida
+ * interrumpida no dejaria evidencia.
+ *
+ * No es un tipo de agente: PLE admite 10 y el modelo ya los usa (ADR-030).
+ */
+public class AuditoriaRed implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Cuanto se registra. La auditoria completa multiplica por decenas el tamano de la
+	 * salida de una corrida, asi que el default del barrido es DESACTIVADA y COMPLETA es
+	 * para la corrida puntual que se audita.
+	 */
+	public enum Nivel {
+		DESACTIVADA,
+		RESUMIDA,
+		COMPLETA
+	}
+
+	public static final String DECISIONES = "decisiones_alternativas";
+	public static final String ASIGNACIONES = "asignaciones_elegidas";
+	public static final String ARCOS = "ejecucion_arcos";
+	public static final String COSTOS = "costos_eventos";
+	public static final String INVENTARIO = "snapshot_inventario";
+	public static final String CAPACIDAD = "snapshot_capacidad_recursos";
+
+	/**
+	 * Tablas ya abiertas por esta JVM. La primera corrida escribe el encabezado y las
+	 * siguientes anexan: asi el barrido deja un solo archivo por tabla con todas las
+	 * corridas identificadas por run_id, sin que nadie tenga que declarar si es barrido.
+	 */
+	private static final java.util.Set<String> abiertas =
+		new java.util.HashSet<String>();
+
+	public Nivel nivel = Nivel.DESACTIVADA;
+
+	/** Identidad de la corrida: sin esto dos corridas colisionan en la misma tabla. */
+	public String runId = "";
+
+	public String directorio = "resultados";
+
+	/** Filas escritas por tabla: es el contador que reconcilian C-06 y C-09. */
+	public final java.util.LinkedHashMap<String, Long> filas =
+		new java.util.LinkedHashMap<String, Long>();
+
+	private transient java.util.LinkedHashMap<String, java.io.PrintWriter> salidas =
+		new java.util.LinkedHashMap<String, java.io.PrintWriter>();
+
+	public boolean activa() {
+		return nivel != Nivel.DESACTIVADA;
+	}
+
+	/** Las alternativas descartadas son el grueso del volumen: solo en COMPLETA. */
+	public boolean registraDescartadas() {
+		return nivel == Nivel.COMPLETA;
+	}
+
+	public void abrir(String tabla, String encabezado) {
+		if (!activa()) {
+			return;
+		}
+
+		if (salidas == null) {
+			salidas = new java.util.LinkedHashMap<String, java.io.PrintWriter>();
+		}
+
+		if (salidas.containsKey(tabla)) {
+			return;
+		}
+
+		String ruta = directorio + "/" + tabla + ".csv";
+
+		boolean anexa = abiertas.contains(ruta);
+
+		try {
+			java.io.PrintWriter salida =
+				new java.io.PrintWriter(
+					new java.io.BufferedWriter(
+						new java.io.OutputStreamWriter(
+							new java.io.FileOutputStream(ruta, anexa), "UTF-8"),
+						1 << 16));
+
+			if (!anexa) {
+				salida.println(encabezado);
+				abiertas.add(ruta);
+			}
+
+			salidas.put(tabla, salida);
+
+			if (!filas.containsKey(tabla)) {
+				filas.put(tabla, 0L);
+			}
+
+		} catch (java.io.IOException e) {
+			throw new RuntimeException(
+				"No se pudo abrir " + ruta + " para la auditoria de red: " + e.getMessage());
+		}
+	}
+
+	public void escribir(String tabla, String fila) {
+		if (!activa()) {
+			return;
+		}
+
+		java.io.PrintWriter salida = salidas == null ? null : salidas.get(tabla);
+
+		if (salida == null) {
+			throw new RuntimeException(
+				"La tabla de auditoria " + tabla + " no fue abierta: el encabezado y las filas"
+				+ " se escriben desde el mismo lugar (ADR-064).");
+		}
+
+		salida.println(fila);
+
+		filas.put(tabla, filasDe(tabla) + 1);
+	}
+
+	public long filasDe(String tabla) {
+		Long cantidad = filas.get(tabla);
+
+		return cantidad == null ? 0L : cantidad.longValue();
+	}
+
+	public void cerrar() {
+		if (salidas == null) {
+			return;
+		}
+
+		for (java.io.PrintWriter salida : salidas.values()) {
+			salida.flush();
+			salida.close();
+		}
+
+		salidas.clear();
+	}
+
+	public String resumen() {
+		String texto = "Auditoria de red " + nivel + " | run " + runId;
+
+		for (String tabla : filas.keySet()) {
+			texto += "\n  " + tabla + " " + filasDe(tabla);
+		}
+
+		return texto;
+	}
+
+	// ------------------------------------------------------------------ formato csv
+
+	/** Texto escapado: una coma, una comilla o un salto de linea no rompen la tabla. */
+	public static String txt(String valor) {
+		if (valor == null || valor.isEmpty()) {
+			return "";
+		}
+
+		String limpio = valor.replace("\r", " ").replace("\n", " ");
+
+		return limpio.indexOf(',') >= 0 || limpio.indexOf('"') >= 0
+			? "\"" + limpio.replace("\"", "\"\"") + "\""
+			: limpio;
+	}
+
+	/** Numero con punto decimal y cuatro decimales; vacio si no es un numero finito. */
+	public static String num(double valor) {
+		if (Double.isNaN(valor) || Double.isInfinite(valor)) {
+			return "";
+		}
+
+		return String.format(java.util.Locale.US, "%.4f", valor);
+	}
+
+	public static String ent(long valor) {
+		return Long.toString(valor);
+	}
+
+	public static String si(boolean valor) {
+		return valor ? "true" : "false";
+	}
+}]]></Text>
+			<ImportSection><![CDATA[]]></ImportSection>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
+			<Id>1786400000002</Id>
+			<Name><![CDATA[RegistroDecisionAlternativa]]></Name>
+			<Text><![CDATA[/**
+ * Una alternativa evaluada en una ronda de decision de un pedido (ADR-064).
+ *
+ * La granularidad es dia + pedido + ronda + alternativa. La ronda es parte de la
+ * identidad porque asignarConEvaluador() vuelve a generar las alternativas en cada
+ * vuelta: tomar stock cambia lo que el resto puede prometer (ADR-055), asi que la
+ * misma alternativa evaluada dos veces en el mismo dia son dos hechos distintos.
+ *
+ * No es un tipo de agente: PLE admite 10 y el modelo ya los usa (ADR-030).
+ */
+public class RegistroDecisionAlternativa implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	// ------------------------------------------------------------------ corrida
+	public String runId = "";
+	public String escenario = "";
+	public int replica = 0;
+	public double diaSimulacion = 0;
+	public int diaCampania = 0;
+	public String politicaSeleccion = "";
+	public String criterioOrden = "";
+
+	// ----------------------------------------------------------------- decision
+	public String idDecision = "";
+	public int ronda = 0;
+	public String idAlternativa = "";
+
+	// ------------------------------------------------------------------- pedido
+	public String codigoPedido = "";
+	public String producto = "";
+	public String tipoContenedor = "";
+	public String terminal = "";
+	public String estadoPedidoAntes = "";
+	public double toneladasSolicitadas = 0;
+	public double toneladasEntregadasPrevias = 0;
+	public double toneladasEnProcesoPrevias = 0;
+	public double toneladasReservadasPrevias = 0;
+	public double toneladasPendientesAsignar = 0;
+	public int contenedoresPendientesEstimados = 0;
+	public double diaConocimiento = -1;
+	public double diaAperturaRetiro = -1;
+	public double diaCutoff = -1;
+	public double diasHastaCutoff = 0;
+	public int cantidadOrigenesPrevios = 0;
+
+	// -------------------------------------------------------------- alternativa
+	public String circuito = "";
+	public boolean esCrossDock = false;
+	public String origenStock = "";
+	public String sitioEstiba = "";
+	public String destinoFinal = "";
+	public boolean requiereFlotaProducto = false;
+	public boolean requierePortacontenedor = false;
+	public boolean requierePosicion = false;
+	public String tipoRecursoCapacidad = "";
+	public String ubicacionRecursoCapacidad = "";
+
+	// ------------------------------------------------------ stock y capacidad al decidir
+	public double stockFisicoOrigenTn = 0;
+	public double stockLibreOrigenTn = 0;
+	public double stockReservadoOrigenTn = 0;
+	public double stockEnTransitoHaciaOrigenTn = 0;
+	public double espacioFisicoSitioTn = 0;
+	public double espacioEfectivoSitioTn = 0;
+	public double ocupacionSitioPct = 0;
+	public int cupoCrossdockLibreCont = 0;
+	public int posicionesDisponiblesAntesCutoff = 0;
+	public double flotaProductoDisponible = 0;
+	public double primeraSalidaFlota = -1;
+	public double ultimaLlegadaFlota = -1;
+	public double esperaFlotaDias = 0;
+	public int portacontenedoresLibres = 0;
+	public int portacontenedoresOcupados = 0;
+
+	// --------------------------------------------------------- volumen factible
+	public double toneladasSinRestriccionCapacidad = 0;
+	public double toneladasFactibles = 0;
+	public int contenedoresFactibles = 0;
+	public int contenedoresConCapacidad = 0;
+	public int viajesProductoRequeridos = 0;
+	public int viajesProductoFactibles = 0;
+	public boolean esAsignacionParcial = false;
+	public double porcentajePedidoCubierto = 0;
+
+	// -------------------------------------------------------- tiempos estimados
+	public double horasFleteProducto = 0;
+	public double horasCargaEstiba = 0;
+	public double horasViajeVacio = 0;
+	public double horasViajeCargado = 0;
+	public double horasDescargaTerminal = 0;
+	public double horasConsolidacionTerminal = 0;
+	public double horasCicloFisicoTotal = 0;
+	public double diaEntregaEstimado = -1;
+	public double holguraEstimadaDias = 0;
+	public boolean llegaATiempoEstimado = false;
+
+	// --------------------------------------------------------- costos estimados
+	public double costoFleteProducto = 0;
+	public double costoRoundTrip = 0;
+	public double costoEstiba = 0;
+	public double costoOut = 0;
+	public double costoThc = 0;
+	public double costoTerminal = 0;
+	public double costoDespachante = 0;
+	public double costoInHundido = 0;
+	public double costoAlmacenajeHundido = 0;
+	public double costoFleteHundido = 0;
+	public double costoHistorico = 0;
+	public double costoIncremental = 0;
+	public double costoEndToEnd = 0;
+	public double costoIncrementalUsdTn = 0;
+	public double costoEndToEndUsdTn = 0;
+	public double costoIncrementalUsdCont = 0;
+	public double costoUnitarioSinRestriccion = 0;
+
+	// ---------------------------------------------------------------- resultado
+	public boolean factible = false;
+	public int ordenRanking = -1;
+	public String resultadoEjecucion = "";
+	public String codigoMotivo = "";
+	public String detalleMotivo = "";
+	public double toneladasTomadas = 0;
+	public double costoElegidaUsdTn = 0;
+	public double diferenciaVsElegidaUsdTn = 0;
+	public double saldoPedidoAntes = 0;
+	public double saldoPedidoDespues = 0;
+	public boolean esMasBarataNoFactible = false;
+
+	/**
+	 * Que paso con la alternativa en la ronda. No alcanza con un booleano "elegida":
+	 * la primera del ranking puede fallar al ejecutar porque otro pedido del mismo dia
+	 * se llevo la capacidad, y entonces se ejecuta la segunda (ADR-060).
+	 */
+	public static final String ELEGIDA = "ELEGIDA";
+	public static final String INTENTADA_FALLIDA = "INTENTADA_FALLIDA";
+	public static final String NO_INTENTADA = "NO_INTENTADA";
+	public static final String NO_FACTIBLE = "NO_FACTIBLE";
+
+	public static String encabezadoCsv() {
+		return "run_id,escenario,replica,dia_simulacion,dia_campania,politica_seleccion,"
+			+ "criterio_orden,id_decision,ronda,id_alternativa,"
+			+ "codigo_pedido,producto,tipo_contenedor,terminal,estado_pedido_antes,"
+			+ "toneladas_solicitadas,toneladas_entregadas_previas,toneladas_en_proceso_previas,"
+			+ "toneladas_reservadas_previas,toneladas_pendientes_asignar,"
+			+ "contenedores_pendientes_estimados,dia_conocimiento,dia_apertura_retiro,dia_cutoff,"
+			+ "dias_hasta_cutoff,cantidad_origenes_previos,"
+			+ "circuito,es_cross_dock,origen_stock,sitio_estiba,destino_final,"
+			+ "requiere_flota_producto,requiere_portacontenedor,requiere_posicion,"
+			+ "tipo_recurso_capacidad,ubicacion_recurso_capacidad,"
+			+ "stock_fisico_origen_tn,stock_libre_origen_tn,stock_reservado_origen_tn,"
+			+ "stock_en_transito_hacia_origen_tn,espacio_fisico_sitio_tn,espacio_efectivo_sitio_tn,"
+			+ "ocupacion_sitio_pct,cupo_crossdock_libre_cont,posiciones_disponibles_antes_cutoff,"
+			+ "flota_producto_disponible,primera_salida_flota,ultima_llegada_flota,"
+			+ "espera_flota_dias,portacontenedores_libres,portacontenedores_ocupados,"
+			+ "toneladas_sin_restriccion_capacidad,toneladas_factibles,contenedores_factibles,"
+			+ "contenedores_con_capacidad,viajes_producto_requeridos,viajes_producto_factibles,"
+			+ "es_asignacion_parcial,porcentaje_pedido_cubierto,"
+			+ "horas_flete_producto,horas_carga_estiba,horas_viaje_vacio,horas_viaje_cargado,"
+			+ "horas_descarga_terminal,horas_consolidacion_terminal,horas_ciclo_fisico_total,"
+			+ "dia_entrega_estimado,holgura_estimada_dias,llega_a_tiempo_estimado,"
+			+ "costo_flete_producto,costo_roundtrip,costo_estiba,costo_out,costo_thc,"
+			+ "costo_terminal,costo_despachante,costo_in_hundido,costo_almacenaje_hundido,"
+			+ "costo_flete_hundido,costo_historico,costo_incremental,costo_end_to_end,"
+			+ "costo_incremental_usd_tn,costo_end_to_end_usd_tn,costo_incremental_usd_cont,"
+			+ "costo_unitario_sin_restriccion,"
+			+ "factible,orden_ranking,resultado_ejecucion,codigo_motivo,detalle_motivo,"
+			+ "toneladas_tomadas,costo_elegida_usd_tn,diferencia_vs_elegida_usd_tn,"
+			+ "saldo_pedido_antes,saldo_pedido_despues,es_mas_barata_no_factible";
+	}
+
+	public String toCsv() {
+		StringBuilder f = new StringBuilder(1024);
+
+		f.append(AuditoriaRed.txt(runId)).append(',');
+		f.append(AuditoriaRed.txt(escenario)).append(',');
+		f.append(AuditoriaRed.ent(replica)).append(',');
+		f.append(AuditoriaRed.num(diaSimulacion)).append(',');
+		f.append(AuditoriaRed.ent(diaCampania)).append(',');
+		f.append(AuditoriaRed.txt(politicaSeleccion)).append(',');
+		f.append(AuditoriaRed.txt(criterioOrden)).append(',');
+		f.append(AuditoriaRed.txt(idDecision)).append(',');
+		f.append(AuditoriaRed.ent(ronda)).append(',');
+		f.append(AuditoriaRed.txt(idAlternativa)).append(',');
+
+		f.append(AuditoriaRed.txt(codigoPedido)).append(',');
+		f.append(AuditoriaRed.txt(producto)).append(',');
+		f.append(AuditoriaRed.txt(tipoContenedor)).append(',');
+		f.append(AuditoriaRed.txt(terminal)).append(',');
+		f.append(AuditoriaRed.txt(estadoPedidoAntes)).append(',');
+		f.append(AuditoriaRed.num(toneladasSolicitadas)).append(',');
+		f.append(AuditoriaRed.num(toneladasEntregadasPrevias)).append(',');
+		f.append(AuditoriaRed.num(toneladasEnProcesoPrevias)).append(',');
+		f.append(AuditoriaRed.num(toneladasReservadasPrevias)).append(',');
+		f.append(AuditoriaRed.num(toneladasPendientesAsignar)).append(',');
+		f.append(AuditoriaRed.ent(contenedoresPendientesEstimados)).append(',');
+		f.append(AuditoriaRed.num(diaConocimiento)).append(',');
+		f.append(AuditoriaRed.num(diaAperturaRetiro)).append(',');
+		f.append(AuditoriaRed.num(diaCutoff)).append(',');
+		f.append(AuditoriaRed.num(diasHastaCutoff)).append(',');
+		f.append(AuditoriaRed.ent(cantidadOrigenesPrevios)).append(',');
+
+		f.append(AuditoriaRed.txt(circuito)).append(',');
+		f.append(AuditoriaRed.si(esCrossDock)).append(',');
+		f.append(AuditoriaRed.txt(origenStock)).append(',');
+		f.append(AuditoriaRed.txt(sitioEstiba)).append(',');
+		f.append(AuditoriaRed.txt(destinoFinal)).append(',');
+		f.append(AuditoriaRed.si(requiereFlotaProducto)).append(',');
+		f.append(AuditoriaRed.si(requierePortacontenedor)).append(',');
+		f.append(AuditoriaRed.si(requierePosicion)).append(',');
+		f.append(AuditoriaRed.txt(tipoRecursoCapacidad)).append(',');
+		f.append(AuditoriaRed.txt(ubicacionRecursoCapacidad)).append(',');
+
+		f.append(AuditoriaRed.num(stockFisicoOrigenTn)).append(',');
+		f.append(AuditoriaRed.num(stockLibreOrigenTn)).append(',');
+		f.append(AuditoriaRed.num(stockReservadoOrigenTn)).append(',');
+		f.append(AuditoriaRed.num(stockEnTransitoHaciaOrigenTn)).append(',');
+		f.append(AuditoriaRed.num(espacioFisicoSitioTn)).append(',');
+		f.append(AuditoriaRed.num(espacioEfectivoSitioTn)).append(',');
+		f.append(AuditoriaRed.num(ocupacionSitioPct)).append(',');
+		f.append(AuditoriaRed.ent(cupoCrossdockLibreCont)).append(',');
+		f.append(AuditoriaRed.ent(posicionesDisponiblesAntesCutoff)).append(',');
+		f.append(AuditoriaRed.num(flotaProductoDisponible)).append(',');
+		f.append(AuditoriaRed.num(primeraSalidaFlota)).append(',');
+		f.append(AuditoriaRed.num(ultimaLlegadaFlota)).append(',');
+		f.append(AuditoriaRed.num(esperaFlotaDias)).append(',');
+		f.append(AuditoriaRed.ent(portacontenedoresLibres)).append(',');
+		f.append(AuditoriaRed.ent(portacontenedoresOcupados)).append(',');
+
+		f.append(AuditoriaRed.num(toneladasSinRestriccionCapacidad)).append(',');
+		f.append(AuditoriaRed.num(toneladasFactibles)).append(',');
+		f.append(AuditoriaRed.ent(contenedoresFactibles)).append(',');
+		f.append(AuditoriaRed.ent(contenedoresConCapacidad)).append(',');
+		f.append(AuditoriaRed.ent(viajesProductoRequeridos)).append(',');
+		f.append(AuditoriaRed.ent(viajesProductoFactibles)).append(',');
+		f.append(AuditoriaRed.si(esAsignacionParcial)).append(',');
+		f.append(AuditoriaRed.num(porcentajePedidoCubierto)).append(',');
+
+		f.append(AuditoriaRed.num(horasFleteProducto)).append(',');
+		f.append(AuditoriaRed.num(horasCargaEstiba)).append(',');
+		f.append(AuditoriaRed.num(horasViajeVacio)).append(',');
+		f.append(AuditoriaRed.num(horasViajeCargado)).append(',');
+		f.append(AuditoriaRed.num(horasDescargaTerminal)).append(',');
+		f.append(AuditoriaRed.num(horasConsolidacionTerminal)).append(',');
+		f.append(AuditoriaRed.num(horasCicloFisicoTotal)).append(',');
+		f.append(AuditoriaRed.num(diaEntregaEstimado)).append(',');
+		f.append(AuditoriaRed.num(holguraEstimadaDias)).append(',');
+		f.append(AuditoriaRed.si(llegaATiempoEstimado)).append(',');
+
+		f.append(AuditoriaRed.num(costoFleteProducto)).append(',');
+		f.append(AuditoriaRed.num(costoRoundTrip)).append(',');
+		f.append(AuditoriaRed.num(costoEstiba)).append(',');
+		f.append(AuditoriaRed.num(costoOut)).append(',');
+		f.append(AuditoriaRed.num(costoThc)).append(',');
+		f.append(AuditoriaRed.num(costoTerminal)).append(',');
+		f.append(AuditoriaRed.num(costoDespachante)).append(',');
+		f.append(AuditoriaRed.num(costoInHundido)).append(',');
+		f.append(AuditoriaRed.num(costoAlmacenajeHundido)).append(',');
+		f.append(AuditoriaRed.num(costoFleteHundido)).append(',');
+		f.append(AuditoriaRed.num(costoHistorico)).append(',');
+		f.append(AuditoriaRed.num(costoIncremental)).append(',');
+		f.append(AuditoriaRed.num(costoEndToEnd)).append(',');
+		f.append(AuditoriaRed.num(costoIncrementalUsdTn)).append(',');
+		f.append(AuditoriaRed.num(costoEndToEndUsdTn)).append(',');
+		f.append(AuditoriaRed.num(costoIncrementalUsdCont)).append(',');
+		f.append(AuditoriaRed.num(costoUnitarioSinRestriccion)).append(',');
+
+		f.append(AuditoriaRed.si(factible)).append(',');
+		f.append(AuditoriaRed.ent(ordenRanking)).append(',');
+		f.append(AuditoriaRed.txt(resultadoEjecucion)).append(',');
+		f.append(AuditoriaRed.txt(codigoMotivo)).append(',');
+		f.append(AuditoriaRed.txt(detalleMotivo)).append(',');
+		f.append(AuditoriaRed.num(toneladasTomadas)).append(',');
+		f.append(AuditoriaRed.num(costoElegidaUsdTn)).append(',');
+		f.append(AuditoriaRed.num(diferenciaVsElegidaUsdTn)).append(',');
+		f.append(AuditoriaRed.num(saldoPedidoAntes)).append(',');
+		f.append(AuditoriaRed.num(saldoPedidoDespues)).append(',');
+		f.append(AuditoriaRed.si(esMasBarataNoFactible));
+
+		return f.toString();
+	}
+}]]></Text>
+			<ImportSection><![CDATA[]]></ImportSection>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
+			<Id>1786400000003</Id>
+			<Name><![CDATA[RegistroEjecucionArco]]></Name>
+			<Text><![CDATA[/**
+ * Un movimiento fisico completado de la red (ADR-064): una fila por arco recorrido.
+ *
+ * La fila se cierra al salir del arco, no se emite al entrar: recien ahi existen la
+ * duracion real y el estado final. La duracion esperada es la que el modelo prometio
+ * para ese arco, asi que la comparacion ex ante contra ex post es la resta.
+ *
+ * Las esperas son arcos: sin ESPERA_PORTACONTENEDOR y ESPERA_POSICION la suma de las
+ * etapas no reconstruye el tiempo real de un envio (C-10), y son justamente las dos
+ * esperas que explican el atraso.
+ *
+ * El almacenaje, el ingreso y el egreso de deposito no son arcos: son cargos y ya viven
+ * en el registro de costos. Emitirlos aca duplicaria volumen y haria que el costo por
+ * arco y el costo de campania no puedan ser el mismo numero.
+ *
+ * No es un tipo de agente: PLE admite 10 y el modelo ya los usa (ADR-030).
+ */
+public class RegistroEjecucionArco implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	public static final String PLANTA_DEPOSITO = "PLANTA_DEPOSITO";
+	public static final String DEPOSITO_DEPOSITO = "DEPOSITO_DEPOSITO";
+	public static final String ESPERA_PORTACONTENEDOR = "ESPERA_PORTACONTENEDOR";
+	public static final String TERMINAL_ORIGEN_VACIO = "TERMINAL_ORIGEN_CONTENEDOR_VACIO";
+	public static final String CARGA_CONSOLIDACION = "CARGA_CONSOLIDACION";
+	public static final String ORIGEN_TERMINAL_CARGADO = "ORIGEN_TERMINAL_CONTENEDOR_CARGADO";
+	public static final String DESCARGA_TERMINAL = "DESCARGA_TERMINAL";
+	public static final String CONSOLIDACION_TERMINAL = "CONSOLIDACION_TERMINAL";
+	public static final String CROSS_DOCK = "CROSS_DOCK";
+	public static final String ESPERA_POSICION = "ESPERA_POSICION";
+
+	public String runId = "";
+	public String escenario = "";
+	public int replica = 0;
+
+	public long idEventoArco = 0;
+
+	public String idDecision = "";
+	public String idAlternativa = "";
+	public String idAsignacion = "";
+	public String idEnvio = "";
+	public String idContenedor = "";
+	public String codigoPedido = "";
+	public String idLote = "";
+	public String producto = "";
+
+	public String tipoArco = "";
+	public String origen = "";
+	public String destino = "";
+	public String circuito = "";
+	public boolean esCrossDock = false;
+
+	public double toneladas = 0;
+	public int contenedores = 0;
+	public int viajes = 0;
+	public double distanciaKm = 0;
+
+	public double diaProgramacion = -1;
+	public double diaInicio = -1;
+	public double diaFin = -1;
+	public double duracionRealHoras = 0;
+	public double duracionEsperadaHoras = -1;
+
+	public String recursoUtilizado = "";
+	public String idRecurso = "";
+	public String estadoFinal = "";
+
+	/** Cargo que este arco genero, si genero uno. La vista completa es costos_eventos. */
+	public String categoriaCosto = "";
+	public double costoAtribuidoUsd = 0;
+
+	public static String encabezadoCsv() {
+		return "run_id,escenario,replica,id_evento_arco,id_decision,id_alternativa,"
+			+ "id_asignacion,id_envio,id_contenedor,codigo_pedido,id_lote,producto,"
+			+ "tipo_arco,origen,destino,circuito,es_cross_dock,"
+			+ "toneladas,contenedores,viajes,distancia_km,"
+			+ "dia_programacion,dia_inicio,dia_fin,duracion_real_horas,duracion_esperada_horas,"
+			+ "recurso_utilizado,id_recurso,estado_final,categoria_costo,costo_atribuido_usd,"
+			+ "costo_usd_tn";
+	}
+
+	public String toCsv() {
+		StringBuilder f = new StringBuilder(320);
+
+		f.append(AuditoriaRed.txt(runId)).append(',');
+		f.append(AuditoriaRed.txt(escenario)).append(',');
+		f.append(AuditoriaRed.ent(replica)).append(',');
+		f.append(AuditoriaRed.ent(idEventoArco)).append(',');
+		f.append(AuditoriaRed.txt(idDecision)).append(',');
+		f.append(AuditoriaRed.txt(idAlternativa)).append(',');
+		f.append(AuditoriaRed.txt(idAsignacion)).append(',');
+		f.append(AuditoriaRed.txt(idEnvio)).append(',');
+		f.append(AuditoriaRed.txt(idContenedor)).append(',');
+		f.append(AuditoriaRed.txt(codigoPedido)).append(',');
+		f.append(AuditoriaRed.txt(idLote)).append(',');
+		f.append(AuditoriaRed.txt(producto)).append(',');
+		f.append(AuditoriaRed.txt(tipoArco)).append(',');
+		f.append(AuditoriaRed.txt(origen)).append(',');
+		f.append(AuditoriaRed.txt(destino)).append(',');
+		f.append(AuditoriaRed.txt(circuito)).append(',');
+		f.append(AuditoriaRed.si(esCrossDock)).append(',');
+		f.append(AuditoriaRed.num(toneladas)).append(',');
+		f.append(AuditoriaRed.ent(contenedores)).append(',');
+		f.append(AuditoriaRed.ent(viajes)).append(',');
+		f.append(AuditoriaRed.num(distanciaKm)).append(',');
+		f.append(AuditoriaRed.num(diaProgramacion)).append(',');
+		f.append(AuditoriaRed.num(diaInicio)).append(',');
+		f.append(AuditoriaRed.num(diaFin)).append(',');
+		f.append(AuditoriaRed.num(duracionRealHoras)).append(',');
+		f.append(AuditoriaRed.num(duracionEsperadaHoras)).append(',');
+		f.append(AuditoriaRed.txt(recursoUtilizado)).append(',');
+		f.append(AuditoriaRed.txt(idRecurso)).append(',');
+		f.append(AuditoriaRed.txt(estadoFinal)).append(',');
+		f.append(AuditoriaRed.txt(categoriaCosto)).append(',');
+		f.append(AuditoriaRed.num(costoAtribuidoUsd)).append(',');
+		f.append(AuditoriaRed.num(toneladas <= 0.0001 ? 0 : costoAtribuidoUsd / toneladas));
+
+		return f.toString();
+	}
+}]]></Text>
+			<ImportSection><![CDATA[]]></ImportSection>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
+			<Id>1786400000004</Id>
+			<Name><![CDATA[SnapshotInventario]]></Name>
+			<Text><![CDATA[/**
+ * Foto diaria del inventario de una ubicacion y un producto (ADR-064).
+ *
+ * Es la tabla que permite reconciliar el balance por nodo:
+ *
+ *     stock inicial del dia + ingresos - egresos = stock final del dia
+ *
+ * validarInventario() ya verificaba el total de la red; esto lo verifica por ubicacion y
+ * producto, que es donde se ve si un deposito se llena o si un nodo pierde producto.
+ *
+ * No es un tipo de agente: PLE admite 10 y el modelo ya los usa (ADR-030).
+ */
+public class SnapshotInventario implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	public String runId = "";
+	public String escenario = "";
+	public int replica = 0;
+
+	public int dia = 0;
+	public String ubicacion = "";
+	public String tipoUbicacion = "";
+	public String producto = "";
+
+	public double capacidadTn = 0;
+	public double stockInicialDiaTn = 0;
+	public double stockFisicoTn = 0;
+	public double stockLibreTn = 0;
+	public double stockReservadoPedidosTn = 0;
+	public double stockReservadoViajesTn = 0;
+	public double stockEnTransitoEntradaTn = 0;
+	public double stockEnTransitoSalidaTn = 0;
+	public double ingresosDiaTn = 0;
+	public double egresosDiaTn = 0;
+	public double produccionDiaTn = 0;
+	public double ocupacionPct = 0;
+	public double costoAlmacenajeDiaUsd = 0;
+	public double diasStockPromedio = 0;
+	public int lotesAbiertos = 0;
+	public double loteMasAntiguoDias = 0;
+
+	public static String encabezadoCsv() {
+		return "run_id,escenario,replica,dia,ubicacion,tipo_ubicacion,producto,capacidad_tn,"
+			+ "stock_inicial_dia_tn,stock_fisico_tn,stock_libre_tn,stock_reservado_pedidos_tn,"
+			+ "stock_reservado_viajes_tn,stock_en_transito_entrada_tn,stock_en_transito_salida_tn,"
+			+ "ingresos_dia_tn,egresos_dia_tn,produccion_dia_tn,ocupacion_pct,"
+			+ "costo_almacenaje_dia_usd,dias_stock_promedio,lotes_abiertos,lote_mas_antiguo_dias,"
+			+ "descuadre_tn";
+	}
+
+	/** Lo que C-12 exige que sea cero: la identidad del balance diario del nodo. */
+	public double descuadre() {
+		return stockFisicoTn - (stockInicialDiaTn + ingresosDiaTn - egresosDiaTn);
+	}
+
+	public String toCsv() {
+		StringBuilder f = new StringBuilder(256);
+
+		f.append(AuditoriaRed.txt(runId)).append(',');
+		f.append(AuditoriaRed.txt(escenario)).append(',');
+		f.append(AuditoriaRed.ent(replica)).append(',');
+		f.append(AuditoriaRed.ent(dia)).append(',');
+		f.append(AuditoriaRed.txt(ubicacion)).append(',');
+		f.append(AuditoriaRed.txt(tipoUbicacion)).append(',');
+		f.append(AuditoriaRed.txt(producto)).append(',');
+		f.append(AuditoriaRed.num(capacidadTn)).append(',');
+		f.append(AuditoriaRed.num(stockInicialDiaTn)).append(',');
+		f.append(AuditoriaRed.num(stockFisicoTn)).append(',');
+		f.append(AuditoriaRed.num(stockLibreTn)).append(',');
+		f.append(AuditoriaRed.num(stockReservadoPedidosTn)).append(',');
+		f.append(AuditoriaRed.num(stockReservadoViajesTn)).append(',');
+		f.append(AuditoriaRed.num(stockEnTransitoEntradaTn)).append(',');
+		f.append(AuditoriaRed.num(stockEnTransitoSalidaTn)).append(',');
+		f.append(AuditoriaRed.num(ingresosDiaTn)).append(',');
+		f.append(AuditoriaRed.num(egresosDiaTn)).append(',');
+		f.append(AuditoriaRed.num(produccionDiaTn)).append(',');
+		f.append(AuditoriaRed.num(ocupacionPct)).append(',');
+		f.append(AuditoriaRed.num(costoAlmacenajeDiaUsd)).append(',');
+		f.append(AuditoriaRed.num(diasStockPromedio)).append(',');
+		f.append(AuditoriaRed.ent(lotesAbiertos)).append(',');
+		f.append(AuditoriaRed.num(loteMasAntiguoDias)).append(',');
+		f.append(AuditoriaRed.num(descuadre()));
+
+		return f.toString();
 	}
 }]]></Text>
 			<ImportSection><![CDATA[]]></ImportSection>

@@ -25,6 +25,32 @@ public class AlternativaCircuito implements java.io.Serializable {
 
 	// Capacidad finita (ADR-060): una alternativa vale por lo que puede procesar antes
 	// del cut-off, no por su costo. El recurso es la unidad de capacidad que consume.
+	/** Identidad de la alternativa dentro de la ronda de decision (ADR-064). */
+	public String idAlternativa = "";
+
+	/**
+	 * Motivo normalizado del descarte. El texto libre queda en motivoNoFactible: el codigo
+	 * es para agrupar y el detalle para leer, y ninguno de los dos reemplaza al otro.
+	 */
+	public String codigoMotivo = "";
+
+	public static final String TRANSFERENCIA_DEPOSITO_DEPOSITO = "TRANSFERENCIA_DEPOSITO_DEPOSITO";
+	public static final String SIN_CAPACIDAD_ANTES_CUTOFF = "SIN_CAPACIDAD_ANTES_CUTOFF";
+	public static final String CAPACIDAD_ESTIBA_CERO = "CAPACIDAD_ESTIBA_CERO";
+	public static final String SIN_FLOTA_ANTES_CUTOFF = "SIN_FLOTA_ANTES_CUTOFF";
+	public static final String SIN_FLOTA_PLANTA_DEPOSITO = "SIN_FLOTA_PLANTA_DEPOSITO";
+	public static final String SIN_FLOTA_GRANEL_TERMINAL = "SIN_FLOTA_GRANEL_TERMINAL";
+	public static final String SIN_STOCK = "SIN_STOCK";
+	public static final String SIN_STOCK_PLANTA_PARA_CRUZAR = "SIN_STOCK_PLANTA_PARA_CRUZAR";
+	public static final String SIN_STOCK_ESPACIO_O_CUPO = "SIN_STOCK_ESPACIO_O_CUPO";
+	public static final String CROSS_DOCK_DESHABILITADO = "CROSS_DOCK_DESHABILITADO";
+	public static final String ORIGEN_NO_HABILITADO = "ORIGEN_NO_HABILITADO";
+	public static final String SIN_CUPO_CROSS_DOCK = "SIN_CUPO_CROSS_DOCK";
+	public static final String SIN_ESPACIO_DE_PASO = "SIN_ESPACIO_DE_PASO";
+
+	/** No es una restriccion del sitio: otro pedido del mismo dia se llevo lo que faltaba. */
+	public static final String NO_TOMADA_AL_EJECUTAR = "NO_TOMADA_AL_EJECUTAR";
+
 	public String tipoRecursoCapacidad = ReservaCapacidad.CONSOLIDACION;
 	public String idUbicacionCapacidad = "";
 	public int contenedoresConCapacidad = 0;
@@ -102,9 +128,14 @@ public class AlternativaCircuito implements java.io.Serializable {
 		costoEndToEnd = costoHistorico + costoIncremental;
 	}
 
-	public void descartar(String motivo) {
+	/**
+	 * Descarta con codigo y detalle. No hay version de un solo argumento a proposito: un
+	 * descarte sin codigo no se puede agrupar y la tabla de motivos deja de servir.
+	 */
+	public void descartar(String codigo, String detalle) {
 		factible = false;
-		motivoNoFactible = motivo;
+		codigoMotivo = codigo;
+		motivoNoFactible = detalle;
 	}
 
 	public double costoSegun(boolean endToEnd) {
