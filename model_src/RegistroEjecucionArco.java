@@ -69,9 +69,11 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 	public String idRecurso = "";
 	public String estadoFinal = "";
 
-	/** Cargo que este arco genero, si genero uno. La vista completa es costos_eventos. */
-	public String categoriaCosto = "";
-	public double costoAtribuidoUsd = 0;
+	/**
+	 * El costo del arco no se copia aca: los cargos son de costos_eventos y se unen por
+	 * id_envio, id_contenedor, id_lote o codigo_pedido. Un importe repetido en dos tablas es
+	 * un importe que puede diferir.
+	 */
 
 	public static String encabezadoCsv() {
 		return "run_id,escenario,replica,id_evento_arco,id_decision,id_alternativa,"
@@ -79,8 +81,7 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 			+ "tipo_arco,origen,destino,circuito,es_cross_dock,"
 			+ "toneladas,contenedores,viajes,distancia_km,"
 			+ "dia_programacion,dia_inicio,dia_fin,duracion_real_horas,duracion_esperada_horas,"
-			+ "recurso_utilizado,id_recurso,estado_final,categoria_costo,costo_atribuido_usd,"
-			+ "costo_usd_tn";
+			+ "recurso_utilizado,id_recurso,estado_final";
 	}
 
 	public String toCsv() {
@@ -114,10 +115,7 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 		f.append(AuditoriaRed.num(duracionEsperadaHoras)).append(',');
 		f.append(AuditoriaRed.txt(recursoUtilizado)).append(',');
 		f.append(AuditoriaRed.txt(idRecurso)).append(',');
-		f.append(AuditoriaRed.txt(estadoFinal)).append(',');
-		f.append(AuditoriaRed.txt(categoriaCosto)).append(',');
-		f.append(AuditoriaRed.num(costoAtribuidoUsd)).append(',');
-		f.append(AuditoriaRed.num(toneladas <= 0.0001 ? 0 : costoAtribuidoUsd / toneladas));
+		f.append(AuditoriaRed.txt(estadoFinal));
 
 		return f.toString();
 	}

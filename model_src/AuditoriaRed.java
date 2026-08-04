@@ -26,6 +26,12 @@ public class AuditoriaRed implements java.io.Serializable {
 		COMPLETA
 	}
 
+	/**
+	 * Version del esquema de las tablas. Cambia cuando cambia una columna o una clave: el
+	 * tablero que consume los csv necesita saber contra que version fue generado.
+	 */
+	public static final String VERSION_ESQUEMA = "ADR-064.1";
+
 	public static final String DECISIONES = "decisiones_alternativas";
 	public static final String ASIGNACIONES = "asignaciones_elegidas";
 	public static final String ARCOS = "ejecucion_arcos";
@@ -42,6 +48,16 @@ public class AuditoriaRed implements java.io.Serializable {
 		new java.util.HashSet<String>();
 
 	public Nivel nivel = Nivel.DESACTIVADA;
+
+	/** El cierre es del final de la corrida y ocurre una sola vez. */
+	public boolean cerrada = false;
+
+	/**
+	 * Filas emitidas despues del cierre. Al terminar la corrida pueden quedar envios en el
+	 * flujo (C-05): su arco es un hecho incompleto y no se escribe, pero se cuenta para que
+	 * el resumen no lo tape.
+	 */
+	public long filasDespuesDelCierre = 0;
 
 	/** Identidad de la corrida: sin esto dos corridas colisionan en la misma tabla. */
 	public String runId = "";
@@ -111,6 +127,11 @@ public class AuditoriaRed implements java.io.Serializable {
 			return;
 		}
 
+		if (cerrada) {
+			filasDespuesDelCierre++;
+			return;
+		}
+
 		java.io.PrintWriter salida = salidas == null ? null : salidas.get(tabla);
 
 		if (salida == null) {
@@ -131,6 +152,8 @@ public class AuditoriaRed implements java.io.Serializable {
 	}
 
 	public void cerrar() {
+		cerrada = true;
+
 		if (salidas == null) {
 			return;
 		}
@@ -148,6 +171,12 @@ public class AuditoriaRed implements java.io.Serializable {
 
 		for (String tabla : filas.keySet()) {
 			texto += "\n  " + tabla + " " + filasDe(tabla);
+		}
+
+		if (filasDespuesDelCierre > 0) {
+			texto +=
+				"\n  filas posteriores al cierre (envios todavia en el flujo) "
+				+ filasDespuesDelCierre;
 		}
 
 		return texto;

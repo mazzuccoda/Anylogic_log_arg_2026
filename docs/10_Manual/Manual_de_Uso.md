@@ -168,6 +168,21 @@ La pantalla del experimento `Escenarios` muestra las medias de las réplicas ya 
 
 Análisis típico en una planilla o en Python: promediar por `id_escenario`, mirar el desvío entre réplicas y comparar contra E-00. Con 30 réplicas, una diferencia menor al desvío entre réplicas **no** es una diferencia.
 
+### 7.4 Las tablas de auditoría de red
+
+Para responder **por qué** el modelo decidió lo que decidió —qué alternativas había, cuánto costaba la que no se pudo usar, cuánto se esperó una posición— se corre la campaña con `nivelAuditoriaRed = COMPLETA`, que es el default del experimento `Simulation`, y se leen las seis tablas de `resultados/`:
+
+| Archivo | Una fila por |
+|---|---|
+| `decisiones_alternativas.csv` | alternativa evaluada, en cada ronda de cada pedido |
+| `asignaciones_elegidas.csv` | asignación ejecutada |
+| `ejecucion_arcos.csv` | movimiento o espera física terminada |
+| `costos_eventos.csv` | cargo devengado |
+| `snapshot_inventario.csv` | día, ubicación y producto |
+| `capacidad_por_dia.csv` | día, recurso y ubicación |
+
+Con `datos/entrada_ejemplo.xlsx` son unos 45 MB por corrida, así que **el barrido corre con la auditoría apagada** (`DESACTIVADA`, el default del parámetro). El diccionario de campos, las claves y las uniones están en [Auditoría de red](../09_Definicion/Auditoria_de_Red.md); `resultados/esquema_auditoria.json` trae el esquema real de la corrida y `resultados/manifiesto_auditoria_<run_id>.json` el conteo de filas que tiene que tener cada archivo.
+
 ---
 
 ## 8. Recetas

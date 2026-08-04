@@ -3444,8 +3444,7 @@ reconciliarFlotaProducto();       // C-04: la agenda de camiones es posible (ADR
 reconciliarEnviosEnCurso();       // C-05: ningun bloque del flujo retiene envios (ADR-063)
 reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
 tomarSnapshotInventarioDelDia();  // C-12: el balance de cada nodo cierra (ADR-064)
-exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)
-cerrarAuditoriaSiCorresponde();   // tablas de auditoria de la corrida (ADR-064)]]></Action>
+exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -7164,8 +7163,10 @@ for (Pedido pedido : pedidos) {
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[// Cierre de la auditoria: las tablas que solo existen al final (asignaciones y costos), las
-// reconciliaciones y el manifiesto que el tablero web va a leer para saber que hay.
-if (!auditoria.activa()) {
+// reconciliaciones y el manifiesto que el tablero web va a leer para saber que hay. Corre al
+// terminar la corrida y no el ultimo dia de campania: el flujo sigue moviendo envios despues
+// del ultimo paso diario y esos arcos tambien son hechos de la corrida.
+if (!auditoria.activa() || auditoria.cerrada) {
     return;
 }
 
@@ -7173,9 +7174,11 @@ exportarCostosEventos();
 exportarAsignacionesElegidas();
 reconciliarAuditoriaRed();
 escribirManifiestoAuditoria();
+escribirEsquemaAuditoria();
 
 auditoria.cerrar();
 
+traceln(resumenAuditoriaRed());
 traceln(auditoria.resumen());]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -7201,6 +7204,7 @@ try {
 
     salida.println("{");
     salida.println("  \"run_id\": \"" + auditoria.runId + "\",");
+    salida.println("  \"version_esquema\": \"" + AuditoriaRed.VERSION_ESQUEMA + "\",");
     salida.println("  \"escenario\": \"" + idEscenario + "\",");
     salida.println("  \"replica\": " + replica + ",");
     salida.println("  \"nivel_auditoria\": \"" + auditoria.nivel + "\",");
@@ -7613,33 +7617,40 @@ fila.porcentajePedidoCubierto =
     ? 0
     : 100.0 * alternativa.toneladas / pedido.toneladasSolicitadas;
 
-double[] etapas =
-    componentesCicloFisico(
-        pedido, alternativa.idOrigen, alternativa.circuito, alternativa.esCrossDock,
-        alternativa.toneladas);
+// generarAlternativas() agrega una alternativa de transferencia deposito-deposito cuyo
+// origen no es un nodo de la red: existe solo para dejar escrito que el modelo no la
+// mueve. Esa no tiene ciclo fisico que descomponer.
+if (datos.existeUbicacion(alternativa.idOrigen)) {
 
-double suma = 0;
+    double[] etapas =
+        componentesCicloFisico(
+            pedido, alternativa.idOrigen, alternativa.circuito, alternativa.esCrossDock,
+            alternativa.toneladas);
 
-for (int i = 0; i < etapas.length; i++) {
-    suma += etapas[i];
+    double suma = 0;
+
+    for (int i = 0; i < etapas.length; i++) {
+        suma += etapas[i];
+    }
+
+    double total = horasCicloAlternativa(pedido, alternativa);
+
+    // C-13: el tiempo por etapa tiene que sumar el ciclo con el que se decidio.
+    if (Math.abs(suma - total) > 0.0001) {
+        error(
+            "C-13: las etapas de " + alternativa.clave() + " suman " + suma
+            + " y el ciclo del evaluador es " + total);
+    }
+
+    fila.horasFleteProducto = etapas[0];
+    fila.horasCargaEstiba = etapas[1];
+    fila.horasViajeVacio = etapas[2];
+    fila.horasViajeCargado = etapas[3];
+    fila.horasDescargaTerminal = etapas[4];
+    fila.horasConsolidacionTerminal = etapas[5];
+    fila.horasCicloFisicoTotal = total;
 }
 
-double total = horasCicloAlternativa(pedido, alternativa);
-
-// C-13: el tiempo por etapa tiene que sumar el ciclo con el que se decidio.
-if (Math.abs(suma - total) > 0.0001) {
-    error(
-        "C-13: las etapas de " + alternativa.clave() + " suman " + suma
-        + " y el ciclo del evaluador es " + total);
-}
-
-fila.horasFleteProducto = etapas[0];
-fila.horasCargaEstiba = etapas[1];
-fila.horasViajeVacio = etapas[2];
-fila.horasViajeCargado = etapas[3];
-fila.horasDescargaTerminal = etapas[4];
-fila.horasConsolidacionTerminal = etapas[5];
-fila.horasCicloFisicoTotal = total;
 fila.diaEntregaEstimado = alternativa.diaEntregaEstimado;
 fila.holguraEstimadaDias = pedido.fechaLimiteTerminal - alternativa.diaEntregaEstimado;
 fila.llegaATiempoEstimado = alternativa.llegaATiempo;
@@ -7961,8 +7972,12 @@ if (RegistroEjecucionArco.TERMINAL_ORIGEN_VACIO.equals(tipo)) {
     arco.destino = envio.idSitioOrigen;
 }
 
+// La tabla Distancia declara un solo sentido por tramo (ADR-061): el arco del vacio va
+// terminal -> origen y su fila es la de la ida.
 arco.distanciaKm =
-    arco.origen.equals(arco.destino) ? 0 : datos.distanciaKm(arco.origen, arco.destino);
+    arco.origen.equals(arco.destino)
+    ? 0
+    : Math.max(0, datos.distanciaKmSimetrica(arco.origen, arco.destino));
 
 arco.diaProgramacion = envio.diaCreacion;
 arco.diaInicio = envio.diaEntradaBloque;
@@ -8078,7 +8093,10 @@ arco.contenedores = 1;
 arco.diaInicio = time() - diasEspera;
 arco.diaFin = time();
 arco.duracionRealHoras = diasEspera * 24.0;
-arco.duracionEsperadaHoras = 0;
+
+// Esperar una posicion no tiene techo fisico, igual que esperar un portacontenedor: la
+// duracion esperada negativa es "no aplica", no cero (ADR-063).
+arco.duracionEsperadaHoras = -1;
 arco.recursoUtilizado = contenedor.tipoRecursoOperacion;
 arco.idRecurso = contenedor.idUbicacionOperacion;
 arco.estadoFinal = "COMPLETADO";
@@ -8183,23 +8201,109 @@ if (descuadresInventarioAuditoria > 0) {
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1786420000039</Id>
-					<Name><![CDATA[cerrarAuditoriaSiCorresponde]]></Name>
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1786420000041</Id>
+					<Name><![CDATA[encabezadoCapacidadRecursos]]></Name>
 					<X>-300</X><Y>3780</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[// Las tablas se cierran el ultimo dia, igual que el diagnostico de capacidad: el csv se
-// escribe en streaming, asi que una corrida interrumpida ya dejo su evidencia y lo unico
-// que falta al cierre son las tablas agregadas y las reconciliaciones.
-if (!auditoria.activa() || diaCampania() < duracionCampaniaDias - 1) {
-    return;
-}
+					<Body><![CDATA[// snapshot_capacidad_recursos de ADR-064 es la tabla de capacidad de ADR-060: la ocupacion
+// por (recurso, sitio, dia) ya vive en una sola agenda y duplicarla en otra tabla obligaria
+// a reconciliar dos calendarios que pueden diferir. El encabezado es una funcion para que el
+// esquema publicado y el csv no puedan divergir.
+return "run_id,escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
+    + "reservada,consumida,liberada,ocupada,libre,cola";]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1786420000043</Id>
+					<Name><![CDATA[escribirEsquemaAuditoria]]></Name>
+					<X>-300</X><Y>3800</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Esquema de las tablas de auditoria: archivo, columnas y clave primaria de cada una. Se
+// genera desde los mismos encabezados que escriben los csv, asi que no puede quedar viejo:
+// si alguien agrega una columna, aparece aca sin tocar nada (ADR-064).
+String[] tablas = {
+    AuditoriaRed.DECISIONES, AuditoriaRed.ASIGNACIONES, AuditoriaRed.ARCOS,
+    AuditoriaRed.COSTOS, AuditoriaRed.INVENTARIO, AuditoriaRed.CAPACIDAD
+};
 
-cerrarAuditoriaRed();]]></Body>
+String[] archivos = {
+    AuditoriaRed.DECISIONES + ".csv", AuditoriaRed.ASIGNACIONES + ".csv",
+    AuditoriaRed.ARCOS + ".csv", AuditoriaRed.COSTOS + ".csv",
+    AuditoriaRed.INVENTARIO + ".csv", "capacidad_por_dia.csv"
+};
+
+String[] encabezados = {
+    RegistroDecisionAlternativa.encabezadoCsv(), AsignacionPedido.encabezadoCsv(),
+    RegistroEjecucionArco.encabezadoCsv(), encabezadoCostosEventos(),
+    SnapshotInventario.encabezadoCsv(), encabezadoCapacidadRecursos()
+};
+
+String[] claves = {
+    "run_id|id_alternativa", "run_id|id_asignacion", "run_id|id_evento_arco",
+    "run_id|id_costo", "run_id|dia|ubicacion|producto",
+    "run_id|dia|tipo_recurso|ubicacion"
+};
+
+java.io.PrintWriter salida = null;
+
+try {
+    salida =
+        new java.io.PrintWriter(auditoria.directorio + "/esquema_auditoria.json", "UTF-8");
+
+    salida.println("{");
+    salida.println("  \"version_esquema\": \"" + AuditoriaRed.VERSION_ESQUEMA + "\",");
+    salida.println("  \"tablas\": [");
+
+    for (int i = 0; i < tablas.length; i++) {
+
+        salida.println("    {");
+        salida.println("      \"tabla\": \"" + tablas[i] + "\",");
+        salida.println("      \"archivo\": \"" + archivos[i] + "\",");
+
+        salida.print("      \"clave\": [");
+
+        String[] partes = claves[i].split("\\|");
+
+        for (int k = 0; k < partes.length; k++) {
+            salida.print((k == 0 ? "" : ", ") + "\"" + partes[k] + "\"");
+        }
+
+        salida.println("],");
+
+        String[] columnas = encabezados[i].split(",");
+
+        salida.println("      \"columnas\": [");
+
+        for (int j = 0; j < columnas.length; j++) {
+            salida.println(
+                "        \"" + columnas[j] + "\"" + (j == columnas.length - 1 ? "" : ","));
+        }
+
+        salida.println("      ]");
+        salida.println("    }" + (i == tablas.length - 1 ? "" : ","));
+    }
+
+    salida.println("  ]");
+    salida.println("}");
+
+} catch (java.io.IOException e) {
+    traceln("No se pudo escribir el esquema de auditoria: " + e.getMessage());
+
+} finally {
+
+    if (salida != null) {
+        salida.close();
+    }
+}]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -13554,12 +13658,7 @@ exportarAsignacionesCapacidad("resultados/asignaciones_capacidad.csv");]]></Body
 try {
     salida = new java.io.PrintWriter(ruta, "UTF-8");
 
-    // snapshot_capacidad_recursos de ADR-064 es esta tabla: la ocupacion por
-    // (recurso, sitio, dia) ya vive en una sola agenda (ADR-060) y duplicarla en otra
-    // tabla obligaria a reconciliar dos calendarios que pueden diferir.
-    salida.println(
-        "run_id,escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
-        + "reservada,consumida,liberada,ocupada,libre,cola");
+    salida.println(encabezadoCapacidadRecursos());
 
     for (String clave : ocupacionCapacidad.keySet()) {
 
@@ -28236,6 +28335,12 @@ estado = factible
 
 			<Parameters>
 				<Parameter>
+					<ParameterName><![CDATA[nivelAuditoriaRed]]></ParameterName>
+					<ParameterValue Class="CodeValue">
+						<Code><![CDATA[AuditoriaRed.Nivel.COMPLETA]]></Code>
+					</ParameterValue>
+				</Parameter>
+				<Parameter>
 					<ParameterName><![CDATA[diasEstimadosAlmacenamiento]]></ParameterName>
 				</Parameter>
 				<Parameter>
@@ -28278,6 +28383,9 @@ estado = factible
 				<FinalDate><![CDATA[1798761600000]]></FinalDate>
 				<FinalTime><![CDATA[365.0]]></FinalTime>
 			</ModelTimeProperties>
+			<AfterSimulationRunCode><![CDATA[// Cierre de la auditoria de red (ADR-064): la corrida sigue moviendo envios despues del
+// ultimo paso diario, asi que las tablas se cierran cuando la corrida termina.
+root.cerrarAuditoriaRed();]]></AfterSimulationRunCode>
 			<BypassInitialScreen>true</BypassInitialScreen>
 		</SimulationExperiment>
 		<!--   =========  Parameter Variation Experiment   ========  -->
@@ -28618,7 +28726,11 @@ String recomendaciones() {
 			<MaximumMemory>512</MaximumMemory>
 			<RandomNumberGenerationType>fixedSeed</RandomNumberGenerationType>
 			<CustomGeneratorCode>new Random()</CustomGeneratorCode>
-			<AfterSimulationRunCode><![CDATA[// Antes de leer un KPI de costo, el registro tiene que cerrar contra los
+			<AfterSimulationRunCode><![CDATA[// Cierra las tablas de auditoria de esta corrida (ADR-064). En el barrido el nivel es
+// DESACTIVADA y no hace nada; si se activa, cada corrida anexa sus filas con su run_id.
+root.cerrarAuditoriaRed();
+
+// Antes de leer un KPI de costo, el registro tiene que cerrar contra los
 // acumuladores del modelo (ADR-052).
 root.reconciliarCostos();
 
@@ -33970,6 +34082,12 @@ public class AuditoriaRed implements java.io.Serializable {
 		COMPLETA
 	}
 
+	/**
+	 * Version del esquema de las tablas. Cambia cuando cambia una columna o una clave: el
+	 * tablero que consume los csv necesita saber contra que version fue generado.
+	 */
+	public static final String VERSION_ESQUEMA = "ADR-064.1";
+
 	public static final String DECISIONES = "decisiones_alternativas";
 	public static final String ASIGNACIONES = "asignaciones_elegidas";
 	public static final String ARCOS = "ejecucion_arcos";
@@ -33986,6 +34104,16 @@ public class AuditoriaRed implements java.io.Serializable {
 		new java.util.HashSet<String>();
 
 	public Nivel nivel = Nivel.DESACTIVADA;
+
+	/** El cierre es del final de la corrida y ocurre una sola vez. */
+	public boolean cerrada = false;
+
+	/**
+	 * Filas emitidas despues del cierre. Al terminar la corrida pueden quedar envios en el
+	 * flujo (C-05): su arco es un hecho incompleto y no se escribe, pero se cuenta para que
+	 * el resumen no lo tape.
+	 */
+	public long filasDespuesDelCierre = 0;
 
 	/** Identidad de la corrida: sin esto dos corridas colisionan en la misma tabla. */
 	public String runId = "";
@@ -34055,6 +34183,11 @@ public class AuditoriaRed implements java.io.Serializable {
 			return;
 		}
 
+		if (cerrada) {
+			filasDespuesDelCierre++;
+			return;
+		}
+
 		java.io.PrintWriter salida = salidas == null ? null : salidas.get(tabla);
 
 		if (salida == null) {
@@ -34075,6 +34208,8 @@ public class AuditoriaRed implements java.io.Serializable {
 	}
 
 	public void cerrar() {
+		cerrada = true;
+
 		if (salidas == null) {
 			return;
 		}
@@ -34092,6 +34227,12 @@ public class AuditoriaRed implements java.io.Serializable {
 
 		for (String tabla : filas.keySet()) {
 			texto += "\n  " + tabla + " " + filasDe(tabla);
+		}
+
+		if (filasDespuesDelCierre > 0) {
+			texto +=
+				"\n  filas posteriores al cierre (envios todavia en el flujo) "
+				+ filasDespuesDelCierre;
 		}
 
 		return texto;
@@ -34491,9 +34632,11 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 	public String idRecurso = "";
 	public String estadoFinal = "";
 
-	/** Cargo que este arco genero, si genero uno. La vista completa es costos_eventos. */
-	public String categoriaCosto = "";
-	public double costoAtribuidoUsd = 0;
+	/**
+	 * El costo del arco no se copia aca: los cargos son de costos_eventos y se unen por
+	 * id_envio, id_contenedor, id_lote o codigo_pedido. Un importe repetido en dos tablas es
+	 * un importe que puede diferir.
+	 */
 
 	public static String encabezadoCsv() {
 		return "run_id,escenario,replica,id_evento_arco,id_decision,id_alternativa,"
@@ -34501,8 +34644,7 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 			+ "tipo_arco,origen,destino,circuito,es_cross_dock,"
 			+ "toneladas,contenedores,viajes,distancia_km,"
 			+ "dia_programacion,dia_inicio,dia_fin,duracion_real_horas,duracion_esperada_horas,"
-			+ "recurso_utilizado,id_recurso,estado_final,categoria_costo,costo_atribuido_usd,"
-			+ "costo_usd_tn";
+			+ "recurso_utilizado,id_recurso,estado_final";
 	}
 
 	public String toCsv() {
@@ -34536,10 +34678,7 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 		f.append(AuditoriaRed.num(duracionEsperadaHoras)).append(',');
 		f.append(AuditoriaRed.txt(recursoUtilizado)).append(',');
 		f.append(AuditoriaRed.txt(idRecurso)).append(',');
-		f.append(AuditoriaRed.txt(estadoFinal)).append(',');
-		f.append(AuditoriaRed.txt(categoriaCosto)).append(',');
-		f.append(AuditoriaRed.num(costoAtribuidoUsd)).append(',');
-		f.append(AuditoriaRed.num(toneladas <= 0.0001 ? 0 : costoAtribuidoUsd / toneladas));
+		f.append(AuditoriaRed.txt(estadoFinal));
 
 		return f.toString();
 	}

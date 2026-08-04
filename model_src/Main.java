@@ -2882,8 +2882,10 @@ class Main extends Agent {
 
     void cerrarAuditoriaRed() {
         // Cierre de la auditoria: las tablas que solo existen al final (asignaciones y costos), las
-        // reconciliaciones y el manifiesto que el tablero web va a leer para saber que hay.
-        if (!auditoria.activa()) {
+        // reconciliaciones y el manifiesto que el tablero web va a leer para saber que hay. Corre al
+        // terminar la corrida y no el ultimo dia de campania: el flujo sigue moviendo envios despues
+        // del ultimo paso diario y esos arcos tambien son hechos de la corrida.
+        if (!auditoria.activa() || auditoria.cerrada) {
             return;
         }
 
@@ -2891,9 +2893,11 @@ class Main extends Agent {
         exportarAsignacionesElegidas();
         reconciliarAuditoriaRed();
         escribirManifiestoAuditoria();
+        escribirEsquemaAuditoria();
 
         auditoria.cerrar();
 
+        traceln(resumenAuditoriaRed());
         traceln(auditoria.resumen());
     }
 
@@ -2911,6 +2915,7 @@ class Main extends Agent {
 
             salida.println("{");
             salida.println("  \"run_id\": \"" + auditoria.runId + "\",");
+            salida.println("  \"version_esquema\": \"" + AuditoriaRed.VERSION_ESQUEMA + "\",");
             salida.println("  \"escenario\": \"" + idEscenario + "\",");
             salida.println("  \"replica\": " + replica + ",");
             salida.println("  \"nivel_auditoria\": \"" + auditoria.nivel + "\",");
@@ -3247,33 +3252,40 @@ class Main extends Agent {
             ? 0
             : 100.0 * alternativa.toneladas / pedido.toneladasSolicitadas;
 
-        double[] etapas =
-            componentesCicloFisico(
-                pedido, alternativa.idOrigen, alternativa.circuito, alternativa.esCrossDock,
-                alternativa.toneladas);
+        // generarAlternativas() agrega una alternativa de transferencia deposito-deposito cuyo
+        // origen no es un nodo de la red: existe solo para dejar escrito que el modelo no la
+        // mueve. Esa no tiene ciclo fisico que descomponer.
+        if (datos.existeUbicacion(alternativa.idOrigen)) {
 
-        double suma = 0;
+            double[] etapas =
+                componentesCicloFisico(
+                    pedido, alternativa.idOrigen, alternativa.circuito, alternativa.esCrossDock,
+                    alternativa.toneladas);
 
-        for (int i = 0; i < etapas.length; i++) {
-            suma += etapas[i];
+            double suma = 0;
+
+            for (int i = 0; i < etapas.length; i++) {
+                suma += etapas[i];
+            }
+
+            double total = horasCicloAlternativa(pedido, alternativa);
+
+            // C-13: el tiempo por etapa tiene que sumar el ciclo con el que se decidio.
+            if (Math.abs(suma - total) > 0.0001) {
+                error(
+                    "C-13: las etapas de " + alternativa.clave() + " suman " + suma
+                    + " y el ciclo del evaluador es " + total);
+            }
+
+            fila.horasFleteProducto = etapas[0];
+            fila.horasCargaEstiba = etapas[1];
+            fila.horasViajeVacio = etapas[2];
+            fila.horasViajeCargado = etapas[3];
+            fila.horasDescargaTerminal = etapas[4];
+            fila.horasConsolidacionTerminal = etapas[5];
+            fila.horasCicloFisicoTotal = total;
         }
 
-        double total = horasCicloAlternativa(pedido, alternativa);
-
-        // C-13: el tiempo por etapa tiene que sumar el ciclo con el que se decidio.
-        if (Math.abs(suma - total) > 0.0001) {
-            error(
-                "C-13: las etapas de " + alternativa.clave() + " suman " + suma
-                + " y el ciclo del evaluador es " + total);
-        }
-
-        fila.horasFleteProducto = etapas[0];
-        fila.horasCargaEstiba = etapas[1];
-        fila.horasViajeVacio = etapas[2];
-        fila.horasViajeCargado = etapas[3];
-        fila.horasDescargaTerminal = etapas[4];
-        fila.horasConsolidacionTerminal = etapas[5];
-        fila.horasCicloFisicoTotal = total;
         fila.diaEntregaEstimado = alternativa.diaEntregaEstimado;
         fila.holguraEstimadaDias = pedido.fechaLimiteTerminal - alternativa.diaEntregaEstimado;
         fila.llegaATiempoEstimado = alternativa.llegaATiempo;
@@ -3519,8 +3531,12 @@ class Main extends Agent {
             arco.destino = envio.idSitioOrigen;
         }
 
+        // La tabla Distancia declara un solo sentido por tramo (ADR-061): el arco del vacio va
+        // terminal -> origen y su fila es la de la ida.
         arco.distanciaKm =
-            arco.origen.equals(arco.destino) ? 0 : datos.distanciaKm(arco.origen, arco.destino);
+            arco.origen.equals(arco.destino)
+            ? 0
+            : Math.max(0, datos.distanciaKmSimetrica(arco.origen, arco.destino));
 
         arco.diaProgramacion = envio.diaCreacion;
         arco.diaInicio = envio.diaEntradaBloque;
@@ -3608,7 +3624,10 @@ class Main extends Agent {
         arco.diaInicio = time() - diasEspera;
         arco.diaFin = time();
         arco.duracionRealHoras = diasEspera * 24.0;
-        arco.duracionEsperadaHoras = 0;
+
+        // Esperar una posicion no tiene techo fisico, igual que esperar un portacontenedor: la
+        // duracion esperada negativa es "no aplica", no cero (ADR-063).
+        arco.duracionEsperadaHoras = -1;
         arco.recursoUtilizado = contenedor.tipoRecursoOperacion;
         arco.idRecurso = contenedor.idUbicacionOperacion;
         arco.estadoFinal = "COMPLETADO";
@@ -3705,15 +3724,93 @@ class Main extends Agent {
         }
     }
 
-    void cerrarAuditoriaSiCorresponde() {
-        // Las tablas se cierran el ultimo dia, igual que el diagnostico de capacidad: el csv se
-        // escribe en streaming, asi que una corrida interrumpida ya dejo su evidencia y lo unico
-        // que falta al cierre son las tablas agregadas y las reconciliaciones.
-        if (!auditoria.activa() || diaCampania() < duracionCampaniaDias - 1) {
-            return;
-        }
+    String encabezadoCapacidadRecursos() {
+        // snapshot_capacidad_recursos de ADR-064 es la tabla de capacidad de ADR-060: la ocupacion
+        // por (recurso, sitio, dia) ya vive en una sola agenda y duplicarla en otra tabla obligaria
+        // a reconciliar dos calendarios que pueden diferir. El encabezado es una funcion para que el
+        // esquema publicado y el csv no puedan divergir.
+        return "run_id,escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
+            + "reservada,consumida,liberada,ocupada,libre,cola";
+    }
 
-        cerrarAuditoriaRed();
+    void escribirEsquemaAuditoria() {
+        // Esquema de las tablas de auditoria: archivo, columnas y clave primaria de cada una. Se
+        // genera desde los mismos encabezados que escriben los csv, asi que no puede quedar viejo:
+        // si alguien agrega una columna, aparece aca sin tocar nada (ADR-064).
+        String[] tablas = {
+            AuditoriaRed.DECISIONES, AuditoriaRed.ASIGNACIONES, AuditoriaRed.ARCOS,
+            AuditoriaRed.COSTOS, AuditoriaRed.INVENTARIO, AuditoriaRed.CAPACIDAD
+        };
+
+        String[] archivos = {
+            AuditoriaRed.DECISIONES + ".csv", AuditoriaRed.ASIGNACIONES + ".csv",
+            AuditoriaRed.ARCOS + ".csv", AuditoriaRed.COSTOS + ".csv",
+            AuditoriaRed.INVENTARIO + ".csv", "capacidad_por_dia.csv"
+        };
+
+        String[] encabezados = {
+            RegistroDecisionAlternativa.encabezadoCsv(), AsignacionPedido.encabezadoCsv(),
+            RegistroEjecucionArco.encabezadoCsv(), encabezadoCostosEventos(),
+            SnapshotInventario.encabezadoCsv(), encabezadoCapacidadRecursos()
+        };
+
+        String[] claves = {
+            "run_id|id_alternativa", "run_id|id_asignacion", "run_id|id_evento_arco",
+            "run_id|id_costo", "run_id|dia|ubicacion|producto",
+            "run_id|dia|tipo_recurso|ubicacion"
+        };
+
+        java.io.PrintWriter salida = null;
+
+        try {
+            salida =
+                new java.io.PrintWriter(auditoria.directorio + "/esquema_auditoria.json", "UTF-8");
+
+            salida.println("{");
+            salida.println("  \"version_esquema\": \"" + AuditoriaRed.VERSION_ESQUEMA + "\",");
+            salida.println("  \"tablas\": [");
+
+            for (int i = 0; i < tablas.length; i++) {
+
+                salida.println("    {");
+                salida.println("      \"tabla\": \"" + tablas[i] + "\",");
+                salida.println("      \"archivo\": \"" + archivos[i] + "\",");
+
+                salida.print("      \"clave\": [");
+
+                String[] partes = claves[i].split("\\|");
+
+                for (int k = 0; k < partes.length; k++) {
+                    salida.print((k == 0 ? "" : ", ") + "\"" + partes[k] + "\"");
+                }
+
+                salida.println("],");
+
+                String[] columnas = encabezados[i].split(",");
+
+                salida.println("      \"columnas\": [");
+
+                for (int j = 0; j < columnas.length; j++) {
+                    salida.println(
+                        "        \"" + columnas[j] + "\"" + (j == columnas.length - 1 ? "" : ","));
+                }
+
+                salida.println("      ]");
+                salida.println("    }" + (i == tablas.length - 1 ? "" : ","));
+            }
+
+            salida.println("  ]");
+            salida.println("}");
+
+        } catch (java.io.IOException e) {
+            traceln("No se pudo escribir el esquema de auditoria: " + e.getMessage());
+
+        } finally {
+
+            if (salida != null) {
+                salida.close();
+            }
+        }
     }
 
     String resumenAuditoriaRed() {
@@ -7464,12 +7561,7 @@ class Main extends Agent {
         try {
             salida = new java.io.PrintWriter(ruta, "UTF-8");
 
-            // snapshot_capacidad_recursos de ADR-064 es esta tabla: la ocupacion por
-            // (recurso, sitio, dia) ya vive en una sola agenda (ADR-060) y duplicarla en otra
-            // tabla obligaria a reconciliar dos calendarios que pueden diferir.
-            salida.println(
-                "run_id,escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
-                + "reservada,consumida,liberada,ocupada,libre,cola");
+            salida.println(encabezadoCapacidadRecursos());
 
             for (String clave : ocupacionCapacidad.keySet()) {
 
@@ -8836,6 +8928,5 @@ class Main extends Agent {
         reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
         tomarSnapshotInventarioDelDia();  // C-12: el balance de cada nodo cierra (ADR-064)
         exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)
-        cerrarAuditoriaSiCorresponde();   // tablas de auditoria de la corrida (ADR-064)
     }
 }
