@@ -10,6 +10,8 @@ class Envio extends Agent {
     double diaInicioCarga = -1;
     double diaSalidaDeposito = -1;
     double diaLlegadaTerminal = -1;
+    double diaListoEnTerminal = -1;
+    double diaCargosCierre = -1;
     double tiempoRetornoHoras = 0;
     double diaEntrega = -1;
     double tiempoCargaHoras = 0;
