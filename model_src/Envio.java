@@ -11,6 +11,9 @@ class Envio extends Agent {
     double diaSalidaDeposito = -1;
     double diaLlegadaTerminal = -1;
     double diaListoEnTerminal = -1;
+    String bloqueActual = "";
+    double diaEntradaBloque = -1;
+    double horasEsperadasBloque = -1;
     double diaCargosCierre = -1;
     double tiempoRetornoHoras = 0;
     double diaEntrega = -1;

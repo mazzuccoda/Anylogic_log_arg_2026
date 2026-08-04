@@ -772,6 +772,96 @@ cargarStockInicial();]]></StartupCode>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
+					<Id>1785849610006</Id>
+					<Name><![CDATA[toleranciaRetencionEnvioDias]]></Name>
+					<X>1030</X><Y>-1280</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[1.0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785849610001</Id>
+					<Name><![CDATA[enviosEnCurso]]></Name>
+					<X>1030</X><Y>-1240</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785849610002</Id>
+					<Name><![CDATA[enviosRetenidos]]></Name>
+					<X>1030</X><Y>-1200</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785849610003</Id>
+					<Name><![CDATA[enviosRetenidosPico]]></Name>
+					<X>1030</X><Y>-1160</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785849610004</Id>
+					<Name><![CDATA[toneladasEnviosEnCurso]]></Name>
+					<X>1030</X><Y>-1120</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785849610005</Id>
+					<Name><![CDATA[detalleEnviosEnCurso]]></Name>
+					<X>1030</X><Y>-1080</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
 					<Id>1785000205</Id>
 					<Name><![CDATA[esperaConsolidacionContenedorDia]]></Name>
 					<X>1030</X><Y>-280</Y>
@@ -3145,6 +3235,7 @@ validarBalancePedidos();          // C-01: el pedido cierra por partes (ADR-055)
 validarBalanceProducido();        // C-02: nada de lo producido se pierde (ADR-048)
 reconciliarCapacidad();           // C-03: la capacidad reservada reconcilia (ADR-060)
 reconciliarFlotaProducto();       // C-04: la agenda de camiones es posible (ADR-061)
+reconciliarEnviosEnCurso();       // C-05: ningun bloque del flujo retiene envios (ADR-063)
 reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
 exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)]]></Action>
 				</Event>
@@ -6637,6 +6728,144 @@ envio.diaListoEnTerminal = time();]]></Body>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1785849620001</Id>
+					<Name><![CDATA[registrarEtapaEnvio]]></Name>
+					<X>-300</X><Y>2900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[envio]]></Name>
+						<Type><![CDATA[Envio]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[bloque]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[horasEsperadas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// C-05: cada envio declara en que bloque del flujo esta y cuanto deberia durar. Una
+// espera de recurso no tiene techo (horasEsperadas < 0); un Delay si (ADR-063).
+if (envio == null) {
+    return;
+}
+
+envio.bloqueActual = bloque;
+envio.diaEntradaBloque = time();
+envio.horasEsperadasBloque = horasEsperadas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1785849620003</Id>
+					<Name><![CDATA[reconciliarEnviosEnCurso]]></Name>
+					<X>-300</X><Y>2920</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// C-05: ningun bloque del flujo puede retener un envio mas alla de su duracion fisica.
+// La concurrencia la limitan el pool de portacontenedores, las posiciones de
+// consolidacion (ADR-060) y la flota de producto (ADR-061), nunca la capacidad de un
+// Delay. Un envio retenido es un error del modelo, no un dato (ADR-063).
+enviosEnCurso = 0;
+enviosRetenidos = 0;
+toneladasEnviosEnCurso = 0;
+
+java.util.LinkedHashMap<String, Integer> porBloque =
+    new java.util.LinkedHashMap<String, Integer>();
+
+java.util.LinkedHashMap<String, Integer> retenidosPorBloque =
+    new java.util.LinkedHashMap<String, Integer>();
+
+for (Envio envio : envios) {
+
+    if (
+        envio.estado == EstadoEnvio.ENTREGADO
+        || envio.bloqueActual == null
+        || envio.bloqueActual.isEmpty()
+        || envio.diaEntradaBloque < 0
+    ) {
+        continue;
+    }
+
+    enviosEnCurso++;
+    toneladasEnviosEnCurso += envio.toneladas;
+
+    String bloque = envio.bloqueActual;
+
+    porBloque.put(
+        bloque,
+        (porBloque.containsKey(bloque) ? porBloque.get(bloque) : 0) + 1);
+
+    // La cola que espera portacontenedor no tiene techo: es lista de espera de un
+    // recurso finito y esperar ahi es la conducta correcta.
+    if (envio.horasEsperadasBloque < 0) {
+        continue;
+    }
+
+    double permanencia = time() - envio.diaEntradaBloque;
+
+    double techo =
+        envio.horasEsperadasBloque / 24.0
+        + toleranciaRetencionEnvioDias;
+
+    if (permanencia > techo) {
+
+        enviosRetenidos++;
+
+        retenidosPorBloque.put(
+            bloque,
+            (retenidosPorBloque.containsKey(bloque) ? retenidosPorBloque.get(bloque) : 0) + 1);
+    }
+}
+
+enviosRetenidosPico = max(enviosRetenidosPico, enviosRetenidos);
+
+StringBuilder detalle = new StringBuilder();
+
+for (String bloque : porBloque.keySet()) {
+
+    if (detalle.length() > 0) {
+        detalle.append(" · ");
+    }
+
+    detalle.append(bloque).append(" ").append(porBloque.get(bloque));
+
+    if (retenidosPorBloque.containsKey(bloque)) {
+        detalle.append(" (retenidos ").append(retenidosPorBloque.get(bloque)).append(")");
+    }
+}
+
+detalleEnviosEnCurso = detalle.toString();
+
+if (enviosRetenidos > 0 && !retenidosPorBloque.isEmpty()) {
+
+    String peor = "";
+
+    int cuantos = 0;
+
+    for (String bloque : retenidosPorBloque.keySet()) {
+
+        if (retenidosPorBloque.get(bloque) > cuantos) {
+            cuantos = retenidosPorBloque.get(bloque);
+            peor = bloque;
+        }
+    }
+
+    error(
+        "C-05: el dia " + diaCampania() + " hay " + enviosRetenidos
+        + " envios retenidos en el flujo mas alla de su duracion fisica; el bloque que mas"
+        + " retiene es " + peor + " con " + cuantos
+        + ". Un bloque del flujo no puede limitar la concurrencia (ADR-063).");
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1792100019</Id>
 					<Name><![CDATA[finalizarEnvio]]></Name>
 					<X>-300</X><Y>2860</Y>
@@ -6666,6 +6895,10 @@ envio.diaEntrega = fechaEntrega;
 // Los cargos, en cambio, se devengan el dia en que se registran: la auditoria por envio
 // tiene que reconstruirlos con la tarifa de ese dia y no con la del servicio (ADR-062).
 envio.diaCargosCierre = diaCampania();
+
+// El envio ya no esta en ningun bloque del flujo (C-05, ADR-063).
+envio.bloqueActual = "";
+envio.diaEntradaBloque = -1;
 
 Pedido pedido =
     envio.pedido;
@@ -15237,6 +15470,9 @@ alternativa.contenedores =
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[registrarEtapaEnvio((Envio) agent, "colaCamiones", -1);]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onAtExit]]></Name>
@@ -15625,7 +15861,9 @@ alternativa.contenedores =
 if (envio.contenedor != null) {
     envio.contenedor.estado =
         EstadoContenedor.EN_TRANSITO_VACIO;
-}]]></Code>
+}
+
+registrarEtapaEnvio((Envio) agent, "viajarVacioAlOrigen", ((Envio) agent).tiempoViajeVacioHoras);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -15725,7 +15963,9 @@ envio.estado = EstadoEnvio.CARGANDO;
 
 if (envio.contenedor != null) {
     envio.contenedor.horaInicioCarga = time();
-}]]></Code>
+}
+
+registrarEtapaEnvio((Envio) agent, "cargarGranel", ((Envio) agent).tiempoCargaHoras);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -15824,7 +16064,9 @@ envio.diaSalidaDeposito = time();
 
 if (envio.contenedor != null) {
     envio.contenedor.horaFinCarga = time();
-}]]></Code>
+}
+
+registrarEtapaEnvio((Envio) agent, "viajarTerminalGranel", ((Envio) agent).tiempoViajeIdaHoras);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -15916,7 +16158,9 @@ if (envio.contenedor != null) {
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[registrarIngresoTerminal((Envio) agent);]]></Code>
+								<Code><![CDATA[registrarIngresoTerminal((Envio) agent);
+
+registrarEtapaEnvio((Envio) agent, "descargarTerminal", ((Envio) agent).tiempoDescargaHoras);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -15989,6 +16233,9 @@ if (envio.contenedor != null) {
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[entityLocation]]></Name>
@@ -16014,7 +16261,9 @@ if (envio.contenedor != null) {
 
     envio.contenedor.estado =
         EstadoContenedor.CONSOLIDANDO;
-}]]></Code>
+}
+
+registrarEtapaEnvio((Envio) agent, "cargarCamion", ((Envio) agent).tiempoCargaHoras);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -16090,6 +16339,9 @@ if (envio.contenedor != null) {
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[entityLocation]]></Name>
@@ -16113,7 +16365,9 @@ if (envio.contenedor != null) {
         EstadoContenedor.EN_TRANSITO_CARGADO;
 
     envio.contenedor.horaFinCarga = time();
-}]]></Code>
+}
+
+registrarEtapaEnvio((Envio) agent, "viajarPuerto", ((Envio) agent).tiempoViajeIdaHoras);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -16186,6 +16440,9 @@ if (envio.contenedor != null) {
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[entityLocation]]></Name>
@@ -16202,7 +16459,9 @@ if (envio.contenedor != null) {
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[registrarIngresoTerminal((Envio) agent);]]></Code>
+								<Code><![CDATA[registrarIngresoTerminal((Envio) agent);
+
+registrarEtapaEnvio((Envio) agent, "descargarPuerto", ((Envio) agent).tiempoDescargaHoras);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -16280,6 +16539,9 @@ if (envio.contenedor != null) {
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[entityLocation]]></Name>
@@ -16299,7 +16561,9 @@ if (envio.contenedor != null) {
 								<Code><![CDATA[Envio envio = (Envio) agent;
 
 envio.estado =
-    EstadoEnvio.CONSOLIDANDO;]]></Code>
+    EstadoEnvio.CONSOLIDANDO;
+
+registrarEtapaEnvio((Envio) agent, "consolidarCarga", ((Envio) agent).tiempoConsolidacionHoras);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -18202,7 +18466,8 @@ if (!retirado) {
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
 					<TextCode><![CDATA["Envíos: " + envios.size()
-+ " · en tránsito: " + contarEnvios(EstadoEnvio.EN_TRANSITO)]]></TextCode>
++ " · en curso: " + enviosEnCurso
++ (enviosRetenidos > 0 ? " · retenidos: " + enviosRetenidos : "")]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -18224,7 +18489,8 @@ if (!retirado) {
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[text]]></Text>
-					<TextCode><![CDATA["Envíos entregados: " + contarEnvios(EstadoEnvio.ENTREGADO)]]></TextCode>
+					<TextCode><![CDATA["Envíos entregados: " + contarEnvios(EstadoEnvio.ENTREGADO)
++ (enviosEnCurso > 0 ? " · " + detalleEnviosEnCurso : "")]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -23893,6 +24159,78 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 						</DefaultValue>
 						<ParameterEditor>
 							<Id>1785807500002</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1785849600001</Id>
+					<Name><![CDATA[bloqueActual]]></Name>
+					<X>60</X><Y>400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[String]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1785849600002</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1785849600003</Id>
+					<Name><![CDATA[diaEntradaBloque]]></Name>
+					<X>60</X><Y>450</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[double]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1785849600004</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1785849600005</Id>
+					<Name><![CDATA[horasEsperadasBloque]]></Name>
+					<X>60</X><Y>500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[double]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1785849600006</Id>
 							<EditorContolType>TEXT_BOX</EditorContolType>
 							<MinSliderValue><![CDATA[0]]></MinSliderValue>
 							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>

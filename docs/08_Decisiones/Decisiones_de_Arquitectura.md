@@ -703,6 +703,27 @@ Dos supuestos del MOD que originó el cambio no coinciden con el código y queda
 
 **Consecuencias:** el ciclo físico se acorta en un tramo completo y con él el atraso y la ocupación del pool; los KPIs de tiempo y servicio **mejoran por diseño** y no son comparables con corridas anteriores. Medido con libros mínimos deterministas: a 100 km y 50 km/h el envío pasa de 9 h a 7 h; a 1 200 km y 70 km/h, de 54,4 h a 37,3 h; y en el caso de dos contenedores por pedido con cut-off a dos días, las toneladas entregadas dentro del cut-off pasan de 0 a 144 de 288 (0 % → 50 % de servicio). Los costos no cambian: el round trip se sigue devengando una vez por contenedor. Queda **fuera de alcance**, declarado: el reposicionamiento de equipos vacíos entre terminales, el pool de contenedores por naviera y cualquier modelo de disponibilidad de vacíos.
 
+## ADR-063 — La concurrencia del flujo la fijan los recursos, no la capacidad de un bloque
+
+**Estado:** aceptada
+**Fecha:** 2026-07-24
+**Contexto:** con `datos/entrada_ejemplo.xlsx` la campana exportaba **13 749 de 30 656 tn** (servicio 25 %, atraso medio 46,2 dias) y el diagnostico por dato descartaba el techo estructural: cruzando la demanda contra la oferta acumulada **a la fecha de cada cut-off**, los tres productos dan 100 % entregable (JUGO 17 237 tn pedidas contra 20 770 disponibles, CASCARA 12 261 contra 13 920, ACEITE 1 250 contra 1 595) y el tablero informaba deficit estructural 0.
+
+El flowchart mostraba la causa: **1 066 envios congelados dentro de `viajarVacioAlOrigen`** al cierre, con 1 069 de los 1 500 portacontenedores tomados. No estaban viajando: estaban bloqueados esperando entrar al bloque siguiente. Cuatro `Delay` habian quedado con la **capacidad por default de la libreria, que es 1**: `cargarCamion`, `viajarPuerto`, `descargarPuerto` y `consolidarCarga`. El que mordia era `viajarPuerto`: con capacidad 1 solo puede haber **un contenedor viajando a terminal en toda la red**, y como el tramo dura 17,14 h el techo es de **511 contenedores por campania**. La corrida entregaba 417 por esa rama mas 502 a granel: los 919 envios y las 13 749 tn del tablero.
+
+Es la misma clase de error que la cola de envios que esperaban portacontenedor con la capacidad por default de 100, con una diferencia importante: aquella abortaba la corrida con un mensaje, esta **estrangula en silencio** y el resultado parece un problema de dimensionamiento.
+
+**Decision:** ningun bloque del flujo puede limitar la concurrencia.
+
+1. **`maximumCapacity = true` en los bloques fisicos.** `cargarCamion`, `viajarPuerto`, `descargarPuerto` y `consolidarCarga` pasan a capacidad ilimitada, igual que `colaCamiones`, `viajarVacioAlOrigen` y los tres bloques de granel, que ya la tenian.
+2. **La concurrencia fisica la fijan los recursos, que ya estan modelados**: el `ResourcePool` de portacontenedores, las posiciones de consolidacion por sitio y dia (ADR-060), el cupo de cross dock, `contenedores_por_dia` de cada sitio y la flota de producto (ADR-061). Un `Delay` representa **duracion**, no capacidad; el que quiera limitar cuantas operaciones simultaneas hay tiene que hacerlo con un recurso, que es lo que se dimensiona y lo que se cobra.
+3. **C-05, reconciliacion de envios en curso.** Cada envio declara en que bloque esta (`bloqueActual`), desde cuando (`diaEntradaBloque`) y cuanto deberia durar (`horasEsperadasBloque`). Todos los dias `reconciliarEnviosEnCurso()` verifica que ninguno lleve mas de su duracion fisica mas `toleranciaRetencionEnvioDias`, y aborta nombrando **el bloque que mas retiene**. La espera de un recurso finito no tiene techo (`horasEsperadas = -1`, caso de `colaCamiones`): esperar ahi es la conducta correcta.
+4. **El tablero informa los envios en curso y donde estan.** `Envios: N · en curso: M` y el detalle por bloque. El KPI anterior (`en transito`) contaba transito de flota de producto y por eso mostraba 0 mientras 1 066 envios estaban congelados en el flowchart.
+
+**Alternativas:** poner una capacidad grande y fija en cada bloque (vuelve a ser un numero magico y el dia que se supere estrangula igual); dejar la capacidad de 1 y compensar dimensionando mas portacontenedores (dimensiona contra un cuello ficticio); auditar solo al cierre de la campania (el diagnostico llega tarde y no dice desde cuando); medir la retencion sin abortar (un envio retenido es un error del modelo, no un dato, y el resto de las reconciliaciones aborta).
+
+**Consecuencias:** con `datos/entrada_ejemplo.xlsx` el exportado pasa de **13 749 a 30 343 tn** de las 30 656 recibidas, el servicio de **25 % a 95 %**, los pedidos atrasados de **708 a 4**, el atraso medio de **46,2 a 0,8 dias** y los envios entregados de 919 a 1 962. No se relajo ninguna restriccion real: los portacontenedores ocupados al cierre pasan de 1 069 a **21 de 1 500** y el uso de posiciones de consolidacion queda en 20 %, o sea que la red **nunca habia estado saturada**. Todos los KPIs anteriores a este cambio —incluidos los de ADR-059 a ADR-062 y el barrido `fase-26`/`fase-27`— se midieron contra un techo artificial de 511 contenedores y **no son comparables**; el CSV pasa a `fase-28`. Queda **fuera de alcance**, declarado: cualquier limite de operaciones simultaneas por sitio que se quiera modelar tiene que entrar como recurso con dato propio, no como capacidad de bloque.
+
 ## Plantilla para nuevas decisiones
 
 ```markdown
