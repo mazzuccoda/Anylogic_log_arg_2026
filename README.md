@@ -16,6 +16,7 @@ La documentación técnica está organizada en módulos navegables:
 
 - [Manual de uso](docs/10_Manual/Manual_de_Uso.md) — **empezar por acá**: abrir el modelo, correr una campaña, cargar datos desde Excel, correr el barrido y leer los resultados
 - [Tablero e indicadores](docs/10_Manual/Tablero_e_Indicadores.md) — qué muestra cada panel y cómo se define cada KPI
+- [`flow/`](flow/README.md) — guía didáctica con ejemplos numéricos de cómo decide el modelo el almacenamiento y la entrega de pedidos (complementa, no reemplaza, la documentación técnica de abajo)
 - [Índice general](docs/README.md)
 - [Glosario](docs/00_Glosario.md)
 - [Inventario del modelo real](docs/03_Logica/Inventario_del_Modelo.md)
@@ -53,6 +54,7 @@ La documentación técnica está organizada en módulos navegables:
 | `model_src/` | espejo legible del modelo, generado. No editar |
 | `tools/exportar_modelo.py` | genera `model_src/` a partir del `.alp` |
 | `docs/` | documentación del proyecto |
+| `flow/` | guía didáctica de la lógica de almacenamiento y de entrega de pedidos, con ejemplos numéricos |
 
 Después de cada cambio del modelo, regenerar el espejo y commitearlo junto al `.alp`:
 
