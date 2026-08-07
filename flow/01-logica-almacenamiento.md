@@ -260,6 +260,41 @@ Objetivo de hoy: mover **300 tn de JUGO**, flete planta→depósito ilustrativo
    que antes, pero por una razón distinta — no importaría cuál es más barato,
    sólo dónde entra más producto para sacarlo de la planta cuanto antes.
 
+### 1.4.5 REACTIVA vs FLEXIBLE — la misma pregunta, dos reglas muy distintas
+
+`toneladasASacarDePlanta()` (§1.4.1) **no siempre corre**. `revisarTransferenciasPlanta()`
+elige entre dos reglas según el escenario, y cuál está activa cambia por
+completo el comportamiento observable de la planta:
+
+```java
+void revisarTransferenciasPlanta() {
+    boolean flexible = "FLEXIBLE".equals(datos.escenario.politicaFrioPropio);
+    double toneladas = flexible
+        ? toneladasASacarDePlanta(producto)      // desborde + servicio + preventivo, con forecast
+        : toneladasASacarReactiva(producto);      // solo mira el % de stock de HOY
+    ...
+}
+```
+
+| | `FLEXIBLE` | `REACTIVA` |
+|---|---|---|
+| Mira el pronóstico (`forecastProduccion`, `dias_forecast` días) | Sí — desborde y preventivo se calculan sobre el stock **proyectado** | **No.** Sólo compara el stock de hoy contra un % |
+| Mira la demanda de pedidos (`demandaProyectada`) | Sí — componente de servicio | No |
+| Regla | `max(desborde, servicio, preventivo)` | `if (stock/capacidad < umbralAlerta%) no hacer nada; si no, bajar hasta umbralObjetivo%` |
+| Banda resultante | Variable, según lo que se venga (producción + demanda) | Fija: entre `umbral_objetivo_pct` y `umbral_alerta_pct` de la capacidad nominal |
+
+**Por qué importa para leer un resultado real:** si tu escenario tiene
+`politica_frio_propio = REACTIVA` (es el caso del escenario de ejemplo
+`E-00` en `datos/entrada_ejemplo.xlsx`, con `umbral_alerta_pct = 95` y
+`umbral_objetivo_pct = 90`), esta función **nunca mira el futuro** — sólo
+empuja producto a depósito cuando la planta ya pasó el 95 % de su capacidad
+nominal (5.000 tn de JUGO), y sólo hasta bajar al 90 %. Es una banda muy
+angosta pensada para que la planta esté casi siempre llena mientras hay
+cosecha activa, no para anticipar nada. El `forecastProduccion(producto,
+dias_forecast)` existe en el código y se usa en el rastro de diagnóstico
+(`debugPlanificacion`), pero con `REACTIVA` activo **esos días de pronóstico
+no alimentan ninguna decisión real** — sólo se activan bajo `FLEXIBLE`.
+
 ## 1.5 Por qué un depósito queda afuera — el filtro único (`motivoDescarteDeposito`)
 
 ```java
@@ -316,9 +351,80 @@ recorre **cada capa** todos los días y le cobra un día de tarifa sobre lo que
 tiene en ese momento. Esto es lo que permite que un retiro parcial a mitad de
 camino no siga pagando storage sobre lo que ya se fue, y que el cross dock
 —que nunca entra formalmente al depósito— no pague storage en absoluto
-(§1.7).
+(§1.8).
 
-## 1.7 La salida rápida: cross dock (no pasa por storage)
+## 1.7 El costo de oportunidad del frío propio — un cargo de HOY, no una proyección
+
+El tablero de campaña muestra una línea "Costo oportunidad frío" (KPI
+`costoOportunidadFrio`). Es fácil leerla como si el modelo estuviera
+*proyectando* cuánto va a costar el frío propio hacia adelante — pero **no
+es una proyección**: es un cargo que se registra todos los días,
+proporcional al stock de **ese mismo día**, en el mismo paso de la secuencia
+diaria que devenga el storage de depósito (paso 10b, justo después de 10):
+
+```java
+void devengarOportunidadFrioPropio() {
+    // El frio propio no se factura, pero ocupa un recurso que tiene alternativa.
+    // Se devenga aparte para que el costo de caja siga siendo comparable contra la
+    // cotizacion de un tercero (ADR-049).
+    for (TipoProducto producto : TipoProducto.values()) {
+        DatosEntrada.TarifaSitio tarifa = datos.tarifaSitio(diaCampania(), "PLANTA", producto);
+
+        costoOportunidadFrio += registro.registrar(
+            ..., inventario.stock("PLANTA", producto), tarifa.oportunidadUsdTnDia, ...
+        );
+    }
+}
+```
+
+La cuenta es literalmente:
+
+```
+costo_oportunidad_del_día = stock_en_planta_HOY × oportunidad_usd_tn_dia
+```
+
+En `datos/entrada_ejemplo.xlsx` (hoja `TarifaSitio`), `oportunidad_usd_tn_dia`
+para JUGO en PLANTA es **0,25 USD/tn/día**. Con eso:
+
+| Día | Stock en planta (JUGO) | Costo de oportunidad de ese día |
+|---|---|---|
+| día con 4.200 tn en planta | 4.200 tn | `4.200 × 0,25 = 1.050 USD` |
+| día con 0 tn en planta | 0 tn | `0 × 0,25 = 0 USD` |
+
+**Si el stock de hoy es 0, el cargo de hoy es exactamente 0.** No hay ningún
+cálculo "hacia adelante" que lo compense ni lo suavice — es, a propósito
+(ADR-049), un costo **retrospectivo**, para poder comparar el costo de caja
+real contra "cuánto valdría ese mismo lugar si fuera un depósito de
+terceros" sin mezclar los dos. La única función del modelo que sí mira
+adelante es `forecastProduccion()` (§1.4.5), y esa alimenta la decisión de
+**cuánto sacar de planta**, no el costo de oportunidad — son dos cálculos
+distintos que conviene no confundir.
+
+### Por qué la planta puede llegar a 0 al cierre de una campaña — no es un bug
+
+Con el escenario de ejemplo `E-00` (`REACTIVA` + política de selección
+`PRIORIDAD_FRIO_PROPIO`), que la planta termine en 0 tn de JUGO es el
+resultado esperable de tres cosas actuando juntas, no de una sola:
+
+1. **Ya no entra más cosecha.** `ProduccionPlan` para JUGO en `E-00` está en
+   0 tn/día desde bastante antes del cierre de la campaña (364 días) — no es
+   que el modelo "vacíe" la planta, es que no hay más fruta.
+2. **La demanda sigue sirviéndose preferentemente desde ahí.** Con
+   `politica_seleccion = PRIORIDAD_FRIO_PROPIO`, `ordenarAlternativas()`
+   (documento 02, §2.4.4) prefiere consolidar directo desde planta antes que
+   desde depósito cuando el servicio está empatado — así que mientras quede
+   algo en planta, los últimos pedidos de la campaña lo van a consumir ahí
+   primero, en vez de esperar a que salga.
+3. **La regla `REACTIVA` (§1.4.5) no está diseñada para reponer nada.** Sólo
+   sabe empujar excedente hacia depósito cuando se pasa del 95 %; no tiene
+   ninguna regla simétrica para "traer de vuelta" stock a la planta cuando
+   está bajando. Una vez que deja de entrar producción, no hay ningún
+   mecanismo que evite que el stock siga bajando hasta 0.
+
+Es el comportamiento correcto de una campaña estacional que se agota: el
+frío propio se vacía solo al final, junto con la cosecha.
+
+## 1.8 La salida rápida: cross dock (no pasa por storage)
 
 No toda tonelada que sale de planta hacia una zona de depósito pasa por
 "guardar". El **cross dock** (`programarCrossDockDelDia()`, ver
@@ -331,17 +437,18 @@ cross dock (ver tabla de aplicabilidad en `Modelo_de_Costos.md` §4). Es la
 otra cara de la misma decisión de almacenamiento: a veces la respuesta a
 "¿dónde guardo esto?" es "en ningún lado, va directo al contenedor".
 
-## 1.8 Resumen — criterios de almacenamiento
+## 1.9 Resumen — criterios de almacenamiento
 
 | # | Criterio | Función | ¿Duro o de costo? |
 |---|---|---|---|
-| 1 | Cuánto sacar de planta | `toneladasASacarDePlanta()` — `max` de desborde, servicio y preventivo | Determina volumen, no destino |
+| 1 | Cuánto sacar de planta | `toneladasASacarDePlanta()` (FLEXIBLE, con forecast) **o** `toneladasASacarReactiva()` (REACTIVA, sin forecast) según `politica_frio_propio` | Determina volumen, no destino |
 | 2 | Capacidad física del depósito (neta de tránsito) | `espacioDisponibleEfectivo()` / `puedeRecibir()` | **Duro** |
 | 3 | Tarifa de flete y de storage existentes | `datos.hayTarifaFlete()` / `hayTarifaSitio()` | **Duro** — sin tarifa, no hay candidato |
 | 4 | Flota de camiones disponible hoy | `flotaProductoAlcanza()` / agenda multidiaria | **Duro** |
 | 5 | Costo por tonelada (flete + storage proyectado) | `seleccionarDeposito()` | De costo — decide *entre* los que pasan 2, 3 y 4 |
 | 6 | Espacio disponible (en vez de costo) | `seleccionarDeposito(priorizarEspacio=true)` | Sólo si la planta está en sobrecarga crítica (ADR-056) |
 | 7 | Producción de la planta | `producir()` | **Nunca se bloquea** (ADR-048) — la capacidad de planta es lectura, no filtro |
+| 8 | Costo de oportunidad del frío propio | `devengarOportunidadFrioPropio()` = stock de **hoy** × tarifa | **No es proyección** — con stock 0 el cargo del día es 0 (ADR-049) |
 
 La planta jamás dice "no" a la cosecha; el depósito sí dice "no" cuando no
 hay lugar, tarifa o camión. Entre los depósitos que dicen "sí", gana el más
