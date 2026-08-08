@@ -273,6 +273,17 @@ Implementado en el modelo y verificado en PLE (ADR-057), versión `fase-25`.
 - [x] Verificado en PLE: build limpio, barrido de 1 080 corridas **idéntico** a `fase-24` en las 55 columnas comunes, y campaña completa con 3 509 tn de stock inicial.
 - [ ] Pendiente: reservas de stock inicial por cliente y calidad como restricción y no sólo como identidad (fase 5), y una tabla de compromisos previos —producto ya vendido antes del día 0— que hoy no existe.
 
+## 11k. MOD — Crédito de holding futuro en el evaluador (ADR-065)
+
+Propuesta, no implementado. Origina en el hallazgo de que `seleccionarDeposito()` (planta→depósito) proyecta 30 días de storage futuro con `diasEstimadosAlmacenamiento`, pero `costearAlternativa()` (evaluador de circuitos, depósito/planta→pedido) no tiene el equivalente: compara sólo el flete/estiba de despachar hoy, nunca lo que le va a costar a esa tonelada seguir parada.
+
+- [ ] `tarifaHoldingOrigen(idOrigen, producto)`: `oportunidadUsdTnDia` si `idOrigen == "PLANTA"`, `storageUsdTnDia` del depósito en cualquier otro caso.
+- [ ] `horizonteHoldingEvitado()`: reusa `diasEstimadosAlmacenamiento`, acotado por `duracionCampaniaDias - diaCampania()`.
+- [ ] `AlternativaCircuito.costoHoldingEvitado` (no auditado, no entra a `costoIncremental`/`costoEndToEnd`) y `costoUnitarioRankingSegun(endToEnd)`, que reemplaza a `costoUnitarioSegun(endToEnd)` **sólo** dentro del comparador de `ordenarAlternativas()`.
+- [ ] No toca el desempate de `PRIORIDAD_FRIO_PROPIO` (sigue decidiendo por origen antes de llegar al costo) ni ninguna política `FIJA_*`.
+- [ ] Caso de regresión obligatorio: con `diasEstimadosAlmacenamiento = 0`, comportamiento idéntico byte a byte al actual (`V-COST-11`, `docs/06_Validacion/Plan_de_Validacion.md`).
+- [ ] Pendiente de discusión aparte, fuera de alcance de este Mod: si el crédito debería también poder ganarle al desempate de `PRIORIDAD_FRIO_PROPIO` — cambiaría la semántica ya aceptada de esa política.
+
 ## 12. Fase 9 — Terminal
 
 - [ ] Entrega de vacíos.

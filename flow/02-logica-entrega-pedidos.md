@@ -326,7 +326,40 @@ Es la misma idea del documento 01 (capacidad antes que costo) pero ahora
 aplicada no a "¿entra este lote?" sino a "¿puede este circuito completo
 —origen, transporte, armado de contenedor— ejecutarse a tiempo?".
 
-## 2.6 La ventana marítima — el reloj que corre en paralelo (ADR-059)
+## 2.6 Una limitación real — el costo comparado es "hoy", nunca "cuánto sale dejarlo donde está" (ADR-065, propuesta)
+
+Los §2.4.3-2.4.4 muestran que el evaluador **sí** compara costo entre orígenes — pero ese costo es siempre "cuánto sale despachar *hoy* desde acá", nunca "cuánto le va a costar a esta tonelada seguir parada si elijo el otro origen". Es una asimetría real frente a la lógica de almacenamiento (doc 01, §1.4.2): `seleccionarDeposito()` ya proyecta `tarifaAlmacenamiento × diasEstimadosAlmacenamiento` (30 días, parámetro `Main.diasEstimadosAlmacenamiento`) para decidir a qué depósito transferir desde planta; `costearAlternativa()` no tiene el equivalente para decidir desde qué origen despachar un pedido.
+
+**Ejemplo con datos reales de `datos/entrada_ejemplo.xlsx`** — un pedido con stock disponible en PLANTA y en NORRY, 1 contenedor REEFER_40 (24 tn), política `MENOR_COSTO_INCREMENTAL_FACTIBLE`:
+
+| | Planta | Norry |
+|---|---|---|
+| Round trip (`TarifaRoundTrip`, Zárate) | 2.700 | 2.700 |
+| Consolidación (`TarifaSitio.consolidacion_tarifa`) | 225 | 250 |
+| OUT (`TarifaSitio.out_usd_tn` × 24 tn) | 0 | 60 |
+| **Costo incremental (hoy)** | **2.925** | **3.010** |
+
+Con el evaluador actual, gana Planta — es realmente más barata *hoy*, y así debería ser en principio. El problema aparece cuando se agrega la otra mitad de la cuenta: si esas 24 tn se quedan en Norry (tarifa de storage 0,48 USD/tn/día) en vez de las de Planta (tarifa de oportunidad 0,25 USD/tn/día), ¿a cuál le sale más caro seguir parada?
+
+```
+crédito por 30 días evitados = tarifaHolding(origen) × 30 × toneladas
+
+Planta: 0,25 × 30 × 24 = 180
+Norry:  0,48 × 30 × 24 = 345,6
+
+costo ajustado = costo incremental − crédito
+
+Planta: 2.925 − 180    = 2.745
+Norry:  3.010 − 345,6  = 2.664,4   ← ahora gana Norry
+```
+
+El ranking se da vuelta: aunque despachar desde Norry sale 85 USD más caro hoy, dejarlo ahí acumula bastante más storage futuro (345,6 vs. 180) que dejarlo en Planta — la diferencia de holding termina pesando más que la diferencia de flete/estiba. Es el mecanismo propuesto en **ADR-065** (`docs/08_Decisiones/Decisiones_de_Arquitectura.md`), todavía no implementado: un campo `costoHoldingEvitado` que ajusta sólo el **ranking** de `ordenarAlternativas()`, sin tocar `costoIncremental`/`costoEndToEnd` (que siguen siendo, a propósito, el costo real que se termina cobrando — ADR-052/053).
+
+**Por qué `MENOR_COSTO_END_TO_END_FACTIBLE` no resuelve esto:** esa vista le suma a cada alternativa el histórico ya devengado — para Norry, `costoAlmacenajeHundido` crece cada día que el stock sigue ahí sin despacharse; para Planta, el histórico es siempre 0. Cuanto más tiempo lleva ese jugo en Norry, **más caro** se ve frente a Planta bajo END_TO_END — el efecto es el contrario al que se busca. Por diseño, esa vista es para comparar **estrategias completas**, no para decidir todos los días desde qué origen despachar (ver glosario, "Costo incremental" vs. "Costo end-to-end").
+
+**Con `PRIORIDAD_FRIO_PROPIO` (la política de tu escenario de ejemplo) nada de esto importa:** `ordenarAlternativas()` decide por origen —gana Planta si está disponible— antes de llegar a comparar ningún costo (ver §2.4.4). El crédito de holding sólo tiene efecto bajo las políticas de costo puro.
+
+## 2.7 La ventana marítima — el reloj que corre en paralelo (ADR-059)
 
 El pedido no vive en una fecha sino en cuatro: `dia_conocimiento` →
 `dia_apertura_retiro_vacio` → `dia_cutoff_fisico` → `dia_etd`. Esto afecta la
@@ -343,7 +376,7 @@ elección de circuito de dos formas concretas:
   (`servicioMinimoProyectado > 0`), este booleano es el **primer** criterio
   de `ordenarAlternativas` (§2.4.4) — antes que cualquier costo.
 
-## 2.7 Ejemplo numérico — un pedido, tres alternativas, una elegida
+## 2.8 Ejemplo numérico — un pedido, tres alternativas, una elegida
 
 Pedido ilustrativo: **P-104**, JUGO, 200 tn pendientes, política
 `MENOR_COSTO_INCREMENTAL_FACTIBLE`, sin exigencia de servicio mínimo.
@@ -377,7 +410,7 @@ la que cubre el resto en la misma vuelta o en la siguiente, porque el
 evaluador no elige "la más barata en general", elige la más barata **entre
 las que pueden ejecutarse hoy con lo que queda de saldo**.
 
-## 2.8 Resumen — árbol de decisión de la entrega
+## 2.9 Resumen — árbol de decisión de la entrega
 
 ```
 ¿Política del escenario?

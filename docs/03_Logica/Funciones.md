@@ -336,6 +336,14 @@ Traduce la fila del escenario a estado del modelo: duración de campaña, cross 
 
 `ordenarAlternativas()` es la política: primero servicio, después el criterio de costo (incremental o end-to-end según el escenario) y desempate por clave, para que dos corridas con la misma semilla decidan igual. `ejecutarAlternativa()` no mueve producto por su cuenta: reserva contra el origen elegido o llama a `ejecutarCrossDockPedido()`, es decir el flujo que ya existía. `registrarPlan()` guarda el `PlanLogistico` con todas las alternativas, factibles y descartadas.
 
+### Crédito de holding futuro en el ranking: `tarifaHoldingOrigen`, `horizonteHoldingEvitado` y `AlternativaCircuito.costoUnitarioRankingSegun` (ADR-065)
+
+**Estado:** propuesta.
+
+**Objetivo:** que `ordenarAlternativas()` compare no sólo el costo de despachar hoy desde cada origen, sino también el storage/oportunidad que ese origen deja de devengar al despacharse ahora en vez de más adelante — sin tocar los campos auditados (`costoIncremental`, `costoEndToEnd`).
+
+`tarifaHoldingOrigen(String idOrigen, TipoProducto producto)` unifica la tarifa de "costo de tener 1 tn parada": `oportunidadUsdTnDia` si `idOrigen == "PLANTA"`, o `storageUsdTnDia` del depósito en cualquier otro caso. `horizonteHoldingEvitado()` es `min(diasEstimadosAlmacenamiento, duracionCampaniaDias - diaCampania())` — reusa el parámetro que ya existe para `seleccionarDeposito()` (ADR-056), acotado por lo que queda de campaña. `costearAlternativa()` calcula `alternativa.costoHoldingEvitado = tarifaHoldingOrigen(...) * horizonteHoldingEvitado() * toneladas`, y `AlternativaCircuito.costoUnitarioRankingSegun(endToEnd) = (costoSegun(endToEnd) - costoHoldingEvitado) / toneladas` es lo único que reemplaza a `costoUnitarioSegun(endToEnd)` dentro de `ordenarAlternativas()`. Ver el detalle completo en ADR-065 y el ejemplo numérico en `flow/02-logica-entrega-pedidos.md`.
+
 ### Funciones objetivo de contenedores
 
 - `programarRetiroVacio(ContenedorExportacion contenedor)`: el ciclo del contenedor vacío todavía no se modela, y por eso `horaRetiroVacio` y `horaLlegadaLugarCarga` siguen en `-1`.

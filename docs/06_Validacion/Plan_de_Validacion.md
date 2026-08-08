@@ -362,6 +362,12 @@ El aumento es explicable en su totalidad: los cargos nuevos son IN + OUT + THC +
 
 **Espera en 0.** Las tarifas de espera están cargadas como supuesto (franquicia 3 h, 25 USD/h), y `costo_espera_usd` es 0 en las 420 corridas: con las velocidades sintéticas un contenedor se carga en menos de una hora, así que nunca se supera la franquicia. El concepto se devenga —`registrarEspera()` corre en la carga, en la descarga y en la terminal— y se activa solo cuando los tiempos reales o la franquicia real lo pidan.
 
+### V-COST-11 Crédito de holding futuro no es un cargo (ADR-065)
+
+**Esperado:** `costoHoldingEvitado` cambia qué alternativa gana el ranking de `ordenarAlternativas()` bajo `MENOR_COSTO_INCREMENTAL_FACTIBLE` / `MENOR_COSTO_END_TO_END_FACTIBLE`, pero no aparece en ningún cargo registrado: `costoIncremental`, `costoEndToEnd`, `RegistroCostos.total()` y `costoEsperadoCircuito()` deben coincidir exactamente con los de una corrida sin el Mod. Con `horizonteHoldingEvitado()` forzado a 0 (o `diasEstimadosAlmacenamiento = 0`), el comportamiento tiene que ser **idéntico byte a byte** al de antes del Mod — mismas asignaciones, mismos costos, mismo nivel de servicio.
+
+**Medido:** corrida pareada E-14/E-15 (política de costo) con el Mod activo vs. `diasEstimadosAlmacenamiento = 0`, y `reconciliarCostos()` sin abortos en las dos. Si `costoTotalCampania()` difiere entre ambas sólo por qué alternativa se ejecutó (no por cómo se calculó cada una), y las 420+ corridas del barrido terminan `Finished`, el caso pasa. Cualquier corrida en la que `costoIncremental` de la alternativa ejecutada no coincida con lo que después registra `RegistroCostos` para ese envío es una falla de este caso, no de C3.
+
 ## 4.3 Decisión de circuito (C5/C6, ADR-054)
 
 Los casos que siguen se verificaron sobre el barrido `fase-23`: 36 escenarios × 30 réplicas = 1 080 corridas, todas `Finished`.
