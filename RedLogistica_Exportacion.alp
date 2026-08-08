@@ -10112,7 +10112,60 @@ alternativa.costoDespachante =
 
 costearHundidoAlternativa(pedido, alternativa);
 
+// Credito de holding futuro para el ranking (ADR-065): no es un cargo, no entra a
+// totalizar().
+alternativa.costoHoldingEvitado =
+    tarifaHoldingOrigen(alternativa.idOrigen, pedido.producto)
+    * horizonteHoldingEvitado()
+    * alternativa.toneladas;
+
 alternativa.totalizar();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000901</Id>
+					<Name><![CDATA[tarifaHoldingOrigen]]></Name>
+					<X>-300</X><Y>2440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idOrigen]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Tarifa de "costo de tener 1 tn parada" en el origen: oportunidad de frio propio
+// si es PLANTA, storage del deposito en cualquier otro caso (ADR-065). Unifica el
+// criterio que seleccionarDeposito() ya usa para Planta->Deposito (ADR-056) con el
+// que le faltaba al evaluador de circuitos para Deposito/Planta->Pedido (ADR-054).
+if ("PLANTA".equals(idOrigen)) {
+    return datos.tarifaSitio(diaCampania(), "PLANTA", producto).oportunidadUsdTnDia;
+}
+
+Deposito deposito = buscarDeposito(idOrigen);
+
+return deposito == null ? 0 : deposito.getTarifaAlmacenamiento(producto);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791300000902</Id>
+					<Name><![CDATA[horizonteHoldingEvitado]]></Name>
+					<X>-300</X><Y>2460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Dias de holding futuro que se dan por evitados al despachar hoy en vez de dejarlo
+// donde esta (ADR-065). Reusa diasEstimadosAlmacenamiento (ADR-056) como unica fuente
+// de verdad del horizonte, acotado por lo que queda de campania: proyectar 30 dias de
+// storage evitado a 3 dias del cierre exageraria el credito.
+return min(diasEstimadosAlmacenamiento, max(0, duracionCampaniaDias - diaCampania()));]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -10298,8 +10351,8 @@ java.util.Collections.sort(
 
             int orden =
                 Double.compare(
-                            a.costoUnitarioSegun(endToEnd),
-                            b.costoUnitarioSegun(endToEnd));
+                            a.costoUnitarioRankingSegun(endToEnd),
+                            b.costoUnitarioRankingSegun(endToEnd));
 
             return orden != 0 ? orden : a.clave().compareTo(b.clave());
         }
@@ -32704,6 +32757,12 @@ public class AlternativaCircuito implements java.io.Serializable {
 	/** Historico mas incremental: la vista estrategica (seccion 7.3). */
 	public double costoEndToEnd = 0;
 
+	/** Storage/oportunidad que este origen deja de devengar al despachar hoy en vez de
+	 * mas adelante (ADR-065). NO es un cargo real: no entra a costoIncremental ni a
+	 * costoEndToEnd (ADR-052/053), solo ajusta el ranking cuando el costo de despacho
+	 * es parejo entre origenes. */
+	public double costoHoldingEvitado = 0;
+
 	public AlternativaCircuito(String idOrigen, String sitioEstiba, EstrategiaLogistica circuito,
 			boolean esCrossDock, double toneladas, int contenedores) {
 		this.idOrigen = idOrigen;
@@ -32744,6 +32803,18 @@ public class AlternativaCircuito implements java.io.Serializable {
 		return toneladas <= 0.0001
 			? Double.POSITIVE_INFINITY
 			: costoSegun(endToEnd) / toneladas;
+	}
+
+	/**
+	 * Costo por tonelada ajustado por el holding evitado (ADR-065): el mismo costoSegun()
+	 * de siempre, menos lo que este origen deja de devengar a futuro por despacharse hoy.
+	 * Solo se usa para el RANKING de ordenarAlternativas(); costoIncremental y
+	 * costoEndToEnd no cambian y siguen siendo lo que se audita contra el cargo real.
+	 */
+	public double costoUnitarioRankingSegun(boolean endToEnd) {
+		return toneladas <= 0.0001
+			? Double.POSITIVE_INFINITY
+			: (costoSegun(endToEnd) - costoHoldingEvitado) / toneladas;
 	}
 
 	/** Clave estable para desempatar: dos alternativas iguales no dependen del orden. */

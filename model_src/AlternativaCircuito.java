@@ -110,6 +110,12 @@ public class AlternativaCircuito implements java.io.Serializable {
 	/** Historico mas incremental: la vista estrategica (seccion 7.3). */
 	public double costoEndToEnd = 0;
 
+	/** Storage/oportunidad que este origen deja de devengar al despachar hoy en vez de
+	 * mas adelante (ADR-065). NO es un cargo real: no entra a costoIncremental ni a
+	 * costoEndToEnd (ADR-052/053), solo ajusta el ranking cuando el costo de despacho
+	 * es parejo entre origenes. */
+	public double costoHoldingEvitado = 0;
+
 	public AlternativaCircuito(String idOrigen, String sitioEstiba, EstrategiaLogistica circuito,
 			boolean esCrossDock, double toneladas, int contenedores) {
 		this.idOrigen = idOrigen;
@@ -150,6 +156,18 @@ public class AlternativaCircuito implements java.io.Serializable {
 		return toneladas <= 0.0001
 			? Double.POSITIVE_INFINITY
 			: costoSegun(endToEnd) / toneladas;
+	}
+
+	/**
+	 * Costo por tonelada ajustado por el holding evitado (ADR-065): el mismo costoSegun()
+	 * de siempre, menos lo que este origen deja de devengar a futuro por despacharse hoy.
+	 * Solo se usa para el RANKING de ordenarAlternativas(); costoIncremental y
+	 * costoEndToEnd no cambian y siguen siendo lo que se audita contra el cargo real.
+	 */
+	public double costoUnitarioRankingSegun(boolean endToEnd) {
+		return toneladas <= 0.0001
+			? Double.POSITIVE_INFINITY
+			: (costoSegun(endToEnd) - costoHoldingEvitado) / toneladas;
 	}
 
 	/** Clave estable para desempatar: dos alternativas iguales no dependen del orden. */

@@ -5147,7 +5147,36 @@ class Main extends Agent {
 
         costearHundidoAlternativa(pedido, alternativa);
 
+        // Credito de holding futuro para el ranking (ADR-065): no es un cargo, no entra a
+        // totalizar().
+        alternativa.costoHoldingEvitado =
+            tarifaHoldingOrigen(alternativa.idOrigen, pedido.producto)
+            * horizonteHoldingEvitado()
+            * alternativa.toneladas;
+
         alternativa.totalizar();
+    }
+
+    double tarifaHoldingOrigen(String idOrigen, TipoProducto producto) {
+        // Tarifa de "costo de tener 1 tn parada" en el origen: oportunidad de frio propio
+        // si es PLANTA, storage del deposito en cualquier otro caso (ADR-065). Unifica el
+        // criterio que seleccionarDeposito() ya usa para Planta->Deposito (ADR-056) con el
+        // que le faltaba al evaluador de circuitos para Deposito/Planta->Pedido (ADR-054).
+        if ("PLANTA".equals(idOrigen)) {
+            return datos.tarifaSitio(diaCampania(), "PLANTA", producto).oportunidadUsdTnDia;
+        }
+
+        Deposito deposito = buscarDeposito(idOrigen);
+
+        return deposito == null ? 0 : deposito.getTarifaAlmacenamiento(producto);
+    }
+
+    double horizonteHoldingEvitado() {
+        // Dias de holding futuro que se dan por evitados al despachar hoy en vez de dejarlo
+        // donde esta (ADR-065). Reusa diasEstimadosAlmacenamiento (ADR-056) como unica fuente
+        // de verdad del horizonte, acotado por lo que queda de campania: proyectar 30 dias de
+        // storage evitado a 3 dias del cierre exageraria el credito.
+        return min(diasEstimadosAlmacenamiento, max(0, duracionCampaniaDias - diaCampania()));
     }
 
     void costearHundidoAlternativa(Pedido pedido, AlternativaCircuito alternativa) {
@@ -5265,8 +5294,8 @@ class Main extends Agent {
 
                     int orden =
                         Double.compare(
-                                    a.costoUnitarioSegun(endToEnd),
-                                    b.costoUnitarioSegun(endToEnd));
+                                    a.costoUnitarioRankingSegun(endToEnd),
+                                    b.costoUnitarioRankingSegun(endToEnd));
 
                     return orden != 0 ? orden : a.clave().compareTo(b.clave());
                 }

@@ -275,13 +275,14 @@ Implementado en el modelo y verificado en PLE (ADR-057), versión `fase-25`.
 
 ## 11k. MOD — Crédito de holding futuro en el evaluador (ADR-065)
 
-Propuesta, no implementado. Origina en el hallazgo de que `seleccionarDeposito()` (planta→depósito) proyecta 30 días de storage futuro con `diasEstimadosAlmacenamiento`, pero `costearAlternativa()` (evaluador de circuitos, depósito/planta→pedido) no tiene el equivalente: compara sólo el flete/estiba de despachar hoy, nunca lo que le va a costar a esa tonelada seguir parada.
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/` (ADR-065). **Pendiente de compilar y correr en el IDE de AnyLogic** — se editó y regeneró el espejo fuera de AnyLogic, sin motor de simulación disponible en ese entorno, así que falta la compilación real y las corridas de verificación antes de marcar la fase como terminada (§17). Origina en el hallazgo de que `seleccionarDeposito()` (planta→depósito) proyecta 30 días de storage futuro con `diasEstimadosAlmacenamiento`, pero `costearAlternativa()` (evaluador de circuitos, depósito/planta→pedido) no tenía el equivalente: comparaba sólo el flete/estiba de despachar hoy, nunca lo que le va a costar a esa tonelada seguir parada.
 
-- [ ] `tarifaHoldingOrigen(idOrigen, producto)`: `oportunidadUsdTnDia` si `idOrigen == "PLANTA"`, `storageUsdTnDia` del depósito en cualquier otro caso.
-- [ ] `horizonteHoldingEvitado()`: reusa `diasEstimadosAlmacenamiento`, acotado por `duracionCampaniaDias - diaCampania()`.
-- [ ] `AlternativaCircuito.costoHoldingEvitado` (no auditado, no entra a `costoIncremental`/`costoEndToEnd`) y `costoUnitarioRankingSegun(endToEnd)`, que reemplaza a `costoUnitarioSegun(endToEnd)` **sólo** dentro del comparador de `ordenarAlternativas()`.
-- [ ] No toca el desempate de `PRIORIDAD_FRIO_PROPIO` (sigue decidiendo por origen antes de llegar al costo) ni ninguna política `FIJA_*`.
-- [ ] Caso de regresión obligatorio: con `diasEstimadosAlmacenamiento = 0`, comportamiento idéntico byte a byte al actual (`V-COST-11`, `docs/06_Validacion/Plan_de_Validacion.md`).
+- [x] `tarifaHoldingOrigen(idOrigen, producto)`: `oportunidadUsdTnDia` si `idOrigen == "PLANTA"`, `storageUsdTnDia` del depósito en cualquier otro caso.
+- [x] `horizonteHoldingEvitado()`: reusa `diasEstimadosAlmacenamiento`, acotado por `duracionCampaniaDias - diaCampania()`.
+- [x] `AlternativaCircuito.costoHoldingEvitado` (no auditado, no entra a `costoIncremental`/`costoEndToEnd`) y `costoUnitarioRankingSegun(endToEnd)`, que reemplaza a `costoUnitarioSegun(endToEnd)` **sólo** dentro del comparador de `ordenarAlternativas()` — verificado por diff que los otros seis usos de `costoUnitarioSegun()` (reportes/KPI) quedan intactos.
+- [x] No toca el desempate de `PRIORIDAD_FRIO_PROPIO` (sigue decidiendo por origen antes de llegar al costo) ni ninguna política `FIJA_*` — no se tocó ninguna otra función.
+- [ ] Caso de regresión obligatorio, **pendiente de correr**: con `diasEstimadosAlmacenamiento = 0`, comportamiento idéntico byte a byte al actual (`V-COST-11`, `docs/06_Validacion/Plan_de_Validacion.md`).
+- [ ] Pendiente de compilar en el IDE de AnyLogic — este entorno no tiene el compilador ni el motor de simulación; sólo se validó que el `.alp` sigue siendo XML bien formado y que el espejo `model_src/` se regenera sin errores.
 - [ ] Pendiente de discusión aparte, fuera de alcance de este Mod: si el crédito debería también poder ganarle al desempate de `PRIORIDAD_FRIO_PROPIO` — cambiaría la semántica ya aceptada de esa política.
 
 ## 12. Fase 9 — Terminal
