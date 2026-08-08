@@ -326,7 +326,7 @@ Es la misma idea del documento 01 (capacidad antes que costo) pero ahora
 aplicada no a "¿entra este lote?" sino a "¿puede este circuito completo
 —origen, transporte, armado de contenedor— ejecutarse a tiempo?".
 
-## 2.6 Una limitación real — el costo comparado es "hoy", nunca "cuánto sale dejarlo donde está" (ADR-065, propuesta)
+## 2.6 Una limitación real — el costo comparado es "hoy", nunca "cuánto sale dejarlo donde está" (ADR-065)
 
 Los §2.4.3-2.4.4 muestran que el evaluador **sí** compara costo entre orígenes — pero ese costo es siempre "cuánto sale despachar *hoy* desde acá", nunca "cuánto le va a costar a esta tonelada seguir parada si elijo el otro origen". Es una asimetría real frente a la lógica de almacenamiento (doc 01, §1.4.2): `seleccionarDeposito()` ya proyecta `tarifaAlmacenamiento × diasEstimadosAlmacenamiento` (30 días, parámetro `Main.diasEstimadosAlmacenamiento`) para decidir a qué depósito transferir desde planta; `costearAlternativa()` no tiene el equivalente para decidir desde qué origen despachar un pedido.
 
@@ -359,7 +359,41 @@ El ranking se da vuelta: aunque despachar desde Norry sale 85 USD más caro hoy,
 
 **Con `PRIORIDAD_FRIO_PROPIO` (la política de tu escenario de ejemplo) nada de esto importa:** `ordenarAlternativas()` decide por origen —gana Planta si está disponible— antes de llegar a comparar ningún costo (ver §2.4.4). El crédito de holding sólo tiene efecto bajo las políticas de costo puro.
 
-## 2.7 La ventana marítima — el reloj que corre en paralelo (ADR-059)
+## 2.7 Afinidad pedido-depósito — cuando el stock ya tiene dueño (ADR-066)
+
+El resto de este documento asume que todos los orígenes con stock compiten en igualdad de condiciones por cada pedido. En la operación real eso no siempre es cierto: parte del stock que está en un depósito lejano ya está ahí porque un pedido o cliente específico lo va a retirar de ese lugar — no está "compitiendo", está reservado en la práctica aunque el modelo no lo sepa.
+
+Sin esa información, el evaluador puede hacerle perder esa competencia contra un origen más barato para otro pedido — y ese stock queda contado como "atrapado" en la contabilidad del modelo (doc `flow/01`, `excedenteFinalTn()`) cuando en la realidad no lo está en absoluto.
+
+**La solución no es un crédito de costo — es un dato que hoy falta.** `PedidoPlan` gana una columna opcional, `deposito_comprometido`, que se copia al pedido en `crearPedido()`:
+
+```java
+pedido.depositoComprometido = plan.depositoComprometido;   // vacío por defecto
+```
+
+Y `ordenarAlternativas()` gana un criterio de desempate nuevo, entre servicio y frío propio:
+
+```java
+if (depositoComprometido != null && !depositoComprometido.isEmpty()) {
+
+    boolean ca = depositoComprometido.equals(a.idOrigen);
+    boolean cb = depositoComprometido.equals(b.idOrigen);
+
+    if (ca != cb) {
+        return ca ? -1 : 1;
+    }
+}
+
+if (frioPropio) {
+    ...
+}
+```
+
+Es el mismo mecanismo que ya usa `PRIORIDAD_FRIO_PROPIO` para preferir planta (§2.4.4) — sólo que acá el origen "ganador" no es fijo (siempre planta), es el que cada pedido trae consigo. El orden final de criterios queda: **servicio → compromiso → frío propio → costo**.
+
+**Por qué no distorsiona nada cuando no se usa:** con `deposito_comprometido` vacío (el caso de todo pedido en un libro que no complete esa columna), `depositoComprometido.isEmpty()` es siempre verdadero y el criterio nunca decide nada — el comportamiento es exactamente el de antes de ADR-066. Y si el depósito comprometido no tiene stock ese día (no es factible), tampoco pasa nada especial: simplemente no aparece entre las alternativas factibles, y el pedido compite normalmente por las demás — no hace falta ningún manejo de "fallback", es una consecuencia de cómo ya funciona el filtro de factibilidad (§2.4.2).
+
+## 2.8 La ventana marítima — el reloj que corre en paralelo (ADR-059)
 
 El pedido no vive en una fecha sino en cuatro: `dia_conocimiento` →
 `dia_apertura_retiro_vacio` → `dia_cutoff_fisico` → `dia_etd`. Esto afecta la
@@ -376,7 +410,7 @@ elección de circuito de dos formas concretas:
   (`servicioMinimoProyectado > 0`), este booleano es el **primer** criterio
   de `ordenarAlternativas` (§2.4.4) — antes que cualquier costo.
 
-## 2.8 Ejemplo numérico — un pedido, tres alternativas, una elegida
+## 2.9 Ejemplo numérico — un pedido, tres alternativas, una elegida
 
 Pedido ilustrativo: **P-104**, JUGO, 200 tn pendientes, política
 `MENOR_COSTO_INCREMENTAL_FACTIBLE`, sin exigencia de servicio mínimo.
@@ -410,7 +444,7 @@ la que cubre el resto en la misma vuelta o en la siguiente, porque el
 evaluador no elige "la más barata en general", elige la más barata **entre
 las que pueden ejecutarse hoy con lo que queda de saldo**.
 
-## 2.9 Resumen — árbol de decisión de la entrega
+## 2.10 Resumen — árbol de decisión de la entrega
 
 ```
 ¿Política del escenario?
@@ -431,7 +465,9 @@ las que pueden ejecutarse hoy con lo que queda de saldo**.
       costearAlternativa() + costearHundidoAlternativa()
             │                   incremental / histórico / end-to-end, por componente
             ▼
-      ordenarAlternativas()   → servicio (si se exige) → frío propio (si aplica) → costo unitario → clave
+      ordenarAlternativas()   → servicio (si se exige) → compromiso (si el pedido trae uno,
+            │                   ADR-066) → frío propio (si aplica) → costo unitario ajustado
+            │                   por holding evitado (ADR-065) → clave
             │
             ▼
       ejecutarAlternativa()   → reserva real (puede ser menos que lo evaluado)
@@ -447,7 +483,10 @@ las que pueden ejecutarse hoy con lo que queda de saldo**.
 **En una frase:** la entrega de un pedido no es "elegir un depósito", es
 generar el universo completo de circuitos físicos posibles, descartar por
 capacidad operativa real (posiciones, flota, cupos, stock) antes de mirar un
-solo número de costo, comparar lo que sobrevive por costo por tonelada —con
-servicio y frío propio como criterios previos cuando la política los pide— y
-ejecutar aceptando que la realidad del día puede dar menos de lo que el
-cálculo prometió, sin que eso se pierda: el saldo compite de nuevo.
+solo número de costo, comparar lo que sobrevive por costo por tonelada
+ajustado por el holding que evita —con servicio, compromiso y frío propio
+como criterios previos cuando corresponden— y ejecutar aceptando que la
+realidad del día puede dar menos de lo que el cálculo prometió, sin que eso
+se pierda: el saldo compite de nuevo. Y lo que ninguna de estas reglas
+resuelve —stock atascado en un depósito sin capacidad de despacho— lo cubre
+un mecanismo aparte, del lado de la oferta, no del pedido (`flow/01`, §1.9).

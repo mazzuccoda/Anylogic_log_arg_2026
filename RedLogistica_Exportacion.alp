@@ -1892,6 +1892,51 @@ abrirAuditoriaRed();]]></StartupCode>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
+					<Id>1791500000001</Id>
+					<Name><![CDATA[toneladasRebalanceadasEntreDepositos]]></Name>
+					<X>-300</X><Y>122</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791500000002</Id>
+					<Name><![CDATA[rebalanceosSinDestino]]></Name>
+					<X>-300</X><Y>124</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1791500000003</Id>
+					<Name><![CDATA[costoFleteEntreDepositos]]></Name>
+					<X>-300</X><Y>126</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
 					<Id>1792400003009</Id>
 					<Name><![CDATA[componentePorDesborde]]></Name>
 					<X>-300</X><Y>140</Y>
@@ -3427,6 +3472,7 @@ abrirPosicionesCrossDockDelDia();        // 4. abrir la capacidad de cross dock 
 reprogramarReservasCapacidad();          // 4b. mover las posiciones no usadas (ADR-060)
 programarCrossDockDelDia();              // 5. cruzar lo que no necesita guardarse
 revisarTransferenciasPlanta();           // 6. sacar de planta solo lo necesario
+revisarRebalanceoEntreDepositos();       // 6b. mover entre depositos lo que quedo sin salida (ADR-066)
 revisarPedidosPendientes();              // 7. reservar contra stock
 prepararPedidosReservados();             // 8. armar los contenedores del pedido
 despacharContenedoresPendientes();       // 9. consolidar y despachar lo que entra
@@ -3685,6 +3731,76 @@ return mejorDeposito;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Deposito]]></ReturnType>
+					<Id>1791500000004</Id>
+					<Name><![CDATA[mejorDestinoRebalanceo]]></Name>
+					<X>360</X><Y>-680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[origen]]></Name>
+						<Type><![CDATA[Deposito]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// ADR-066: entre los depositos que pueden recibir esto (habilitados, con tarifa
+// de flete, de sitio y distancia cargadas), elige el mas barato en total: flete
+// de reubicacion mas el holding que va a seguir devengando en el destino,
+// proyectado con el mismo horizonte que usa el resto del modelo (ADR-065, ADR-056).
+int dia = diaCampania();
+Deposito mejor = null;
+double menorCosto = Double.POSITIVE_INFINITY;
+
+for (Deposito destino : depositos) {
+
+    if (destino == origen || !destino.habilitado) {
+        continue;
+    }
+
+    if (!datos.hayTarifaFlete(dia, origen.idUbicacion, destino.idUbicacion, producto)) {
+        continue;
+    }
+
+    if (!datos.hayTarifaSitio(dia, destino.idUbicacion, producto)) {
+        continue;
+    }
+
+    if (datos.distanciaKmSimetrica(origen.idUbicacion, destino.idUbicacion) < 0) {
+        continue;
+    }
+
+    double posible = min(toneladas, espacioDisponibleEfectivo(destino, producto));
+
+    if (posible <= 0.0001) {
+        continue;
+    }
+
+    double costoEstimado =
+        datos.importeFlete(
+            dia, origen.idUbicacion, destino.idUbicacion, producto,
+            posible, viajesNecesariosCamion(posible))
+        + posible * destino.getTarifaAlmacenamiento(producto) * horizonteHoldingEvitado();
+
+    double costoPorTonelada = costoEstimado / posible;
+
+    if (costoPorTonelada < menorCosto) {
+        menorCosto = costoPorTonelada;
+        mejor = destino;
+    }
+}
+
+return mejor;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[LoteProducto]]></ReturnType>
 					<Id>1784383175646</Id>
 					<Name><![CDATA[buscarLoteMasAntiguoEnPlanta]]></Name>
@@ -3707,6 +3823,43 @@ for (LoteProducto lote : lotes) {
     if (
         lote.producto == producto
         && inventario.libreDeLoteEn(lote.idLote, "PLANTA") > 0.0001
+    ) {
+        if (lote.diaProduccion < menorDia) {
+            menorDia = lote.diaProduccion;
+            seleccionado = lote;
+        }
+    }
+}
+
+return seleccionado;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[LoteProducto]]></ReturnType>
+					<Id>1791500000005</Id>
+					<Name><![CDATA[buscarLoteMasAntiguoEnDeposito]]></Name>
+					<X>360</X><Y>-640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idUbicacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Body><![CDATA[// ADR-066: mismo criterio que buscarLoteMasAntiguoEnPlanta, para el lado deposito.
+LoteProducto seleccionado = null;
+double menorDia = Double.POSITIVE_INFINITY;
+
+for (LoteProducto lote : lotes) {
+
+    if (
+        lote.producto == producto
+        && inventario.libreDeLoteEn(lote.idLote, idUbicacion) > 0.0001
     ) {
         if (lote.diaProduccion < menorDia) {
             menorDia = lote.diaProduccion;
@@ -3803,6 +3956,210 @@ if (pendiente > 0.0001) {
 }
 
 return movidasTotal;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791500000006</Id>
+					<Name><![CDATA[transferirEntreDepositos]]></Name>
+					<X>-300</X><Y>2760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[lote]]></Name>
+						<Type><![CDATA[LoteProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[origen]]></Name>
+						<Type><![CDATA[Deposito]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[destino]]></Name>
+						<Type><![CDATA[Deposito]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[// ADR-066: movimiento fisico entre depositos de terceros, para stock que quedo
+// sin capacidad de salida en origen (sin cross dock) y que otro deposito puede
+// sacar mejor. Formula de costo de V-COST-06: OUT del origen, flete entre
+// depositos e IN en el destino, sin cargos de contenedor -eso lo paga despues
+// quien arme el contenedor en destino-.
+//
+// Simplificacion declarada: no usa la agenda de flota multidiaria (ADR-061), usa
+// la misma capacidad diaria agregada que el resto de las transferencias con esa
+// agenda desactivada. Queda como extension pendiente si hace falta.
+if (lote == null || origen == null || destino == null || toneladas <= 0.0001) {
+    return 0;
+}
+
+if (!destino.habilitado) {
+    return 0;
+}
+
+int dia = diaCampania();
+
+if (!datos.hayTarifaFlete(dia, origen.idUbicacion, destino.idUbicacion, lote.producto)) {
+    return 0;
+}
+
+if (!datos.hayTarifaSitio(dia, destino.idUbicacion, lote.producto)) {
+    return 0;
+}
+
+double distanciaKm = datos.distanciaKmSimetrica(origen.idUbicacion, destino.idUbicacion);
+
+if (distanciaKm < 0) {
+    return 0;
+}
+
+double aMover = min(
+    min(toneladas, inventario.libreDeLoteEn(lote.idLote, origen.idUbicacion)),
+    destino.getEspacioDisponible(lote.producto)
+);
+
+if (aMover <= 0.0001) {
+    return 0;
+}
+
+double camionDiaPorViaje =
+    2 * distanciaKm
+    / datos.escenario.velocidadCamionKmh
+    / datos.escenario.horasOperativasDia;
+
+int viajesPosibles = (int) floor(
+    flotaProductoLibreHoy() / camionDiaPorViaje + 0.0001
+);
+
+if (viajesPosibles <= 0) {
+    return 0;
+}
+
+aMover = min(
+    aMover,
+    viajesPosibles * datos.escenario.capacidadCamionTn
+);
+
+double movidas = inventario.moverLote(
+    lote.idLote,
+    origen.idUbicacion,
+    destino.idUbicacion,
+    aMover,
+    time()
+);
+
+if (movidas <= 0.0001) {
+    return 0;
+}
+
+tomarFlotaProducto(
+    origen.idUbicacion,
+    destino.idUbicacion,
+    viajesNecesariosCamion(movidas)
+);
+
+lote.depositoActual = destino;
+lote.diaIngresoDeposito = time();
+
+actualizarUbicacionLote(lote);
+
+double costoViaje = registrarFleteProducto(
+    origen.idUbicacion,
+    destino.idUbicacion,
+    lote.producto,
+    movidas,
+    viajesNecesariosCamion(movidas),
+    "" + lote.idLote,
+    "",
+    EstrategiaLogistica.SIN_DEFINIR,
+    "REB-" + dia + "-" + lote.idLote + "-" + origen.idUbicacion + "-" + destino.idUbicacion
+);
+
+lote.costoAcumulado += costoViaje;
+costoFleteEntreDepositos += costoViaje;
+
+double costoOut = registrarOutDepositoTransferencia(
+    origen.idUbicacion,
+    lote.producto,
+    movidas,
+    "" + lote.idLote,
+    "REB-OUT-" + dia + "-" + lote.idLote + "-" + origen.idUbicacion + "-" + destino.idUbicacion
+);
+
+lote.costoAcumulado += costoOut;
+
+lote.costoAcumulado += registrarInDeposito(
+    destino.idUbicacion,
+    lote.producto,
+    movidas,
+    "" + lote.idLote,
+    "",
+    "REB-IN-" + dia + "-" + lote.idLote + "-" + origen.idUbicacion + "-" + destino.idUbicacion
+);
+
+toneladasRebalanceadasEntreDepositos += movidas;
+
+return movidas;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791500000007</Id>
+					<Name><![CDATA[revisarRebalanceoEntreDepositos]]></Name>
+					<X>-300</X><Y>2780</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// ADR-066: un deposito sin cross dock puede terminar con stock que nunca gana
+// la competencia por un pedido -no porque salga caro, sino porque no puede
+// despacharlo a tiempo-. Si ademas ese stock ya lleva un tiempo sin moverse, se
+// reubica hacia el mejor destino disponible (mejorDestinoRebalanceo).
+for (TipoProducto producto : TipoProducto.values()) {
+
+    for (Deposito origen : depositos) {
+
+        if (datos.capacidadCrossDockDia(origen.idUbicacion) > 0.0001) {
+            continue;
+        }
+
+        double libre = inventario.libre(origen.idUbicacion, producto);
+
+        if (libre <= 0.0001) {
+            continue;
+        }
+
+        java.util.List<Capa> capas = inventario.fifo(origen.idUbicacion, producto);
+
+        if (capas.isEmpty()) {
+            continue;
+        }
+
+        double diaMasAntiguo = max(0, capas.get(0).diaIngreso);
+
+        if (time() - diaMasAntiguo < diasEstimadosAlmacenamiento) {
+            continue;
+        }
+
+        LoteProducto lote = buscarLoteMasAntiguoEnDeposito(origen.idUbicacion, producto);
+
+        if (lote == null) {
+            continue;
+        }
+
+        Deposito destino = mejorDestinoRebalanceo(origen, producto, libre);
+
+        if (destino == null) {
+            rebalanceosSinDestino++;
+            continue;
+        }
+
+        transferirEntreDepositos(lote, origen, destino, libre);
+    }
+}]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -4016,6 +4373,7 @@ pedido.puertoSalida = puerto;
 pedido.terminalDestino = puerto;
 
 pedido.depositoAsignado = null;
+pedido.depositoComprometido = plan.depositoComprometido;
 pedido.idSitioOrigen = "";
 
 pedido.estado = EstadoPedido.PENDIENTE;
@@ -9184,7 +9542,7 @@ registro.reconciliar(
 // El flete de producto tiene dos destinos: el deposito y la terminal del circuito 4.
 registro.reconciliar(
     RegistroCostos.Categoria.FLETE_PRODUCTO,
-    costoFletePlantaDeposito + costoFleteGranelTerminal, dia);
+    costoFletePlantaDeposito + costoFleteGranelTerminal + costoFleteEntreDepositos, dia);
 
 registro.reconciliar(
     RegistroCostos.Categoria.ROUND_TRIP, costoFleteDepositoPuertoReal, dia);
@@ -9297,6 +9655,57 @@ return envio != null
     && envio.pedido != null
     && !envio.esCrossDock
     && buscarDeposito(envio.idSitioOrigen) != null;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1791500000008</Id>
+					<Name><![CDATA[registrarOutDepositoTransferencia]]></Name>
+					<X>-300</X><Y>4920</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[idSitio]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[toneladas]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idLote]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[idOperacion]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// ADR-066: egreso de un deposito de terceros por un rebalanceo hacia otro
+// deposito, no por un despacho a pedido -no hay Envio-. Mismo cargo que
+// registrarOutDeposito(Envio).
+DatosEntrada.TarifaSitio tarifa =
+    datos.tarifaSitio(diaCampania(), idSitio, producto);
+
+double importe = registro.registrar(
+    time(),
+    RegistroCostos.Categoria.OUT_DEPOSITO,
+    RegistroCostos.Tipo.CAJA,
+    "", "", idLote, producto,
+    idSitio, idSitio, idSitio,
+    EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
+    DatosEntrada.Unidad.USD_TN, toneladas, tarifa.outUsdTn,
+    idOperacion, "egreso por rebalanceo entre depositos (ADR-066)"
+);
+
+costoOutDeposito += importe;
+
+return importe;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -10317,6 +10726,11 @@ final boolean frioPropio =
 final boolean exigeServicio =
     datos.escenario.servicioMinimoProyectado > 0;
 
+// ADR-066: un pedido puede traer un deposito con el que ya cuenta en la realidad
+// (stock ya posicionado para el, aunque el costo no lo haga ganar). Si lo trae,
+// esa alternativa gana mientras sea factible, antes de mirar costo.
+final String depositoComprometido = pedido.depositoComprometido;
+
 java.util.List<AlternativaCircuito> factibles =
     new java.util.ArrayList<AlternativaCircuito>();
 
@@ -10337,6 +10751,16 @@ java.util.Collections.sort(
             // alternativa que llega a tiempo.
             if (exigeServicio && a.llegaATiempo != b.llegaATiempo) {
                 return a.llegaATiempo ? -1 : 1;
+            }
+
+            if (depositoComprometido != null && !depositoComprometido.isEmpty()) {
+
+                boolean ca = depositoComprometido.equals(a.idOrigen);
+                boolean cb = depositoComprometido.equals(b.idOrigen);
+
+                if (ca != cb) {
+                    return ca ? -1 : 1;
+                }
             }
 
             if (frioPropio) {
@@ -23439,6 +23863,30 @@ if (producto != null) {
 					</Properties>                 
 				</Variable>
 				<Variable Class="Parameter">
+					<Id>1791400000001</Id>
+					<Name><![CDATA[depositoComprometido]]></Name>
+					<X>250</X><Y>230</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[String]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1791400000002</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
 					<Id>1784396903671</Id>
 					<Name><![CDATA[diaLlegada]]></Name>
 					<X>430</X><Y>50</Y>
@@ -29839,6 +30287,10 @@ public class DatosEntrada implements java.io.Serializable {
 		public String buque = "";
 		public String viajeBuque = "";
 
+		// Deposito con el que el pedido ya cuenta en la realidad, aunque el costo no lo
+		// haga ganar la comparacion (ADR-066). Vacio si no hay compromiso previo.
+		public String depositoComprometido = "";
+
 		// Alias legacy: el resto del modelo sigue leyendo estos dos nombres. No son
 		// datos independientes, son vistas de las fechas de la ventana.
 		public int diaLlegada;
@@ -31834,6 +32286,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		plan.incoterm = f.textoOpcional("incoterm", "").toUpperCase();
 		plan.buque = f.textoOpcional("buque", "");
 		plan.viajeBuque = f.textoOpcional("viaje_buque", "");
+		plan.depositoComprometido = f.textoOpcional("deposito_comprometido", "");
 
 		return plan;
 	}

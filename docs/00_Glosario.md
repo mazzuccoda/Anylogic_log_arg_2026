@@ -24,6 +24,7 @@ Cada término define el hecho operativo que representa y, cuando corresponde, el
 | **Costo incremental** | Costo que se genera a partir de la decisión evaluada (OUT, fletes nuevos, ciclo, consolidación, cross dock, terminal, THC, despachante) | — | USD |
 | **Costo end-to-end** | Histórico + incremental | — | USD |
 | **Compromiso** | Asociación de un pedido a un lote y a su producción futura esperada. No bloquea stock físico | — | tn |
+| **Depósito comprometido** | Dato de entrada (`Pedido.depositoComprometido`, ADR-066), distinto de "Compromiso": indica que el pedido ya cuenta, en la realidad, con stock posicionado en un depósito específico. Hace ganar esa alternativa en `ordenarAlternativas()` mientras sea factible, sin mirar costo | — | — |
 | **Reserva** | Bloqueo de toneladas físicas existentes en una capa, a favor de un pedido y contenedor | — | tn |
 | **Despacho** | Consumo de una reserva al cargar el contenedor. Descuenta la capa | — | tn |
 | **Excedente** | Producción que no pudo almacenarse por falta de capacidad. Indicador de dimensionamiento, no se recupera | Pendiente de definir | tn |

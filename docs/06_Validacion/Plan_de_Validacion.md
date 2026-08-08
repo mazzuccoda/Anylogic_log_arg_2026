@@ -368,6 +368,18 @@ El aumento es explicable en su totalidad: los cargos nuevos son IN + OUT + THC +
 
 **Medido:** corrida pareada E-14/E-15 (política de costo) con el Mod activo vs. `diasEstimadosAlmacenamiento = 0`, y `reconciliarCostos()` sin abortos en las dos. Si `costoTotalCampania()` difiere entre ambas sólo por qué alternativa se ejecutó (no por cómo se calculó cada una), y las 420+ corridas del barrido terminan `Finished`, el caso pasa. Cualquier corrida en la que `costoIncremental` de la alternativa ejecutada no coincida con lo que después registra `RegistroCostos` para ese envío es una falla de este caso, no de C3.
 
+### V-COST-12 Afinidad pedido-depósito no altera nada si no se usa (ADR-066)
+
+**Esperado:** con `deposito_comprometido` vacío en todos los pedidos (el caso de `datos/entrada_ejemplo.xlsx` sin modificar), el comportamiento de `ordenarAlternativas()` es **idéntico** al de antes de ADR-066 — el nuevo criterio nunca decide nada porque `depositoComprometido.isEmpty()` es siempre verdadero.
+
+**Medido:** corrida pareada con y sin el Mod (o con la columna presente pero vacía) debe dar el mismo `costoTotalCampania()`, las mismas asignaciones y el mismo `nivelServicio()`. Con al menos un pedido con `deposito_comprometido` cargado, esa alternativa debe ganar el ranking mientras sea factible, incluso si otra alternativa resulta más barata — comparar contra `decisiones_alternativas.csv` (columna `costo_incremental_usd_tn` de la alternativa elegida vs. la más barata disponible) para confirmar que ganó por compromiso y no por costo.
+
+### V-COST-13 Rebalanceo entre depósitos no mueve nada sin datos, y no rompe balance con datos (ADR-066)
+
+**Esperado:** sin filas depósito→depósito en `TarifaFleteProducto`/`Distancia`, `revisarRebalanceoEntreDepositos()` corre todos los días sin mover una tonelada (`toneladasRebalanceadasEntreDepositos` queda en 0) y sin abortar la corrida. Con esas filas cargadas, el mecanismo mueve stock de depósitos con `capacidadCrossDockDia <= 0` y antigüedad ≥ `diasEstimadosAlmacenamiento` hacia el destino de `mejorDestinoRebalanceo()`, y el balance físico se mantiene: lo que sale de un depósito aparece en el otro, sin producto perdido ni duplicado.
+
+**Medido:** `validarInventario()` y `validarBalanceProducido()` (C-01/C-02) sin abortos en una corrida con datos depósito-depósito cargados. `reconciliarCostos()` sin abortos: el total de `FLETE_PRODUCTO` en el registro debe coincidir con `costoFletePlantaDeposito + costoFleteGranelTerminal + costoFleteEntreDepositos`, y el de `OUT_DEPOSITO` con `costoOutDeposito` (que ahora incluye tanto los egresos por despacho a pedido como los egresos por rebalanceo). Un escenario con `BOREAS` (sin cross dock) y stock viejo debería mostrar, al cierre, menos stock remanente en Boreas que una corrida sin las filas de tarifa depósito-depósito cargadas — con las mismas toneladas exportadas o más, nunca menos.
+
 ## 4.3 Decisión de circuito (C5/C6, ADR-054)
 
 Los casos que siguen se verificaron sobre el barrido `fase-23`: 36 escenarios × 30 réplicas = 1 080 corridas, todas `Finished`.

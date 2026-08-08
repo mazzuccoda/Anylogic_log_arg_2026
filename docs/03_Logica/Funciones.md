@@ -336,6 +336,24 @@ Traduce la fila del escenario a estado del modelo: duración de campaña, cross 
 
 `ordenarAlternativas()` es la política: primero servicio, después el criterio de costo (incremental o end-to-end según el escenario) y desempate por clave, para que dos corridas con la misma semilla decidan igual. `ejecutarAlternativa()` no mueve producto por su cuenta: reserva contra el origen elegido o llama a `ejecutarCrossDockPedido()`, es decir el flujo que ya existía. `registrarPlan()` guarda el `PlanLogistico` con todas las alternativas, factibles y descartadas.
 
+### Afinidad pedido-depósito: `Pedido.depositoComprometido` (ADR-066)
+
+**Estado:** implementada, pendiente de compilar en AnyLogic.
+
+Columna opcional `deposito_comprometido` en `PedidoPlan`, copiada al pedido en `crearPedido()`. Distinto de `depositoAsignado` (que sólo se **escribe** después de asignar, como registro histórico): `depositoComprometido` es una entrada que representa que el pedido ya cuenta, en la realidad, con stock posicionado en un depósito específico. `ordenarAlternativas()` lo usa como criterio de desempate — entre servicio y frío propio — para que esa alternativa gane mientras sea factible, sin mirar costo. Vacío por defecto: no cambia nada si no se completa (`V-COST-12`).
+
+### Rebalanceo entre depósitos: `revisarRebalanceoEntreDepositos`, `mejorDestinoRebalanceo`, `transferirEntreDepositos`, `buscarLoteMasAntiguoEnDeposito` y `registrarOutDepositoTransferencia` (ADR-066)
+
+**Estado:** implementada, pendiente de compilar en AnyLogic y de datos depósito-depósito para poder ejercitarse.
+
+Activa la transferencia depósito-depósito que `generarAlternativas()` traía descartada a propósito (`TRANSFERENCIA_DEPOSITO_DEPOSITO`, C7) y que `V-COST-06` dejó documentada sin implementar. No vive en el evaluador de pedidos — vive junto a `revisarTransferenciasPlanta()`, como paso 6b de la secuencia diaria, porque resuelve un problema de **capacidad de salida** (un depósito sin cross dock que no puede despachar a tiempo), no de costo.
+
+`revisarRebalanceoEntreDepositos()` recorre los depósitos con `datos.capacidadCrossDockDia(idUbicacion) <= 0` que tengan stock libre con antigüedad ≥ `diasEstimadosAlmacenamiento` (reusa el mismo horizonte de ADR-065/056), y para el lote más antiguo (`buscarLoteMasAntiguoEnDeposito`) busca el mejor destino con `mejorDestinoRebalanceo` — mismo criterio de costo que `seleccionarDeposito()`: flete de reubicación más el holding proyectado en destino (`horizonteHoldingEvitado()`, reusada de ADR-065). `transferirEntreDepositos()` ejecuta el movimiento con la fórmula de `V-COST-06` (OUT del origen vía `registrarOutDepositoTransferencia` —nueva, porque `registrarOutDeposito(Envio)` depende de un envío que acá no existe—, flete vía `registrarFleteProducto` reusada tal cual, IN en destino vía `registrarInDeposito` reusada tal cual), sin cargos de contenedor.
+
+Dos guardas explícitas para no asumir dato inexistente: si falta la tarifa de flete o de sitio (`hayTarifaFlete`/`hayTarifaSitio`), o la distancia entre los dos depósitos (`distanciaKmSimetrica() < 0`), la función devuelve 0 sin mover nada — no crashea, no asume costo cero. Con `datos/entrada_ejemplo.xlsx` sin filas depósito-depósito en `TarifaFleteProducto`/`Distancia`, el mecanismo corre todos los días y no mueve nada, que es el comportamiento correcto (`V-COST-13`).
+
+**Simplificación declarada:** no usa la agenda de flota multidiaria (ADR-061) — calcula el camión-día inline con `distanciaKmSimetrica()` (no con `camionDiaViaje()`, que usa `distanciaKm()` y aborta la corrida si falta la fila exacta origen→destino). Es la única transferencia del modelo que queda fuera de esa agenda; extenderla es trabajo pendiente, no un descuido.
+
 ### Crédito de holding futuro en el ranking: `tarifaHoldingOrigen`, `horizonteHoldingEvitado` y `AlternativaCircuito.costoUnitarioRankingSegun` (ADR-065)
 
 **Estado:** propuesta.

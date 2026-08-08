@@ -105,6 +105,9 @@ class Main extends Agent {
     double toneladasTransferidasServicio = 0;
     double toneladasTransferidasCriticas = 0;
     int transferenciasIncompletas = 0;
+    double toneladasRebalanceadasEntreDepositos = 0;
+    int rebalanceosSinDestino = 0;
+    double costoFleteEntreDepositos = 0;
     double componentePorDesborde = 0;
     double componentePorServicio = 0;
     double componentePreventivo = 0;
@@ -343,6 +346,56 @@ class Main extends Agent {
         return mejorDeposito;
     }
 
+    Deposito mejorDestinoRebalanceo(Deposito origen, TipoProducto producto, double toneladas) {
+        // ADR-066: entre los depositos que pueden recibir esto (habilitados, con tarifa
+        // de flete, de sitio y distancia cargadas), elige el mas barato en total: flete
+        // de reubicacion mas el holding que va a seguir devengando en el destino,
+        // proyectado con el mismo horizonte que usa el resto del modelo (ADR-065, ADR-056).
+        int dia = diaCampania();
+        Deposito mejor = null;
+        double menorCosto = Double.POSITIVE_INFINITY;
+
+        for (Deposito destino : depositos) {
+
+            if (destino == origen || !destino.habilitado) {
+                continue;
+            }
+
+            if (!datos.hayTarifaFlete(dia, origen.idUbicacion, destino.idUbicacion, producto)) {
+                continue;
+            }
+
+            if (!datos.hayTarifaSitio(dia, destino.idUbicacion, producto)) {
+                continue;
+            }
+
+            if (datos.distanciaKmSimetrica(origen.idUbicacion, destino.idUbicacion) < 0) {
+                continue;
+            }
+
+            double posible = min(toneladas, espacioDisponibleEfectivo(destino, producto));
+
+            if (posible <= 0.0001) {
+                continue;
+            }
+
+            double costoEstimado =
+                datos.importeFlete(
+                    dia, origen.idUbicacion, destino.idUbicacion, producto,
+                    posible, viajesNecesariosCamion(posible))
+                + posible * destino.getTarifaAlmacenamiento(producto) * horizonteHoldingEvitado();
+
+            double costoPorTonelada = costoEstimado / posible;
+
+            if (costoPorTonelada < menorCosto) {
+                menorCosto = costoPorTonelada;
+                mejor = destino;
+            }
+        }
+
+        return mejor;
+    }
+
     LoteProducto buscarLoteMasAntiguoEnPlanta(TipoProducto producto) {
         LoteProducto seleccionado = null;
         double menorDia = Double.POSITIVE_INFINITY;
@@ -354,6 +407,27 @@ class Main extends Agent {
             if (
                 lote.producto == producto
                 && inventario.libreDeLoteEn(lote.idLote, "PLANTA") > 0.0001
+            ) {
+                if (lote.diaProduccion < menorDia) {
+                    menorDia = lote.diaProduccion;
+                    seleccionado = lote;
+                }
+            }
+        }
+
+        return seleccionado;
+    }
+
+    LoteProducto buscarLoteMasAntiguoEnDeposito(String idUbicacion, TipoProducto producto) {
+        // ADR-066: mismo criterio que buscarLoteMasAntiguoEnPlanta, para el lado deposito.
+        LoteProducto seleccionado = null;
+        double menorDia = Double.POSITIVE_INFINITY;
+
+        for (LoteProducto lote : lotes) {
+
+            if (
+                lote.producto == producto
+                && inventario.libreDeLoteEn(lote.idLote, idUbicacion) > 0.0001
             ) {
                 if (lote.diaProduccion < menorDia) {
                     menorDia = lote.diaProduccion;
@@ -430,6 +504,178 @@ class Main extends Agent {
         }
 
         return movidasTotal;
+    }
+
+    double transferirEntreDepositos(LoteProducto lote, Deposito origen, Deposito destino, double toneladas) {
+        // ADR-066: movimiento fisico entre depositos de terceros, para stock que quedo
+        // sin capacidad de salida en origen (sin cross dock) y que otro deposito puede
+        // sacar mejor. Formula de costo de V-COST-06: OUT del origen, flete entre
+        // depositos e IN en el destino, sin cargos de contenedor -eso lo paga despues
+        // quien arme el contenedor en destino-.
+        //
+        // Simplificacion declarada: no usa la agenda de flota multidiaria (ADR-061), usa
+        // la misma capacidad diaria agregada que el resto de las transferencias con esa
+        // agenda desactivada. Queda como extension pendiente si hace falta.
+        if (lote == null || origen == null || destino == null || toneladas <= 0.0001) {
+            return 0;
+        }
+
+        if (!destino.habilitado) {
+            return 0;
+        }
+
+        int dia = diaCampania();
+
+        if (!datos.hayTarifaFlete(dia, origen.idUbicacion, destino.idUbicacion, lote.producto)) {
+            return 0;
+        }
+
+        if (!datos.hayTarifaSitio(dia, destino.idUbicacion, lote.producto)) {
+            return 0;
+        }
+
+        double distanciaKm = datos.distanciaKmSimetrica(origen.idUbicacion, destino.idUbicacion);
+
+        if (distanciaKm < 0) {
+            return 0;
+        }
+
+        double aMover = min(
+            min(toneladas, inventario.libreDeLoteEn(lote.idLote, origen.idUbicacion)),
+            destino.getEspacioDisponible(lote.producto)
+        );
+
+        if (aMover <= 0.0001) {
+            return 0;
+        }
+
+        double camionDiaPorViaje =
+            2 * distanciaKm
+            / datos.escenario.velocidadCamionKmh
+            / datos.escenario.horasOperativasDia;
+
+        int viajesPosibles = (int) floor(
+            flotaProductoLibreHoy() / camionDiaPorViaje + 0.0001
+        );
+
+        if (viajesPosibles <= 0) {
+            return 0;
+        }
+
+        aMover = min(
+            aMover,
+            viajesPosibles * datos.escenario.capacidadCamionTn
+        );
+
+        double movidas = inventario.moverLote(
+            lote.idLote,
+            origen.idUbicacion,
+            destino.idUbicacion,
+            aMover,
+            time()
+        );
+
+        if (movidas <= 0.0001) {
+            return 0;
+        }
+
+        tomarFlotaProducto(
+            origen.idUbicacion,
+            destino.idUbicacion,
+            viajesNecesariosCamion(movidas)
+        );
+
+        lote.depositoActual = destino;
+        lote.diaIngresoDeposito = time();
+
+        actualizarUbicacionLote(lote);
+
+        double costoViaje = registrarFleteProducto(
+            origen.idUbicacion,
+            destino.idUbicacion,
+            lote.producto,
+            movidas,
+            viajesNecesariosCamion(movidas),
+            "" + lote.idLote,
+            "",
+            EstrategiaLogistica.SIN_DEFINIR,
+            "REB-" + dia + "-" + lote.idLote + "-" + origen.idUbicacion + "-" + destino.idUbicacion
+        );
+
+        lote.costoAcumulado += costoViaje;
+        costoFleteEntreDepositos += costoViaje;
+
+        double costoOut = registrarOutDepositoTransferencia(
+            origen.idUbicacion,
+            lote.producto,
+            movidas,
+            "" + lote.idLote,
+            "REB-OUT-" + dia + "-" + lote.idLote + "-" + origen.idUbicacion + "-" + destino.idUbicacion
+        );
+
+        lote.costoAcumulado += costoOut;
+
+        lote.costoAcumulado += registrarInDeposito(
+            destino.idUbicacion,
+            lote.producto,
+            movidas,
+            "" + lote.idLote,
+            "",
+            "REB-IN-" + dia + "-" + lote.idLote + "-" + origen.idUbicacion + "-" + destino.idUbicacion
+        );
+
+        toneladasRebalanceadasEntreDepositos += movidas;
+
+        return movidas;
+    }
+
+    void revisarRebalanceoEntreDepositos() {
+        // ADR-066: un deposito sin cross dock puede terminar con stock que nunca gana
+        // la competencia por un pedido -no porque salga caro, sino porque no puede
+        // despacharlo a tiempo-. Si ademas ese stock ya lleva un tiempo sin moverse, se
+        // reubica hacia el mejor destino disponible (mejorDestinoRebalanceo).
+        for (TipoProducto producto : TipoProducto.values()) {
+
+            for (Deposito origen : depositos) {
+
+                if (datos.capacidadCrossDockDia(origen.idUbicacion) > 0.0001) {
+                    continue;
+                }
+
+                double libre = inventario.libre(origen.idUbicacion, producto);
+
+                if (libre <= 0.0001) {
+                    continue;
+                }
+
+                java.util.List<Capa> capas = inventario.fifo(origen.idUbicacion, producto);
+
+                if (capas.isEmpty()) {
+                    continue;
+                }
+
+                double diaMasAntiguo = max(0, capas.get(0).diaIngreso);
+
+                if (time() - diaMasAntiguo < diasEstimadosAlmacenamiento) {
+                    continue;
+                }
+
+                LoteProducto lote = buscarLoteMasAntiguoEnDeposito(origen.idUbicacion, producto);
+
+                if (lote == null) {
+                    continue;
+                }
+
+                Deposito destino = mejorDestinoRebalanceo(origen, producto, libre);
+
+                if (destino == null) {
+                    rebalanceosSinDestino++;
+                    continue;
+                }
+
+                transferirEntreDepositos(lote, origen, destino, libre);
+            }
+        }
     }
 
     void revisarTransferenciasPlanta() {
@@ -587,6 +833,7 @@ class Main extends Agent {
         pedido.terminalDestino = puerto;
 
         pedido.depositoAsignado = null;
+        pedido.depositoComprometido = plan.depositoComprometido;
         pedido.idSitioOrigen = "";
 
         pedido.estado = EstadoPedido.PENDIENTE;
@@ -4435,7 +4682,7 @@ class Main extends Agent {
         // El flete de producto tiene dos destinos: el deposito y la terminal del circuito 4.
         registro.reconciliar(
             RegistroCostos.Categoria.FLETE_PRODUCTO,
-            costoFletePlantaDeposito + costoFleteGranelTerminal, dia);
+            costoFletePlantaDeposito + costoFleteGranelTerminal + costoFleteEntreDepositos, dia);
 
         registro.reconciliar(
             RegistroCostos.Categoria.ROUND_TRIP, costoFleteDepositoPuertoReal, dia);
@@ -4504,6 +4751,29 @@ class Main extends Agent {
             && envio.pedido != null
             && !envio.esCrossDock
             && buscarDeposito(envio.idSitioOrigen) != null;
+    }
+
+    double registrarOutDepositoTransferencia(String idSitio, TipoProducto producto, double toneladas, String idLote, String idOperacion) {
+        // ADR-066: egreso de un deposito de terceros por un rebalanceo hacia otro
+        // deposito, no por un despacho a pedido -no hay Envio-. Mismo cargo que
+        // registrarOutDeposito(Envio).
+        DatosEntrada.TarifaSitio tarifa =
+            datos.tarifaSitio(diaCampania(), idSitio, producto);
+
+        double importe = registro.registrar(
+            time(),
+            RegistroCostos.Categoria.OUT_DEPOSITO,
+            RegistroCostos.Tipo.CAJA,
+            "", "", idLote, producto,
+            idSitio, idSitio, idSitio,
+            EstrategiaLogistica.SIN_DEFINIR, tarifa.proveedor,
+            DatosEntrada.Unidad.USD_TN, toneladas, tarifa.outUsdTn,
+            idOperacion, "egreso por rebalanceo entre depositos (ADR-066)"
+        );
+
+        costoOutDeposito += importe;
+
+        return importe;
     }
 
     double registrarOutDeposito(Envio envio) {
@@ -5260,6 +5530,11 @@ class Main extends Agent {
         final boolean exigeServicio =
             datos.escenario.servicioMinimoProyectado > 0;
 
+        // ADR-066: un pedido puede traer un deposito con el que ya cuenta en la realidad
+        // (stock ya posicionado para el, aunque el costo no lo haga ganar). Si lo trae,
+        // esa alternativa gana mientras sea factible, antes de mirar costo.
+        final String depositoComprometido = pedido.depositoComprometido;
+
         java.util.List<AlternativaCircuito> factibles =
             new java.util.ArrayList<AlternativaCircuito>();
 
@@ -5280,6 +5555,16 @@ class Main extends Agent {
                     // alternativa que llega a tiempo.
                     if (exigeServicio && a.llegaATiempo != b.llegaATiempo) {
                         return a.llegaATiempo ? -1 : 1;
+                    }
+
+                    if (depositoComprometido != null && !depositoComprometido.isEmpty()) {
+
+                        boolean ca = depositoComprometido.equals(a.idOrigen);
+                        boolean cb = depositoComprometido.equals(b.idOrigen);
+
+                        if (ca != cb) {
+                            return ca ? -1 : 1;
+                        }
                     }
 
                     if (frioPropio) {
@@ -8939,6 +9224,7 @@ class Main extends Agent {
         reprogramarReservasCapacidad();          // 4b. mover las posiciones no usadas (ADR-060)
         programarCrossDockDelDia();              // 5. cruzar lo que no necesita guardarse
         revisarTransferenciasPlanta();           // 6. sacar de planta solo lo necesario
+        revisarRebalanceoEntreDepositos();       // 6b. mover entre depositos lo que quedo sin salida (ADR-066)
         revisarPedidosPendientes();              // 7. reservar contra stock
         prepararPedidosReservados();             // 8. armar los contenedores del pedido
         despacharContenedoresPendientes();       // 9. consolidar y despachar lo que entra

@@ -437,7 +437,50 @@ cross dock (ver tabla de aplicabilidad en `Modelo_de_Costos.md` §4). Es la
 otra cara de la misma decisión de almacenamiento: a veces la respuesta a
 "¿dónde guardo esto?" es "en ningún lado, va directo al contenedor".
 
-## 1.9 Resumen — criterios de almacenamiento
+## 1.9 Rebalanceo entre depósitos — cuando el problema no es el costo, es la salida (ADR-066)
+
+Todo lo anterior en este documento asume que, una vez que el producto llega a un depósito, el único camino de salida es que algún pedido lo elija (doc `flow/02`). En la práctica aparece un caso que ese esquema no cubre: un depósito puede tener stock perfectamente vendible y aun así no tener **cómo** sacarlo a tiempo, porque no tiene capacidad de cross dock ni mucha capacidad de consolidación propia. Ese stock no pierde la competencia por caro — la pierde porque, aunque gane, el depósito no puede armar el contenedor lo bastante rápido.
+
+Con los datos de `datos/entrada_ejemplo.xlsx`, `BOREAS` es exactamente ese caso: `posiciones_cross_dock = 0` y sólo 3 contenedores/día, contra 16 posiciones y 10 contenedores/día de `RUTA9`.
+
+**La solución no es ajustar el costo — es mover el producto a un depósito que sí pueda despacharlo:**
+
+```java
+void revisarRebalanceoEntreDepositos() {
+    for (TipoProducto producto : TipoProducto.values()) {
+        for (Deposito origen : depositos) {
+
+            if (datos.capacidadCrossDockDia(origen.idUbicacion) > 0.0001) {
+                continue;   // ya puede despachar cross dock, no hace falta mover nada
+            }
+
+            double libre = inventario.libre(origen.idUbicacion, producto);
+            if (libre <= 0.0001) continue;
+
+            // solo lo que ya lleva el horizonte de holding sin moverse (mismo que ADR-065)
+            double diaMasAntiguo = max(0, inventario.fifo(origen.idUbicacion, producto).get(0).diaIngreso);
+            if (time() - diaMasAntiguo < diasEstimadosAlmacenamiento) continue;
+
+            LoteProducto lote = buscarLoteMasAntiguoEnDeposito(origen.idUbicacion, producto);
+            Deposito destino = mejorDestinoRebalanceo(origen, producto, libre);
+
+            if (destino == null) { rebalanceosSinDestino++; continue; }
+
+            transferirEntreDepositos(lote, origen, destino, libre);
+        }
+    }
+}
+```
+
+Corre como paso 6b de la secuencia diaria, justo después de `revisarTransferenciasPlanta()`. `mejorDestinoRebalanceo()` elige destino con el mismo criterio que ya usa `seleccionarDeposito()` (§1.4.2): flete de reubicación más el holding que el destino va a seguir devengando, proyectado con `horizonteHoldingEvitado()` — la misma función que ADR-065 usa para el crédito del evaluador de pedidos. `transferirEntreDepositos()` cobra la fórmula que `docs/06_Validacion/Plan_de_Validacion.md` (V-COST-06) ya tenía documentada y sin implementar: OUT del origen + flete entre depósitos + IN en el destino, **sin** cargos de contenedor — eso lo paga después quien arme el contenedor en destino, por el camino que ya existe.
+
+**Qué NO hace, a propósito:**
+
+- **No compite por costo dentro de `generarAlternativas()`.** El problema de Boreas no es que salga caro — es que no puede despachar a tiempo. Meterlo a competir por costo contra las demás alternativas de un pedido puntual podría perder igual contra una opción más barata que tampoco puede cumplir el plazo.
+- **No usa la agenda de flota multidiaria (ADR-061).** Calcula el camión-día con `distanciaKmSimetrica()` inline, no con `camionDiaViaje()` — que usa `distanciaKm()` sin dirección alternativa y **aborta la corrida** si falta la fila exacta origen→destino. Como hoy no existe ninguna fila depósito→depósito en `Distancia`, usar la versión que revienta habría sido peligroso; la versión simétrica simplemente no mueve nada si falta el dato. Es una simplificación declarada, no la versión final.
+- **No asume tarifa ni distancia si faltan.** Antes de mover un gramo, chequea `hayTarifaFlete`, `hayTarifaSitio` y `distanciaKmSimetrica() >= 0`. Sin esas filas cargadas —el caso de `datos/entrada_ejemplo.xlsx` hoy— el mecanismo corre todos los días y no mueve nada. Hace falta cargar esos datos para que tenga algún efecto.
+
+## 1.10 Resumen — criterios de almacenamiento
 
 | # | Criterio | Función | ¿Duro o de costo? |
 |---|---|---|---|
@@ -449,6 +492,7 @@ otra cara de la misma decisión de almacenamiento: a veces la respuesta a
 | 6 | Espacio disponible (en vez de costo) | `seleccionarDeposito(priorizarEspacio=true)` | Sólo si la planta está en sobrecarga crítica (ADR-056) |
 | 7 | Producción de la planta | `producir()` | **Nunca se bloquea** (ADR-048) — la capacidad de planta es lectura, no filtro |
 | 8 | Costo de oportunidad del frío propio | `devengarOportunidadFrioPropio()` = stock de **hoy** × tarifa | **No es proyección** — con stock 0 el cargo del día es 0 (ADR-049) |
+| 9 | Capacidad de salida del depósito (no de costo) | `revisarRebalanceoEntreDepositos()` — sólo depósitos sin cross dock (ADR-066) | **Duro por capacidad de despacho**, no por precio — reubica hacia quien sí puede sacarlo |
 
 La planta jamás dice "no" a la cosecha; el depósito sí dice "no" cuando no
 hay lugar, tarifa o camión. Entre los depósitos que dicen "sí", gana el más

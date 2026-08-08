@@ -285,6 +285,21 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/` (ADR-065). **Pendi
 - [ ] Pendiente de compilar en el IDE de AnyLogic — este entorno no tiene el compilador ni el motor de simulación; sólo se validó que el `.alp` sigue siendo XML bien formado y que el espejo `model_src/` se regenera sin errores.
 - [ ] Pendiente de discusión aparte, fuera de alcance de este Mod: si el crédito debería también poder ganarle al desempate de `PRIORIDAD_FRIO_PROPIO` — cambiaría la semántica ya aceptada de esa política.
 
+## 11l. MOD — Afinidad pedido-depósito y rebalanceo entre depósitos (ADR-066)
+
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/`. **Pendiente de compilar y correr en el IDE de AnyLogic** (mismo estado que 11k — sin motor de simulación en el entorno donde se implementó).
+
+- [x] `Pedido.depositoComprometido` / `PedidoPlan.depositoComprometido`, columna opcional `deposito_comprometido` en `PedidoPlan` (vacía por defecto, no rompe libros existentes).
+- [x] `ordenarAlternativas()`: nuevo criterio de desempate por depósito comprometido, entre servicio y frío propio — orden final: servicio → compromiso → frío propio → costo.
+- [x] `revisarRebalanceoEntreDepositos()` (paso 6b de la secuencia diaria): mueve stock de depósitos sin cross dock (`capacidadCrossDockDia <= 0`) y con antigüedad ≥ `diasEstimadosAlmacenamiento` hacia el mejor destino disponible.
+- [x] `mejorDestinoRebalanceo()`, `transferirEntreDepositos()`, `buscarLoteMasAntiguoEnDeposito()`, `registrarOutDepositoTransferencia()` — costo según V-COST-06 (OUT + flete + IN, sin contenedor), sin tocar `costoIncremental`/`costoEndToEnd` del evaluador.
+- [x] Nuevo acumulador `costoFleteEntreDepositos`, sumado a la reconciliación de `FLETE_PRODUCTO` sin mezclarse con `costoFletePlantaDeposito`.
+- [x] Sin datos de tarifa/distancia depósito-depósito, el mecanismo no hace nada (no crashea, no asume costo cero) — verificado que `transferirEntreDepositos`/`mejorDestinoRebalanceo` chequean `hayTarifaFlete`/`hayTarifaSitio`/`distanciaKmSimetrica` antes de mover.
+- [ ] **Pendiente, bloqueante para ejercitar el rebalanceo:** cargar filas depósito→depósito en `TarifaFleteProducto` y `Distancia` de `datos/entrada_ejemplo.xlsx` (hoy no existe ninguna).
+- [ ] Caso de regresión obligatorio, pendiente de correr: `V-COST-12` y `V-COST-13` (`docs/06_Validacion/Plan_de_Validacion.md`).
+- [ ] Pendiente de compilar en el IDE de AnyLogic — sólo se validó que el `.alp` sigue siendo XML bien formado, que el espejo se regenera sin errores y que las firmas reusadas coinciden con el código existente.
+- [ ] Fuera de alcance de este Mod: integrar el rebalanceo con la agenda de flota multidiaria (ADR-061) — usa capacidad diaria agregada como simplificación declarada.
+
 ## 12. Fase 9 — Terminal
 
 - [ ] Entrega de vacíos.

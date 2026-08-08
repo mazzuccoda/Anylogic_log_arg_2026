@@ -403,6 +403,10 @@ public class DatosEntrada implements java.io.Serializable {
 		public String buque = "";
 		public String viajeBuque = "";
 
+		// Deposito con el que el pedido ya cuenta en la realidad, aunque el costo no lo
+		// haga ganar la comparacion (ADR-066). Vacio si no hay compromiso previo.
+		public String depositoComprometido = "";
+
 		// Alias legacy: el resto del modelo sigue leyendo estos dos nombres. No son
 		// datos independientes, son vistas de las fechas de la ventana.
 		public int diaLlegada;

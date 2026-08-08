@@ -278,6 +278,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		plan.incoterm = f.textoOpcional("incoterm", "").toUpperCase();
 		plan.buque = f.textoOpcional("buque", "");
 		plan.viajeBuque = f.textoOpcional("viaje_buque", "");
+		plan.depositoComprometido = f.textoOpcional("deposito_comprometido", "");
 
 		return plan;
 	}

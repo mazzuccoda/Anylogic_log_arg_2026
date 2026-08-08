@@ -270,6 +270,7 @@ Si la tabla trae una sola fila por producto sin `dia`, se interpreta como media 
 | `incoterm` | texto | Informativo |
 | `buque` | texto | Informativo. Agrupa los pedidos que comparten cut-off |
 | `viaje_buque` | texto | Informativo |
+| `deposito_comprometido` | texto | Opcional (ADR-066). FK `Ubicacion` tipo `DEPOSITO`. Vacío = sin compromiso previo, el pedido compite normalmente por costo |
 | `dia_conocimiento` | int | >= 0. Desde cuándo el pedido existe para planificar |
 | `dia_apertura_retiro_vacio` | int | >= `dia_conocimiento`. Primer día de retiro físico del vacío |
 | `dia_cutoff_fisico` | int | >= `dia_apertura_retiro_vacio`. Último día de ingreso a terminal |
@@ -350,7 +351,7 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 | `TarifaRoundTrip` | `terminal`, `sitio`, `tipo_contenedor`, `tarifa_usd_contenedor`, `horas_espera_incluidas`, `tarifa_espera_usd_hora`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
 | `TarifaEspera` | `tipo_recurso`, `id_ubicacion`, `franquicia_horas`, `usd_hora`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
 | `ProduccionPlan` | `id_escenario`, `dia`, `producto`, `produccion_tn` |
-| `PedidoPlan` | `id_escenario`, `codigo_pedido`, `producto`, `toneladas_solicitadas`, `terminal`, `naviera`, `incoterm`, `buque`, `viaje_buque`, `dia_conocimiento`, `dia_apertura_retiro_vacio`, `dia_cutoff_fisico`, `dia_etd`. Acepta también la forma anterior a ADR-059 con `dia_llegada` y `dia_limite` |
+| `PedidoPlan` | `id_escenario`, `codigo_pedido`, `producto`, `toneladas_solicitadas`, `terminal`, `naviera`, `incoterm`, `buque`, `viaje_buque`, `deposito_comprometido` (opcional, ADR-066), `dia_conocimiento`, `dia_apertura_retiro_vacio`, `dia_cutoff_fisico`, `dia_etd`. Acepta también la forma anterior a ADR-059 con `dia_llegada` y `dia_limite` |
 | `StockInicial` (opcional) | `id_escenario`, `id_stock`, `codigo_lote`, `producto`, `id_ubicacion`, `toneladas`, `dia_produccion`, `dia_ingreso`, `cliente`, `calidad` |
 
 Las columnas se buscan por nombre, no por posición: se pueden reordenar o agregar columnas propias. Una hoja o una columna faltante se informa junto con todas las demás antes de validar; un número tipeado como texto se acepta, y un texto que no sea número indica hoja, fila y columna.
@@ -368,7 +369,7 @@ Las columnas se buscan por nombre, no por posición: se pueden reordenar o agreg
 | `TarifaEspera` | sí | `registrarEspera()` cobra las horas que superan la franquicia en carga, descarga y terminal. Con los tiempos sintéticos el cargo es 0 |
 | `Escenario` | sí, parcial | implementa `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion` y `variabilidad_demanda`, y agrega `pedidos_por_campania`, `toneladas_medias_pedido` y `plazo_pedido_dias`, que son los que gobiernan la demanda sintética |
 | `ProduccionPlan` | sí | serie diaria completa por producto |
-| `PedidoPlan` | sí | sin cliente, calidad, lote solicitado, naviera ni incoterm: el modelo aún no los usa |
+| `PedidoPlan` | sí | sin cliente, calidad, lote solicitado, naviera ni incoterm: el modelo aún no los usa. `deposito_comprometido` es opcional (ADR-066): vacío en todos los pedidos existentes, sin efecto si no se completa |
 | `StockInicial` | sí, opcional (ADR-057) | reemplaza a `LoteInicial`. El stock inicial entra como capas reales de `Inventario` con lotes `esStockInicial = true`; sin `toneladas_objetivo`, porque el lote histórico queda cerrado |
 
 La validación existe y corre en el arranque: `Main.cargarDatosEntrada()` obtiene las tablas del origen elegido, ejecuta `DatosEntrada.validar()` y aborta con la lista completa de errores. Todavía no escribe `errores_entrada.csv`. Cubre los puntos 2, 3, 4 y 6 de la sección anterior; los puntos 1, 5, 7 y 8 corresponden a columnas o tablas no implementadas.
