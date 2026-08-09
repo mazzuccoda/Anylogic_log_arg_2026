@@ -121,7 +121,13 @@ public class ImportadorExcel implements java.io.Serializable {
 			errores.add("La hoja Escenario no tiene ninguna fila con id_escenario = " + idEscenario + ".");
 		}
 
-		for (Fila f : filas("Producto", null, null)) {
+		double[] tipoCambio = new double[12];
+		java.util.Arrays.fill(tipoCambio, 1.0);
+		for (Fila f : filas("Tipo_cambio", "id_escenario", idEscenario)) {
+			tipoCambio = leerBuckets(f);
+		}
+
+		for (Fila f : filas("Producto", "id_escenario", idEscenario)) {
 			datos.productos.add(new DatosEntrada.Producto(
 					f.producto("producto"),
 					f.textoOpcional("material", ""),
@@ -130,7 +136,7 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.numero("toneladas_objetivo_lote_tn")));
 		}
 
-		for (Fila f : filas("Ubicacion", null, null)) {
+		for (Fila f : filas("Ubicacion", "id_escenario", idEscenario)) {
 			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
 					f.texto("id_ubicacion"),
 					f.texto("tipo"),
@@ -143,12 +149,12 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.numero("posiciones_cross_dock")));
 		}
 
-		for (Fila f : filas("CapacidadUbicacion", null, null)) {
+		for (Fila f : filas("CapacidadUbicacion", "id_escenario", idEscenario)) {
 			datos.capacidades.add(new DatosEntrada.Capacidad(
 					f.texto("id_ubicacion"), f.producto("producto"), f.numero("capacidad_tn")));
 		}
 
-		for (Fila f : filas("Distancia", null, null)) {
+		for (Fila f : filas("Distancia", "id_escenario", idEscenario)) {
 			datos.distancias.add(new DatosEntrada.Distancia(
 					f.texto("origen"), f.texto("destino"), f.numero("distancia_km")));
 		}
@@ -156,38 +162,83 @@ public class ImportadorExcel implements java.io.Serializable {
 		// Una fila por sitio, producto y vigencia: todo lo que cobra ese sitio. Los
 		// conceptos que no aplican van en cero y no como columna ausente, para que la
 		// planilla muestre que la decision de no cobrarlos fue explicita (ADR-051).
-		for (Fila f : filas("TarifaSitio", null, null)) {
-			datos.tarifasSitio.add(new DatosEntrada.TarifaSitio(
-					f.texto("id_ubicacion"), f.producto("producto"),
-					f.numero("in_usd_tn"), f.numero("storage_usd_tn_dia"), f.numero("out_usd_tn"),
-					f.numero("oportunidad_usd_tn_dia"), f.numero("penalidad_sobrecarga_usd_tn_dia"),
-					f.numero("consolidacion_tarifa"), f.unidad("consolidacion_unidad"),
-					f.numero("cross_dock_tarifa"), f.unidad("cross_dock_unidad"),
-					f.numero("thc_usd_contenedor"), f.numero("costo_terminal_usd_contenedor"),
-					f.numero("despachante_tarifa"), f.unidad("despachante_unidad"),
-					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
-					f.booleano("habilitada")));
+		// El maestro nuevo (ADR-068) partio esta hoja en varias: sin TarifaSitio, se
+		// arma desde Tarifa_almacenaje + Gastos_terminal + Despachante.
+		if (hojas().contains("TarifaSitio")) {
+			for (Fila f : filas("TarifaSitio", "id_escenario", idEscenario)) {
+				datos.tarifasSitio.add(new DatosEntrada.TarifaSitio(
+						f.texto("id_ubicacion"), f.producto("producto"),
+						f.numero("in_usd_tn"), f.numero("storage_usd_tn_dia"), f.numero("out_usd_tn"),
+						f.numero("oportunidad_usd_tn_dia"), f.numero("penalidad_sobrecarga_usd_tn_dia"),
+						f.numero("consolidacion_tarifa"), f.unidad("consolidacion_unidad"),
+						f.numero("cross_dock_tarifa"), f.unidad("cross_dock_unidad"),
+						f.numero("thc_usd_contenedor"), f.numero("costo_terminal_usd_contenedor"),
+						f.numero("despachante_tarifa"), f.unidad("despachante_unidad"),
+						f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+						f.booleano("habilitada")));
+			}
+		} else {
+			leerTarifaSitioMaestroNuevo(datos, idEscenario, tipoCambio);
 		}
 
-		for (Fila f : filas("TarifaFleteProducto", null, null)) {
-			datos.tarifasFlete.add(new DatosEntrada.TarifaFlete(
-					f.texto("origen"), f.texto("destino"), f.producto("producto"),
-					f.texto("tipo_camion"), f.numero("capacidad_camion_tn"), f.unidad("unidad"),
-					f.numero("tarifa"), f.numero("variable_usd_tn"),
-					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
-					f.booleano("habilitada")));
+		if (hojas().contains("TarifaFleteProducto")) {
+			for (Fila f : filas("TarifaFleteProducto", "id_escenario", idEscenario)) {
+				datos.tarifasFlete.add(new DatosEntrada.TarifaFlete(
+						f.texto("origen"), f.texto("destino"), f.producto("producto"),
+						f.texto("tipo_camion"), f.numero("capacidad_camion_tn"), f.unidad("unidad"),
+						f.numero("tarifa"), f.numero("variable_usd_tn"),
+						f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+						f.booleano("habilitada")));
+			}
+		} else if (hojas().contains("TarifaFleteCamionproducto")) {
+			// Renombrada en el maestro nuevo, con buckets mensuales en vez de vigencia +
+			// una columna tarifa, y sin variable_usd_tn (se asume 0, ADR-068).
+			for (Fila f : filas("TarifaFleteCamionproducto", "id_escenario", idEscenario)) {
+				double[] valores = leerBuckets(f);
+				String moneda = f.textoOpcional("Moneda", "USD");
+				String proveedor = f.textoOpcional("proveedor", "MAESTRO_2026");
+				boolean habilitada = f.booleanoOpcional("habilitada", true);
+				DatosEntrada.Unidad unidad = unidadDeViaje(f.texto("unidad"));
+				double variableUsdTn = f.numeroOpcional("variable_usd_tn", 0);
+				for (int m = 0; m < 12; m++) {
+					datos.tarifasFlete.add(new DatosEntrada.TarifaFlete(
+							f.texto("origen"), f.texto("destino"), f.producto("producto"),
+							f.texto("tipo_camion"), f.numero("capacidad_camion_tn"), unidad,
+							aUsd(valores[m], moneda, m, tipoCambio), variableUsdTn,
+							proveedor, DIA_DESDE_MES[m], DIA_HASTA_MES[m], habilitada));
+				}
+			}
+		} else {
+			errores.add("Falta la hoja TarifaFleteProducto (o su reemplazo, TarifaFleteCamionproducto).");
 		}
 
-		for (Fila f : filas("TarifaRoundTrip", null, null)) {
-			datos.tarifasRoundTrip.add(new DatosEntrada.TarifaRoundTrip(
-					f.texto("terminal"), f.texto("sitio"), f.contenedor("tipo_contenedor"),
-					f.numero("tarifa_usd_contenedor"), f.numero("horas_espera_incluidas"),
-					f.numero("tarifa_espera_usd_hora"),
-					f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
-					f.booleano("habilitada")));
+		for (Fila f : filas("TarifaRoundTrip", "id_escenario", idEscenario)) {
+			if (f.tiene("tarifa_usd_contenedor")) {
+				datos.tarifasRoundTrip.add(new DatosEntrada.TarifaRoundTrip(
+						f.texto("terminal"), f.texto("sitio"), f.contenedor("tipo_contenedor"),
+						f.numero("tarifa_usd_contenedor"), f.numero("horas_espera_incluidas"),
+						f.numero("tarifa_espera_usd_hora"),
+						f.texto("proveedor"), f.entero("vigencia_desde"), f.entero("vigencia_hasta"),
+						f.booleano("habilitada")));
+			} else {
+				// Buckets mensuales en vez de vigencia + tarifa_usd_contenedor (ADR-068);
+				// horas_espera_incluidas y tarifa_espera_usd_hora siguen siendo columnas
+				// planas, no varian por mes.
+				double[] valores = leerBuckets(f);
+				String moneda = f.textoOpcional("Moneda", "USD");
+				String proveedor = f.textoOpcional("proveedor", "MAESTRO_2026");
+				boolean habilitada = f.booleanoOpcional("habilitada", true);
+				for (int m = 0; m < 12; m++) {
+					datos.tarifasRoundTrip.add(new DatosEntrada.TarifaRoundTrip(
+							f.texto("terminal"), f.texto("sitio"), f.contenedor("tipo_contenedor"),
+							aUsd(valores[m], moneda, m, tipoCambio),
+							f.numero("horas_espera_incluidas"), f.numero("tarifa_espera_usd_hora"),
+							proveedor, DIA_DESDE_MES[m], DIA_HASTA_MES[m], habilitada));
+				}
+			}
 		}
 
-		for (Fila f : filas("TarifaEspera", null, null)) {
+		for (Fila f : filas("TarifaEspera", "id_escenario", idEscenario)) {
 			datos.tarifasEspera.add(new DatosEntrada.TarifaEspera(
 					f.texto("tipo_recurso"), f.texto("id_ubicacion"),
 					f.numero("franquicia_horas"), f.numero("usd_hora"),
@@ -429,6 +480,240 @@ public class ImportadorExcel implements java.io.Serializable {
 		return null;
 	}
 
+	/**
+	 * Buckets mensuales del maestro nuevo (ADR-068): 12 columnas fijas en vez de
+	 * vigencia_desde/vigencia_hasta + una columna tarifa. Los limites de dia son los
+	 * de un anio calendario no bisiesto (0-364), no lo que dice el encabezado de cada
+	 * columna -- las 8 hojas del maestro repiten el mismo texto con imprecisiones de
+	 * +-1 dia ("60-89" en vez de "59-90"), asi que la columna manda por posicion, no
+	 * por el numero que dice.
+	 */
+	private static final String[] COLUMNAS_MES = {
+		"0-31", "31-59", "60-89", "89-120", "121-150", "151-181",
+		"182-212", "213-242", "243-273", "274-303", "304-334", "334-365"
+	};
+	private static final int[] DIA_DESDE_MES = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+	private static final int[] DIA_HASTA_MES = {30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333, 364};
+
+	/** Los 12 valores de un bucket mensual, en el orden de COLUMNAS_MES. Una celda
+	 * vacia es 0 (el sitio no cobra ese concepto ese mes), no un error de carga. */
+	private double[] leerBuckets(Fila f) {
+		double[] valores = new double[12];
+		for (int m = 0; m < 12; m++) {
+			valores[m] = f.numeroOpcional(COLUMNAS_MES[m], 0);
+		}
+		return valores;
+	}
+
+	/** Convierte a USD un valor tarifado en la moneda de la fila (ADR-068). Solo
+	 * 'USD' se deja pasar sin convertir; cualquier otro valor -incluido '$', que es
+	 * como el maestro nuevo marca los pesos argentinos- se toma como ARS. */
+	private double aUsd(double valor, String moneda, int mes, double[] tipoCambio) {
+		if (moneda != null && moneda.trim().equalsIgnoreCase("USD")) {
+			return valor;
+		}
+		double tc = tipoCambio[mes];
+		if (tc <= 0) {
+			return 0;
+		}
+		return valor / tc;
+	}
+
+	/** Igual criterio de nombre comercial que ubicacionDe(), pero sin agregar error:
+	 * las hojas de tarifa del maestro nuevo traen sitios que Ubicacion todavia no
+	 * tiene (EXOLGAN, TPROSARIO, TRPLATA), y esas filas se descartan explicitamente
+	 * en vez de inventarles una ubicacion. */
+	private String resolverUbicacionOpcional(DatosEntrada datos, String texto) {
+		String n = normalizar(texto);
+		for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+			if (normalizar(u.idUbicacion).equals(n)) {
+				return u.idUbicacion;
+			}
+		}
+		return null;
+	}
+
+	/** Igual que Fila.producto(), pero devuelve null en vez de forzar JUGO cuando el
+	 * texto no matchea: estas hojas son de lectura tolerante (ADR-068). */
+	private TipoProducto productoOpcional(String texto) {
+		String n = normalizar(texto);
+		for (TipoProducto p : TipoProducto.values()) {
+			if (normalizar(p.name()).equals(n)) {
+				return p;
+			}
+		}
+		return null;
+	}
+
+	/** "40 HC"/"20 dry"/"40 RF" (Gastos_terminal, Gastos_THC) o el nombre del enum
+	 * directo (Despachante). Null si no matchea ninguno de los dos. */
+	private TipoContenedor contenedorOpcional(String texto) {
+		String n = normalizar(texto).replace("_", "");
+		if (n.equals("40HC") || n.equals("DRYHC40")) {
+			return TipoContenedor.DRY_HC_40;
+		}
+		if (n.equals("40RF") || n.equals("REEFER40")) {
+			return TipoContenedor.REEFER_40;
+		}
+		if (n.equals("20DRY") || n.equals("IMODRY20")) {
+			return TipoContenedor.IMO_DRY_20;
+		}
+		return null;
+	}
+
+	/** Producto duenio de un tipo de contenedor, segun la tabla Producto ya cargada.
+	 * Asume un tipo de contenedor por producto (vale para JUGO/CASCARA/ACEITE con
+	 * REEFER_40/DRY_HC_40/IMO_DRY_20); si dos productos compartieran tipo de
+	 * contenedor esto devolveria el primero que encuentre. */
+	private TipoProducto productoDeContenedor(DatosEntrada datos, TipoContenedor tipo) {
+		for (DatosEntrada.Producto p : datos.productos) {
+			if (p.tipoContenedor == tipo) {
+				return p.producto;
+			}
+		}
+		return null;
+	}
+
+	/** "VIAJE"/"TN" (TarifaFleteCamionproducto) ademas de los nombres USD_* de
+	 * siempre. */
+	private DatosEntrada.Unidad unidadDeViaje(String texto) {
+		String t = texto == null ? "" : texto.trim().toUpperCase();
+		if (t.equals("VIAJE")) {
+			return DatosEntrada.Unidad.USD_VIAJE;
+		}
+		if (t.equals("TN")) {
+			return DatosEntrada.Unidad.USD_TN;
+		}
+		try {
+			return DatosEntrada.Unidad.valueOf(t.replace("/", "_").replace(" ", "_"));
+		} catch (IllegalArgumentException e) {
+			errores.add("Unidad desconocida '" + texto + "' en TarifaFleteCamionproducto.");
+			return DatosEntrada.Unidad.USD_TN;
+		}
+	}
+
+	/**
+	 * Maestro nuevo (ADR-068): TarifaSitio se partio en varias hojas por concepto,
+	 * cada una con su propia grilla y sus propios buckets mensuales. Se acumula por
+	 * (idUbicacion, producto) y se emiten 12 filas de TarifaSitio por combinacion,
+	 * una por mes, para que datos.tarifaSitio() siga resolviendo exactamente igual
+	 * que con el contrato original.
+	 *
+	 * Consolidado, Cross_docking y Gastos_THC no se leen todavia: varian por
+	 * terminal o por naviera, una dimension que TarifaSitio no tiene hoy, y no hay
+	 * confirmacion de como incorporarla. consolidacion_tarifa, cross_dock_tarifa y
+	 * thc_usd_contenedor quedan en 0 con una advertencia explicita en vez de una
+	 * tarifa adivinada que puede estar mal por ordenes de magnitud.
+	 */
+	private void leerTarifaSitioMaestroNuevo(DatosEntrada datos, String idEscenario, double[] tipoCambio) {
+		// acumulado[idUbicacion|producto][concepto][mes]; concepto: 0=in, 1=storage,
+		// 2=out, 3=costoTerminal, 4=despachante.
+		java.util.Map<String, double[][]> acumulado = new java.util.LinkedHashMap<String, double[][]>();
+
+		for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+			for (TipoProducto p : TipoProducto.values()) {
+				acumulado.put(u.idUbicacion + "|" + p, new double[5][12]);
+			}
+		}
+
+		for (Fila f : filas("Tarifa_almacenaje", "id_escenario", idEscenario)) {
+			String idUbicacion = resolverUbicacionOpcional(datos, f.texto("Proveedor"));
+			TipoProducto producto = productoOpcional(f.texto("Tipo"));
+			if (idUbicacion == null || producto == null) {
+				advertencias.add("Tarifa_almacenaje: fila descartada, no matchea ubicacion/producto ("
+						+ f.texto("Proveedor") + " / " + f.texto("Tipo") + ").");
+				continue;
+			}
+			double[][] fila = acumulado.get(idUbicacion + "|" + producto);
+			if (fila == null) {
+				continue;
+			}
+			String concepto = f.texto("Concepto").trim().toUpperCase();
+			int indice = concepto.equals("IN") ? 0 : concepto.equals("STORAGE") ? 1
+					: concepto.equals("OUT") ? 2 : -1;
+			if (indice < 0) {
+				errores.add("Concepto desconocido '" + f.texto("Concepto") + "' en Tarifa_almacenaje.");
+				continue;
+			}
+			double[] valores = leerBuckets(f);
+			String moneda = f.textoOpcional("Moneda", "USD");
+			for (int m = 0; m < 12; m++) {
+				fila[indice][m] = aUsd(valores[m], moneda, m, tipoCambio);
+			}
+		}
+
+		for (Fila f : filas("Gastos_terminal", "id_escenario", idEscenario)) {
+			String idUbicacion = resolverUbicacionOpcional(datos, f.texto("Puerto de Salida"));
+			TipoContenedor tipo = contenedorOpcional(f.texto("Tipo Contenor"));
+			if (idUbicacion == null || tipo == null) {
+				advertencias.add("Gastos_terminal: fila descartada, no matchea ubicacion/contenedor ("
+						+ f.texto("Puerto de Salida") + " / " + f.texto("Tipo Contenor") + ").");
+				continue;
+			}
+			TipoProducto producto = productoDeContenedor(datos, tipo);
+			if (producto == null) {
+				continue;
+			}
+			double[][] fila = acumulado.get(idUbicacion + "|" + producto);
+			if (fila == null) {
+				continue;
+			}
+			double[] valores = leerBuckets(f);
+			String moneda = f.textoOpcional("Moneda", "USD");
+			for (int m = 0; m < 12; m++) {
+				fila[3][m] = aUsd(valores[m], moneda, m, tipoCambio);
+			}
+		}
+
+		for (Fila f : filas("Despachante", "id_escenario", idEscenario)) {
+			String idUbicacion = resolverUbicacionOpcional(datos, f.texto("Lugar de consolidado"));
+			TipoContenedor tipo = contenedorOpcional(f.texto("Tipo Contenor"));
+			if (idUbicacion == null || tipo == null) {
+				advertencias.add("Despachante: fila descartada, no matchea ubicacion/contenedor ("
+						+ f.texto("Lugar de consolidado") + " / " + f.texto("Tipo Contenor") + ").");
+				continue;
+			}
+			TipoProducto producto = productoDeContenedor(datos, tipo);
+			if (producto == null) {
+				continue;
+			}
+			double[][] fila = acumulado.get(idUbicacion + "|" + producto);
+			if (fila == null) {
+				continue;
+			}
+			double[] valores = leerBuckets(f);
+			String moneda = f.textoOpcional("Moneda", "USD");
+			for (int m = 0; m < 12; m++) {
+				fila[4][m] = aUsd(valores[m], moneda, m, tipoCambio);
+			}
+		}
+
+		String pendiente = "Consolidado, Cross_docking y Gastos_THC no se leyeron (ADR-068):"
+				+ " consolidacion_tarifa, cross_dock_tarifa y thc_usd_contenedor quedan en 0 hasta"
+				+ " confirmar como incorporar la dimension de terminal/naviera que traen esas hojas.";
+		if (!advertencias.contains(pendiente)) {
+			advertencias.add(pendiente);
+		}
+
+		for (java.util.Map.Entry<String, double[][]> entrada : acumulado.entrySet()) {
+			int corte = entrada.getKey().indexOf('|');
+			String idUbicacion = entrada.getKey().substring(0, corte);
+			TipoProducto producto = TipoProducto.valueOf(entrada.getKey().substring(corte + 1));
+			double[][] valores = entrada.getValue();
+			for (int m = 0; m < 12; m++) {
+				datos.tarifasSitio.add(new DatosEntrada.TarifaSitio(
+						idUbicacion, producto,
+						valores[0][m], valores[1][m], valores[2][m],
+						0, 0,
+						0, DatosEntrada.Unidad.USD_CONTENEDOR,
+						0, DatosEntrada.Unidad.USD_CONTENEDOR,
+						0, valores[3][m],
+						valores[4][m], DatosEntrada.Unidad.USD_CONTENEDOR,
+						"MAESTRO_2026", DIA_DESDE_MES[m], DIA_HASTA_MES[m], true));
+			}
+		}
+	}
+
 	/** Texto comparable: mayusculas, sin acentos y solo letras y digitos. */
 	private String normalizar(String texto) {
 		if (texto == null) {
@@ -621,7 +906,11 @@ public class ImportadorExcel implements java.io.Serializable {
 			if (fila.vacia()) {
 				continue;
 			}
-			if (columnaFiltro != null && !valorFiltro.equals(fila.texto(columnaFiltro))) {
+			// El filtro solo aplica si la columna existe: una hoja del formato anterior a
+			// ADR-068, sin id_escenario, se sigue leyendo entera en vez de fallar por una
+			// columna que ese libro nunca tuvo.
+			if (columnaFiltro != null && encabezados.containsKey(columnaFiltro)
+					&& !valorFiltro.equals(fila.texto(columnaFiltro))) {
 				continue;
 			}
 			resultado.add(fila);

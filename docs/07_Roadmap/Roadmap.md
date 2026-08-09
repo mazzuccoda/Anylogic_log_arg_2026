@@ -321,6 +321,22 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/`. **Pendiente de co
 - [ ] Fuera de alcance de este Mod: propagar `material` a las tarifas (`TarifaSitio`, `TarifaFleteProducto`, `TarifaRoundTrip`, `TarifaEspera`) — ninguna hoja del maestro nuevo las varía por material; y capacidad física por material (`CapacidadUbicacion`) — no hay dato de capacidad por material en el maestro nuevo.
 - [ ] Fuera de alcance, explícitamente diferido por el usuario (punto 4 del análisis del maestro nuevo): `oportunidad_usd_tn_dia`/`penalidad_sobrecarga_usd_tn_dia` (ADR-049) no tienen columna equivalente en el maestro nuevo — el crédito de holding de ADR-065 queda estructuralmente en 0 para la planta mientras se cargue ese maestro, sin que sea un bug de este Mod.
 
+## 11n. MOD — El importador acepta el formato de tarifas del maestro nuevo (ADR-068)
+
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/` (contenido enteramente en `ImportadorExcel.java`). **Pendiente de compilar y correr en el IDE de AnyLogic** (mismo estado que 11k/11l/11m). Origina en que `Maestro_Simulacion.xlsx` renombra/parte las hojas de tarifa y reemplaza vigencia+tarifa por 12 columnas de mes + moneda — sin este Mod, ese libro no carga en absoluto (falta la hoja `TarifaSitio`, falta la hoja `TarifaFleteProducto`).
+
+- [x] `filas()` filtra por `id_escenario` sólo si la columna existe — mismo método sirve para el contrato original (sin esa columna en los maestros) y el nuevo (con ella).
+- [x] Buckets mensuales resueltos por posición de columna, no por el texto del encabezado (los 12 nombres traen imprecisiones de ±1 día entre hojas) — se expanden a filas `Tarifa` de siempre (una por mes), sin tocar `DatosEntrada`.
+- [x] Conversión de moneda (`Tipo_cambio`, `aUsd()`) aplicada al leer: todo lo que no declare `Moneda = 'USD'` (incluido `'$'`) se convierte antes de llegar a `DatosEntrada`.
+- [x] `TarifaFleteCamionproducto` (rename de `TarifaFleteProducto`) y `TarifaRoundTrip` con buckets — detectados por nombre de hoja o por columna presente, sin romper el formato original.
+- [x] `TarifaSitio` ausente ⇒ se arma desde `Tarifa_almacenaje` (in/storage/out) + `Gastos_terminal` (costo terminal) + `Despachante` (despachante), acumulados por `(idUbicacion, producto)` vía `productoDeContenedor()` (asume un tipo de contenedor por producto).
+- [x] Sitios que el maestro nombra distinto a `Ubicacion.id_ubicacion` (`EXOLGAN`, `TPROSARIO`, `TRPLATA`) se descartan con `advertencias`, no con un error que aborte todo el libro.
+- [x] `Consolidado`, `Cross_docking` y `Gastos_THC` deliberadamente **no** se leen — varían por terminal o por naviera, una dimensión que `TarifaSitio` no tiene, y la pregunta hecha al usuario sobre cómo incorporarla no se respondió. `consolidacion_tarifa`/`cross_dock_tarifa`/`thc_usd_contenedor` quedan en 0 con una advertencia explícita, no una tarifa adivinada.
+- [ ] **Pendiente:** correr `datos/entrada_ejemplo.xlsx` (formato original) y confirmar resultado idéntico a antes de este Mod — caso de regresión obligatorio, dado que casi todo el cambio es una rama `if/else` sobre el nombre/columna de la hoja.
+- [ ] **Pendiente, del lado del dato, no del código:** `GRUPO_PAZ` y `CONTROL_UNION` no tienen ninguna fila en `TarifaFleteCamionproducto` ni en `TarifaRoundTrip` en el libro real — `coberturaTarifas()` va a abortar pidiendo esos datos.
+- [ ] **Pendiente, decisión de negocio sin responder:** si `Consolidado`/`Cross_docking` varían genuinamente por terminal (cambiaría `getImporteConsolidacion()`/`getImporteCrossDock()` para depender también del destino) y si `thc_usd_contenedor` pasa a resolver por `pedido.naviera` en vez de por sitio.
+- [ ] Pendiente de compilar en el IDE de AnyLogic.
+
 ## 12. Fase 9 — Terminal
 
 - [ ] Entrega de vacíos.

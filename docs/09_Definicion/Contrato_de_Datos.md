@@ -113,6 +113,8 @@ Cuatro tablas cubren todos los conceptos facturables (ADR-051). **Toda** tarifa 
 
 Cada tarifa lleva además su `unidad`, y la unidad decide la base de cálculo: `USD_VIAJE`, `USD_TN`, `USD_CONTENEDOR`, `USD_TN_DIA`, `USD_HORA`, `USD_OPERACION` o `USD_PEDIDO`. El último contenedor parcial paga **contenedor completo** en consolidación, cross dock, THC, costo terminal, despachante y round trip; sólo el flete de producto y el almacenaje se cobran por tonelada.
 
+**Formato alternativo de vigencia (ADR-068).** `ImportadorExcel` acepta, sheet por sheet, este formato original (`vigencia_desde`/`vigencia_hasta` + una columna de importe) **o** 12 columnas de mes calendario (`'0-31'` … `'334-365'`) + una columna `Moneda` — se detecta por el nombre de la hoja (`TarifaFleteProducto` vs. `TarifaFleteCamionproducto`) o por si existe la columna del formato original (`TarifaRoundTrip.tarifa_usd_contenedor`). Con buckets, cada fila se expande a 12 filas internas (una por mes) antes de llegar a `DatosEntrada`, así que la resolución por día de campaña no cambia. `Moneda` distinto de `USD` (incluido `$`) se convierte con la hoja `Tipo_cambio` (mismos 12 buckets, `id_escenario`) al leer.
+
 ### 5.1 `TarifaFleteProducto`
 
 Flete a granel del producto (planta → depósito, depósito → terminal, planta → terminal).
