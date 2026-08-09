@@ -295,7 +295,9 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/`. **Pendiente de co
 - [x] `mejorDestinoRebalanceo()`, `transferirEntreDepositos()`, `buscarLoteMasAntiguoEnDeposito()`, `registrarOutDepositoTransferencia()` — costo según V-COST-06 (OUT + flete + IN, sin contenedor), sin tocar `costoIncremental`/`costoEndToEnd` del evaluador.
 - [x] Nuevo acumulador `costoFleteEntreDepositos`, sumado a la reconciliación de `FLETE_PRODUCTO` sin mezclarse con `costoFletePlantaDeposito`.
 - [x] Sin datos de tarifa/distancia depósito-depósito, el mecanismo no hace nada (no crashea, no asume costo cero) — verificado que `transferirEntreDepositos`/`mejorDestinoRebalanceo` chequean `hayTarifaFlete`/`hayTarifaSitio`/`distanciaKmSimetrica` antes de mover.
-- [ ] **Pendiente, bloqueante para ejercitar el rebalanceo:** cargar filas depósito→depósito en `TarifaFleteProducto` y `Distancia` de `datos/entrada_ejemplo.xlsx` (hoy no existe ninguna).
+- [x] **Confirmado empíricamente que sin esos datos no hace nada:** corrida real post-implementación, cero operaciones `REB-` en las cuatro tablas de auditoría y stock por depósito idéntico al de antes del Mod.
+- [x] Traza de diagnóstico bajo `debugPlanificacion` cuando `mejorDestinoRebalanceo()` no encuentra destino — visible en la consola de AnyLogic sin exportar CSV.
+- [ ] **Pendiente, bloqueante para ejercitar el rebalanceo:** cargar filas depósito→depósito en `TarifaFleteProducto` y `Distancia` de `datos/entrada_ejemplo.xlsx` (hoy no existe ninguna; `tarifaFlete()` no es simétrica, hace falta la fila en el sentido exacto que se quiere habilitar).
 - [ ] Caso de regresión obligatorio, pendiente de correr: `V-COST-12` y `V-COST-13` (`docs/06_Validacion/Plan_de_Validacion.md`).
 - [ ] Pendiente de compilar en el IDE de AnyLogic — sólo se validó que el `.alp` sigue siendo XML bien formado, que el espejo se regenera sin errores y que las firmas reusadas coinciden con el código existente.
 - [ ] Fuera de alcance de este Mod: integrar el rebalanceo con la agenda de flota multidiaria (ADR-061) — usa capacidad diaria agregada como simplificación declarada.

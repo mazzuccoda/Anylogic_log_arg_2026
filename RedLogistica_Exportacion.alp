@@ -4154,6 +4154,20 @@ for (TipoProducto producto : TipoProducto.values()) {
 
         if (destino == null) {
             rebalanceosSinDestino++;
+
+            // ADR-066: sin debugPlanificacion esto es invisible -no hay tabla de
+            // auditoria para el rebalanceo, a diferencia del resto del modelo-. Con la
+            // traza activa, dice si el bloqueo es de datos (falta tarifa/distancia
+            // deposito-deposito) o de verdad no hay ningun destino con lugar.
+            if (debugPlanificacion) {
+                traceln(
+                    "[dia " + (int) floor(time()) + "] " + producto
+                    + " rebalanceo sin destino desde " + origen.idUbicacion
+                    + " (" + Math.round(libre) + " tn libres, "
+                    + "revisar TarifaFleteProducto/Distancia " + origen.idUbicacion + "->*)"
+                );
+            }
+
             continue;
         }
 
