@@ -303,6 +303,24 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/`. **Pendiente de co
 - [ ] Pendiente de compilar en el IDE de AnyLogic con verificación explícita de build limpio — las corridas hechas hasta ahora ya prueban que el modelo compila y corre, pero no hubo un chequeo formal documentado.
 - [ ] Fuera de alcance de este Mod: integrar el rebalanceo con la agenda de flota multidiaria (ADR-061) — usa capacidad diaria agregada como simplificación declarada.
 
+## 11m. MOD — Material como dimensión física del inventario (ADR-067)
+
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/`. **Pendiente de compilar y correr en el IDE de AnyLogic** (mismo estado que 11k/11l — sin motor de simulación en el entorno donde se implementó). Origina en el nuevo maestro de datos (`Maestro_Simulacion.xlsx`), que separa `Producto` de `Material` (subdivisión productiva, p. ej. `JCL`/`JCCL`/`PULPA` de `JUGO`) y ya trae `Stock_inicial` separado por material — el usuario confirma que un pedido de un material no puede satisfacerse con stock de otro (no son sustituibles).
+
+- [x] `Capa.material`, `LoteProducto.material`, `Pedido.material`, `ContenedorExportacion.material` — mismo patrón que `cliente`/`calidad` (ADR-047).
+- [x] `Inventario`: overloads con material de `stock`, `libre`, `reservado`, `fifo`, `reservar`, `despachar`; `ingresar()` pasa a pedir material siempre. Las firmas sin material se conservan intactas para capacidad, KPIs y las transferencias agregadas (ADR-048, ADR-066), que no dependen de qué material es.
+- [x] Camino de reserva/evaluación de un pedido puntual (`reservarParcialPedido`, `alternativaPara`/`toneladasDisponiblesParaAlternativa`, `seleccionarSitioCrossDock`, `ejecutarCrossDockPedido`/`transferirLotesADeposito`, `depositosOrdenadosParaPedido`/`costoEstimadoDesde`, `evaluarAlternativa`, `toneladaDiaEnStock` de ADR-065) filtra por `pedido.material`.
+- [x] `obtenerTipoContenedor`/`obtenerCapacidadContenedorTon` resuelven directo por `(producto, material)` — elimina la ambigüedad de la búsqueda inversa por tipo de contenedor cuando dos materiales comparten tipo de contenedor con capacidad distinta (`PULPA` 20 tn vs. `JCL`/`JCCL` 24 tn, ambos `REEFER_40`).
+- [x] `buscarLoteComercialAbierto`/`crearLoteEnPlanta` agregan material a la identidad del lote; `Planta.producir()` itera `materialesDe(producto)` en vez de asumir un solo total agregado por día.
+- [x] `DatosEntrada.materialesDe()`, `producto(producto, material)`, `produccionDelDia(dia, producto, material)` — derivados de la tabla `Producto`, sin tablas nuevas.
+- [x] Contrato: columna opcional `material` en `Producto`, `ProduccionPlan`, `PedidoPlan`, `StockInicial`; `claveLote()` y `DatosEntrada.validar()` la incorporan (un `codigo_lote` no puede tener dos materiales, y un material vacío se rechaza explícitamente cuando `Producto` sí distingue materiales para ese producto — no se resuelve 0 en silencio).
+- [x] Verificación exhaustiva de aridad (script que compara cada *call site* contra la definición de cada función tocada) — encontró y corrigió dos llamadores que se habían escapado del primer paso.
+- [x] Compatibilidad: con `material = ""` en todo el libro (generador sintético, o un Excel sin la columna), el comportamiento no cambia — es el caso de regresión obligatorio.
+- [ ] **Pendiente:** correr el caso de regresión (`material = ""` en todo el libro, `V-COST-14`) y una corrida con materiales reales distintos por producto para confirmar que un pedido de un material no consume stock de otro.
+- [ ] Pendiente de compilar en el IDE de AnyLogic — este entorno no tiene el compilador ni el motor de simulación.
+- [ ] Fuera de alcance de este Mod: propagar `material` a las tarifas (`TarifaSitio`, `TarifaFleteProducto`, `TarifaRoundTrip`, `TarifaEspera`) — ninguna hoja del maestro nuevo las varía por material; y capacidad física por material (`CapacidadUbicacion`) — no hay dato de capacidad por material en el maestro nuevo.
+- [ ] Fuera de alcance, explícitamente diferido por el usuario (punto 4 del análisis del maestro nuevo): `oportunidad_usd_tn_dia`/`penalidad_sobrecarga_usd_tn_dia` (ADR-049) no tienen columna equivalente en el maestro nuevo — el crédito de holding de ADR-065 queda estructuralmente en 0 para la planta mientras se cargue ese maestro, sin que sea un bug de este Mod.
+
 ## 12. Fase 9 — Terminal
 
 - [ ] Entrega de vacíos.

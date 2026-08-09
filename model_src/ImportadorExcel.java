@@ -124,6 +124,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		for (Fila f : filas("Producto", null, null)) {
 			datos.productos.add(new DatosEntrada.Producto(
 					f.producto("producto"),
+					f.textoOpcional("material", ""),
 					TipoContenedor.valueOf(f.texto("tipo_contenedor")),
 					f.numero("capacidad_contenedor_tn"),
 					f.numero("toneladas_objetivo_lote_tn")));
@@ -196,7 +197,8 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		for (Fila f : filas("ProduccionPlan", "id_escenario", idEscenario)) {
 			datos.produccionPlan.add(new DatosEntrada.ProduccionPlan(
-					f.entero("dia"), f.producto("producto"), f.numero("produccion_tn")));
+					f.entero("dia"), f.producto("producto"), f.textoOpcional("material", ""),
+					f.numero("produccion_tn")));
 		}
 
 		for (Fila f : filas("PedidoPlan", "id_escenario", idEscenario)) {
@@ -279,6 +281,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		plan.buque = f.textoOpcional("buque", "");
 		plan.viajeBuque = f.textoOpcional("viaje_buque", "");
 		plan.depositoComprometido = f.textoOpcional("deposito_comprometido", "");
+		plan.material = f.textoOpcional("material", "");
 
 		return plan;
 	}
@@ -322,6 +325,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		int cDiaIngreso = columnaAlias(encabezados, new String[] {"dia_ingreso"});
 		int cCliente = columnaAlias(encabezados, new String[] {"cliente"});
 		int cCalidad = columnaAlias(encabezados, new String[] {"calidad"});
+		int cMaterial = columnaAlias(encabezados, new String[] {"material"});
 
 		// Producto, ubicacion y toneladas son el minimo irreducible: lo demas tiene
 		// un default explicito y auditable.
@@ -389,6 +393,8 @@ public class ImportadorExcel implements java.io.Serializable {
 				calidad = datos.escenario.calidadDefault;
 			}
 
+			String material = cMaterial >= 0 ? celda(hoja, f, cMaterial) : "";
+
 			// Sin fechas historicas el stock se fecha en el dia 0: no se inventa
 			// antiguedad, y el FIFO igual lo saca antes que la produccion de campania
 			// porque los lotes iniciales se crean antes y desempatan por idLote.
@@ -399,7 +405,7 @@ public class ImportadorExcel implements java.io.Serializable {
 					: celdaNumero(hoja, f, cDiaIngreso,
 							"La celda dia_ingreso de la fila " + f + " de la hoja " + hoja);
 
-			datos.stockInicial.add(new DatosEntrada.StockInicial(idStock, codigoLote, producto,
+			datos.stockInicial.add(new DatosEntrada.StockInicial(idStock, codigoLote, producto, material,
 					idUbicacion, toneladas, diaProduccion, diaIngreso, cliente, calidad));
 		}
 	}

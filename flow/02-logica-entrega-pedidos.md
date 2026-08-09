@@ -393,6 +393,14 @@ Es el mismo mecanismo que ya usa `PRIORIDAD_FRIO_PROPIO` para preferir planta (�
 
 **Por qué no distorsiona nada cuando no se usa:** con `deposito_comprometido` vacío (el caso de todo pedido en un libro que no complete esa columna), `depositoComprometido.isEmpty()` es siempre verdadero y el criterio nunca decide nada — el comportamiento es exactamente el de antes de ADR-066. Y si el depósito comprometido no tiene stock ese día (no es factible), tampoco pasa nada especial: simplemente no aparece entre las alternativas factibles, y el pedido compite normalmente por las demás — no hace falta ningún manejo de "fallback", es una consecuencia de cómo ya funciona el filtro de factibilidad (§2.4.2).
 
+### 2.7.1 Material — la afinidad que sí bloquea, no sólo desempata (ADR-067)
+
+`deposito_comprometido` (§2.7) es un desempate: si el origen comprometido no tiene stock ese día, el pedido compite normalmente por los demás, sin que nada se lo impida. El material es distinto — **no desempata, filtra.** Un pedido de `JUGO`/`JCCL` nunca puede reservar ni despachar una capa de `JUGO`/`JCL`, sea cual sea el costo o el desempate, porque no son el mismo material y en la realidad no son intercambiables.
+
+Esto significa que `alternativaPara()` (§2.4.1) ya no calcula "cuánto de este producto hay libre en este origen" — calcula cuánto **de este material** hay libre: si Ruta9 tiene 500 tn de `JCL` y el pedido pide `JCCL`, la alternativa por Ruta9 tiene 0 tn disponibles, aunque el depósito esté lleno de producto del mismo tipo. `reservarParcialPedido()`, `evaluarAlternativa()` y el costo hundido de ADR-065 (`toneladaDiaEnStock()`) siguen la misma regla: todos filtran por `pedido.material`, no sólo por `pedido.producto`.
+
+**Consecuencia directa: el nivel de servicio proyectado puede bajar** en un escenario donde la producción de un material va por detrás de sus pedidos, aunque sobre stock de otro material del mismo producto — antes de ADR-067 el modelo prestaba entre materiales sin que la operación real lo permitiera, y eso ocultaba un déficit genuino. No es una regresión: es la corrección de un préstamo que nunca debió existir.
+
 ## 2.8 La ventana marítima — el reloj que corre en paralelo (ADR-059)
 
 El pedido no vive en una fecha sino en cuatro: `dia_conocimiento` →

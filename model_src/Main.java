@@ -199,18 +199,20 @@ class Main extends Agent {
 
     // ----- Funciones -----
 
-    LoteProducto crearLoteEnPlanta(TipoProducto producto, double toneladas, Planta origen) {
+    LoteProducto crearLoteEnPlanta(TipoProducto producto, String material, double toneladas, Planta origen) {
         if (toneladas <= 0) {
             return null;
         }
 
         // Lote comercial acumulativo (ADR-047): la produccion diaria entra como una capa
         // nueva del mismo lote abierto; solo se abre una identidad comercial nueva cuando
-        // el lote compatible ya esta cerrado por haber alcanzado su objetivo.
+        // el lote compatible ya esta cerrado por haber alcanzado su objetivo. El material
+        // entra a la comparacion igual que cliente y calidad (ADR-067): dos materiales del
+        // mismo producto no son el mismo lote comercial.
         String cliente = datos.escenario.clienteDefault;
         String calidad = datos.escenario.calidadDefault;
 
-        LoteProducto lote = buscarLoteComercialAbierto(producto, cliente, calidad);
+        LoteProducto lote = buscarLoteComercialAbierto(producto, material, cliente, calidad);
 
         if (lote == null) {
             lote = add_lotes();
@@ -219,6 +221,7 @@ class Main extends Agent {
             siguienteIdLote++;
 
             lote.producto = producto;
+            lote.material = material;
             lote.diaProduccion = time();
             lote.estado = EstadoLote.EN_PLANTA;
             lote.ubicacionActual = origen;
@@ -227,7 +230,7 @@ class Main extends Agent {
 
             lote.cliente = cliente;
             lote.calidad = calidad;
-            lote.toneladasObjetivo = datos.producto(producto).toneladasObjetivoLoteTn;
+            lote.toneladasObjetivo = datos.producto(producto, material).toneladasObjetivoLoteTn;
             lote.estadoComercial = EstadoComercialLote.ABIERTO;
             lote.toneladasIniciales = 0;
         }
@@ -237,6 +240,7 @@ class Main extends Agent {
         inventario.ingresar(
             lote.idLote,
             producto,
+            material,
             "PLANTA",
             toneladas,
             time(),
@@ -406,6 +410,32 @@ class Main extends Agent {
             // teniendo capas ahi y tiene que poder terminar de salir.
             if (
                 lote.producto == producto
+                && inventario.libreDeLoteEn(lote.idLote, "PLANTA") > 0.0001
+            ) {
+                if (lote.diaProduccion < menorDia) {
+                    menorDia = lote.diaProduccion;
+                    seleccionado = lote;
+                }
+            }
+        }
+
+        return seleccionado;
+    }
+
+    LoteProducto buscarLoteMasAntiguoEnPlanta(TipoProducto producto, String material) {
+        // Igual que buscarLoteMasAntiguoEnPlanta(producto), pero acotado a un
+        // material (ADR-067): lo usa transferirLotesADeposito() para el cross dock de un
+        // pedido puntual, donde el material que se mueve tiene que ser el que el pedido
+        // pide. El heuristico agregado de transferirProductoADepositos() sigue usando el
+        // overload de un solo parametro: ese no le presta a ningun pedido en particular.
+        LoteProducto seleccionado = null;
+        double menorDia = Double.POSITIVE_INFINITY;
+
+        for (LoteProducto lote : lotes) {
+
+            if (
+                lote.producto == producto
+                && lote.material.equals(material)
                 && inventario.libreDeLoteEn(lote.idLote, "PLANTA") > 0.0001
             ) {
                 if (lote.diaProduccion < menorDia) {
@@ -813,6 +843,7 @@ class Main extends Agent {
 
         pedido.codigoPedido = codigo;
         pedido.producto = producto;
+        pedido.material = plan.material;
         pedido.toneladasSolicitadas = toneladas;
         pedido.toneladasReservadas = 0;
         pedido.toneladasEntregadas = 0;
@@ -1048,7 +1079,7 @@ class Main extends Agent {
                 envio.esCrossDock,
                 envio.producto,
                 toneladas,
-                contenedoresNecesarios(pedido.producto, toneladas)
+                contenedoresNecesarios(pedido.producto, pedido.material, toneladas)
             );
 
         envio.costoTotalReal =
@@ -1184,21 +1215,12 @@ class Main extends Agent {
         return total;
     }
 
-    TipoContenedor obtenerTipoContenedor(TipoProducto producto) {
-        return datos.producto(producto).tipoContenedor;
+    TipoContenedor obtenerTipoContenedor(TipoProducto producto, String material) {
+        return datos.producto(producto, material).tipoContenedor;
     }
 
-    double obtenerCapacidadContenedorTon(TipoContenedor tipo) {
-        for (DatosEntrada.Producto fila : datos.productos) {
-
-            if (fila.tipoContenedor == tipo) {
-                return fila.capacidadContenedorTn;
-            }
-        }
-
-        error("Capacidad no definida para el contenedor: " + tipo);
-
-        return 0;
+    double obtenerCapacidadContenedorTon(TipoProducto producto, String material) {
+        return datos.producto(producto, material).capacidadContenedorTn;
     }
 
     void cargarDatosEntrada() {
@@ -2054,11 +2076,9 @@ class Main extends Agent {
             diaCampania());
     }
 
-    int contenedoresNecesarios(TipoProducto producto, double toneladas) {
+    int contenedoresNecesarios(TipoProducto producto, String material, double toneladas) {
         double capacidad =
-            obtenerCapacidadContenedorTon(
-                obtenerTipoContenedor(producto)
-            );
+            obtenerCapacidadContenedorTon(producto, material);
 
         return (int) ceil(toneladas / capacidad - 0.0001);
     }
@@ -2070,12 +2090,12 @@ class Main extends Agent {
         double menorCostoPorTonelada = Double.POSITIVE_INFINITY;
 
         double capacidadContenedor =
-            obtenerCapacidadContenedorTon(obtenerTipoContenedor(pedido.producto));
+            obtenerCapacidadContenedorTon(pedido.producto, pedido.material);
 
         double pendiente =
             min(
                 pedido.toneladasPendientesAsignar(),
-                inventario.libre("PLANTA", pedido.producto)
+                inventario.libre("PLANTA", pedido.producto, pedido.material)
             );
 
         if (pendiente <= 0.0001) {
@@ -2102,7 +2122,7 @@ class Main extends Agent {
             }
 
             int contenedores =
-                contenedoresNecesarios(pedido.producto, posible);
+                contenedoresNecesarios(pedido.producto, pedido.material, posible);
 
             // Sin almacenaje en el costo: no guardar es justamente el punto del
             // cross dock (ADR-010).
@@ -2134,13 +2154,15 @@ class Main extends Agent {
         return mejorSitio;
     }
 
-    double transferirLotesADeposito(TipoProducto producto, Deposito destino, double toneladas, boolean cruza) {
+    double transferirLotesADeposito(TipoProducto producto, String material, Deposito destino, double toneladas, boolean cruza) {
         double pendiente = toneladas;
 
         while (pendiente > 0.0001) {
 
+            // ADR-067: el lote movido tiene que ser del material del pedido, sino la
+            // reserva posterior en destino no encuentra nada que reservar.
             LoteProducto lote =
-                buscarLoteMasAntiguoEnPlanta(producto);
+                buscarLoteMasAntiguoEnPlanta(producto, material);
 
             if (lote == null) {
                 break;
@@ -2184,13 +2206,13 @@ class Main extends Agent {
         }
 
         double capacidadContenedor =
-            obtenerCapacidadContenedorTon(obtenerTipoContenedor(pedido.producto));
+            obtenerCapacidadContenedorTon(pedido.producto, pedido.material);
 
         double toneladas =
             min(
                 min(toneladasObjetivo, pedido.toneladasPendientesAsignar()),
                 min(
-                    inventario.libre("PLANTA", pedido.producto),
+                    inventario.libre("PLANTA", pedido.producto, pedido.material),
                     min(
                         espacioDisponibleEfectivo(sitio, pedido.producto),
                         capacidadCrossDockLibre(sitio.idUbicacion) * capacidadContenedor
@@ -2246,7 +2268,7 @@ class Main extends Agent {
         // la misma operacion (ADR-060). El volumen ya vino acotado por el cupo libre de hoy.
         if (
             capacidadCrossDockLibre(sitio.idUbicacion)
-            < contenedoresNecesarios(pedido.producto, toneladas)
+            < contenedoresNecesarios(pedido.producto, pedido.material, toneladas)
         ) {
             crossDockReprogramados++;
             return 0;
@@ -2255,6 +2277,7 @@ class Main extends Agent {
         double movidas =
             transferirLotesADeposito(
                 pedido.producto,
+                pedido.material,
                 sitio,
                 toneladas,
                 true
@@ -2502,13 +2525,14 @@ class Main extends Agent {
         return flotaPortacontenedores.utilization();
     }
 
-    LoteProducto buscarLoteComercialAbierto(TipoProducto producto, String cliente, String calidad) {
-        // Lote comercial abierto compatible por producto, cliente y calidad (ADR-047).
-        // Hay a lo sumo uno abierto por combinacion: al cerrarse, el siguiente ingreso
-        // abre una identidad comercial nueva.
+    LoteProducto buscarLoteComercialAbierto(TipoProducto producto, String material, String cliente, String calidad) {
+        // Lote comercial abierto compatible por producto, material, cliente y calidad
+        // (ADR-047, ADR-067). Hay a lo sumo uno abierto por combinacion: al cerrarse, el
+        // siguiente ingreso abre una identidad comercial nueva.
         for (LoteProducto lote : lotes) {
             if (
                 lote.producto == producto
+                && lote.material.equals(material)
                 && lote.estadoComercial == EstadoComercialLote.ABIERTO
                 && lote.cliente.equals(cliente)
                 && lote.calidad.equals(calidad)
@@ -3451,7 +3475,7 @@ class Main extends Agent {
         fila.toneladasReservadasPrevias = pedido.toneladasReservadas;
         fila.toneladasPendientesAsignar = pedido.toneladasPendientesAsignar();
         fila.contenedoresPendientesEstimados =
-            contenedoresNecesarios(pedido.producto, pedido.toneladasPendientesAsignar());
+            contenedoresNecesarios(pedido.producto, pedido.material, pedido.toneladasPendientesAsignar());
         fila.diaConocimiento = pedido.diaConocimiento;
         fila.diaAperturaRetiro = pedido.diaAperturaRetiroVacio;
         fila.diaCutoff = pedido.fechaLimiteTerminal;
@@ -3470,9 +3494,9 @@ class Main extends Agent {
         fila.tipoRecursoCapacidad = alternativa.tipoRecursoCapacidad;
         fila.ubicacionRecursoCapacidad = alternativa.idUbicacionCapacidad;
 
-        fila.stockFisicoOrigenTn = inventario.stock(alternativa.idOrigen, pedido.producto);
-        fila.stockLibreOrigenTn = inventario.libre(alternativa.idOrigen, pedido.producto);
-        fila.stockReservadoOrigenTn = inventario.reservado(alternativa.idOrigen, pedido.producto);
+        fila.stockFisicoOrigenTn = inventario.stock(alternativa.idOrigen, pedido.producto, pedido.material);
+        fila.stockLibreOrigenTn = inventario.libre(alternativa.idOrigen, pedido.producto, pedido.material);
+        fila.stockReservadoOrigenTn = inventario.reservado(alternativa.idOrigen, pedido.producto, pedido.material);
         fila.stockEnTransitoHaciaOrigenTn =
             toneladasEnTransitoHacia(alternativa.idOrigen, pedido.producto);
 
@@ -4435,7 +4459,7 @@ class Main extends Agent {
                 asignacion.esCrossDock,
                 pedido.producto,
                 toneladas,
-                contenedoresNecesarios(pedido.producto, toneladas)
+                contenedoresNecesarios(pedido.producto, pedido.material, toneladas)
             );
 
         pedido.costoTotalEstimado =
@@ -4651,7 +4675,7 @@ class Main extends Agent {
 
         double cantidad =
             unidad == DatosEntrada.Unidad.USD_CONTENEDOR
-            ? contenedoresNecesarios(envio.producto, envio.toneladas)
+            ? contenedoresNecesarios(envio.producto, pedido.material, envio.toneladas)
             : envio.toneladas;
 
         double importe = registro.registrar(
@@ -4828,7 +4852,7 @@ class Main extends Agent {
             datos.tarifaSitio(dia, terminal, envio.producto);
 
         int contenedores =
-            contenedoresNecesarios(envio.producto, envio.toneladas);
+            contenedoresNecesarios(envio.producto, envio.pedido.material, envio.toneladas);
 
         // El dia del devengo queda anotado: con tarifas mensuales, auditar con otro dia seria
         // comparar contra una tarifa distinta de la que se cobro.
@@ -4885,7 +4909,7 @@ class Main extends Agent {
             tarifa.despachanteUnidad == DatosEntrada.Unidad.USD_PEDIDO;
 
         int contenedores =
-            contenedoresNecesarios(envio.producto, envio.toneladas);
+            contenedoresNecesarios(envio.producto, pedido.material, envio.toneladas);
 
         double importe = registro.registrar(
             time(),
@@ -4975,7 +4999,7 @@ class Main extends Agent {
             : (int) Math.floor(envio.diaEntrega);
 
         int contenedores =
-            contenedoresNecesarios(envio.producto, envio.toneladas);
+            contenedoresNecesarios(envio.producto, pedido.material, envio.toneladas);
 
         double esperado = 0;
 
@@ -5184,7 +5208,7 @@ class Main extends Agent {
             alternativa.toneladas = alternativa.toneladasSinRestriccionCapacidad;
 
             alternativa.contenedores =
-                contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+                contenedoresNecesarios(pedido.producto, pedido.material, alternativa.toneladas);
 
             costearAlternativa(pedido, alternativa);
 
@@ -5260,7 +5284,7 @@ class Main extends Agent {
             // El cross dock cruza producto que todavia esta en planta: lo que ya entro a un
             // deposito no vuelve a cruzar (ADR-010).
             if (
-                inventario.libre("PLANTA", pedido.producto) + 0.0001
+                inventario.libre("PLANTA", pedido.producto, pedido.material) + 0.0001
                 < toneladas
             ) {
                 alternativa.descartar(
@@ -5308,7 +5332,7 @@ class Main extends Agent {
         } else {
 
             if (
-                inventario.libre(alternativa.idOrigen, pedido.producto) + 0.0001
+                inventario.libre(alternativa.idOrigen, pedido.producto, pedido.material) + 0.0001
                 < toneladas
             ) {
                 alternativa.descartar(
@@ -5489,17 +5513,17 @@ class Main extends Agent {
 
         alternativa.costoAlmacenajeHundido =
             datos.storageUsdTnDia(dia, alternativa.idOrigen, pedido.producto)
-            * toneladaDiaEnStock(alternativa.idOrigen, pedido.producto, toneladas);
+            * toneladaDiaEnStock(alternativa.idOrigen, pedido.producto, pedido.material, toneladas);
     }
 
-    double toneladaDiaEnStock(String idUbicacion, TipoProducto producto, double toneladas) {
+    double toneladaDiaEnStock(String idUbicacion, TipoProducto producto, String material, double toneladas) {
         // Tonelada-dia acumulada por las capas FIFO que serviria la alternativa: es el
         // almacenaje que ese stock ya devengo, y depende de cual se consume, no del promedio.
         double pendiente = toneladas;
 
         double acumulado = 0;
 
-        for (Capa capa : inventario.fifo(idUbicacion, producto)) {
+        for (Capa capa : inventario.fifo(idUbicacion, producto, material)) {
 
             if (pendiente <= 0.0001) {
                 break;
@@ -5866,7 +5890,7 @@ class Main extends Agent {
         }
 
         double aReservar =
-            min(pendiente, inventario.libre(idSitio, pedido.producto));
+            min(pendiente, inventario.libre(idSitio, pedido.producto, pedido.material));
 
         if (aReservar <= 0.0001) {
             return 0;
@@ -5893,8 +5917,7 @@ class Main extends Agent {
         if (reservaPosiciones) {
 
             double capacidadContenedor =
-                obtenerCapacidadContenedorTon(
-                    obtenerTipoContenedor(pedido.producto));
+                obtenerCapacidadContenedorTon(pedido.producto, pedido.material);
 
             aReservar =
                 min(
@@ -5915,6 +5938,7 @@ class Main extends Agent {
             inventario.reservar(
                 idSitio,
                 pedido.producto,
+                pedido.material,
                 aReservar,
                 asignacion.claveReserva(),
                 pedido.codigoPedido,
@@ -5937,7 +5961,7 @@ class Main extends Agent {
         if (reservaPosiciones) {
 
             int necesarias =
-                contenedoresNecesarios(pedido.producto, reservadas);
+                contenedoresNecesarios(pedido.producto, pedido.material, reservadas);
 
             java.util.List<ReservaCapacidad> posiciones =
                 reservarCapacidad(
@@ -6082,7 +6106,7 @@ class Main extends Agent {
 
             if (
                 deposito.habilitado
-                && inventario.libre(deposito.idUbicacion, pedido.producto) > 0.0001
+                && inventario.libre(deposito.idUbicacion, pedido.producto, pedido.material) > 0.0001
             ) {
                 candidatos.add(deposito);
             }
@@ -6118,7 +6142,7 @@ class Main extends Agent {
         double toneladas =
             min(
                 pedido.toneladasPendientesAsignar(),
-                inventario.libre(deposito.idUbicacion, pedido.producto)
+                inventario.libre(deposito.idUbicacion, pedido.producto, pedido.material)
             );
 
         if (toneladas <= 0.0001) {
@@ -6126,7 +6150,7 @@ class Main extends Agent {
         }
 
         int contenedores =
-            contenedoresNecesarios(pedido.producto, toneladas);
+            contenedoresNecesarios(pedido.producto, pedido.material, toneladas);
 
         double flete =
             deposito.getImporteFletePuerto(
@@ -6151,11 +6175,11 @@ class Main extends Agent {
         return (flete + estiba) / toneladas;
     }
 
-    double toneladasDisponiblesParaAlternativa(String idOrigen, TipoProducto producto, boolean cruza) {
+    double toneladasDisponiblesParaAlternativa(String idOrigen, TipoProducto producto, String material, boolean cruza) {
         // Cuanto puede prometer hoy un candidato: stock libre en el origen, o para el cross
         // dock lo que hay libre en planta acotado por el espacio de paso y el cupo del dia.
         if (!cruza) {
-            return inventario.libre(idOrigen, producto);
+            return inventario.libre(idOrigen, producto, material);
         }
 
         Deposito sitio = buscarDeposito(idOrigen);
@@ -6165,10 +6189,10 @@ class Main extends Agent {
         }
 
         double capacidadContenedor =
-            obtenerCapacidadContenedorTon(obtenerTipoContenedor(producto));
+            obtenerCapacidadContenedorTon(producto, material);
 
         return min(
-            inventario.libre("PLANTA", producto),
+            inventario.libre("PLANTA", producto, material),
             min(
                 sitio.getEspacioDisponible(producto),
                 capacidadCrossDockLibre(idOrigen) * capacidadContenedor
@@ -6183,7 +6207,7 @@ class Main extends Agent {
         double stock =
             min(
                 pendiente,
-                toneladasDisponiblesParaAlternativa(idOrigen, pedido.producto, cruza)
+                toneladasDisponiblesParaAlternativa(idOrigen, pedido.producto, pedido.material, cruza)
             );
 
         stock = max(0, stock);
@@ -6195,7 +6219,7 @@ class Main extends Agent {
                 circuito,
                 cruza,
                 stock,
-                contenedoresNecesarios(pedido.producto, stock)
+                contenedoresNecesarios(pedido.producto, pedido.material, stock)
             );
 
         alternativa.toneladasSinRestriccionCapacidad = stock;
@@ -6239,14 +6263,13 @@ class Main extends Agent {
 
         alternativa.toneladasCapacidadDisponible =
             alternativa.contenedoresConCapacidad
-            * obtenerCapacidadContenedorTon(
-                obtenerTipoContenedor(pedido.producto));
+            * obtenerCapacidadContenedorTon(pedido.producto, pedido.material);
 
         alternativa.toneladas =
             max(0, min(stock, alternativa.toneladasCapacidadDisponible));
 
         alternativa.contenedores =
-            contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+            contenedoresNecesarios(pedido.producto, pedido.material, alternativa.toneladas);
 
         acotarAlternativaPorFlota(pedido, alternativa);
 
@@ -6304,10 +6327,10 @@ class Main extends Agent {
         }
 
         pedido.tipoContenedor =
-            obtenerTipoContenedor(pedido.producto);
+            obtenerTipoContenedor(pedido.producto, pedido.material);
 
         pedido.capacidadContenedorTon =
-            obtenerCapacidadContenedorTon(pedido.tipoContenedor);
+            obtenerCapacidadContenedorTon(pedido.producto, pedido.material);
 
         double disponible =
             min(
@@ -6373,6 +6396,7 @@ class Main extends Agent {
 
             contenedor.Pedido = pedido;
             contenedor.producto = pedido.producto;
+            contenedor.material = pedido.material;
             contenedor.tipoContenedor = pedido.tipoContenedor;
             contenedor.capacidadTon = pedido.capacidadContenedorTon;
             contenedor.cantidadAsignadaTon = carga;
@@ -6787,6 +6811,7 @@ class Main extends Agent {
                 lote.codigoLoteExterno = fila.codigoLote;
                 lote.esStockInicial = true;
                 lote.producto = fila.producto;
+                lote.material = fila.material;
                 lote.cliente = fila.cliente;
                 lote.calidad = fila.calidad;
                 lote.diaProduccion = fila.diaProduccion;
@@ -6809,6 +6834,7 @@ class Main extends Agent {
             inventario.ingresar(
                 lote.idLote,
                 fila.producto,
+                fila.material,
                 fila.idUbicacion,
                 fila.toneladas,
                 fila.diaIngreso,
@@ -8525,9 +8551,15 @@ class Main extends Agent {
             error("El viaje " + viaje.idViaje + " llego sin haber retirado la carga del origen");
         }
 
+        // La capa nueva hereda el material del lote (ADR-067); un viaje sin lote (idLote <= 0)
+        // no tiene material propio, y "" es el mismo sentinel que usa el resto del modelo.
+        LoteProducto loteViaje = buscarLote(viaje.idLote);
+        String materialViaje = loteViaje != null ? loteViaje.material : "";
+
         inventario.ingresar(
             viaje.idLote,
             viaje.producto,
+            materialViaje,
             viaje.destino,
             viaje.toneladas,
             viaje.diaLlegadaDestino,
@@ -9209,7 +9241,7 @@ class Main extends Agent {
         }
 
         alternativa.contenedores =
-            contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+            contenedoresNecesarios(pedido.producto, pedido.material, alternativa.toneladas);
     }
 
     // ----- Eventos -----

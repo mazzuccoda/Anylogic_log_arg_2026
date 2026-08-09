@@ -9,6 +9,7 @@ class ContenedorExportacion extends Agent {
     Pedido Pedido = null;
     LoteProducto lote = null;
     TipoProducto producto = TipoProducto.ACEITE;
+    String material = "";
     TipoContenedor tipoContenedor = TipoContenedor.REEFER_40;
     double cantidadAsignadaTon = 0;
     double capacidadTon = 0;

@@ -3509,6 +3509,10 @@ exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
 					<Parameter>
+						<Name><![CDATA[material]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
 						<Name><![CDATA[toneladas]]></Name>
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
@@ -3522,11 +3526,13 @@ exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060
 
 // Lote comercial acumulativo (ADR-047): la produccion diaria entra como una capa
 // nueva del mismo lote abierto; solo se abre una identidad comercial nueva cuando
-// el lote compatible ya esta cerrado por haber alcanzado su objetivo.
+// el lote compatible ya esta cerrado por haber alcanzado su objetivo. El material
+// entra a la comparacion igual que cliente y calidad (ADR-067): dos materiales del
+// mismo producto no son el mismo lote comercial.
 String cliente = datos.escenario.clienteDefault;
 String calidad = datos.escenario.calidadDefault;
 
-LoteProducto lote = buscarLoteComercialAbierto(producto, cliente, calidad);
+LoteProducto lote = buscarLoteComercialAbierto(producto, material, cliente, calidad);
 
 if (lote == null) {
     lote = add_lotes();
@@ -3535,6 +3541,7 @@ if (lote == null) {
     siguienteIdLote++;
 
     lote.producto = producto;
+    lote.material = material;
     lote.diaProduccion = time();
     lote.estado = EstadoLote.EN_PLANTA;
     lote.ubicacionActual = origen;
@@ -3543,7 +3550,7 @@ if (lote == null) {
 
     lote.cliente = cliente;
     lote.calidad = calidad;
-    lote.toneladasObjetivo = datos.producto(producto).toneladasObjetivoLoteTn;
+    lote.toneladasObjetivo = datos.producto(producto, material).toneladasObjetivoLoteTn;
     lote.estadoComercial = EstadoComercialLote.ABIERTO;
     lote.toneladasIniciales = 0;
 }
@@ -3553,6 +3560,7 @@ if (lote == null) {
 inventario.ingresar(
     lote.idLote,
     producto,
+    material,
     "PLANTA",
     toneladas,
     time(),
@@ -3822,6 +3830,48 @@ for (LoteProducto lote : lotes) {
     // teniendo capas ahi y tiene que poder terminar de salir.
     if (
         lote.producto == producto
+        && inventario.libreDeLoteEn(lote.idLote, "PLANTA") > 0.0001
+    ) {
+        if (lote.diaProduccion < menorDia) {
+            menorDia = lote.diaProduccion;
+            seleccionado = lote;
+        }
+    }
+}
+
+return seleccionado;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[LoteProducto]]></ReturnType>
+					<Id>1791600000010</Id>
+					<Name><![CDATA[buscarLoteMasAntiguoEnPlanta]]></Name>
+					<X>360</X><Y>-710</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[material]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// Igual que buscarLoteMasAntiguoEnPlanta(producto), pero acotado a un
+// material (ADR-067): lo usa transferirLotesADeposito() para el cross dock de un
+// pedido puntual, donde el material que se mueve tiene que ser el que el pedido
+// pide. El heuristico agregado de transferirProductoADepositos() sigue usando el
+// overload de un solo parametro: ese no le presta a ningun pedido en particular.
+LoteProducto seleccionado = null;
+double menorDia = Double.POSITIVE_INFINITY;
+
+for (LoteProducto lote : lotes) {
+
+    if (
+        lote.producto == producto
+        && lote.material.equals(material)
         && inventario.libreDeLoteEn(lote.idLote, "PLANTA") > 0.0001
     ) {
         if (lote.diaProduccion < menorDia) {
@@ -4353,6 +4403,7 @@ siguienteIdPedido++;
 
 pedido.codigoPedido = codigo;
 pedido.producto = producto;
+pedido.material = plan.material;
 pedido.toneladasSolicitadas = toneladas;
 pedido.toneladasReservadas = 0;
 pedido.toneladasEntregadas = 0;
@@ -4656,7 +4707,7 @@ envio.costoConsolidacionReal =
         envio.esCrossDock,
         envio.producto,
         toneladas,
-        contenedoresNecesarios(pedido.producto, toneladas)
+        contenedoresNecesarios(pedido.producto, pedido.material, toneladas)
     );
 
 envio.costoTotalReal =
@@ -4853,7 +4904,11 @@ return total;]]></Body>
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[return datos.producto(producto).tipoContenedor;]]></Body>
+					<Parameter>
+						<Name><![CDATA[material]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[return datos.producto(producto, material).tipoContenedor;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -4866,19 +4921,14 @@ return total;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[tipo]]></Name>
-						<Type><![CDATA[TipoContenedor]]></Type>
+						<Name><![CDATA[producto]]></Name>
+						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[for (DatosEntrada.Producto fila : datos.productos) {
-
-    if (fila.tipoContenedor == tipo) {
-        return fila.capacidadContenedorTn;
-    }
-}
-
-error("Capacidad no definida para el contenedor: " + tipo);
-
-return 0;]]></Body>
+					<Parameter>
+						<Name><![CDATA[material]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[return datos.producto(producto, material).capacidadContenedorTn;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -6004,13 +6054,15 @@ return capacidadDisponibleDia(
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
 					<Parameter>
+						<Name><![CDATA[material]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
 						<Name><![CDATA[toneladas]]></Name>
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
 					<Body><![CDATA[double capacidad =
-    obtenerCapacidadContenedorTon(
-        obtenerTipoContenedor(producto)
-    );
+    obtenerCapacidadContenedorTon(producto, material);
 
 return (int) ceil(toneladas / capacidad - 0.0001);]]></Body>
 				</Function>
@@ -6034,12 +6086,12 @@ Deposito mejorSitio = null;
 double menorCostoPorTonelada = Double.POSITIVE_INFINITY;
 
 double capacidadContenedor =
-    obtenerCapacidadContenedorTon(obtenerTipoContenedor(pedido.producto));
+    obtenerCapacidadContenedorTon(pedido.producto, pedido.material);
 
 double pendiente =
     min(
         pedido.toneladasPendientesAsignar(),
-        inventario.libre("PLANTA", pedido.producto)
+        inventario.libre("PLANTA", pedido.producto, pedido.material)
     );
 
 if (pendiente <= 0.0001) {
@@ -6066,7 +6118,7 @@ for (Deposito deposito : depositos) {
     }
 
     int contenedores =
-        contenedoresNecesarios(pedido.producto, posible);
+        contenedoresNecesarios(pedido.producto, pedido.material, posible);
 
     // Sin almacenaje en el costo: no guardar es justamente el punto del
     // cross dock (ADR-010).
@@ -6112,6 +6164,10 @@ return mejorSitio;]]></Body>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
 					<Parameter>
+						<Name><![CDATA[material]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
 						<Name><![CDATA[destino]]></Name>
 						<Type><![CDATA[Deposito]]></Type>
 					</Parameter>
@@ -6127,8 +6183,10 @@ return mejorSitio;]]></Body>
 
 while (pendiente > 0.0001) {
 
+    // ADR-067: el lote movido tiene que ser del material del pedido, sino la
+    // reserva posterior en destino no encuentra nada que reservar.
     LoteProducto lote =
-        buscarLoteMasAntiguoEnPlanta(producto);
+        buscarLoteMasAntiguoEnPlanta(producto, material);
 
     if (lote == null) {
         break;
@@ -6192,13 +6250,13 @@ if (sitio == null) {
 }
 
 double capacidadContenedor =
-    obtenerCapacidadContenedorTon(obtenerTipoContenedor(pedido.producto));
+    obtenerCapacidadContenedorTon(pedido.producto, pedido.material);
 
 double toneladas =
     min(
         min(toneladasObjetivo, pedido.toneladasPendientesAsignar()),
         min(
-            inventario.libre("PLANTA", pedido.producto),
+            inventario.libre("PLANTA", pedido.producto, pedido.material),
             min(
                 espacioDisponibleEfectivo(sitio, pedido.producto),
                 capacidadCrossDockLibre(sitio.idUbicacion) * capacidadContenedor
@@ -6254,7 +6312,7 @@ if (usaFlotaMultidiaria()) {
 // la misma operacion (ADR-060). El volumen ya vino acotado por el cupo libre de hoy.
 if (
     capacidadCrossDockLibre(sitio.idUbicacion)
-    < contenedoresNecesarios(pedido.producto, toneladas)
+    < contenedoresNecesarios(pedido.producto, pedido.material, toneladas)
 ) {
     crossDockReprogramados++;
     return 0;
@@ -6263,6 +6321,7 @@ if (
 double movidas =
     transferirLotesADeposito(
         pedido.producto,
+        pedido.material,
         sitio,
         toneladas,
         true
@@ -6656,6 +6715,10 @@ return flotaPortacontenedores.utilization();]]></Body>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
 					<Parameter>
+						<Name><![CDATA[material]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
 						<Name><![CDATA[cliente]]></Name>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
@@ -6663,12 +6726,13 @@ return flotaPortacontenedores.utilization();]]></Body>
 						<Name><![CDATA[calidad]]></Name>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
-					<Body><![CDATA[// Lote comercial abierto compatible por producto, cliente y calidad (ADR-047).
-// Hay a lo sumo uno abierto por combinacion: al cerrarse, el siguiente ingreso
-// abre una identidad comercial nueva.
+					<Body><![CDATA[// Lote comercial abierto compatible por producto, material, cliente y calidad
+// (ADR-047, ADR-067). Hay a lo sumo uno abierto por combinacion: al cerrarse, el
+// siguiente ingreso abre una identidad comercial nueva.
 for (LoteProducto lote : lotes) {
     if (
         lote.producto == producto
+        && lote.material.equals(material)
         && lote.estadoComercial == EstadoComercialLote.ABIERTO
         && lote.cliente.equals(cliente)
         && lote.calidad.equals(calidad)
@@ -7927,7 +7991,7 @@ fila.toneladasEnProcesoPrevias = pedido.toneladasDespachadas - pedido.toneladasE
 fila.toneladasReservadasPrevias = pedido.toneladasReservadas;
 fila.toneladasPendientesAsignar = pedido.toneladasPendientesAsignar();
 fila.contenedoresPendientesEstimados =
-    contenedoresNecesarios(pedido.producto, pedido.toneladasPendientesAsignar());
+    contenedoresNecesarios(pedido.producto, pedido.material, pedido.toneladasPendientesAsignar());
 fila.diaConocimiento = pedido.diaConocimiento;
 fila.diaAperturaRetiro = pedido.diaAperturaRetiroVacio;
 fila.diaCutoff = pedido.fechaLimiteTerminal;
@@ -7946,9 +8010,9 @@ fila.requierePosicion = !alternativa.esCrossDock;
 fila.tipoRecursoCapacidad = alternativa.tipoRecursoCapacidad;
 fila.ubicacionRecursoCapacidad = alternativa.idUbicacionCapacidad;
 
-fila.stockFisicoOrigenTn = inventario.stock(alternativa.idOrigen, pedido.producto);
-fila.stockLibreOrigenTn = inventario.libre(alternativa.idOrigen, pedido.producto);
-fila.stockReservadoOrigenTn = inventario.reservado(alternativa.idOrigen, pedido.producto);
+fila.stockFisicoOrigenTn = inventario.stock(alternativa.idOrigen, pedido.producto, pedido.material);
+fila.stockLibreOrigenTn = inventario.libre(alternativa.idOrigen, pedido.producto, pedido.material);
+fila.stockReservadoOrigenTn = inventario.reservado(alternativa.idOrigen, pedido.producto, pedido.material);
 fila.stockEnTransitoHaciaOrigenTn =
     toneladasEnTransitoHacia(alternativa.idOrigen, pedido.producto);
 
@@ -9103,7 +9167,7 @@ pedido.costoConsolidadoEstimado +=
         asignacion.esCrossDock,
         pedido.producto,
         toneladas,
-        contenedoresNecesarios(pedido.producto, toneladas)
+        contenedoresNecesarios(pedido.producto, pedido.material, toneladas)
     );
 
 pedido.costoTotalEstimado =
@@ -9483,7 +9547,7 @@ double usd =
 
 double cantidad =
     unidad == DatosEntrada.Unidad.USD_CONTENEDOR
-    ? contenedoresNecesarios(envio.producto, envio.toneladas)
+    ? contenedoresNecesarios(envio.producto, pedido.material, envio.toneladas)
     : envio.toneladas;
 
 double importe = registro.registrar(
@@ -9784,7 +9848,7 @@ DatosEntrada.TarifaSitio tarifa =
     datos.tarifaSitio(dia, terminal, envio.producto);
 
 int contenedores =
-    contenedoresNecesarios(envio.producto, envio.toneladas);
+    contenedoresNecesarios(envio.producto, envio.pedido.material, envio.toneladas);
 
 // El dia del devengo queda anotado: con tarifas mensuales, auditar con otro dia seria
 // comparar contra una tarifa distinta de la que se cobro.
@@ -9853,7 +9917,7 @@ boolean porPedido =
     tarifa.despachanteUnidad == DatosEntrada.Unidad.USD_PEDIDO;
 
 int contenedores =
-    contenedoresNecesarios(envio.producto, envio.toneladas);
+    contenedoresNecesarios(envio.producto, pedido.material, envio.toneladas);
 
 double importe = registro.registrar(
     time(),
@@ -9983,7 +10047,7 @@ int diaCierre =
     : (int) Math.floor(envio.diaEntrega);
 
 int contenedores =
-    contenedoresNecesarios(envio.producto, envio.toneladas);
+    contenedoresNecesarios(envio.producto, pedido.material, envio.toneladas);
 
 double esperado = 0;
 
@@ -10272,7 +10336,7 @@ if (
     alternativa.toneladas = alternativa.toneladasSinRestriccionCapacidad;
 
     alternativa.contenedores =
-        contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+        contenedoresNecesarios(pedido.producto, pedido.material, alternativa.toneladas);
 
     costearAlternativa(pedido, alternativa);
 
@@ -10348,7 +10412,7 @@ if (alternativa.esCrossDock) {
     // El cross dock cruza producto que todavia esta en planta: lo que ya entro a un
     // deposito no vuelve a cruzar (ADR-010).
     if (
-        inventario.libre("PLANTA", pedido.producto) + 0.0001
+        inventario.libre("PLANTA", pedido.producto, pedido.material) + 0.0001
         < toneladas
     ) {
         alternativa.descartar(
@@ -10396,7 +10460,7 @@ if (alternativa.esCrossDock) {
 } else {
 
     if (
-        inventario.libre(alternativa.idOrigen, pedido.producto) + 0.0001
+        inventario.libre(alternativa.idOrigen, pedido.producto, pedido.material) + 0.0001
         < toneladas
     ) {
         alternativa.descartar(
@@ -10633,7 +10697,7 @@ alternativa.costoFleteHundido =
 
 alternativa.costoAlmacenajeHundido =
     datos.storageUsdTnDia(dia, alternativa.idOrigen, pedido.producto)
-    * toneladaDiaEnStock(alternativa.idOrigen, pedido.producto, toneladas);]]></Body>
+    * toneladaDiaEnStock(alternativa.idOrigen, pedido.producto, pedido.material, toneladas);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -10654,6 +10718,10 @@ alternativa.costoAlmacenajeHundido =
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
 					<Parameter>
+						<Name><![CDATA[material]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
 						<Name><![CDATA[toneladas]]></Name>
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
@@ -10663,7 +10731,7 @@ double pendiente = toneladas;
 
 double acumulado = 0;
 
-for (Capa capa : inventario.fifo(idUbicacion, producto)) {
+for (Capa capa : inventario.fifo(idUbicacion, producto, material)) {
 
     if (pendiente <= 0.0001) {
         break;
@@ -11186,7 +11254,7 @@ if (pendiente <= 0.0001) {
 }
 
 double aReservar =
-    min(pendiente, inventario.libre(idSitio, pedido.producto));
+    min(pendiente, inventario.libre(idSitio, pedido.producto, pedido.material));
 
 if (aReservar <= 0.0001) {
     return 0;
@@ -11213,8 +11281,7 @@ boolean reservaPosiciones = usaAgendaCapacidad() || cruza;
 if (reservaPosiciones) {
 
     double capacidadContenedor =
-        obtenerCapacidadContenedorTon(
-            obtenerTipoContenedor(pedido.producto));
+        obtenerCapacidadContenedorTon(pedido.producto, pedido.material);
 
     aReservar =
         min(
@@ -11235,6 +11302,7 @@ double reservadas =
     inventario.reservar(
         idSitio,
         pedido.producto,
+        pedido.material,
         aReservar,
         asignacion.claveReserva(),
         pedido.codigoPedido,
@@ -11257,7 +11325,7 @@ asignacion.toneladasReservadasActivas = reservadas;
 if (reservaPosiciones) {
 
     int necesarias =
-        contenedoresNecesarios(pedido.producto, reservadas);
+        contenedoresNecesarios(pedido.producto, pedido.material, reservadas);
 
     java.util.List<ReservaCapacidad> posiciones =
         reservarCapacidad(
@@ -11438,7 +11506,7 @@ for (Deposito deposito : depositos) {
 
     if (
         deposito.habilitado
-        && inventario.libre(deposito.idUbicacion, pedido.producto) > 0.0001
+        && inventario.libre(deposito.idUbicacion, pedido.producto, pedido.material) > 0.0001
     ) {
         candidatos.add(deposito);
     }
@@ -11490,7 +11558,7 @@ return candidatos;]]></Body>
 double toneladas =
     min(
         pedido.toneladasPendientesAsignar(),
-        inventario.libre(deposito.idUbicacion, pedido.producto)
+        inventario.libre(deposito.idUbicacion, pedido.producto, pedido.material)
     );
 
 if (toneladas <= 0.0001) {
@@ -11498,7 +11566,7 @@ if (toneladas <= 0.0001) {
 }
 
 int contenedores =
-    contenedoresNecesarios(pedido.producto, toneladas);
+    contenedoresNecesarios(pedido.producto, pedido.material, toneladas);
 
 double flete =
     deposito.getImporteFletePuerto(
@@ -11541,13 +11609,17 @@ return (flete + estiba) / toneladas;]]></Body>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
 					<Parameter>
+						<Name><![CDATA[material]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
 						<Name><![CDATA[cruza]]></Name>
 						<Type><![CDATA[boolean]]></Type>
 					</Parameter>
 					<Body><![CDATA[// Cuanto puede prometer hoy un candidato: stock libre en el origen, o para el cross
 // dock lo que hay libre en planta acotado por el espacio de paso y el cupo del dia.
 if (!cruza) {
-    return inventario.libre(idOrigen, producto);
+    return inventario.libre(idOrigen, producto, material);
 }
 
 Deposito sitio = buscarDeposito(idOrigen);
@@ -11557,10 +11629,10 @@ if (sitio == null || !sitio.habilitado) {
 }
 
 double capacidadContenedor =
-    obtenerCapacidadContenedorTon(obtenerTipoContenedor(producto));
+    obtenerCapacidadContenedorTon(producto, material);
 
 return min(
-    inventario.libre("PLANTA", producto),
+    inventario.libre("PLANTA", producto, material),
     min(
         sitio.getEspacioDisponible(producto),
         capacidadCrossDockLibre(idOrigen) * capacidadContenedor
@@ -11607,7 +11679,7 @@ return min(
 double stock =
     min(
         pendiente,
-        toneladasDisponiblesParaAlternativa(idOrigen, pedido.producto, cruza)
+        toneladasDisponiblesParaAlternativa(idOrigen, pedido.producto, pedido.material, cruza)
     );
 
 stock = max(0, stock);
@@ -11619,7 +11691,7 @@ AlternativaCircuito alternativa =
         circuito,
         cruza,
         stock,
-        contenedoresNecesarios(pedido.producto, stock)
+        contenedoresNecesarios(pedido.producto, pedido.material, stock)
     );
 
 alternativa.toneladasSinRestriccionCapacidad = stock;
@@ -11663,14 +11735,13 @@ alternativa.capacidadReservable =
 
 alternativa.toneladasCapacidadDisponible =
     alternativa.contenedoresConCapacidad
-    * obtenerCapacidadContenedorTon(
-        obtenerTipoContenedor(pedido.producto));
+    * obtenerCapacidadContenedorTon(pedido.producto, pedido.material);
 
 alternativa.toneladas =
     max(0, min(stock, alternativa.toneladasCapacidadDisponible));
 
 alternativa.contenedores =
-    contenedoresNecesarios(pedido.producto, alternativa.toneladas);
+    contenedoresNecesarios(pedido.producto, pedido.material, alternativa.toneladas);
 
 acotarAlternativaPorFlota(pedido, alternativa);
 
@@ -11784,10 +11855,10 @@ if (
 }
 
 pedido.tipoContenedor =
-    obtenerTipoContenedor(pedido.producto);
+    obtenerTipoContenedor(pedido.producto, pedido.material);
 
 pedido.capacidadContenedorTon =
-    obtenerCapacidadContenedorTon(pedido.tipoContenedor);
+    obtenerCapacidadContenedorTon(pedido.producto, pedido.material);
 
 double disponible =
     min(
@@ -11853,6 +11924,7 @@ while (disponible > 0.0001 && creados < posicionesLibres) {
 
     contenedor.Pedido = pedido;
     contenedor.producto = pedido.producto;
+    contenedor.material = pedido.material;
     contenedor.tipoContenedor = pedido.tipoContenedor;
     contenedor.capacidadTon = pedido.capacidadContenedorTon;
     contenedor.cantidadAsignadaTon = carga;
@@ -12395,6 +12467,7 @@ for (DatosEntrada.StockInicial fila : datos.stockInicial) {
         lote.codigoLoteExterno = fila.codigoLote;
         lote.esStockInicial = true;
         lote.producto = fila.producto;
+        lote.material = fila.material;
         lote.cliente = fila.cliente;
         lote.calidad = fila.calidad;
         lote.diaProduccion = fila.diaProduccion;
@@ -12417,6 +12490,7 @@ for (DatosEntrada.StockInicial fila : datos.stockInicial) {
     inventario.ingresar(
         lote.idLote,
         fila.producto,
+        fila.material,
         fila.idUbicacion,
         fila.toneladas,
         fila.diaIngreso,
@@ -15134,9 +15208,15 @@ if (!viaje.stockRetiradoOrigen) {
     error("El viaje " + viaje.idViaje + " llego sin haber retirado la carga del origen");
 }
 
+// La capa nueva hereda el material del lote (ADR-067); un viaje sin lote (idLote <= 0)
+// no tiene material propio, y "" es el mismo sentinel que usa el resto del modelo.
+LoteProducto loteViaje = buscarLote(viaje.idLote);
+String materialViaje = loteViaje != null ? loteViaje.material : "";
+
 inventario.ingresar(
     viaje.idLote,
     viaje.producto,
+    materialViaje,
     viaje.destino,
     viaje.toneladas,
     viaje.diaLlegadaDestino,
@@ -16092,7 +16172,7 @@ if (
 }
 
 alternativa.contenedores =
-    contenedoresNecesarios(pedido.producto, alternativa.toneladas);]]></Body>
+    contenedoresNecesarios(pedido.producto, pedido.material, alternativa.toneladas);]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -21993,25 +22073,22 @@ if (!retirado) {
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[// La produccion del dia es un dato de entrada (tabla ProduccionPlan) y entra
 // completa: la capacidad de la planta es un umbral, no un tope, porque el
-// producto ya esta cosechado y no se puede descartar (ADR-048).
+// producto ya esta cosechado y no se puede descartar (ADR-048). Se produce por
+// material (ADR-067): materialesDe() lee la lista valida de la tabla Producto, asi
+// que un material nuevo en el maestro entra sin tocar este codigo.
 Main modelo = (Main) getRootAgent();
 
 int dia = (int) floor(time());
 
-ingresarProduccion(
-    TipoProducto.JUGO,
-    modelo.datos.produccionDelDia(dia, TipoProducto.JUGO)
-);
-
-ingresarProduccion(
-    TipoProducto.CASCARA,
-    modelo.datos.produccionDelDia(dia, TipoProducto.CASCARA)
-);
-
-ingresarProduccion(
-    TipoProducto.ACEITE,
-    modelo.datos.produccionDelDia(dia, TipoProducto.ACEITE)
-);]]></Body>
+for (TipoProducto producto : TipoProducto.values()) {
+    for (String material : modelo.datos.materialesDe(producto)) {
+        ingresarProduccion(
+            producto,
+            material,
+            modelo.datos.produccionDelDia(dia, producto, material)
+        );
+    }
+}]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -22094,6 +22171,10 @@ return max(0, getCapacidad(producto) - getStock(producto));]]></Body>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
 					<Parameter>
+						<Name><![CDATA[material]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
 						<Name><![CDATA[toneladas]]></Name>
 						<Type><![CDATA[double]]></Type>
 					</Parameter>
@@ -22118,7 +22199,7 @@ switch (producto) {
 
 Main modelo = (Main) getRootAgent();
 
-modelo.crearLoteEnPlanta(producto, toneladas, this);]]></Body>
+modelo.crearLoteEnPlanta(producto, material, toneladas, this);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -23524,9 +23605,9 @@ return modelo.datos.importeConsolidacion(
 			<StartupCode><![CDATA[Main m = (Main) get_Main();
 
 if (producto != null) {
-    tipoContenedor = m.obtenerTipoContenedor(producto);
+    tipoContenedor = m.obtenerTipoContenedor(producto, material);
     capacidadContenedorTon =
-        m.obtenerCapacidadContenedorTon(tipoContenedor);
+        m.obtenerCapacidadContenedorTon(producto, material);
 }]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
@@ -23893,6 +23974,30 @@ if (producto != null) {
 						</DefaultValue>
 						<ParameterEditor>
 							<Id>1791400000002</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1791600000001</Id>
+					<Name><![CDATA[material]]></Name>
+					<X>250</X><Y>250</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[String]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1791600000002</Id>
 							<EditorContolType>TEXT_BOX</EditorContolType>
 							<MinSliderValue><![CDATA[0]]></MinSliderValue>
 							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
@@ -25507,6 +25612,30 @@ return null;]]></Body>
 					</Properties>                 
 				</Variable>
 				<Variable Class="Parameter">
+					<Id>1791600000003</Id>
+					<Name><![CDATA[material]]></Name>
+					<X>480</X><Y>530</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[String]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1791600000004</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
 					<Id>1791210000030</Id>
 					<Name><![CDATA[toneladasObjetivo]]></Name>
 					<X>590</X><Y>530</Y>
@@ -26941,7 +27070,7 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 			<Id>1784748415668</Id>
 			<Name><![CDATA[ContenedorExportacion]]></Name>
 			<StartupCode><![CDATA[if (capacidadTon <= 0 && main != null) {
-    capacidadTon = main.obtenerCapacidadContenedorTon(tipoContenedor);
+    capacidadTon = main.obtenerCapacidadContenedorTon(producto, material);
 }]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
@@ -27204,6 +27333,30 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 						</DefaultValue>
 						<ParameterEditor>
 							<Id>1784748458314</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1791600000005</Id>
+					<Name><![CDATA[material]]></Name>
+					<X>30</X><Y>230</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[String]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1791600000006</Id>
 							<EditorContolType>TEXT_BOX</EditorContolType>
 							<MinSliderValue><![CDATA[0]]></MinSliderValue>
 							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
@@ -30050,13 +30203,15 @@ public class DatosEntrada implements java.io.Serializable {
 	public static class Producto implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public TipoProducto producto;
+		public String material;                      // subdivision del producto (ADR-067); "" = sin distincion
 		public TipoContenedor tipoContenedor;
 		public double capacidadContenedorTn;
 		public double toneladasObjetivoLoteTn;       // tamano comercial del lote acumulativo (0 = sin objetivo)
 
-		public Producto(TipoProducto producto, TipoContenedor tipoContenedor, double capacidadContenedorTn,
-				double toneladasObjetivoLoteTn) {
+		public Producto(TipoProducto producto, String material, TipoContenedor tipoContenedor,
+				double capacidadContenedorTn, double toneladasObjetivoLoteTn) {
 			this.producto = producto;
+			this.material = material;
 			this.tipoContenedor = tipoContenedor;
 			this.capacidadContenedorTn = capacidadContenedorTn;
 			this.toneladasObjetivoLoteTn = toneladasObjetivoLoteTn;
@@ -30269,11 +30424,13 @@ public class DatosEntrada implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public int dia;
 		public TipoProducto producto;
+		public String material = "";           // subdivision del producto (ADR-067)
 		public double produccionTn;
 
-		public ProduccionPlan(int dia, TipoProducto producto, double produccionTn) {
+		public ProduccionPlan(int dia, TipoProducto producto, String material, double produccionTn) {
 			this.dia = dia;
 			this.producto = producto;
+			this.material = material;
 			this.produccionTn = produccionTn;
 		}
 	}
@@ -30288,6 +30445,7 @@ public class DatosEntrada implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public String codigoPedido;
 		public TipoProducto producto;
+		public String material = "";           // subdivision del producto (ADR-067)
 		public double toneladasSolicitadas;
 		public String terminal;
 
@@ -30353,6 +30511,7 @@ public class DatosEntrada implements java.io.Serializable {
 		public String idStock;
 		public String codigoLote;
 		public TipoProducto producto;
+		public String material = "";           // subdivision del producto (ADR-067)
 		public String idUbicacion;
 		public double toneladas;
 		public double diaProduccion;
@@ -30360,12 +30519,13 @@ public class DatosEntrada implements java.io.Serializable {
 		public String cliente;
 		public String calidad;
 
-		public StockInicial(String idStock, String codigoLote, TipoProducto producto,
+		public StockInicial(String idStock, String codigoLote, TipoProducto producto, String material,
 				String idUbicacion, double toneladas, double diaProduccion, double diaIngreso,
 				String cliente, String calidad) {
 			this.idStock = idStock;
 			this.codigoLote = codigoLote;
 			this.producto = producto;
+			this.material = material;
 			this.idUbicacion = idUbicacion;
 			this.toneladas = toneladas;
 			this.diaProduccion = diaProduccion;
@@ -30374,8 +30534,10 @@ public class DatosEntrada implements java.io.Serializable {
 			this.calidad = calidad;
 		}
 
+		/** Identifica el lote fisico (ADR-057, ADR-067): dos materiales del mismo
+		 * producto nunca son el mismo lote, igual que dos clientes o calidades. */
 		public String claveLote() {
-			return codigoLote + "|" + producto + "|" + cliente + "|" + calidad;
+			return codigoLote + "|" + producto + "|" + material + "|" + cliente + "|" + calidad;
 		}
 	}
 
@@ -30432,13 +30594,28 @@ public class DatosEntrada implements java.io.Serializable {
 				+ " (tabla CapacidadUbicacion). Cero se carga explicitamente.");
 	}
 
-	public Producto producto(TipoProducto producto) {
+	/** Fila de la tabla Producto por producto y material (ADR-067): dos materiales del
+	 * mismo producto pueden tener contenedor y objetivo de lote distintos. */
+	public Producto producto(TipoProducto producto, String material) {
 		for (Producto p : productos) {
-			if (p.producto == producto) {
+			if (p.producto == producto && p.material.equals(material)) {
 				return p;
 			}
 		}
-		throw new RuntimeException("Falta la fila de " + producto + " en la tabla Producto.");
+		throw new RuntimeException("Falta la fila de " + producto + "/" + material
+				+ " en la tabla Producto.");
+	}
+
+	/** Materiales validos de un producto, en el orden en que aparecen en la tabla
+	 * Producto. Lo usa Planta.producir() para no asumir un unico material por dia. */
+	public java.util.List<String> materialesDe(TipoProducto producto) {
+		java.util.List<String> resultado = new java.util.ArrayList<String>();
+		for (Producto p : productos) {
+			if (p.producto == producto && !resultado.contains(p.material)) {
+				resultado.add(p.material);
+			}
+		}
+		return resultado;
 	}
 
 	/**
@@ -30729,9 +30906,22 @@ public class DatosEntrada implements java.io.Serializable {
 		return ubicacion(idUbicacion).posicionesCrossDock;
 	}
 
+	/** Agregado entre materiales: lo usan los reportes y KPIs que no distinguen. */
 	public double produccionDelDia(int dia, TipoProducto producto) {
+		double total = 0;
 		for (ProduccionPlan p : produccionPlan) {
 			if (p.dia == dia && p.producto == producto) {
+				total += p.produccionTn;
+			}
+		}
+		return total;
+	}
+
+	/** Produccion de un material puntual (ADR-067): Planta.producir() la usa para no
+	 * mezclar materiales del mismo producto en un mismo lote. */
+	public double produccionDelDia(int dia, TipoProducto producto, String material) {
+		for (ProduccionPlan p : produccionPlan) {
+			if (p.dia == dia && p.producto == producto && p.material.equals(material)) {
 				return p.produccionTn;
 			}
 		}
@@ -31072,6 +31262,9 @@ public class DatosEntrada implements java.io.Serializable {
 			} else if (previa.producto != s.producto) {
 				errores.add("El lote " + s.codigoLote + " aparece con productos distintos ("
 						+ previa.producto + " y " + s.producto + ") en StockInicial.");
+			} else if (!previa.material.equals(s.material)) {
+				errores.add("El lote " + s.codigoLote + " aparece con materiales distintos ("
+						+ previa.material + " y " + s.material + ") en StockInicial (ADR-067).");
 			} else if (!previa.cliente.equals(s.cliente) || !previa.calidad.equals(s.calidad)) {
 				errores.add("El lote " + s.codigoLote + " aparece con cliente o calidad"
 						+ " contradictorios en StockInicial.");
@@ -31079,6 +31272,11 @@ public class DatosEntrada implements java.io.Serializable {
 
 			if (s.toneladas <= 0) {
 				errores.add("toneladas debe ser > 0 en " + donde + ".");
+			}
+
+			if (!materialesDe(s.producto).contains(s.material)) {
+				errores.add("El material '" + s.material + "' no existe en la tabla Producto"
+						+ " para " + s.producto + " en " + donde + " (ADR-067).");
 			}
 
 			if (!existeUbicacion(s.idUbicacion)) {
@@ -31181,11 +31379,22 @@ public class DatosEntrada implements java.io.Serializable {
 			if (!existeUbicacion(p.terminal)) {
 				errores.add("El pedido " + p.codigoPedido + " referencia la terminal inexistente " + p.terminal + ".");
 			}
+			if (!materialesDe(p.producto).contains(p.material)) {
+				errores.add("El material '" + p.material + "' del pedido " + p.codigoPedido
+						+ " no existe en la tabla Producto para " + p.producto + " (ADR-067).");
+			}
 		}
 
 		for (ProduccionPlan p : produccionPlan) {
 			if (p.produccionTn < 0) {
 				errores.add("produccion_tn negativa el dia " + p.dia + " para " + p.producto + ".");
+			}
+			// ADR-067: si Producto tiene mas de un material para este producto, la fila
+			// tiene que decir cual - "" deja de ser un material valido y produccionDelDia()
+			// con material especifico devolveria 0 en silencio, no un error explicito.
+			if (!materialesDe(p.producto).contains(p.material)) {
+				errores.add("El material '" + p.material + "' en ProduccionPlan no existe en la"
+						+ " tabla Producto para " + p.producto + ".");
 			}
 		}
 
@@ -31725,7 +31934,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
 			datos.productos.add(new DatosEntrada.Producto(
-				PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i], TON_OBJETIVO_LOTE[i]));
+				PRODUCTOS[i], "", CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i], TON_OBJETIVO_LOTE[i]));
 			datos.capacidades.add(new DatosEntrada.Capacidad(
 				PLANTA, PRODUCTOS[i], CAPACIDAD_PLANTA[i] * escenario.factorCapacidadPlanta));
 
@@ -31912,7 +32121,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 				double toneladas = media * (1 + variabilidad * ruido);
 
 				datos.produccionPlan.add(
-					new DatosEntrada.ProduccionPlan(dia, PRODUCTOS[p], redondear(Math.max(0, toneladas))));
+					new DatosEntrada.ProduccionPlan(dia, PRODUCTOS[p], "", redondear(Math.max(0, toneladas))));
 			}
 		}
 	}
@@ -32146,6 +32355,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		for (Fila f : filas("Producto", null, null)) {
 			datos.productos.add(new DatosEntrada.Producto(
 					f.producto("producto"),
+					f.textoOpcional("material", ""),
 					TipoContenedor.valueOf(f.texto("tipo_contenedor")),
 					f.numero("capacidad_contenedor_tn"),
 					f.numero("toneladas_objetivo_lote_tn")));
@@ -32218,7 +32428,8 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		for (Fila f : filas("ProduccionPlan", "id_escenario", idEscenario)) {
 			datos.produccionPlan.add(new DatosEntrada.ProduccionPlan(
-					f.entero("dia"), f.producto("producto"), f.numero("produccion_tn")));
+					f.entero("dia"), f.producto("producto"), f.textoOpcional("material", ""),
+					f.numero("produccion_tn")));
 		}
 
 		for (Fila f : filas("PedidoPlan", "id_escenario", idEscenario)) {
@@ -32301,6 +32512,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		plan.buque = f.textoOpcional("buque", "");
 		plan.viajeBuque = f.textoOpcional("viaje_buque", "");
 		plan.depositoComprometido = f.textoOpcional("deposito_comprometido", "");
+		plan.material = f.textoOpcional("material", "");
 
 		return plan;
 	}
@@ -32344,6 +32556,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		int cDiaIngreso = columnaAlias(encabezados, new String[] {"dia_ingreso"});
 		int cCliente = columnaAlias(encabezados, new String[] {"cliente"});
 		int cCalidad = columnaAlias(encabezados, new String[] {"calidad"});
+		int cMaterial = columnaAlias(encabezados, new String[] {"material"});
 
 		// Producto, ubicacion y toneladas son el minimo irreducible: lo demas tiene
 		// un default explicito y auditable.
@@ -32411,6 +32624,8 @@ public class ImportadorExcel implements java.io.Serializable {
 				calidad = datos.escenario.calidadDefault;
 			}
 
+			String material = cMaterial >= 0 ? celda(hoja, f, cMaterial) : "";
+
 			// Sin fechas historicas el stock se fecha en el dia 0: no se inventa
 			// antiguedad, y el FIFO igual lo saca antes que la produccion de campania
 			// porque los lotes iniciales se crean antes y desempatan por idLote.
@@ -32421,7 +32636,7 @@ public class ImportadorExcel implements java.io.Serializable {
 					: celdaNumero(hoja, f, cDiaIngreso,
 							"La celda dia_ingreso de la fila " + f + " de la hoja " + hoja);
 
-			datos.stockInicial.add(new DatosEntrada.StockInicial(idStock, codigoLote, producto,
+			datos.stockInicial.add(new DatosEntrada.StockInicial(idStock, codigoLote, producto, material,
 					idUbicacion, toneladas, diaProduccion, diaIngreso, cliente, calidad));
 		}
 	}
@@ -32857,6 +33072,7 @@ public class Capa implements java.io.Serializable {
 
 	public final int idLote;
 	public final TipoProducto producto;
+	public final String material;
 	public final double diaProduccion;
 
 	public String idUbicacion;
@@ -32866,10 +33082,11 @@ public class Capa implements java.io.Serializable {
 
 	public final java.util.List<Reserva> reservas = new java.util.ArrayList<Reserva>();
 
-	public Capa(int idLote, TipoProducto producto, String idUbicacion,
+	public Capa(int idLote, TipoProducto producto, String material, String idUbicacion,
 			double toneladas, double diaIngreso, double diaProduccion) {
 		this.idLote = idLote;
 		this.producto = producto;
+		this.material = material;
 		this.idUbicacion = idUbicacion;
 		this.toneladas = toneladas;
 		this.diaIngreso = diaIngreso;
@@ -32945,7 +33162,7 @@ public class Capa implements java.io.Serializable {
 	}
 
 	public String toString() {
-		return "Capa[lote=" + idLote + " " + producto + " " + idUbicacion
+		return "Capa[lote=" + idLote + " " + producto + "/" + material + " " + idUbicacion
 				+ " dia=" + diaIngreso + " tn=" + toneladas
 				+ " reservadas=" + reservadas() + "]";
 	}
@@ -33847,12 +34064,12 @@ public class Inventario implements java.io.Serializable {
 		flujoDia.clear();
 	}
 
-	public Capa ingresar(int idLote, TipoProducto producto, String idUbicacion,
+	public Capa ingresar(int idLote, TipoProducto producto, String material, String idUbicacion,
 			double toneladas, double dia, double diaProduccion) {
 		if (toneladas <= EPS) {
 			return null;
 		}
-		Capa capa = new Capa(idLote, producto, idUbicacion, toneladas, dia, diaProduccion);
+		Capa capa = new Capa(idLote, producto, material, idUbicacion, toneladas, dia, diaProduccion);
 		capa.idCapa = ++secuenciaCapa;
 		capas.add(capa);
 		anotarFlujo(idUbicacion, producto, toneladas, true);
@@ -33871,6 +34088,19 @@ public class Inventario implements java.io.Serializable {
 		return total;
 	}
 
+	/** Igual que stock(), pero acotado a un material: dos materiales del mismo producto
+	 * no son sustituibles entre si (ADR-067). */
+	public double stock(String idUbicacion, TipoProducto producto, String material) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto && c.material.equals(material)
+					&& c.idUbicacion.equals(idUbicacion)) {
+				total += c.toneladas;
+			}
+		}
+		return total;
+	}
+
 	public double reservado(String idUbicacion, TipoProducto producto) {
 		double total = 0;
 		for (Capa c : capas) {
@@ -33881,8 +34111,24 @@ public class Inventario implements java.io.Serializable {
 		return total;
 	}
 
+	public double reservado(String idUbicacion, TipoProducto producto, String material) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto && c.material.equals(material)
+					&& c.idUbicacion.equals(idUbicacion)) {
+				total += c.reservadas();
+			}
+		}
+		return total;
+	}
+
 	public double libre(String idUbicacion, TipoProducto producto) {
 		return Math.max(0, stock(idUbicacion, producto) - reservado(idUbicacion, producto));
+	}
+
+	public double libre(String idUbicacion, TipoProducto producto, String material) {
+		return Math.max(0,
+				stock(idUbicacion, producto, material) - reservado(idUbicacion, producto, material));
 	}
 
 	public double stockProducto(TipoProducto producto) {
@@ -33980,6 +34226,19 @@ public class Inventario implements java.io.Serializable {
 		java.util.List<Capa> sel = new java.util.ArrayList<Capa>();
 		for (Capa c : capas) {
 			if (c.producto == producto && c.idUbicacion.equals(idUbicacion)) {
+				sel.add(c);
+			}
+		}
+		java.util.Collections.sort(sel, FIFO);
+		return sel;
+	}
+
+	/** Igual que fifo(), pero acotado a un material (ADR-067). */
+	public java.util.List<Capa> fifo(String idUbicacion, TipoProducto producto, String material) {
+		java.util.List<Capa> sel = new java.util.ArrayList<Capa>();
+		for (Capa c : capas) {
+			if (c.producto == producto && c.material.equals(material)
+					&& c.idUbicacion.equals(idUbicacion)) {
 				sel.add(c);
 			}
 		}
@@ -34105,7 +34364,7 @@ public class Inventario implements java.io.Serializable {
 
 	/** Parte de una capa que se muda: mismo lote y misma produccion, otra identidad. */
 	private Capa nuevaCapa(Capa origen, String destino, double toneladas, double dia) {
-		Capa capa = new Capa(origen.idLote, origen.producto, destino, toneladas, dia,
+		Capa capa = new Capa(origen.idLote, origen.producto, origen.material, destino, toneladas, dia,
 				origen.diaProduccion);
 		capa.idCapa = ++secuenciaCapa;
 		return capa;
@@ -34160,6 +34419,25 @@ public class Inventario implements java.io.Serializable {
 		return toneladas - pendiente;
 	}
 
+	/** Igual que reservar(), pero acotado a un material: un pedido de un material no
+	 * puede reservar capas de otro material del mismo producto (ADR-067). */
+	public double reservar(String idUbicacion, TipoProducto producto, String material,
+			double toneladas, String clave, String codigoPedido, double dia) {
+		double pendiente = toneladas;
+		for (Capa c : fifo(idUbicacion, producto, material)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, c.libres());
+			if (toma <= EPS) {
+				continue;
+			}
+			c.reservar(clave, codigoPedido, toma, dia);
+			pendiente -= toma;
+		}
+		return toneladas - pendiente;
+	}
+
 	public double liberarReserva(String clave) {
 		double total = 0;
 		for (Capa c : capas) {
@@ -34184,6 +34462,27 @@ public class Inventario implements java.io.Serializable {
 			String clave) {
 		double pendiente = toneladas;
 		for (Capa c : fifo(idUbicacion, producto)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, Math.min(c.reservadasDe(clave), c.toneladas));
+			if (toma <= EPS) {
+				continue;
+			}
+			c.quitarReserva(clave, toma);
+			c.toneladas -= toma;
+			pendiente -= toma;
+		}
+		limpiar();
+		anotarFlujo(idUbicacion, producto, toneladas - pendiente, false);
+		return toneladas - pendiente;
+	}
+
+	/** Igual que despachar(), pero acotado a un material (ADR-067). */
+	public double despachar(String idUbicacion, TipoProducto producto, String material,
+			double toneladas, String clave) {
+		double pendiente = toneladas;
+		for (Capa c : fifo(idUbicacion, producto, material)) {
 			if (pendiente <= EPS) {
 				break;
 			}

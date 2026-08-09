@@ -14,6 +14,7 @@ class Pedido extends Agent {
     Terminal puertoSalida = null;
     Deposito depositoAsignado = null;
     String depositoComprometido = "";
+    String material = "";
     double diaLlegada = 0;
     double diaLimite = 0;
     double diaReserva = -1;

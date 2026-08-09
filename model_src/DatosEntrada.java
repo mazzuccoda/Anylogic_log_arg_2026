@@ -152,13 +152,15 @@ public class DatosEntrada implements java.io.Serializable {
 	public static class Producto implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public TipoProducto producto;
+		public String material;                      // subdivision del producto (ADR-067); "" = sin distincion
 		public TipoContenedor tipoContenedor;
 		public double capacidadContenedorTn;
 		public double toneladasObjetivoLoteTn;       // tamano comercial del lote acumulativo (0 = sin objetivo)
 
-		public Producto(TipoProducto producto, TipoContenedor tipoContenedor, double capacidadContenedorTn,
-				double toneladasObjetivoLoteTn) {
+		public Producto(TipoProducto producto, String material, TipoContenedor tipoContenedor,
+				double capacidadContenedorTn, double toneladasObjetivoLoteTn) {
 			this.producto = producto;
+			this.material = material;
 			this.tipoContenedor = tipoContenedor;
 			this.capacidadContenedorTn = capacidadContenedorTn;
 			this.toneladasObjetivoLoteTn = toneladasObjetivoLoteTn;
@@ -371,11 +373,13 @@ public class DatosEntrada implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public int dia;
 		public TipoProducto producto;
+		public String material = "";           // subdivision del producto (ADR-067)
 		public double produccionTn;
 
-		public ProduccionPlan(int dia, TipoProducto producto, double produccionTn) {
+		public ProduccionPlan(int dia, TipoProducto producto, String material, double produccionTn) {
 			this.dia = dia;
 			this.producto = producto;
+			this.material = material;
 			this.produccionTn = produccionTn;
 		}
 	}
@@ -390,6 +394,7 @@ public class DatosEntrada implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public String codigoPedido;
 		public TipoProducto producto;
+		public String material = "";           // subdivision del producto (ADR-067)
 		public double toneladasSolicitadas;
 		public String terminal;
 
@@ -455,6 +460,7 @@ public class DatosEntrada implements java.io.Serializable {
 		public String idStock;
 		public String codigoLote;
 		public TipoProducto producto;
+		public String material = "";           // subdivision del producto (ADR-067)
 		public String idUbicacion;
 		public double toneladas;
 		public double diaProduccion;
@@ -462,12 +468,13 @@ public class DatosEntrada implements java.io.Serializable {
 		public String cliente;
 		public String calidad;
 
-		public StockInicial(String idStock, String codigoLote, TipoProducto producto,
+		public StockInicial(String idStock, String codigoLote, TipoProducto producto, String material,
 				String idUbicacion, double toneladas, double diaProduccion, double diaIngreso,
 				String cliente, String calidad) {
 			this.idStock = idStock;
 			this.codigoLote = codigoLote;
 			this.producto = producto;
+			this.material = material;
 			this.idUbicacion = idUbicacion;
 			this.toneladas = toneladas;
 			this.diaProduccion = diaProduccion;
@@ -476,8 +483,10 @@ public class DatosEntrada implements java.io.Serializable {
 			this.calidad = calidad;
 		}
 
+		/** Identifica el lote fisico (ADR-057, ADR-067): dos materiales del mismo
+		 * producto nunca son el mismo lote, igual que dos clientes o calidades. */
 		public String claveLote() {
-			return codigoLote + "|" + producto + "|" + cliente + "|" + calidad;
+			return codigoLote + "|" + producto + "|" + material + "|" + cliente + "|" + calidad;
 		}
 	}
 
@@ -534,13 +543,28 @@ public class DatosEntrada implements java.io.Serializable {
 				+ " (tabla CapacidadUbicacion). Cero se carga explicitamente.");
 	}
 
-	public Producto producto(TipoProducto producto) {
+	/** Fila de la tabla Producto por producto y material (ADR-067): dos materiales del
+	 * mismo producto pueden tener contenedor y objetivo de lote distintos. */
+	public Producto producto(TipoProducto producto, String material) {
 		for (Producto p : productos) {
-			if (p.producto == producto) {
+			if (p.producto == producto && p.material.equals(material)) {
 				return p;
 			}
 		}
-		throw new RuntimeException("Falta la fila de " + producto + " en la tabla Producto.");
+		throw new RuntimeException("Falta la fila de " + producto + "/" + material
+				+ " en la tabla Producto.");
+	}
+
+	/** Materiales validos de un producto, en el orden en que aparecen en la tabla
+	 * Producto. Lo usa Planta.producir() para no asumir un unico material por dia. */
+	public java.util.List<String> materialesDe(TipoProducto producto) {
+		java.util.List<String> resultado = new java.util.ArrayList<String>();
+		for (Producto p : productos) {
+			if (p.producto == producto && !resultado.contains(p.material)) {
+				resultado.add(p.material);
+			}
+		}
+		return resultado;
 	}
 
 	/**
@@ -831,9 +855,22 @@ public class DatosEntrada implements java.io.Serializable {
 		return ubicacion(idUbicacion).posicionesCrossDock;
 	}
 
+	/** Agregado entre materiales: lo usan los reportes y KPIs que no distinguen. */
 	public double produccionDelDia(int dia, TipoProducto producto) {
+		double total = 0;
 		for (ProduccionPlan p : produccionPlan) {
 			if (p.dia == dia && p.producto == producto) {
+				total += p.produccionTn;
+			}
+		}
+		return total;
+	}
+
+	/** Produccion de un material puntual (ADR-067): Planta.producir() la usa para no
+	 * mezclar materiales del mismo producto en un mismo lote. */
+	public double produccionDelDia(int dia, TipoProducto producto, String material) {
+		for (ProduccionPlan p : produccionPlan) {
+			if (p.dia == dia && p.producto == producto && p.material.equals(material)) {
 				return p.produccionTn;
 			}
 		}
@@ -1174,6 +1211,9 @@ public class DatosEntrada implements java.io.Serializable {
 			} else if (previa.producto != s.producto) {
 				errores.add("El lote " + s.codigoLote + " aparece con productos distintos ("
 						+ previa.producto + " y " + s.producto + ") en StockInicial.");
+			} else if (!previa.material.equals(s.material)) {
+				errores.add("El lote " + s.codigoLote + " aparece con materiales distintos ("
+						+ previa.material + " y " + s.material + ") en StockInicial (ADR-067).");
 			} else if (!previa.cliente.equals(s.cliente) || !previa.calidad.equals(s.calidad)) {
 				errores.add("El lote " + s.codigoLote + " aparece con cliente o calidad"
 						+ " contradictorios en StockInicial.");
@@ -1181,6 +1221,11 @@ public class DatosEntrada implements java.io.Serializable {
 
 			if (s.toneladas <= 0) {
 				errores.add("toneladas debe ser > 0 en " + donde + ".");
+			}
+
+			if (!materialesDe(s.producto).contains(s.material)) {
+				errores.add("El material '" + s.material + "' no existe en la tabla Producto"
+						+ " para " + s.producto + " en " + donde + " (ADR-067).");
 			}
 
 			if (!existeUbicacion(s.idUbicacion)) {
@@ -1283,11 +1328,22 @@ public class DatosEntrada implements java.io.Serializable {
 			if (!existeUbicacion(p.terminal)) {
 				errores.add("El pedido " + p.codigoPedido + " referencia la terminal inexistente " + p.terminal + ".");
 			}
+			if (!materialesDe(p.producto).contains(p.material)) {
+				errores.add("El material '" + p.material + "' del pedido " + p.codigoPedido
+						+ " no existe en la tabla Producto para " + p.producto + " (ADR-067).");
+			}
 		}
 
 		for (ProduccionPlan p : produccionPlan) {
 			if (p.produccionTn < 0) {
 				errores.add("produccion_tn negativa el dia " + p.dia + " para " + p.producto + ".");
+			}
+			// ADR-067: si Producto tiene mas de un material para este producto, la fila
+			// tiene que decir cual - "" deja de ser un material valido y produccionDelDia()
+			// con material especifico devolveria 0 en silencio, no un error explicito.
+			if (!materialesDe(p.producto).contains(p.material)) {
+				errores.add("El material '" + p.material + "' en ProduccionPlan no existe en la"
+						+ " tabla Producto para " + p.producto + ".");
 			}
 		}
 

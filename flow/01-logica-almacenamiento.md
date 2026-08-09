@@ -500,3 +500,11 @@ barato por tonelada — salvo que la planta esté en emergencia, en cuyo caso
 gana el que tiene más lugar. Y el costo de haber elegido mal (o bien) se ve
 todos los días en `devengarAlmacenamientoDiario()`, tonelada por tonelada, no
 como un promedio al final de la campaña.
+
+## 1.11 Material — una dimensión que no es sólo trazabilidad (ADR-067)
+
+Todo lo anterior habla de "producto" (`JUGO`, `CASCARA`, `ACEITE`) porque hasta ADR-067 era la única dimensión física del inventario. El maestro de datos real agrega una segunda: **material**, una subdivisión productiva del producto — `JUGO` se produce como `JCL`, `JCCL` o `PULPA`, por ejemplo. La diferencia con `cliente`/`calidad` (que ya existían como identidad del lote comercial, §1.1) es que esos dos nunca condicionaban qué capa física satisface a un pedido; el material sí: **dos materiales del mismo producto no son sustituibles.** Un pedido de `JCCL` nunca reserva ni despacha una capa de `JCL`, aunque estén en el mismo depósito y sean, en toneladas, el mismo producto.
+
+Esto no cambia ninguno de los nueve criterios de la tabla de arriba — sigue siendo cierto que la capacidad de un depósito es un tope por producto, que la producción nunca se bloquea, que el costo de oportunidad del frío propio es un cargo del día. Lo que cambia es que **cada uno de esos criterios ahora opera dentro de un material**, no a través de todos: `Inventario` sabe filtrar por material en `stock`/`libre`/`reservado`/`fifo`/`reservar`/`despachar`, pero las decisiones que no dependen de a quién le sirven — cuánto sacar de planta, a qué depósito, el costo de oportunidad, el rebalanceo entre depósitos — siguen mirando el producto agregado, porque mueven "lo que haya", y lo que haya arrastra su propio material sin que la decisión necesite saberlo de antemano.
+
+La única pieza nueva que sí depende del material es la capacidad de contenedor al exportar: `Producto` puede declarar una capacidad distinta por material del mismo producto (`JUGO`/`PULPA` entra 20 tn por `REEFER_40`, `JUGO`/`JCL` y `JCCL` entran 24 tn en el mismo tipo de contenedor) — antes de ADR-067 esto era una ambigüedad real: la función que resolvía la capacidad por tipo de contenedor podía devolver la fila equivocada según qué material apareciera primero en la tabla.

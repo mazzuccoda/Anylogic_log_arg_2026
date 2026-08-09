@@ -40,6 +40,7 @@ public class Capa implements java.io.Serializable {
 
 	public final int idLote;
 	public final TipoProducto producto;
+	public final String material;
 	public final double diaProduccion;
 
 	public String idUbicacion;
@@ -49,10 +50,11 @@ public class Capa implements java.io.Serializable {
 
 	public final java.util.List<Reserva> reservas = new java.util.ArrayList<Reserva>();
 
-	public Capa(int idLote, TipoProducto producto, String idUbicacion,
+	public Capa(int idLote, TipoProducto producto, String material, String idUbicacion,
 			double toneladas, double diaIngreso, double diaProduccion) {
 		this.idLote = idLote;
 		this.producto = producto;
+		this.material = material;
 		this.idUbicacion = idUbicacion;
 		this.toneladas = toneladas;
 		this.diaIngreso = diaIngreso;
@@ -128,7 +130,7 @@ public class Capa implements java.io.Serializable {
 	}
 
 	public String toString() {
-		return "Capa[lote=" + idLote + " " + producto + " " + idUbicacion
+		return "Capa[lote=" + idLote + " " + producto + "/" + material + " " + idUbicacion
 				+ " dia=" + diaIngreso + " tn=" + toneladas
 				+ " reservadas=" + reservadas() + "]";
 	}

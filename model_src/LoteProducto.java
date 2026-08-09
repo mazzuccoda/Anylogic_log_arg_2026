@@ -19,6 +19,7 @@ class LoteProducto extends Agent {
     double diaReserva = -1;
     String cliente = "";
     String calidad = "";
+    String material = "";
     double toneladasObjetivo = 0;
     EstadoComercialLote estadoComercial = EstadoComercialLote.ABIERTO;
 

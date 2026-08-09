@@ -367,7 +367,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 
 		for (int i = 0; i < PRODUCTOS.length; i++) {
 			datos.productos.add(new DatosEntrada.Producto(
-				PRODUCTOS[i], CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i], TON_OBJETIVO_LOTE[i]));
+				PRODUCTOS[i], "", CONTENEDOR[i], CAPACIDAD_CONTENEDOR[i], TON_OBJETIVO_LOTE[i]));
 			datos.capacidades.add(new DatosEntrada.Capacidad(
 				PLANTA, PRODUCTOS[i], CAPACIDAD_PLANTA[i] * escenario.factorCapacidadPlanta));
 
@@ -554,7 +554,7 @@ public class GeneradorSintetico implements java.io.Serializable {
 				double toneladas = media * (1 + variabilidad * ruido);
 
 				datos.produccionPlan.add(
-					new DatosEntrada.ProduccionPlan(dia, PRODUCTOS[p], redondear(Math.max(0, toneladas))));
+					new DatosEntrada.ProduccionPlan(dia, PRODUCTOS[p], "", redondear(Math.max(0, toneladas))));
 			}
 		}
 	}

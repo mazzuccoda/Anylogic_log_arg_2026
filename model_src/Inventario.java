@@ -80,12 +80,12 @@ public class Inventario implements java.io.Serializable {
 		flujoDia.clear();
 	}
 
-	public Capa ingresar(int idLote, TipoProducto producto, String idUbicacion,
+	public Capa ingresar(int idLote, TipoProducto producto, String material, String idUbicacion,
 			double toneladas, double dia, double diaProduccion) {
 		if (toneladas <= EPS) {
 			return null;
 		}
-		Capa capa = new Capa(idLote, producto, idUbicacion, toneladas, dia, diaProduccion);
+		Capa capa = new Capa(idLote, producto, material, idUbicacion, toneladas, dia, diaProduccion);
 		capa.idCapa = ++secuenciaCapa;
 		capas.add(capa);
 		anotarFlujo(idUbicacion, producto, toneladas, true);
@@ -104,6 +104,19 @@ public class Inventario implements java.io.Serializable {
 		return total;
 	}
 
+	/** Igual que stock(), pero acotado a un material: dos materiales del mismo producto
+	 * no son sustituibles entre si (ADR-067). */
+	public double stock(String idUbicacion, TipoProducto producto, String material) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto && c.material.equals(material)
+					&& c.idUbicacion.equals(idUbicacion)) {
+				total += c.toneladas;
+			}
+		}
+		return total;
+	}
+
 	public double reservado(String idUbicacion, TipoProducto producto) {
 		double total = 0;
 		for (Capa c : capas) {
@@ -114,8 +127,24 @@ public class Inventario implements java.io.Serializable {
 		return total;
 	}
 
+	public double reservado(String idUbicacion, TipoProducto producto, String material) {
+		double total = 0;
+		for (Capa c : capas) {
+			if (c.producto == producto && c.material.equals(material)
+					&& c.idUbicacion.equals(idUbicacion)) {
+				total += c.reservadas();
+			}
+		}
+		return total;
+	}
+
 	public double libre(String idUbicacion, TipoProducto producto) {
 		return Math.max(0, stock(idUbicacion, producto) - reservado(idUbicacion, producto));
+	}
+
+	public double libre(String idUbicacion, TipoProducto producto, String material) {
+		return Math.max(0,
+				stock(idUbicacion, producto, material) - reservado(idUbicacion, producto, material));
 	}
 
 	public double stockProducto(TipoProducto producto) {
@@ -213,6 +242,19 @@ public class Inventario implements java.io.Serializable {
 		java.util.List<Capa> sel = new java.util.ArrayList<Capa>();
 		for (Capa c : capas) {
 			if (c.producto == producto && c.idUbicacion.equals(idUbicacion)) {
+				sel.add(c);
+			}
+		}
+		java.util.Collections.sort(sel, FIFO);
+		return sel;
+	}
+
+	/** Igual que fifo(), pero acotado a un material (ADR-067). */
+	public java.util.List<Capa> fifo(String idUbicacion, TipoProducto producto, String material) {
+		java.util.List<Capa> sel = new java.util.ArrayList<Capa>();
+		for (Capa c : capas) {
+			if (c.producto == producto && c.material.equals(material)
+					&& c.idUbicacion.equals(idUbicacion)) {
 				sel.add(c);
 			}
 		}
@@ -338,7 +380,7 @@ public class Inventario implements java.io.Serializable {
 
 	/** Parte de una capa que se muda: mismo lote y misma produccion, otra identidad. */
 	private Capa nuevaCapa(Capa origen, String destino, double toneladas, double dia) {
-		Capa capa = new Capa(origen.idLote, origen.producto, destino, toneladas, dia,
+		Capa capa = new Capa(origen.idLote, origen.producto, origen.material, destino, toneladas, dia,
 				origen.diaProduccion);
 		capa.idCapa = ++secuenciaCapa;
 		return capa;
@@ -393,6 +435,25 @@ public class Inventario implements java.io.Serializable {
 		return toneladas - pendiente;
 	}
 
+	/** Igual que reservar(), pero acotado a un material: un pedido de un material no
+	 * puede reservar capas de otro material del mismo producto (ADR-067). */
+	public double reservar(String idUbicacion, TipoProducto producto, String material,
+			double toneladas, String clave, String codigoPedido, double dia) {
+		double pendiente = toneladas;
+		for (Capa c : fifo(idUbicacion, producto, material)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, c.libres());
+			if (toma <= EPS) {
+				continue;
+			}
+			c.reservar(clave, codigoPedido, toma, dia);
+			pendiente -= toma;
+		}
+		return toneladas - pendiente;
+	}
+
 	public double liberarReserva(String clave) {
 		double total = 0;
 		for (Capa c : capas) {
@@ -417,6 +478,27 @@ public class Inventario implements java.io.Serializable {
 			String clave) {
 		double pendiente = toneladas;
 		for (Capa c : fifo(idUbicacion, producto)) {
+			if (pendiente <= EPS) {
+				break;
+			}
+			double toma = Math.min(pendiente, Math.min(c.reservadasDe(clave), c.toneladas));
+			if (toma <= EPS) {
+				continue;
+			}
+			c.quitarReserva(clave, toma);
+			c.toneladas -= toma;
+			pendiente -= toma;
+		}
+		limpiar();
+		anotarFlujo(idUbicacion, producto, toneladas - pendiente, false);
+		return toneladas - pendiente;
+	}
+
+	/** Igual que despachar(), pero acotado a un material (ADR-067). */
+	public double despachar(String idUbicacion, TipoProducto producto, String material,
+			double toneladas, String clave) {
+		double pendiente = toneladas;
+		for (Capa c : fifo(idUbicacion, producto, material)) {
 			if (pendiente <= EPS) {
 				break;
 			}

@@ -47,12 +47,15 @@ Con `EXCEL`, los parámetros del generador (`semillaBase`, `variabilidadProducci
 | Columna | Tipo | Regla |
 |---|---|---|
 | `producto` | enum | `JUGO`, `CASCARA`, `ACEITE` |
+| `material` | texto | Opcional (ADR-067). Subdivisión productiva del producto (p. ej. `JCL`, `JCCL`, `PULPA` de `JUGO`). Vacío = el producto no distingue material. Junto con `producto` forma la clave de la tabla: puede haber varias filas por producto, una por material |
 | `tipo_contenedor` | enum | `REEFER_40`, `DRY_HC_40`, `IMO_DRY_20` |
-| `capacidad_contenedor_tn` | double | > 0 |
+| `capacidad_contenedor_tn` | double | > 0. Puede variar por material del mismo producto (p. ej. `PULPA` entra 20 tn por `REEFER_40` contra 24 tn de `JCL`/`JCCL`) |
 | `toneladas_objetivo_lote_tn` | double | ≥ 0. Tamaño del lote comercial acumulativo. `0` = el lote no cierra por tamaño (ADR-047) |
 | `descripcion` | texto | Libre |
 
-Reemplaza `obtenerTipoContenedor()` y `obtenerCapacidadContenedorTon()` hardcodeados.
+Reemplaza `obtenerTipoContenedor()` y `obtenerCapacidadContenedorTon()` hardcodeados; ambos resuelven hoy por `(producto, material)` (ADR-067), no sólo por producto.
+
+**Material (ADR-067).** No es sólo trazabilidad: un pedido de un material no puede satisfacerse con stock de otro material del mismo producto (dos materiales del mismo producto no son sustituibles). Participa en la identidad física del lote y de la capa, igual que `cliente`/`calidad` (ADR-047), y en la resolución de contenedor de exportación. La capacidad física de almacenamiento (`CapacidadUbicacion`) sigue agregada por `producto` solamente: no hay dato de capacidad por material, y un tanque de jugo no separa físicamente sus materiales en compartimentos. `material = ""` es el sentinel de "producto que no distingue" (o de una corrida sintética/anterior a este ADR); `materialesDe(producto)` deriva la lista de materiales válidos de esta misma tabla.
 
 `toneladas_objetivo_lote_tn` es la **única** fuente del tamaño objetivo del lote comercial: el lote acumula la producción diaria del producto y se cierra cuando la producción acumulada lo alcanza. Vive acá porque el tamaño comercial describe al producto; no hay una tabla `LoteComercial` que lo duplique (ADR-047).
 
@@ -250,6 +253,7 @@ Producción diaria esperada. Con datos sintéticos la genera el modelo; con Exce
 | `id_escenario` | texto | |
 | `dia` | int | 0..duración. Alternativamente `fecha` |
 | `producto` | enum | |
+| `material` | texto | Opcional (ADR-067). Si `Producto` tiene más de un material para este producto, cada material se produce en una fila separada — `Planta.producir()` itera `materialesDe(producto)` y busca la fila exacta. Vacío sólo es válido si `Producto` tampoco distingue material para ese producto (si no, `DatosEntrada.validar()` lo rechaza explícitamente en vez de producir 0 en silencio) |
 | `produccion_tn` | double | >= 0 |
 
 Si la tabla trae una sola fila por producto sin `dia`, se interpreta como media diaria constante para toda la campaña.
@@ -262,6 +266,7 @@ Si la tabla trae una sola fila por producto sin `dia`, se interpreta como media 
 | `codigo_pedido` | texto | Único por escenario |
 | `cliente` | texto | |
 | `producto` | enum | |
+| `material` | texto | Opcional (ADR-067). Si vacío y `Producto` tiene más de un material para ese producto, `DatosEntrada.validar()` rechaza la fila explícitamente: un pedido sin material no puede resolver contenedor ni stock una vez que el producto distingue materiales. El pedido nunca se satisface con stock de otro material del mismo producto |
 | `calidad` | texto | |
 | `lote_solicitado` | texto | Vacío = cualquier lote del producto/calidad |
 | `toneladas_solicitadas` | double | > 0 |
@@ -292,6 +297,7 @@ Inventario físico preexistente al día 0. Reemplaza a la tabla `LoteInicial` qu
 | `id_stock` | texto | no | Único por escenario. Identifica la fila, no el lote. Si falta: `SI-<fila>` |
 | `codigo_lote` | texto | no | Puede repetirse: el mismo lote puede estar en varias ubicaciones. Si falta: `SI-<producto>-<ubicacion>-<fila>`, o sea una partida por fila |
 | `producto` | enum | **sí** | Un `codigo_lote` no puede tener dos productos |
+| `material` | texto | no | Opcional (ADR-067). Un `codigo_lote` no puede tener dos materiales, igual que no puede tener dos productos. Si `Producto` tiene más de un material para el producto de la fila, vacío es rechazado explícitamente por `DatosEntrada.validar()` |
 | `id_ubicacion` | texto | **sí** | FK `Ubicacion`, habilitada, tipo `PLANTA` o `DEPOSITO`. Nunca `TERMINAL` |
 | `toneladas` | double | **sí** | > 0. Una fila en cero se ignora: cero no es stock, es ausencia |
 | `dia_produccion` | double | no | <= 0, día relativo al inicio de campaña. Si falta: 0 |

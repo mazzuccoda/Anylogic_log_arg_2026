@@ -22,25 +22,22 @@ class Planta extends Agent {
     void producir() {
         // La produccion del dia es un dato de entrada (tabla ProduccionPlan) y entra
         // completa: la capacidad de la planta es un umbral, no un tope, porque el
-        // producto ya esta cosechado y no se puede descartar (ADR-048).
+        // producto ya esta cosechado y no se puede descartar (ADR-048). Se produce por
+        // material (ADR-067): materialesDe() lee la lista valida de la tabla Producto, asi
+        // que un material nuevo en el maestro entra sin tocar este codigo.
         Main modelo = (Main) getRootAgent();
 
         int dia = (int) floor(time());
 
-        ingresarProduccion(
-            TipoProducto.JUGO,
-            modelo.datos.produccionDelDia(dia, TipoProducto.JUGO)
-        );
-
-        ingresarProduccion(
-            TipoProducto.CASCARA,
-            modelo.datos.produccionDelDia(dia, TipoProducto.CASCARA)
-        );
-
-        ingresarProduccion(
-            TipoProducto.ACEITE,
-            modelo.datos.produccionDelDia(dia, TipoProducto.ACEITE)
-        );
+        for (TipoProducto producto : TipoProducto.values()) {
+            for (String material : modelo.datos.materialesDe(producto)) {
+                ingresarProduccion(
+                    producto,
+                    material,
+                    modelo.datos.produccionDelDia(dia, producto, material)
+                );
+            }
+        }
     }
 
     double getStock(TipoProducto producto) {
@@ -73,7 +70,7 @@ class Planta extends Agent {
         return max(0, getCapacidad(producto) - getStock(producto));
     }
 
-    void ingresarProduccion(TipoProducto producto, double toneladas) {
+    void ingresarProduccion(TipoProducto producto, String material, double toneladas) {
         if (toneladas <= 0) {
             return;
         }
@@ -95,7 +92,7 @@ class Planta extends Agent {
 
         Main modelo = (Main) getRootAgent();
 
-        modelo.crearLoteEnPlanta(producto, toneladas, this);
+        modelo.crearLoteEnPlanta(producto, material, toneladas, this);
     }
 
     double getOcupacionPct(TipoProducto producto) {

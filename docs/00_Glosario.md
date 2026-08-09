@@ -6,7 +6,8 @@ Cada término define el hecho operativo que representa y, cuando corresponde, el
 
 | Término | Definición operativa | Costo asociado | Unidad |
 |---|---|---|---|
-| **Lote comercial** | Identidad comercial y productiva de un conjunto de producto (producto + cliente + calidad + número). Se produce durante varios días y puede despacharse parcialmente | — | tn |
+| **Lote comercial** | Identidad comercial y productiva de un conjunto de producto (producto + material + cliente + calidad + número). Se produce durante varios días y puede despacharse parcialmente | — | tn |
+| **Material** | Subdivisión productiva de un producto (ADR-067; p. ej. `JCL`, `JCCL`, `PULPA` de `JUGO`). No es sólo trazabilidad: dos materiales del mismo producto no son sustituibles, un pedido de un material nunca se satisface con stock de otro. Participa en la identidad de la capa y del lote, y puede tener capacidad de contenedor distinta (`Producto`). La capacidad física de almacenamiento sigue agregada por producto, sin distinguir material | — | — |
 | **Capa de inventario** | Saldo de un lote en una ubicación con una fecha de ingreso determinada. Unidad atómica del inventario | Base del almacenaje | tn |
 | **Guarda** | Movimiento de producto desde planta hacia un depósito de terceros para liberar capacidad de planta | Flete de guarda | USD/viaje o USD/tn |
 | **IN** | Ingreso formal de producto a un depósito de terceros, con registro y recepción | Almacenaje IN | USD/tn |
