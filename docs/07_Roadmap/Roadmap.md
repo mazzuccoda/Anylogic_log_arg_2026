@@ -295,11 +295,12 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/`. **Pendiente de co
 - [x] `mejorDestinoRebalanceo()`, `transferirEntreDepositos()`, `buscarLoteMasAntiguoEnDeposito()`, `registrarOutDepositoTransferencia()` — costo según V-COST-06 (OUT + flete + IN, sin contenedor), sin tocar `costoIncremental`/`costoEndToEnd` del evaluador.
 - [x] Nuevo acumulador `costoFleteEntreDepositos`, sumado a la reconciliación de `FLETE_PRODUCTO` sin mezclarse con `costoFletePlantaDeposito`.
 - [x] Sin datos de tarifa/distancia depósito-depósito, el mecanismo no hace nada (no crashea, no asume costo cero) — verificado que `transferirEntreDepositos`/`mejorDestinoRebalanceo` chequean `hayTarifaFlete`/`hayTarifaSitio`/`distanciaKmSimetrica` antes de mover.
-- [x] **Confirmado empíricamente que sin esos datos no hace nada:** corrida real post-implementación, cero operaciones `REB-` en las cuatro tablas de auditoría y stock por depósito idéntico al de antes del Mod.
+- [x] **Confirmado empíricamente que sin esos datos no hace nada:** primera corrida post-implementación, cero operaciones `REB-` en las cuatro tablas de auditoría y stock por depósito idéntico al de antes del Mod.
 - [x] Traza de diagnóstico bajo `debugPlanificacion` cuando `mejorDestinoRebalanceo()` no encuentra destino — visible en la consola de AnyLogic sin exportar CSV.
-- [ ] **Pendiente, bloqueante para ejercitar el rebalanceo:** cargar filas depósito→depósito en `TarifaFleteProducto` y `Distancia` de `datos/entrada_ejemplo.xlsx` (hoy no existe ninguna; `tarifaFlete()` no es simétrica, hace falta la fila en el sentido exacto que se quiere habilitar).
-- [ ] Caso de regresión obligatorio, pendiente de correr: `V-COST-12` y `V-COST-13` (`docs/06_Validacion/Plan_de_Validacion.md`).
-- [ ] Pendiente de compilar en el IDE de AnyLogic — sólo se validó que el `.alp` sigue siendo XML bien formado, que el espejo se regenera sin errores y que las firmas reusadas coinciden con el código existente.
+- [x] **Filas depósito→depósito cargadas** (`BOREAS→RUTA9`, `NORRY→RUTA9` en `TarifaFleteProducto`/`Distancia`) y **confirmado con una corrida real:** 8.060 tn movidas en 386 viajes, stock de cierre en Boreas+Norry cayó de 2.446,7 a 21,8 tn (−99 %), costo total de campaña bajó ~USD 155.000 pese al costo del rebalanceo (USD 688.576) — detalle completo en la nota de implementación de ADR-066.
+- [x] Caso de regresión (`V-COST-13`, rebalanceo) confirmado por la corrida real de arriba.
+- [ ] **Pendiente:** correr `V-COST-12` (afinidad pedido-depósito, D1) con un pedido que traiga `deposito_comprometido` cargado — todavía no se probó esa mitad del Mod.
+- [ ] Pendiente de compilar en el IDE de AnyLogic con verificación explícita de build limpio — las corridas hechas hasta ahora ya prueban que el modelo compila y corre, pero no hubo un chequeo formal documentado.
 - [ ] Fuera de alcance de este Mod: integrar el rebalanceo con la agenda de flota multidiaria (ADR-061) — usa capacidad diaria agregada como simplificación declarada.
 
 ## 12. Fase 9 — Terminal

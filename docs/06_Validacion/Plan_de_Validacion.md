@@ -380,6 +380,8 @@ El aumento es explicable en su totalidad: los cargos nuevos son IN + OUT + THC +
 
 **Medido:** `validarInventario()` y `validarBalanceProducido()` (C-01/C-02) sin abortos en una corrida con datos depósito-depósito cargados. `reconciliarCostos()` sin abortos: el total de `FLETE_PRODUCTO` en el registro debe coincidir con `costoFletePlantaDeposito + costoFleteGranelTerminal + costoFleteEntreDepositos`, y el de `OUT_DEPOSITO` con `costoOutDeposito` (que ahora incluye tanto los egresos por despacho a pedido como los egresos por rebalanceo). Un escenario con `BOREAS` (sin cross dock) y stock viejo debería mostrar, al cierre, menos stock remanente en Boreas que una corrida sin las filas de tarifa depósito-depósito cargadas — con las mismas toneladas exportadas o más, nunca menos.
 
+**Confirmado (corrida real, `E-00-R0`, con `BOREAS`/`NORRY` en `posiciones_cross_dock = 0` y filas `BOREAS→RUTA9`/`NORRY→RUTA9` cargadas):** 408 filas con `id_operacion` que empieza en `REB-` en `costos_eventos.csv` (136 de `FLETE_PRODUCTO`, 136 de `OUT_DEPOSITO`, 136 de `IN_DEPOSITO` — un trío por movimiento, 136 movimientos), entre los días 30 y 346. 8.060,1 tn rebalanceadas en 386 viajes (5.283,3 tn Boreas→Ruta9, 2.776,8 tn Norry→Ruta9), costo USD 688.576. Stock de cierre en Boreas+Norry: de 2.446,7 tn (corrida sin rebalanceo) a 21,8 tn (−99 %). Costo total de campaña (`tipo_contable = CAJA` sumado del registro): USD 6.242.209, **menor** que los ~USD 6.397.129 de la corrida sin rebalanceo — el costo del rebalanceo se compensó de sobra con lo que se dejó de perder por no exportar ese stock.
+
 ## 4.3 Decisión de circuito (C5/C6, ADR-054)
 
 Los casos que siguen se verificaron sobre el barrido `fase-23`: 36 escenarios × 30 réplicas = 1 080 corridas, todas `Finished`.
