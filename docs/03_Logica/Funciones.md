@@ -495,3 +495,23 @@ Los tres pasos diarios corren en este orden, antes de producir: `completarViajes
 `acotarAlternativaPorFlota()` acota las toneladas de la alternativa por lo que la agenda puede prometer y escribe el diagnostico. `reconciliarFlotaProducto()` es C-04 y corre todos los dias.
 
 `usaFlotaMultidiaria()` es el interruptor: en `false` todo lo anterior queda inactivo y el modelo vuelve a la capacidad diaria agregada de ADR-044.
+
+## 11. THC por naviera y cobertura de tarifas del maestro nuevo (ADR-068, seguimiento)
+
+**Estado:** implementadas.
+
+### 11.1 `DatosEntrada.TarifaThc` / `tarifaThc()` / `thcUsdContenedor(dia, naviera, tipoContenedor)`
+
+Tabla nueva, paralela a `TarifaSitio` pero con clave `(naviera, tipoContenedor)` en vez de `(idUbicacion, producto)`: el THC de `Gastos_THC` lo factura la naviera, confirmado por el usuario, y forzarlo en `TarifaSitio` hubiera significado una fila por naviera aunque el resto de esa tabla no varíe por naviera. `tarifaThc(dia, naviera, tipoContenedor)` resuelve la fila vigente con el mismo criterio que `tarifaSitio()` (dos vigentes es error de datos, ninguna vigente también). El overload `thcUsdContenedor(dia, idTerminal, producto)` de siempre no cambia — sigue siendo lo que se usa cuando el libro no trae `Gastos_THC`.
+
+### 11.2 `DatosEntrada.tipoContenedorDe(producto)`
+
+Resuelve el tipo de contenedor de un producto entero (no de un material puntual), para las validaciones de cobertura que todavía razonan a nivel producto: recorre `materialesDe(producto)` y devuelve el tipo de contenedor común, o falla explícitamente si dos materiales del mismo producto declaran tipos distintos. Reemplaza tres llamadas a `producto(producto).tipoContenedor` que no compilaban desde ADR-067 (ese método sólo existe de a dos argumentos, `producto` + `material`) — bug preexistente encontrado y corregido durante este seguimiento, no introducido por él.
+
+### 11.3 `Main.thcUsdContenedorPedido(dia, pedido, terminal)`
+
+Punto único de entrada para cobrar THC en los tres lugares que lo hacen (`registrarCargosTerminal()`, la auditoría de `costoEsperadoCircuito()` y `costearAlternativa()`). Si `datos.tarifasThc` no está vacía (el libro trajo `Gastos_THC`), resuelve por naviera y tipo de contenedor — calculado *fresco* vía `obtenerTipoContenedor(pedido.producto, pedido.material)`, no leído de `pedido.tipoContenedor`: ese campo lo deja resuelto el `StartupCode` con los valores default del agente antes de `crearPedido()`, y sólo queda correcto mucho más tarde, en `crearContenedoresParaAsignacion()` — no confiable en ninguno de los tres puntos donde se cobra THC, que corren antes de que se elija circuito. Si la tabla está vacía, cae al `thcUsdContenedor(dia, idTerminal, producto)` de siempre.
+
+### 11.4 `ImportadorExcel.leerGastosThc()` / lectura de `TarifaConsolidado` y `TarifaCross_docking`
+
+`leerGastosThc()` lee `Gastos_THC` hacia `datos.tarifasThc`, descartando con `advertencias` (no con error que aborte el import) las filas cuyo `Proveedor` no es una naviera real del enum `Naviera` (`FORWARDER`, `SILVERFREIGHT`). `leerTarifaSitioMaestroNuevo()` ganó dos conceptos más en su acumulador (`consolidacion`, `crossdock`) leídos de `TarifaConsolidado`/`TarifaCross_docking` (o `Consolidado`/`Cross_docking`, sin el prefijo) con la misma técnica que `Gastos_terminal`/`Despachante`: `Lugar Consolidado` resuelve el sitio, `Tipo de Contenedor` resuelve el producto vía `productoDeContenedor()`.

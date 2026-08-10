@@ -1223,6 +1223,23 @@ class Main extends Agent {
         return datos.producto(producto, material).capacidadContenedorTn;
     }
 
+    double thcUsdContenedorPedido(int dia, Pedido pedido, String terminal) {
+        // THC por naviera (ADR-068 seguimiento): confirmado por el usuario que el
+        // costo de THC lo factura la naviera (la maritima), no el sitio. Si el libro
+        // trajo Gastos_THC (datos.tarifasThc no vacia) se resuelve por naviera y tipo
+        // de contenedor, calculado fresco via obtenerTipoContenedor() y no leido de
+        // pedido.tipoContenedor: ese campo lo resuelve el StartupCode con los valores
+        // default del agente antes de crearPedido(), y recien queda correcto mucho
+        // mas tarde en crearContenedoresParaAsignacion() (no confiable en este punto,
+        // que corre antes de elegir circuito). Sin Gastos_THC (contrato original) cae
+        // al thc_usd_contenedor de siempre, por terminal y producto (TarifaSitio).
+        if (!datos.tarifasThc.isEmpty()) {
+            TipoContenedor tipoContenedor = obtenerTipoContenedor(pedido.producto, pedido.material);
+            return datos.thcUsdContenedor(dia, pedido.naviera, tipoContenedor);
+        }
+        return datos.thcUsdContenedor(dia, terminal, pedido.producto);
+    }
+
     void cargarDatosEntrada() {
         // El origen de los datos no cambia la logica: ambas ramas llenan las mismas
         // tablas y todo el modelo lee 'datos'.
@@ -4868,7 +4885,7 @@ class Main extends Agent {
             envio.idSitioOrigen, terminal, terminal,
             envio.circuito, tarifa.proveedor,
             DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
-            datos.thcUsdContenedor(dia, terminal, envio.producto),
+            thcUsdContenedorPedido(dia, envio.pedido, terminal),
             "ENV-" + envio.idEnvio, "thc del contenedor"
         );
 
@@ -5039,7 +5056,7 @@ class Main extends Agent {
         // devengaron: en el circuito de terminal el contenedor se arma despues de llegar.
         int diaTerminal = (int) envio.diaCargosTerminal;
 
-        esperado += datos.thcUsdContenedor(diaTerminal, terminal, envio.producto) * contenedores;
+        esperado += thcUsdContenedorPedido(diaTerminal, pedido, terminal) * contenedores;
 
         esperado +=
             datos.costoTerminalUsdContenedor(diaTerminal, terminal, envio.producto) * contenedores;
@@ -5440,7 +5457,7 @@ class Main extends Agent {
             : datos.outUsdTn(dia, alternativa.idOrigen, pedido.producto) * toneladas;
 
         alternativa.costoTHC =
-            datos.thcUsdContenedor(dia, terminal, pedido.producto) * contenedores;
+            thcUsdContenedorPedido(dia, pedido, terminal) * contenedores;
 
         alternativa.costoTerminal =
             datos.costoTerminalUsdContenedor(dia, terminal, pedido.producto) * contenedores;

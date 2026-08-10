@@ -180,6 +180,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		} else {
 			leerTarifaSitioMaestroNuevo(datos, idEscenario, tipoCambio);
 		}
+		leerGastosThc(datos, idEscenario, tipoCambio);
 
 		if (hojas().contains("TarifaFleteProducto")) {
 			for (Fila f : filas("TarifaFleteProducto", "id_escenario", idEscenario)) {
@@ -574,6 +575,21 @@ public class ImportadorExcel implements java.io.Serializable {
 		return null;
 	}
 
+	/** Como Fila.naviera(), pero null en vez de error para proveedores que no son
+	 * navieras reales (p.ej. FORWARDER/SILVERFREIGHT en Gastos_THC): esas filas se
+	 * descartan con una advertencia en vez de abortar el import entero (ADR-068). */
+	private Naviera navieraOpcional(String texto) {
+		String v = texto == null ? "" : texto.trim().toUpperCase().replace(" ", "_").replace("-", "_");
+		if (v.length() == 0) {
+			return null;
+		}
+		try {
+			return Naviera.valueOf(v);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+
 	/** "VIAJE"/"TN" (TarifaFleteCamionproducto) ademas de los nombres USD_* de
 	 * siempre. */
 	private DatosEntrada.Unidad unidadDeViaje(String texto) {
@@ -599,20 +615,21 @@ public class ImportadorExcel implements java.io.Serializable {
 	 * una por mes, para que datos.tarifaSitio() siga resolviendo exactamente igual
 	 * que con el contrato original.
 	 *
-	 * Consolidado, Cross_docking y Gastos_THC no se leen todavia: varian por
-	 * terminal o por naviera, una dimension que TarifaSitio no tiene hoy, y no hay
-	 * confirmacion de como incorporarla. consolidacion_tarifa, cross_dock_tarifa y
-	 * thc_usd_contenedor quedan en 0 con una advertencia explicita en vez de una
-	 * tarifa adivinada que puede estar mal por ordenes de magnitud.
+	 * Consolidado y Cross_docking se confirmaron con el usuario sin dependencia de
+	 * terminal (igual que el contrato original: por idUbicacion + producto), asi
+	 * que entran en este mismo acumulador. Gastos_THC se confirmo que si depende de
+	 * la naviera (la maritima, no el sitio) y por eso no encaja en TarifaSitio: se
+	 * lee aparte en leerGastosThc() hacia datos.tarifasThc, una tabla nueva con su
+	 * propia clave.
 	 */
 	private void leerTarifaSitioMaestroNuevo(DatosEntrada datos, String idEscenario, double[] tipoCambio) {
 		// acumulado[idUbicacion|producto][concepto][mes]; concepto: 0=in, 1=storage,
-		// 2=out, 3=costoTerminal, 4=despachante.
+		// 2=out, 3=costoTerminal, 4=despachante, 5=consolidacion, 6=crossdock.
 		java.util.Map<String, double[][]> acumulado = new java.util.LinkedHashMap<String, double[][]>();
 
 		for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
 			for (TipoProducto p : TipoProducto.values()) {
-				acumulado.put(u.idUbicacion + "|" + p, new double[5][12]);
+				acumulado.put(u.idUbicacion + "|" + p, new double[7][12]);
 			}
 		}
 
@@ -688,11 +705,64 @@ public class ImportadorExcel implements java.io.Serializable {
 			}
 		}
 
-		String pendiente = "Consolidado, Cross_docking y Gastos_THC no se leyeron (ADR-068):"
-				+ " consolidacion_tarifa, cross_dock_tarifa y thc_usd_contenedor quedan en 0 hasta"
-				+ " confirmar como incorporar la dimension de terminal/naviera que traen esas hojas.";
-		if (!advertencias.contains(pendiente)) {
-			advertencias.add(pendiente);
+		// Consolidado y Cross_docking (ADR-068 seguimiento): confirmado por el
+		// usuario que no dependen de la terminal, solo de idUbicacion + producto,
+		// igual que el resto de esta hoja. El nombre de hoja tolera el prefijo
+		// "Tarifa" (formato del maestro 2026) o su ausencia (nombre original).
+		String hojaConsolidado = hojas().contains("TarifaConsolidado") ? "TarifaConsolidado"
+				: hojas().contains("Consolidado") ? "Consolidado" : null;
+		if (hojaConsolidado != null) {
+			for (Fila f : filas(hojaConsolidado, "id_escenario", idEscenario)) {
+				String idUbicacion = resolverUbicacionOpcional(datos, f.texto("Lugar Consolidado"));
+				TipoContenedor tipo = contenedorOpcional(f.texto("Tipo de Contenedor"));
+				if (idUbicacion == null || tipo == null) {
+					advertencias.add(hojaConsolidado + ": fila descartada, no matchea"
+							+ " ubicacion/contenedor (" + f.texto("Lugar Consolidado") + " / "
+							+ f.texto("Tipo de Contenedor") + ").");
+					continue;
+				}
+				TipoProducto producto = productoDeContenedor(datos, tipo);
+				if (producto == null) {
+					continue;
+				}
+				double[][] fila = acumulado.get(idUbicacion + "|" + producto);
+				if (fila == null) {
+					continue;
+				}
+				double[] valores = leerBuckets(f);
+				String moneda = f.textoOpcional("Moneda", "USD");
+				for (int m = 0; m < 12; m++) {
+					fila[5][m] = aUsd(valores[m], moneda, m, tipoCambio);
+				}
+			}
+		}
+
+		String hojaCrossDock = hojas().contains("TarifaCross_docking") ? "TarifaCross_docking"
+				: hojas().contains("Cross_docking") ? "Cross_docking" : null;
+		if (hojaCrossDock != null) {
+			for (Fila f : filas(hojaCrossDock, "id_escenario", idEscenario)) {
+				String idUbicacion = resolverUbicacionOpcional(datos, f.texto("Lugar Consolidado"));
+				TipoContenedor tipo = contenedorOpcional(f.texto("Tipo de Contenedor"));
+				if (idUbicacion == null || tipo == null) {
+					advertencias.add(hojaCrossDock + ": fila descartada, no matchea"
+							+ " ubicacion/contenedor (" + f.texto("Lugar Consolidado") + " / "
+							+ f.texto("Tipo de Contenedor") + ").");
+					continue;
+				}
+				TipoProducto producto = productoDeContenedor(datos, tipo);
+				if (producto == null) {
+					continue;
+				}
+				double[][] fila = acumulado.get(idUbicacion + "|" + producto);
+				if (fila == null) {
+					continue;
+				}
+				double[] valores = leerBuckets(f);
+				String moneda = f.textoOpcional("Moneda", "USD");
+				for (int m = 0; m < 12; m++) {
+					fila[6][m] = aUsd(valores[m], moneda, m, tipoCambio);
+				}
+			}
 		}
 
 		for (java.util.Map.Entry<String, double[][]> entrada : acumulado.entrySet()) {
@@ -705,10 +775,43 @@ public class ImportadorExcel implements java.io.Serializable {
 						idUbicacion, producto,
 						valores[0][m], valores[1][m], valores[2][m],
 						0, 0,
-						0, DatosEntrada.Unidad.USD_CONTENEDOR,
-						0, DatosEntrada.Unidad.USD_CONTENEDOR,
+						valores[5][m], DatosEntrada.Unidad.USD_CONTENEDOR,
+						valores[6][m], DatosEntrada.Unidad.USD_CONTENEDOR,
 						0, valores[3][m],
 						valores[4][m], DatosEntrada.Unidad.USD_CONTENEDOR,
+						"MAESTRO_2026", DIA_DESDE_MES[m], DIA_HASTA_MES[m], true));
+			}
+		}
+	}
+
+	/**
+	 * THC por naviera (ADR-068 seguimiento): confirmado por el usuario que el
+	 * costo de THC de Gastos_THC lo factura la naviera (la maritima), no el sitio,
+	 * asi que no encaja en el acumulador de TarifaSitio de arriba. Se lee aparte,
+	 * hacia datos.tarifasThc, con su propia clave (naviera + tipo de contenedor).
+	 * Proveedores de Gastos_THC que no son una naviera real del enum (p.ej.
+	 * FORWARDER, SILVERFREIGHT: forwarders/alternativas, no lineas maritimas) se
+	 * descartan con una advertencia en vez de abortar el import: en los datos
+	 * reales todos los pedidos declaran naviera MAERSK, que si esta en el enum.
+	 */
+	private void leerGastosThc(DatosEntrada datos, String idEscenario, double[] tipoCambio) {
+		if (!hojas().contains("Gastos_THC")) {
+			return;
+		}
+		for (Fila f : filas("Gastos_THC", "id_escenario", idEscenario)) {
+			Naviera naviera = navieraOpcional(f.texto("Proveedor"));
+			TipoContenedor tipo = contenedorOpcional(f.texto("Tipo Contenor"));
+			if (naviera == null || tipo == null) {
+				advertencias.add("Gastos_THC: fila descartada, proveedor no es una naviera"
+						+ " conocida o tipo de contenedor invalido (" + f.texto("Proveedor") + " / "
+						+ f.texto("Tipo Contenor") + ").");
+				continue;
+			}
+			double[] valores = leerBuckets(f);
+			String moneda = f.textoOpcional("Moneda", "USD");
+			for (int m = 0; m < 12; m++) {
+				datos.tarifasThc.add(new DatosEntrada.TarifaThc(naviera, tipo,
+						aUsd(valores[m], moneda, m, tipoCambio),
 						"MAESTRO_2026", DIA_DESDE_MES[m], DIA_HASTA_MES[m], true));
 			}
 		}

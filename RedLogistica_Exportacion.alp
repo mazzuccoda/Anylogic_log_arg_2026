@@ -4929,6 +4929,42 @@ return total;]]></Body>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[return datos.producto(producto, material).capacidadContenedorTn;]]></Body>
+				</Function><Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1793300000001</Id>
+					<Name><![CDATA[thcUsdContenedorPedido]]></Name>
+					<X>40</X><Y>-1520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[dia]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[pedido]]></Name>
+						<Type><![CDATA[Pedido]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[terminal]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[// THC por naviera (ADR-068 seguimiento): confirmado por el usuario que el
+// costo de THC lo factura la naviera (la maritima), no el sitio. Si el libro
+// trajo Gastos_THC (datos.tarifasThc no vacia) se resuelve por naviera y tipo
+// de contenedor, calculado fresco via obtenerTipoContenedor() y no leido de
+// pedido.tipoContenedor: ese campo lo resuelve el StartupCode con los valores
+// default del agente antes de crearPedido(), y recien queda correcto mucho
+// mas tarde en crearContenedoresParaAsignacion() (no confiable en este punto,
+// que corre antes de elegir circuito). Sin Gastos_THC (contrato original) cae
+// al thc_usd_contenedor de siempre, por terminal y producto (TarifaSitio).
+if (!datos.tarifasThc.isEmpty()) {
+    TipoContenedor tipoContenedor = obtenerTipoContenedor(pedido.producto, pedido.material);
+    return datos.thcUsdContenedor(dia, pedido.naviera, tipoContenedor);
+}
+return datos.thcUsdContenedor(dia, terminal, pedido.producto);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -9864,7 +9900,7 @@ double thc = registro.registrar(
     envio.idSitioOrigen, terminal, terminal,
     envio.circuito, tarifa.proveedor,
     DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
-    datos.thcUsdContenedor(dia, terminal, envio.producto),
+    thcUsdContenedorPedido(dia, envio.pedido, terminal),
     "ENV-" + envio.idEnvio, "thc del contenedor"
 );
 
@@ -10087,7 +10123,7 @@ esperado += envio.esCrossDock
 // devengaron: en el circuito de terminal el contenedor se arma despues de llegar.
 int diaTerminal = (int) envio.diaCargosTerminal;
 
-esperado += datos.thcUsdContenedor(diaTerminal, terminal, envio.producto) * contenedores;
+esperado += thcUsdContenedorPedido(diaTerminal, pedido, terminal) * contenedores;
 
 esperado +=
     datos.costoTerminalUsdContenedor(diaTerminal, terminal, envio.producto) * contenedores;
@@ -10584,7 +10620,7 @@ alternativa.costoOut =
     : datos.outUsdTn(dia, alternativa.idOrigen, pedido.producto) * toneladas;
 
 alternativa.costoTHC =
-    datos.thcUsdContenedor(dia, terminal, pedido.producto) * contenedores;
+    thcUsdContenedorPedido(dia, pedido, terminal) * contenedores;
 
 alternativa.costoTerminal =
     datos.costoTerminalUsdContenedor(dia, terminal, pedido.producto) * contenedores;
@@ -30420,6 +30456,28 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * THC por naviera (ADR-068 seguimiento): el costo de manipuleo portuario que
+	 * factura Gastos_THC no depende del sitio como TarifaSitio, sino del proveedor
+	 * maritimo (la naviera) y del tipo de contenedor. Confirmado por el usuario:
+	 * "gastos THC si depende de la naviera, porque es el costo de THC de la
+	 * maritima".
+	 */
+	public static class TarifaThc extends Tarifa {
+		private static final long serialVersionUID = 1L;
+		public Naviera naviera;
+		public TipoContenedor tipoContenedor;
+		public double usdContenedor;
+
+		public TarifaThc(Naviera naviera, TipoContenedor tipoContenedor, double usdContenedor,
+				String proveedor, int vigenciaDesde, int vigenciaHasta, boolean habilitada) {
+			super(proveedor, vigenciaDesde, vigenciaHasta, habilitada);
+			this.naviera = naviera;
+			this.tipoContenedor = tipoContenedor;
+			this.usdContenedor = usdContenedor;
+		}
+	}
+
 	public static class ProduccionPlan implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public int dia;
@@ -30550,6 +30608,7 @@ public class DatosEntrada implements java.io.Serializable {
 	public java.util.List<TarifaFlete> tarifasFlete = new java.util.ArrayList<TarifaFlete>();
 	public java.util.List<TarifaRoundTrip> tarifasRoundTrip = new java.util.ArrayList<TarifaRoundTrip>();
 	public java.util.List<TarifaEspera> tarifasEspera = new java.util.ArrayList<TarifaEspera>();
+	public java.util.List<TarifaThc> tarifasThc = new java.util.ArrayList<TarifaThc>();
 	public java.util.List<ProduccionPlan> produccionPlan = new java.util.ArrayList<ProduccionPlan>();
 	public java.util.List<PedidoPlan> pedidoPlan = new java.util.ArrayList<PedidoPlan>();
 	public java.util.List<StockInicial> stockInicial = new java.util.ArrayList<StockInicial>();
@@ -30616,6 +30675,31 @@ public class DatosEntrada implements java.io.Serializable {
 			}
 		}
 		return resultado;
+	}
+
+	/**
+	 * Tipo de contenedor "representativo" de un producto entero, para las
+	 * validaciones de cobertura que todavia razonan a nivel producto (no
+	 * material): TarifaRoundTrip y TarifaThc se resuelven por tipo de
+	 * contenedor, y en los datos reales todos los materiales de un mismo
+	 * producto comparten el mismo tipo de contenedor (ADR-067; solo cambia la
+	 * capacidad, no el tipo). Si algun producto dejara de cumplirlo, esto lo
+	 * dice explicitamente en vez de resolver un material al azar.
+	 */
+	public TipoContenedor tipoContenedorDe(TipoProducto producto) {
+		java.util.List<String> materiales = materialesDe(producto);
+		if (materiales.isEmpty()) {
+			throw new RuntimeException("Falta la fila de " + producto + " en la tabla Producto.");
+		}
+		TipoContenedor tipo = producto(producto, materiales.get(0)).tipoContenedor;
+		for (String material : materiales) {
+			if (producto(producto, material).tipoContenedor != tipo) {
+				throw new RuntimeException("El producto " + producto + " tiene mas de un tipo de"
+						+ " contenedor segun el material (" + materiales + "); las validaciones de"
+						+ " cobertura por producto necesitan uno solo.");
+			}
+		}
+		return tipo;
 	}
 
 	/**
@@ -30731,6 +30815,35 @@ public class DatosEntrada implements java.io.Serializable {
 
 	public double thcUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
 		return tarifaSitio(dia, idTerminal, producto).thcUsdContenedor * escenario.factorTarifaTerminal;
+	}
+
+	/**
+	 * THC por naviera (ADR-068 seguimiento). Tabla vacia (libro sin Gastos_THC, o
+	 * el contrato original con thc_usd_contenedor directo en TarifaSitio) es un
+	 * error de uso del llamador: quien invoque esto primero debe confirmar que
+	 * datos.tarifasThc no esta vacia, y si no usar el thcUsdContenedor por sitio.
+	 */
+	public TarifaThc tarifaThc(int dia, Naviera naviera, TipoContenedor tipoContenedor) {
+		TarifaThc encontrada = null;
+		for (TarifaThc t : tarifasThc) {
+			if (t.naviera == naviera && t.tipoContenedor == tipoContenedor && t.vigente(dia)) {
+				if (encontrada != null) {
+					throw new RuntimeException("Dos tarifas de THC vigentes el dia " + dia + " para "
+							+ naviera + " en " + tipoContenedor + " (" + encontrada.vigenciaTexto() + " y "
+							+ t.vigenciaTexto() + ", tabla TarifaThc).");
+				}
+				encontrada = t;
+			}
+		}
+		if (encontrada == null) {
+			throw new RuntimeException("Falta la tarifa de THC de " + naviera + " en " + tipoContenedor
+					+ " vigente el dia " + dia + " (tabla TarifaThc).");
+		}
+		return encontrada;
+	}
+
+	public double thcUsdContenedor(int dia, Naviera naviera, TipoContenedor tipoContenedor) {
+		return tarifaThc(dia, naviera, tipoContenedor).usdContenedor * escenario.factorTarifaTerminal;
 	}
 
 	public double costoTerminalUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
@@ -31235,6 +31348,14 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.addAll(vigenciaInvalida("TarifaEspera", donde, t));
 		}
 
+		for (TarifaThc t : tarifasThc) {
+			String donde = t.naviera + " en " + t.tipoContenedor + " (" + t.vigenciaTexto() + ")";
+			if (t.usdContenedor < 0) {
+				errores.add("usd_contenedor de THC no puede ser negativo en " + donde + ".");
+			}
+			errores.addAll(vigenciaInvalida("TarifaThc", donde, t));
+		}
+
 		// Stock inicial: identidad, ubicacion y fechas. La capacidad efectiva se valida
 		// en Main.validarStockInicial(), que es donde los factores del escenario ya
 		// estan aplicados a los agentes (ADR-057).
@@ -31440,11 +31561,25 @@ public class DatosEntrada implements java.io.Serializable {
 		java.util.List<Ubicacion> depositos = ubicacionesDeTipo("DEPOSITO");
 		java.util.List<Ubicacion> terminales = ubicacionesDeTipo("TERMINAL");
 
+		// THC por naviera (ADR-068 seguimiento) solo aplica si el libro trae
+		// Gastos_THC; el contrato original sigue resolviendo por sitio via
+		// TarifaSitio.thcUsdContenedor, ya cubierto por unaSola() de arriba.
+		java.util.Set<Naviera> navierasUsadas = new java.util.LinkedHashSet<Naviera>();
+		if (!tarifasThc.isEmpty()) {
+			for (PedidoPlan p : pedidoPlan) {
+				navierasUsadas.add(p.naviera);
+			}
+		}
+
 		for (int dia = 0; dia <= dias; dia++) {
 			for (TipoProducto producto : TipoProducto.values()) {
 
 				// La planta es origen posible de despacho y sitio de estiba (ADR-050).
 				errores.addAll(unaSola(dia, "PLANTA", producto));
+
+				for (Naviera naviera : navierasUsadas) {
+					errores.addAll(unaSolaThc(dia, naviera, tipoContenedorDe(producto)));
+				}
 
 				for (Ubicacion deposito : depositos) {
 					errores.addAll(unaSola(dia, deposito.idUbicacion, producto));
@@ -31482,7 +31617,7 @@ public class DatosEntrada implements java.io.Serializable {
 			if (errores.isEmpty()) {
 				for (Ubicacion terminal : terminales) {
 					for (TipoProducto producto : TipoProducto.values()) {
-						TipoContenedor tipo = producto(producto).tipoContenedor;
+						TipoContenedor tipo = tipoContenedorDe(producto);
 						errores.addAll(esperaCoherente(dia, terminal.idUbicacion, "PLANTA", tipo));
 						for (Ubicacion deposito : depositos) {
 							errores.addAll(esperaCoherente(dia, terminal.idUbicacion,
@@ -31512,6 +31647,16 @@ public class DatosEntrada implements java.io.Serializable {
 		return errores;
 	}
 
+	private java.util.List<String> unaSolaThc(int dia, Naviera naviera, TipoContenedor tipoContenedor) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		try {
+			tarifaThc(dia, naviera, tipoContenedor);
+		} catch (RuntimeException e) {
+			errores.add(e.getMessage());
+		}
+		return errores;
+	}
+
 	private java.util.List<String> unaSolaFlete(int dia, String origen, String destino,
 			TipoProducto producto) {
 		java.util.List<String> errores = new java.util.ArrayList<String>();
@@ -31527,7 +31672,7 @@ public class DatosEntrada implements java.io.Serializable {
 			TipoProducto producto) {
 		java.util.List<String> errores = new java.util.ArrayList<String>();
 		try {
-			tarifaRoundTrip(dia, idTerminal, sitio, producto(producto).tipoContenedor);
+			tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedorDe(producto));
 		} catch (RuntimeException e) {
 			errores.add(e.getMessage());
 		}
@@ -32411,6 +32556,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		} else {
 			leerTarifaSitioMaestroNuevo(datos, idEscenario, tipoCambio);
 		}
+		leerGastosThc(datos, idEscenario, tipoCambio);
 
 		if (hojas().contains("TarifaFleteProducto")) {
 			for (Fila f : filas("TarifaFleteProducto", "id_escenario", idEscenario)) {
@@ -32805,6 +32951,21 @@ public class ImportadorExcel implements java.io.Serializable {
 		return null;
 	}
 
+	/** Como Fila.naviera(), pero null en vez de error para proveedores que no son
+	 * navieras reales (p.ej. FORWARDER/SILVERFREIGHT en Gastos_THC): esas filas se
+	 * descartan con una advertencia en vez de abortar el import entero (ADR-068). */
+	private Naviera navieraOpcional(String texto) {
+		String v = texto == null ? "" : texto.trim().toUpperCase().replace(" ", "_").replace("-", "_");
+		if (v.length() == 0) {
+			return null;
+		}
+		try {
+			return Naviera.valueOf(v);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+
 	/** "VIAJE"/"TN" (TarifaFleteCamionproducto) ademas de los nombres USD_* de
 	 * siempre. */
 	private DatosEntrada.Unidad unidadDeViaje(String texto) {
@@ -32830,20 +32991,21 @@ public class ImportadorExcel implements java.io.Serializable {
 	 * una por mes, para que datos.tarifaSitio() siga resolviendo exactamente igual
 	 * que con el contrato original.
 	 *
-	 * Consolidado, Cross_docking y Gastos_THC no se leen todavia: varian por
-	 * terminal o por naviera, una dimension que TarifaSitio no tiene hoy, y no hay
-	 * confirmacion de como incorporarla. consolidacion_tarifa, cross_dock_tarifa y
-	 * thc_usd_contenedor quedan en 0 con una advertencia explicita en vez de una
-	 * tarifa adivinada que puede estar mal por ordenes de magnitud.
+	 * Consolidado y Cross_docking se confirmaron con el usuario sin dependencia de
+	 * terminal (igual que el contrato original: por idUbicacion + producto), asi
+	 * que entran en este mismo acumulador. Gastos_THC se confirmo que si depende de
+	 * la naviera (la maritima, no el sitio) y por eso no encaja en TarifaSitio: se
+	 * lee aparte en leerGastosThc() hacia datos.tarifasThc, una tabla nueva con su
+	 * propia clave.
 	 */
 	private void leerTarifaSitioMaestroNuevo(DatosEntrada datos, String idEscenario, double[] tipoCambio) {
 		// acumulado[idUbicacion|producto][concepto][mes]; concepto: 0=in, 1=storage,
-		// 2=out, 3=costoTerminal, 4=despachante.
+		// 2=out, 3=costoTerminal, 4=despachante, 5=consolidacion, 6=crossdock.
 		java.util.Map<String, double[][]> acumulado = new java.util.LinkedHashMap<String, double[][]>();
 
 		for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
 			for (TipoProducto p : TipoProducto.values()) {
-				acumulado.put(u.idUbicacion + "|" + p, new double[5][12]);
+				acumulado.put(u.idUbicacion + "|" + p, new double[7][12]);
 			}
 		}
 
@@ -32919,11 +33081,64 @@ public class ImportadorExcel implements java.io.Serializable {
 			}
 		}
 
-		String pendiente = "Consolidado, Cross_docking y Gastos_THC no se leyeron (ADR-068):"
-				+ " consolidacion_tarifa, cross_dock_tarifa y thc_usd_contenedor quedan en 0 hasta"
-				+ " confirmar como incorporar la dimension de terminal/naviera que traen esas hojas.";
-		if (!advertencias.contains(pendiente)) {
-			advertencias.add(pendiente);
+		// Consolidado y Cross_docking (ADR-068 seguimiento): confirmado por el
+		// usuario que no dependen de la terminal, solo de idUbicacion + producto,
+		// igual que el resto de esta hoja. El nombre de hoja tolera el prefijo
+		// "Tarifa" (formato del maestro 2026) o su ausencia (nombre original).
+		String hojaConsolidado = hojas().contains("TarifaConsolidado") ? "TarifaConsolidado"
+				: hojas().contains("Consolidado") ? "Consolidado" : null;
+		if (hojaConsolidado != null) {
+			for (Fila f : filas(hojaConsolidado, "id_escenario", idEscenario)) {
+				String idUbicacion = resolverUbicacionOpcional(datos, f.texto("Lugar Consolidado"));
+				TipoContenedor tipo = contenedorOpcional(f.texto("Tipo de Contenedor"));
+				if (idUbicacion == null || tipo == null) {
+					advertencias.add(hojaConsolidado + ": fila descartada, no matchea"
+							+ " ubicacion/contenedor (" + f.texto("Lugar Consolidado") + " / "
+							+ f.texto("Tipo de Contenedor") + ").");
+					continue;
+				}
+				TipoProducto producto = productoDeContenedor(datos, tipo);
+				if (producto == null) {
+					continue;
+				}
+				double[][] fila = acumulado.get(idUbicacion + "|" + producto);
+				if (fila == null) {
+					continue;
+				}
+				double[] valores = leerBuckets(f);
+				String moneda = f.textoOpcional("Moneda", "USD");
+				for (int m = 0; m < 12; m++) {
+					fila[5][m] = aUsd(valores[m], moneda, m, tipoCambio);
+				}
+			}
+		}
+
+		String hojaCrossDock = hojas().contains("TarifaCross_docking") ? "TarifaCross_docking"
+				: hojas().contains("Cross_docking") ? "Cross_docking" : null;
+		if (hojaCrossDock != null) {
+			for (Fila f : filas(hojaCrossDock, "id_escenario", idEscenario)) {
+				String idUbicacion = resolverUbicacionOpcional(datos, f.texto("Lugar Consolidado"));
+				TipoContenedor tipo = contenedorOpcional(f.texto("Tipo de Contenedor"));
+				if (idUbicacion == null || tipo == null) {
+					advertencias.add(hojaCrossDock + ": fila descartada, no matchea"
+							+ " ubicacion/contenedor (" + f.texto("Lugar Consolidado") + " / "
+							+ f.texto("Tipo de Contenedor") + ").");
+					continue;
+				}
+				TipoProducto producto = productoDeContenedor(datos, tipo);
+				if (producto == null) {
+					continue;
+				}
+				double[][] fila = acumulado.get(idUbicacion + "|" + producto);
+				if (fila == null) {
+					continue;
+				}
+				double[] valores = leerBuckets(f);
+				String moneda = f.textoOpcional("Moneda", "USD");
+				for (int m = 0; m < 12; m++) {
+					fila[6][m] = aUsd(valores[m], moneda, m, tipoCambio);
+				}
+			}
 		}
 
 		for (java.util.Map.Entry<String, double[][]> entrada : acumulado.entrySet()) {
@@ -32936,10 +33151,43 @@ public class ImportadorExcel implements java.io.Serializable {
 						idUbicacion, producto,
 						valores[0][m], valores[1][m], valores[2][m],
 						0, 0,
-						0, DatosEntrada.Unidad.USD_CONTENEDOR,
-						0, DatosEntrada.Unidad.USD_CONTENEDOR,
+						valores[5][m], DatosEntrada.Unidad.USD_CONTENEDOR,
+						valores[6][m], DatosEntrada.Unidad.USD_CONTENEDOR,
 						0, valores[3][m],
 						valores[4][m], DatosEntrada.Unidad.USD_CONTENEDOR,
+						"MAESTRO_2026", DIA_DESDE_MES[m], DIA_HASTA_MES[m], true));
+			}
+		}
+	}
+
+	/**
+	 * THC por naviera (ADR-068 seguimiento): confirmado por el usuario que el
+	 * costo de THC de Gastos_THC lo factura la naviera (la maritima), no el sitio,
+	 * asi que no encaja en el acumulador de TarifaSitio de arriba. Se lee aparte,
+	 * hacia datos.tarifasThc, con su propia clave (naviera + tipo de contenedor).
+	 * Proveedores de Gastos_THC que no son una naviera real del enum (p.ej.
+	 * FORWARDER, SILVERFREIGHT: forwarders/alternativas, no lineas maritimas) se
+	 * descartan con una advertencia en vez de abortar el import: en los datos
+	 * reales todos los pedidos declaran naviera MAERSK, que si esta en el enum.
+	 */
+	private void leerGastosThc(DatosEntrada datos, String idEscenario, double[] tipoCambio) {
+		if (!hojas().contains("Gastos_THC")) {
+			return;
+		}
+		for (Fila f : filas("Gastos_THC", "id_escenario", idEscenario)) {
+			Naviera naviera = navieraOpcional(f.texto("Proveedor"));
+			TipoContenedor tipo = contenedorOpcional(f.texto("Tipo Contenor"));
+			if (naviera == null || tipo == null) {
+				advertencias.add("Gastos_THC: fila descartada, proveedor no es una naviera"
+						+ " conocida o tipo de contenedor invalido (" + f.texto("Proveedor") + " / "
+						+ f.texto("Tipo Contenor") + ").");
+				continue;
+			}
+			double[] valores = leerBuckets(f);
+			String moneda = f.textoOpcional("Moneda", "USD");
+			for (int m = 0; m < 12; m++) {
+				datos.tarifasThc.add(new DatosEntrada.TarifaThc(naviera, tipo,
+						aUsd(valores[m], moneda, m, tipoCambio),
 						"MAESTRO_2026", DIA_DESDE_MES[m], DIA_HASTA_MES[m], true));
 			}
 		}

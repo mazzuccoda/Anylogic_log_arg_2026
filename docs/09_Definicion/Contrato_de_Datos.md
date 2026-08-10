@@ -159,6 +159,22 @@ Una fila por sitio (planta, depósito o terminal) y producto, con todos los conc
 
 THC y costo terminal entran por contenedor y por producto, que es cómo se facturan hoy; la estructura acepta `USD_TN` para cuando cambie el contrato.
 
+**Formato alternativo dividido por hoja (ADR-068).** El maestro nuevo no trae `TarifaSitio` como una sola hoja: la parte en `Tarifa_almacenaje` (`in`/`storage`/`out`, clave `Proveedor` + `Tipo` = sitio + producto), `Gastos_terminal` (`costo_terminal_usd_contenedor`, clave `Puerto de Salida` + `Tipo Contenor`), `Despachante` (`despachante_tarifa`, clave `Lugar de consolidado` + `Tipo Contenor`), `TarifaConsolidado` y `TarifaCross_docking` (`consolidacion_tarifa`/`cross_dock_tarifa`, clave `Lugar Consolidado` + `Tipo de Contenedor` — **sin** columna de terminal: confirmado que no dependen de ella, igual que el formato original). `ImportadorExcel.leerTarifaSitioMaestroNuevo()` las acumula todas por `(id_ubicacion, producto)` — resolviendo producto desde el tipo de contenedor cuando la hoja no lo trae directo — y emite filas `TarifaSitio` internas idénticas a las del formato original. `TarifaConsolidado`/`TarifaCross_docking` toleran también los nombres sin el prefijo `Tarifa` (`Consolidado`/`Cross_docking`).
+
+`thc_usd_contenedor` es la excepción: **no** entra a este acumulador. Ver `TarifaThc` (§5.3.bis).
+
+### 5.3.bis `TarifaThc` (ADR-068, sólo en el maestro nuevo)
+
+Confirmado por el usuario: el THC lo factura la naviera, no el sitio ("es el costo de THC de la marítima"). La hoja `Gastos_THC` no encaja en la clave `(id_ubicacion, producto)` de `TarifaSitio` — tiene su propia tabla en `DatosEntrada` con clave `(naviera, tipo_contenedor)`.
+
+| Columna (hoja `Gastos_THC`) | Tipo | Nota |
+|---|---|---|
+| `Proveedor` | texto | naviera; valores fuera del enum `Naviera` (p. ej. `FORWARDER`, `SILVERFREIGHT`: forwarders/alternativas, no líneas marítimas) se descartan con `advertencias`, no abortan el import |
+| `Tipo Contenor` | texto | `'40 HC'`/`'20 dry'`/`'40 RF'` o el nombre del enum `TipoContenedor` directo |
+| `Moneda` + 12 buckets | texto, double | igual que el resto de las hojas de tarifa (§5, nota de vigencia) |
+
+Resolución en tiempo de corrida: `datos.thcUsdContenedor(dia, naviera, tipoContenedor)` (nuevo overload; el original `thcUsdContenedor(dia, idTerminal, producto)` sigue existiendo y es lo que se usa si el libro no trae `Gastos_THC`). `Main.thcUsdContenedorPedido(dia, pedido, terminal)` decide cuál overload usar según si `datos.tarifasThc` está vacía, y calcula el tipo de contenedor fresco vía `producto`+`material` del pedido en vez de leer `pedido.tipoContenedor` (ver ADR-068 para por qué ese campo no es confiable en los puntos donde se cobra THC).
+
 ### 5.4 `TarifaEspera`
 
 | Columna | Tipo |

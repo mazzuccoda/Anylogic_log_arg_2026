@@ -369,6 +369,28 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * THC por naviera (ADR-068 seguimiento): el costo de manipuleo portuario que
+	 * factura Gastos_THC no depende del sitio como TarifaSitio, sino del proveedor
+	 * maritimo (la naviera) y del tipo de contenedor. Confirmado por el usuario:
+	 * "gastos THC si depende de la naviera, porque es el costo de THC de la
+	 * maritima".
+	 */
+	public static class TarifaThc extends Tarifa {
+		private static final long serialVersionUID = 1L;
+		public Naviera naviera;
+		public TipoContenedor tipoContenedor;
+		public double usdContenedor;
+
+		public TarifaThc(Naviera naviera, TipoContenedor tipoContenedor, double usdContenedor,
+				String proveedor, int vigenciaDesde, int vigenciaHasta, boolean habilitada) {
+			super(proveedor, vigenciaDesde, vigenciaHasta, habilitada);
+			this.naviera = naviera;
+			this.tipoContenedor = tipoContenedor;
+			this.usdContenedor = usdContenedor;
+		}
+	}
+
 	public static class ProduccionPlan implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		public int dia;
@@ -499,6 +521,7 @@ public class DatosEntrada implements java.io.Serializable {
 	public java.util.List<TarifaFlete> tarifasFlete = new java.util.ArrayList<TarifaFlete>();
 	public java.util.List<TarifaRoundTrip> tarifasRoundTrip = new java.util.ArrayList<TarifaRoundTrip>();
 	public java.util.List<TarifaEspera> tarifasEspera = new java.util.ArrayList<TarifaEspera>();
+	public java.util.List<TarifaThc> tarifasThc = new java.util.ArrayList<TarifaThc>();
 	public java.util.List<ProduccionPlan> produccionPlan = new java.util.ArrayList<ProduccionPlan>();
 	public java.util.List<PedidoPlan> pedidoPlan = new java.util.ArrayList<PedidoPlan>();
 	public java.util.List<StockInicial> stockInicial = new java.util.ArrayList<StockInicial>();
@@ -565,6 +588,31 @@ public class DatosEntrada implements java.io.Serializable {
 			}
 		}
 		return resultado;
+	}
+
+	/**
+	 * Tipo de contenedor "representativo" de un producto entero, para las
+	 * validaciones de cobertura que todavia razonan a nivel producto (no
+	 * material): TarifaRoundTrip y TarifaThc se resuelven por tipo de
+	 * contenedor, y en los datos reales todos los materiales de un mismo
+	 * producto comparten el mismo tipo de contenedor (ADR-067; solo cambia la
+	 * capacidad, no el tipo). Si algun producto dejara de cumplirlo, esto lo
+	 * dice explicitamente en vez de resolver un material al azar.
+	 */
+	public TipoContenedor tipoContenedorDe(TipoProducto producto) {
+		java.util.List<String> materiales = materialesDe(producto);
+		if (materiales.isEmpty()) {
+			throw new RuntimeException("Falta la fila de " + producto + " en la tabla Producto.");
+		}
+		TipoContenedor tipo = producto(producto, materiales.get(0)).tipoContenedor;
+		for (String material : materiales) {
+			if (producto(producto, material).tipoContenedor != tipo) {
+				throw new RuntimeException("El producto " + producto + " tiene mas de un tipo de"
+						+ " contenedor segun el material (" + materiales + "); las validaciones de"
+						+ " cobertura por producto necesitan uno solo.");
+			}
+		}
+		return tipo;
 	}
 
 	/**
@@ -680,6 +728,35 @@ public class DatosEntrada implements java.io.Serializable {
 
 	public double thcUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
 		return tarifaSitio(dia, idTerminal, producto).thcUsdContenedor * escenario.factorTarifaTerminal;
+	}
+
+	/**
+	 * THC por naviera (ADR-068 seguimiento). Tabla vacia (libro sin Gastos_THC, o
+	 * el contrato original con thc_usd_contenedor directo en TarifaSitio) es un
+	 * error de uso del llamador: quien invoque esto primero debe confirmar que
+	 * datos.tarifasThc no esta vacia, y si no usar el thcUsdContenedor por sitio.
+	 */
+	public TarifaThc tarifaThc(int dia, Naviera naviera, TipoContenedor tipoContenedor) {
+		TarifaThc encontrada = null;
+		for (TarifaThc t : tarifasThc) {
+			if (t.naviera == naviera && t.tipoContenedor == tipoContenedor && t.vigente(dia)) {
+				if (encontrada != null) {
+					throw new RuntimeException("Dos tarifas de THC vigentes el dia " + dia + " para "
+							+ naviera + " en " + tipoContenedor + " (" + encontrada.vigenciaTexto() + " y "
+							+ t.vigenciaTexto() + ", tabla TarifaThc).");
+				}
+				encontrada = t;
+			}
+		}
+		if (encontrada == null) {
+			throw new RuntimeException("Falta la tarifa de THC de " + naviera + " en " + tipoContenedor
+					+ " vigente el dia " + dia + " (tabla TarifaThc).");
+		}
+		return encontrada;
+	}
+
+	public double thcUsdContenedor(int dia, Naviera naviera, TipoContenedor tipoContenedor) {
+		return tarifaThc(dia, naviera, tipoContenedor).usdContenedor * escenario.factorTarifaTerminal;
 	}
 
 	public double costoTerminalUsdContenedor(int dia, String idTerminal, TipoProducto producto) {
@@ -1184,6 +1261,14 @@ public class DatosEntrada implements java.io.Serializable {
 			errores.addAll(vigenciaInvalida("TarifaEspera", donde, t));
 		}
 
+		for (TarifaThc t : tarifasThc) {
+			String donde = t.naviera + " en " + t.tipoContenedor + " (" + t.vigenciaTexto() + ")";
+			if (t.usdContenedor < 0) {
+				errores.add("usd_contenedor de THC no puede ser negativo en " + donde + ".");
+			}
+			errores.addAll(vigenciaInvalida("TarifaThc", donde, t));
+		}
+
 		// Stock inicial: identidad, ubicacion y fechas. La capacidad efectiva se valida
 		// en Main.validarStockInicial(), que es donde los factores del escenario ya
 		// estan aplicados a los agentes (ADR-057).
@@ -1389,11 +1474,25 @@ public class DatosEntrada implements java.io.Serializable {
 		java.util.List<Ubicacion> depositos = ubicacionesDeTipo("DEPOSITO");
 		java.util.List<Ubicacion> terminales = ubicacionesDeTipo("TERMINAL");
 
+		// THC por naviera (ADR-068 seguimiento) solo aplica si el libro trae
+		// Gastos_THC; el contrato original sigue resolviendo por sitio via
+		// TarifaSitio.thcUsdContenedor, ya cubierto por unaSola() de arriba.
+		java.util.Set<Naviera> navierasUsadas = new java.util.LinkedHashSet<Naviera>();
+		if (!tarifasThc.isEmpty()) {
+			for (PedidoPlan p : pedidoPlan) {
+				navierasUsadas.add(p.naviera);
+			}
+		}
+
 		for (int dia = 0; dia <= dias; dia++) {
 			for (TipoProducto producto : TipoProducto.values()) {
 
 				// La planta es origen posible de despacho y sitio de estiba (ADR-050).
 				errores.addAll(unaSola(dia, "PLANTA", producto));
+
+				for (Naviera naviera : navierasUsadas) {
+					errores.addAll(unaSolaThc(dia, naviera, tipoContenedorDe(producto)));
+				}
 
 				for (Ubicacion deposito : depositos) {
 					errores.addAll(unaSola(dia, deposito.idUbicacion, producto));
@@ -1431,7 +1530,7 @@ public class DatosEntrada implements java.io.Serializable {
 			if (errores.isEmpty()) {
 				for (Ubicacion terminal : terminales) {
 					for (TipoProducto producto : TipoProducto.values()) {
-						TipoContenedor tipo = producto(producto).tipoContenedor;
+						TipoContenedor tipo = tipoContenedorDe(producto);
 						errores.addAll(esperaCoherente(dia, terminal.idUbicacion, "PLANTA", tipo));
 						for (Ubicacion deposito : depositos) {
 							errores.addAll(esperaCoherente(dia, terminal.idUbicacion,
@@ -1461,6 +1560,16 @@ public class DatosEntrada implements java.io.Serializable {
 		return errores;
 	}
 
+	private java.util.List<String> unaSolaThc(int dia, Naviera naviera, TipoContenedor tipoContenedor) {
+		java.util.List<String> errores = new java.util.ArrayList<String>();
+		try {
+			tarifaThc(dia, naviera, tipoContenedor);
+		} catch (RuntimeException e) {
+			errores.add(e.getMessage());
+		}
+		return errores;
+	}
+
 	private java.util.List<String> unaSolaFlete(int dia, String origen, String destino,
 			TipoProducto producto) {
 		java.util.List<String> errores = new java.util.ArrayList<String>();
@@ -1476,7 +1585,7 @@ public class DatosEntrada implements java.io.Serializable {
 			TipoProducto producto) {
 		java.util.List<String> errores = new java.util.ArrayList<String>();
 		try {
-			tarifaRoundTrip(dia, idTerminal, sitio, producto(producto).tipoContenedor);
+			tarifaRoundTrip(dia, idTerminal, sitio, tipoContenedorDe(producto));
 		} catch (RuntimeException e) {
 			errores.add(e.getMessage());
 		}
