@@ -93,6 +93,13 @@ def exportar_variables(agente: ET.Element) -> list[str]:
     return lineas
 
 
+def exportar_arranque(agente: ET.Element) -> list[str]:
+    codigo = texto(agente, "StartupCode")
+    if not codigo:
+        return []
+    return ["\n    // ----- Codigo de arranque (StartupCode) -----", "    void onStartup() {", indentar(codigo), "    }"]
+
+
 def exportar_funciones(agente: ET.Element) -> list[str]:
     lineas: list[str] = []
     contenedor = agente.find("Functions")
@@ -242,6 +249,7 @@ def exportar(ruta_alp: Path, destino: Path) -> int:
         cuerpo = [CABECERA, f"\nclass {nombre} extends Agent {{"]
         cuerpo += exportar_variables(agente)
         cuerpo += exportar_embebidos(agente)
+        cuerpo += exportar_arranque(agente)
         cuerpo += exportar_funciones(agente)
         cuerpo += exportar_eventos(agente)
         cuerpo.append("}")

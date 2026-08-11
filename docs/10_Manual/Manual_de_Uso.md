@@ -71,6 +71,8 @@ El modelo lee exactamente las mismas tablas, vengan del generador sintético o d
 3. En `Simulation → Properties`, poner `origenDatos = OrigenDatos.EXCEL` y `rutaExcel` con la ruta al libro (relativa a la carpeta del modelo o absoluta).
 4. Correr. Si falta algo, la corrida se detiene **antes del día 1** e informa todos los problemas juntos: hojas faltantes, columnas faltantes, celdas no numéricas con hoja/fila/columna, y después las validaciones de negocio (tarifa faltante, capacidad cero, etc.).
 
+**El maestro real no se versiona.** `.gitignore` excluye `datos/Maestro_*.xlsx` porque trae tarifas reales: el experimento `Simulation` queda apuntando a `datos/entrada_ejemplo.xlsx`, que sí está en el repo. Para correr el maestro, copiarlo a `datos/` y poner `rutaExcel = "datos/Maestro_Simulacion.xlsx"` en las propiedades del experimento. La red física del modelo es un superconjunto de la del libro (ADR-069): un depósito del canvas que el libro no declara sale de la red con una advertencia, así que el mismo modelo corre los dos libros sin editar nada más.
+
 Un libro anterior a C1 **no importa**: las hojas de tarifas cambiaron (`TarifaAlmacenamiento` y `TarifaServicioCarga` se reemplazan por `TarifaSitio`, y se agregan `TarifaRoundTrip` y `TarifaEspera`), y toda tarifa pide ahora `proveedor`, `vigencia_desde`, `vigencia_hasta` y `habilitada` (ADR-051). Si cambiaste de versión del modelo y tu libro es viejo, la forma rápida de actualizarlo es regenerar la plantilla y volver a cargar tus valores:
 
 ```bash

@@ -4,7 +4,7 @@
 	         AnyLogic Project File
 *************************************************
 -->
-<AnyLogicWorkspace WorkspaceVersion="1.9" AnyLogicVersion="8.9.9.202606170507" AlpVersion="8.9.9">
+<AnyLogicWorkspace WorkspaceVersion="1.9" AnyLogicVersion="8.9.9.202607020720" AlpVersion="8.9.9">
 <Model>
 	<Id>1784231466956</Id>
 	<Name><![CDATA[RedLogistica_Exportacion]]></Name>
@@ -411,6 +411,8 @@ depositos.add(depNorry);
 depositos.add(depBoreas);
 depositos.add(depRuta9);
 depositos.add(depDodero);
+depositos.add(depGrupoPaz);
+depositos.add(depControlUnion);
 
 terminales.clear();
 
@@ -796,7 +798,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[AuditoriaRed]]></Type>
+						<Type><![CDATA[AuditoriaRed]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[new AuditoriaRed()]]></Code>
 						</InitialValue>
@@ -811,7 +813,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[long]]></Type>
+						<Type><![CDATA[long]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[0]]></Code>
 						</InitialValue>
@@ -826,7 +828,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
+						<Type><![CDATA[String]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[""]]></Code>
 						</InitialValue>
@@ -841,7 +843,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
+						<Type><![CDATA[String]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[""]]></Code>
 						</InitialValue>
@@ -856,7 +858,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.LinkedHashMap<String, Double>]]></Type>
+						<Type><![CDATA[java.util.LinkedHashMap<String, Double>]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[new java.util.LinkedHashMap<String, Double>()]]></Code>
 						</InitialValue>
@@ -871,7 +873,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.LinkedHashMap<String, Long>]]></Type>
+						<Type><![CDATA[java.util.LinkedHashMap<String, Long>]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[new java.util.LinkedHashMap<String, Long>()]]></Code>
 						</InitialValue>
@@ -886,7 +888,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.LinkedHashMap<String, double[]>]]></Type>
+						<Type><![CDATA[java.util.LinkedHashMap<String, double[]>]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[new java.util.LinkedHashMap<String, double[]>()]]></Code>
 						</InitialValue>
@@ -901,7 +903,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.LinkedHashMap<String, Double>]]></Type>
+						<Type><![CDATA[java.util.LinkedHashMap<String, Double>]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[new java.util.LinkedHashMap<String, Double>()]]></Code>
 						</InitialValue>
@@ -916,7 +918,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
+						<Type><![CDATA[int]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[0]]></Code>
 						</InitialValue>
@@ -931,7 +933,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[long]]></Type>
+						<Type><![CDATA[long]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[0]]></Code>
 						</InitialValue>
@@ -946,7 +948,7 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[long]]></Type>
+						<Type><![CDATA[long]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[0]]></Code>
 						</InitialValue>
@@ -961,34 +963,10 @@ abrirAuditoriaRed();]]></StartupCode>
 					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
+						<Type><![CDATA[double]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[0]]></Code>
 						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1786410000021</Id>
-					<Name><![CDATA[nivelAuditoriaRed]]></Name>
-					<X>1030</X><Y>-1120</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[AuditoriaRed.Nivel]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[AuditoriaRed.Nivel.DESACTIVADA]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1786410000022</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
@@ -1996,6 +1974,780 @@ abrirAuditoriaRed();]]></StartupCode>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950000</Id>
+					<Name><![CDATA[toneladasEntregadasAntesCutoff]]></Name>
+					<X>-700</X><Y>1400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950010</Id>
+					<Name><![CDATA[toneladasEntregadasFueraCutoff]]></Name>
+					<X>-700</X><Y>1420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950020</Id>
+					<Name><![CDATA[pedidosPerdieronCutoff]]></Name>
+					<X>-700</X><Y>1440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950030</Id>
+					<Name><![CDATA[pedidosVentanaInviable]]></Name>
+					<X>-700</X><Y>1460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950040</Id>
+					<Name><![CDATA[contenedoresSinPosicionFutura]]></Name>
+					<X>-700</X><Y>1480</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950050</Id>
+					<Name><![CDATA[holguraAcumuladaDias]]></Name>
+					<X>-700</X><Y>1500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785950060</Id>
+					<Name><![CDATA[pedidosConHolguraMedida]]></Name>
+					<X>-700</X><Y>1520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000101</Id>
+					<Name><![CDATA[reservasCapacidad]]></Name>
+					<X>-420</X><Y>2100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.ArrayList<ReservaCapacidad>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.ArrayList<ReservaCapacidad>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000103</Id>
+					<Name><![CDATA[reservaPorClave]]></Name>
+					<X>-420</X><Y>2140</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, ReservaCapacidad>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, ReservaCapacidad>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000105</Id>
+					<Name><![CDATA[reservasPorAsignacion]]></Name>
+					<X>-420</X><Y>2180</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, java.util.ArrayList<ReservaCapacidad>>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, java.util.ArrayList<ReservaCapacidad>>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000107</Id>
+					<Name><![CDATA[asignacionPorId]]></Name>
+					<X>-420</X><Y>2220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, AsignacionPedido>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, AsignacionPedido>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000109</Id>
+					<Name><![CDATA[ocupacionCapacidad]]></Name>
+					<X>-420</X><Y>2260</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, LinkedHashMap<Integer, Integer>>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000111</Id>
+					<Name><![CDATA[siguienteIdReservaCapacidad]]></Name>
+					<X>-420</X><Y>2300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000113</Id>
+					<Name><![CDATA[capacidadReservadaTotal]]></Name>
+					<X>-420</X><Y>2340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000115</Id>
+					<Name><![CDATA[capacidadConsumidaTotal]]></Name>
+					<X>-420</X><Y>2380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000117</Id>
+					<Name><![CDATA[capacidadLiberadaTotal]]></Name>
+					<X>-420</X><Y>2420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000119</Id>
+					<Name><![CDATA[reservasReprogramadas]]></Name>
+					<X>-420</X><Y>2460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000121</Id>
+					<Name><![CDATA[toneladasReasignadasPorCapacidad]]></Name>
+					<X>-420</X><Y>2500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000123</Id>
+					<Name><![CDATA[fallbacksPoliticaFija]]></Name>
+					<X>-420</X><Y>2540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000125</Id>
+					<Name><![CDATA[costoAdicionalSaturacion]]></Name>
+					<X>-420</X><Y>2580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000127</Id>
+					<Name><![CDATA[pedidosMultiCircuito]]></Name>
+					<X>-420</X><Y>2620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000129</Id>
+					<Name><![CDATA[contenedoresPorCircuito]]></Name>
+					<X>-420</X><Y>2660</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, Integer>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, Integer>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000131</Id>
+					<Name><![CDATA[diagnosticoAsignaciones]]></Name>
+					<X>-420</X><Y>2700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.ArrayList<String>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.ArrayList<String>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000133</Id>
+					<Name><![CDATA[exportarDiagnosticoCapacidad]]></Name>
+					<X>-420</X><Y>2740</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600003000</Id>
+					<Name><![CDATA[colaCapacidad]]></Name>
+					<X>-300</X><Y>4400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, LinkedHashMap<Integer, Integer>>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001000</Id>
+					<Name><![CDATA[unidadesFlotaProducto]]></Name>
+					<X>-700</X><Y>2600</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.ArrayList<UnidadFlotaProducto>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.ArrayList<UnidadFlotaProducto>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001002</Id>
+					<Name><![CDATA[viajesProducto]]></Name>
+					<X>-700</X><Y>2620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.ArrayList<ViajeProducto>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.ArrayList<ViajeProducto>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001004</Id>
+					<Name><![CDATA[viajeProductoPorId]]></Name>
+					<X>-700</X><Y>2640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, ViajeProducto>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, ViajeProducto>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001006</Id>
+					<Name><![CDATA[siguienteIdViajeProducto]]></Name>
+					<X>-700</X><Y>2660</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001008</Id>
+					<Name><![CDATA[toneladasProductoEnTransito]]></Name>
+					<X>-700</X><Y>2680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001010</Id>
+					<Name><![CDATA[toneladasReservadasParaTransporte]]></Name>
+					<X>-700</X><Y>2700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001012</Id>
+					<Name><![CDATA[viajesProductoProgramados]]></Name>
+					<X>-700</X><Y>2720</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001014</Id>
+					<Name><![CDATA[viajesProductoIniciados]]></Name>
+					<X>-700</X><Y>2740</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001016</Id>
+					<Name><![CDATA[viajesProductoCompletados]]></Name>
+					<X>-700</X><Y>2760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001018</Id>
+					<Name><![CDATA[viajesProductoCancelados]]></Name>
+					<X>-700</X><Y>2780</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001020</Id>
+					<Name><![CDATA[esperaFlotaProductoDiasAcumulada]]></Name>
+					<X>-700</X><Y>2800</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001022</Id>
+					<Name><![CDATA[esperaFlotaProductoDiasMaxima]]></Name>
+					<X>-700</X><Y>2820</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001024</Id>
+					<Name><![CDATA[movimientosConEsperaFlota]]></Name>
+					<X>-700</X><Y>2840</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001026</Id>
+					<Name><![CDATA[toneladasNoProgramadasPorFlota]]></Name>
+					<X>-700</X><Y>2860</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001028</Id>
+					<Name><![CDATA[toneladasProgramadasParcialmente]]></Name>
+					<X>-700</X><Y>2880</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001030</Id>
+					<Name><![CDATA[movimientosParcialesPorFlota]]></Name>
+					<X>-700</X><Y>2900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001032</Id>
+					<Name><![CDATA[picoCamionesProductoEnRuta]]></Name>
+					<X>-700</X><Y>2920</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001034</Id>
+					<Name><![CDATA[camionesEnRutaDiaAcumulado]]></Name>
+					<X>-700</X><Y>2940</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001036</Id>
+					<Name><![CDATA[diasFlotaMedidos]]></Name>
+					<X>-700</X><Y>2960</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001038</Id>
+					<Name><![CDATA[toneladasTransferidasProgramadas]]></Name>
+					<X>-700</X><Y>2980</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001040</Id>
+					<Name><![CDATA[toneladasTransferidasSalidas]]></Name>
+					<X>-700</X><Y>3000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001042</Id>
+					<Name><![CDATA[descartesFlotaPorMotivo]]></Name>
+					<X>-700</X><Y>3020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[LinkedHashMap<String, Integer>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new LinkedHashMap<String, Integer>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001044</Id>
+					<Name><![CDATA[pedidosConDescartePorFlota]]></Name>
+					<X>-700</X><Y>3040</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.HashSet<String>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.HashSet<String>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001046</Id>
+					<Name><![CDATA[pedidosPerdieronCutoffPorFlota]]></Name>
+					<X>-700</X><Y>3060</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1793100001048</Id>
+					<Name><![CDATA[diagnosticoFlota]]></Name>
+					<X>-700</X><Y>3080</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[java.util.ArrayList<String>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new java.util.ArrayList<String>()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1786410000021</Id>
+					<Name><![CDATA[nivelAuditoriaRed]]></Name>
+					<X>1030</X><Y>-1120</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[AuditoriaRed.Nivel]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[AuditoriaRed.Nivel.DESACTIVADA]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1786410000022</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1791000000113</Id>
 					<Name><![CDATA[origenDatos]]></Name>
@@ -2199,760 +2951,6 @@ abrirAuditoriaRed();]]></StartupCode>
 						</CollectionInitializer>
 					</Properties>
 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1785950000</Id>
-					<Name><![CDATA[toneladasEntregadasAntesCutoff]]></Name>
-					<X>-700</X><Y>1400</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785950010</Id>
-					<Name><![CDATA[toneladasEntregadasFueraCutoff]]></Name>
-					<X>-700</X><Y>1420</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785950020</Id>
-					<Name><![CDATA[pedidosPerdieronCutoff]]></Name>
-					<X>-700</X><Y>1440</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785950030</Id>
-					<Name><![CDATA[pedidosVentanaInviable]]></Name>
-					<X>-700</X><Y>1460</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785950040</Id>
-					<Name><![CDATA[contenedoresSinPosicionFutura]]></Name>
-					<X>-700</X><Y>1480</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785950050</Id>
-					<Name><![CDATA[holguraAcumuladaDias]]></Name>
-					<X>-700</X><Y>1500</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785950060</Id>
-					<Name><![CDATA[pedidosConHolguraMedida]]></Name>
-					<X>-700</X><Y>1520</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792600000101</Id>
-					<Name><![CDATA[reservasCapacidad]]></Name>
-					<X>-420</X><Y>2100</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.ArrayList<ReservaCapacidad>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new java.util.ArrayList<ReservaCapacidad>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000103</Id>
-					<Name><![CDATA[reservaPorClave]]></Name>
-					<X>-420</X><Y>2140</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[LinkedHashMap<String, ReservaCapacidad>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new LinkedHashMap<String, ReservaCapacidad>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000105</Id>
-					<Name><![CDATA[reservasPorAsignacion]]></Name>
-					<X>-420</X><Y>2180</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[LinkedHashMap<String, java.util.ArrayList<ReservaCapacidad>>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new LinkedHashMap<String, java.util.ArrayList<ReservaCapacidad>>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000107</Id>
-					<Name><![CDATA[asignacionPorId]]></Name>
-					<X>-420</X><Y>2220</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[LinkedHashMap<String, AsignacionPedido>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new LinkedHashMap<String, AsignacionPedido>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000109</Id>
-					<Name><![CDATA[ocupacionCapacidad]]></Name>
-					<X>-420</X><Y>2260</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[LinkedHashMap<String, LinkedHashMap<Integer, Integer>>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000111</Id>
-					<Name><![CDATA[siguienteIdReservaCapacidad]]></Name>
-					<X>-420</X><Y>2300</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[1]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000113</Id>
-					<Name><![CDATA[capacidadReservadaTotal]]></Name>
-					<X>-420</X><Y>2340</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000115</Id>
-					<Name><![CDATA[capacidadConsumidaTotal]]></Name>
-					<X>-420</X><Y>2380</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000117</Id>
-					<Name><![CDATA[capacidadLiberadaTotal]]></Name>
-					<X>-420</X><Y>2420</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000119</Id>
-					<Name><![CDATA[reservasReprogramadas]]></Name>
-					<X>-420</X><Y>2460</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000121</Id>
-					<Name><![CDATA[toneladasReasignadasPorCapacidad]]></Name>
-					<X>-420</X><Y>2500</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000123</Id>
-					<Name><![CDATA[fallbacksPoliticaFija]]></Name>
-					<X>-420</X><Y>2540</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000125</Id>
-					<Name><![CDATA[costoAdicionalSaturacion]]></Name>
-					<X>-420</X><Y>2580</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000127</Id>
-					<Name><![CDATA[pedidosMultiCircuito]]></Name>
-					<X>-420</X><Y>2620</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000129</Id>
-					<Name><![CDATA[contenedoresPorCircuito]]></Name>
-					<X>-420</X><Y>2660</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[LinkedHashMap<String, Integer>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new LinkedHashMap<String, Integer>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000131</Id>
-					<Name><![CDATA[diagnosticoAsignaciones]]></Name>
-					<X>-420</X><Y>2700</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.ArrayList<String>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new java.util.ArrayList<String>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000133</Id>
-					<Name><![CDATA[exportarDiagnosticoCapacidad]]></Name>
-					<X>-420</X><Y>2740</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[boolean]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[false]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792600003000</Id>
-					<Name><![CDATA[colaCapacidad]]></Name>
-					<X>-300</X><Y>4400</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[LinkedHashMap<String, LinkedHashMap<Integer, Integer>>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new LinkedHashMap<String, LinkedHashMap<Integer, Integer>>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1793100001000</Id>
-					<Name><![CDATA[unidadesFlotaProducto]]></Name>
-					<X>-700</X><Y>2600</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.ArrayList<UnidadFlotaProducto>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new java.util.ArrayList<UnidadFlotaProducto>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001002</Id>
-					<Name><![CDATA[viajesProducto]]></Name>
-					<X>-700</X><Y>2620</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.ArrayList<ViajeProducto>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new java.util.ArrayList<ViajeProducto>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001004</Id>
-					<Name><![CDATA[viajeProductoPorId]]></Name>
-					<X>-700</X><Y>2640</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[LinkedHashMap<String, ViajeProducto>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new LinkedHashMap<String, ViajeProducto>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001006</Id>
-					<Name><![CDATA[siguienteIdViajeProducto]]></Name>
-					<X>-700</X><Y>2660</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[1]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001008</Id>
-					<Name><![CDATA[toneladasProductoEnTransito]]></Name>
-					<X>-700</X><Y>2680</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001010</Id>
-					<Name><![CDATA[toneladasReservadasParaTransporte]]></Name>
-					<X>-700</X><Y>2700</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001012</Id>
-					<Name><![CDATA[viajesProductoProgramados]]></Name>
-					<X>-700</X><Y>2720</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001014</Id>
-					<Name><![CDATA[viajesProductoIniciados]]></Name>
-					<X>-700</X><Y>2740</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001016</Id>
-					<Name><![CDATA[viajesProductoCompletados]]></Name>
-					<X>-700</X><Y>2760</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001018</Id>
-					<Name><![CDATA[viajesProductoCancelados]]></Name>
-					<X>-700</X><Y>2780</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001020</Id>
-					<Name><![CDATA[esperaFlotaProductoDiasAcumulada]]></Name>
-					<X>-700</X><Y>2800</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001022</Id>
-					<Name><![CDATA[esperaFlotaProductoDiasMaxima]]></Name>
-					<X>-700</X><Y>2820</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001024</Id>
-					<Name><![CDATA[movimientosConEsperaFlota]]></Name>
-					<X>-700</X><Y>2840</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001026</Id>
-					<Name><![CDATA[toneladasNoProgramadasPorFlota]]></Name>
-					<X>-700</X><Y>2860</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001028</Id>
-					<Name><![CDATA[toneladasProgramadasParcialmente]]></Name>
-					<X>-700</X><Y>2880</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001030</Id>
-					<Name><![CDATA[movimientosParcialesPorFlota]]></Name>
-					<X>-700</X><Y>2900</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001032</Id>
-					<Name><![CDATA[picoCamionesProductoEnRuta]]></Name>
-					<X>-700</X><Y>2920</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001034</Id>
-					<Name><![CDATA[camionesEnRutaDiaAcumulado]]></Name>
-					<X>-700</X><Y>2940</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001036</Id>
-					<Name><![CDATA[diasFlotaMedidos]]></Name>
-					<X>-700</X><Y>2960</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001038</Id>
-					<Name><![CDATA[toneladasTransferidasProgramadas]]></Name>
-					<X>-700</X><Y>2980</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001040</Id>
-					<Name><![CDATA[toneladasTransferidasSalidas]]></Name>
-					<X>-700</X><Y>3000</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001042</Id>
-					<Name><![CDATA[descartesFlotaPorMotivo]]></Name>
-					<X>-700</X><Y>3020</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[LinkedHashMap<String, Integer>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new LinkedHashMap<String, Integer>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001044</Id>
-					<Name><![CDATA[pedidosConDescartePorFlota]]></Name>
-					<X>-700</X><Y>3040</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.HashSet<String>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new java.util.HashSet<String>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001046</Id>
-					<Name><![CDATA[pedidosPerdieronCutoffPorFlota]]></Name>
-					<X>-700</X><Y>3060</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1793100001048</Id>
-					<Name><![CDATA[diagnosticoFlota]]></Name>
-					<X>-700</X><Y>3080</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[java.util.ArrayList<String>]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new java.util.ArrayList<String>()]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<Connectors>
@@ -4404,6 +4402,11 @@ siguienteIdPedido++;
 pedido.codigoPedido = codigo;
 pedido.producto = producto;
 pedido.material = plan.material;
+
+// Recien aca producto y material son los del pedido real, asi que el contenedor
+// se resuelve aca y no en el startup del agente (ADR-069).
+pedido.tipoContenedor = obtenerTipoContenedor(producto, plan.material);
+pedido.capacidadContenedorTon = obtenerCapacidadContenedorTon(producto, plan.material);
 pedido.toneladasSolicitadas = toneladas;
 pedido.toneladasReservadas = 0;
 pedido.toneladasEntregadas = 0;
@@ -4929,7 +4932,8 @@ return total;]]></Body>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[return datos.producto(producto, material).capacidadContenedorTn;]]></Body>
-				</Function><Function AccessType="default" StaticFunction="false">
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1793300000001</Id>
@@ -5017,6 +5021,37 @@ if (!errores.isEmpty()) {
         + "):"
         + detalle
     );
+}
+
+// La red del modelo es un superconjunto de la del libro: un escenario puede no
+// declarar un deposito que existe en el canvas. Se lo saca de la coleccion en vez de
+// dejarlo pidiendo capacidades y tarifas que el libro no tiene por que traer (ADR-069).
+for (int i = depositos.size() - 1; i >= 0; i--) {
+    Deposito deposito = depositos.get(i);
+
+    if (!datos.existeUbicacion(deposito.idUbicacion)) {
+        deposito.habilitado = false;
+        depositos.remove(i);
+
+        traceln(
+            "Advertencia de datos: el libro no declara el deposito "
+            + deposito.idUbicacion
+            + ", que queda fuera de la red de esta corrida."
+        );
+    }
+}
+
+// El caso inverso si es un error: la red fisica son agentes del canvas (limitacion
+// declarada en ADR-069) y un deposito del libro sin agente no almacena nada. Sin este
+// aviso el sintoma aparece mucho despues como "la ubicacion no tiene capacidad".
+for (DatosEntrada.Ubicacion u : datos.ubicacionesDeTipo("DEPOSITO")) {
+    if (u.habilitada && buscarDeposito(u.idUbicacion) == null) {
+        error(
+            "El libro declara el deposito " + u.idUbicacion
+            + " pero la red del modelo no tiene un agente Deposito para el:"
+            + " hay que agregarlo en Main (ADR-069)."
+        );
+    }
 }
 
 aplicarEscenario();
@@ -9378,14 +9413,23 @@ int dia = diaCampania();
 
 for (Deposito deposito : depositos) {
 
+    // Un deposito sin capacidad declarada para el producto no lo almacena nunca, asi que
+    // no necesita tarifa de almacenaje: exigirla abortaria la carga por una combinacion
+    // fisicamente imposible (ADR-069).
     deposito.costoJugoTnDia =
-        datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.JUGO);
+        datos.almacenaProducto(deposito.idUbicacion, TipoProducto.JUGO)
+        ? datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.JUGO)
+        : 0;
 
     deposito.costoCascaraTnDia =
-        datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.CASCARA);
+        datos.almacenaProducto(deposito.idUbicacion, TipoProducto.CASCARA)
+        ? datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.CASCARA)
+        : 0;
 
     deposito.costoAceiteTnDia =
-        datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.ACEITE);
+        datos.almacenaProducto(deposito.idUbicacion, TipoProducto.ACEITE)
+        ? datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.ACEITE)
+        : 0;
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -12735,7 +12779,6 @@ for (TipoProducto producto : TipoProducto.values()) {
 
 return total;]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
@@ -13169,7 +13212,6 @@ return pedidosConHolguraMedida == 0
 					<Body><![CDATA[// Contenedores comprometidos que todavia esperan que abra su ventana de retiro.
 return contarContenedores(EstadoContenedor.CREADO);]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
@@ -13953,7 +13995,6 @@ for (String clave : ocupacionCapacidad.keySet()) {
     }
 }]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
@@ -14079,7 +14120,6 @@ if (exportarDiagnosticoCapacidad) {
         + ",SELECCIONADA");
 }]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
@@ -14380,7 +14420,6 @@ try {
     }
 }]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
@@ -15851,7 +15890,6 @@ if (!errores.isEmpty()) {
         + " (" + errores.size() + "):" + detalle);
 }]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
@@ -16116,7 +16154,6 @@ if (programadas + 0.0001 < contenedor.cantidadAsignadaTon) {
         + " tn de flota: la disponibilidad se verifico antes de crear el envio");
 }]]></Body>
 				</Function>
-			
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
@@ -16358,6 +16395,9 @@ alternativa.contenedores =
 						<Parameter>
 							<Name><![CDATA[estadoComercial]]></Name>
 						</Parameter>
+						<Parameter>
+							<Name><![CDATA[material]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>true</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -16595,6 +16635,190 @@ alternativa.contenedores =
 					<InitializationType>SPECIFIED_NUMBER</InitializationType>
 					<InitializationDatabaseTableQuery>
 						<Id>1784377437357</Id>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1795000000011</Id>
+					<Name><![CDATA[depGrupoPaz]]></Name>
+					<X>1020</X><Y>-960</Y>
+					<Label><X>-45</X><Y>-35</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Deposito]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+							<ClassName><![CDATA[Deposito]]></ClassName>
+							<ItemName><![CDATA[1784232122625]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[idUbicacion]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA["GRUPO_PAZ"]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[nombreDeposito]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA["GRUPO_PAZ"]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[idDeposito]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[6]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[habilitado]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacidadJugo]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacidadCascara]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacidadAceite]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoJugoTnDia]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoCascaraTnDia]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoAceiteTnDia]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[velocidadCargaTnHora]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[velocidadConsolidacionTnHora]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InEnvironment>true</InEnvironment>
+					<InitialLocationType>XYZ</InitialLocationType>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<Id>1795000000012</Id>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1795000000021</Id>
+					<Name><![CDATA[depControlUnion]]></Name>
+					<X>1140</X><Y>-960</Y>
+					<Label><X>-45</X><Y>-35</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+						<ClassName><![CDATA[Deposito]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[redlogisticaexportacionredlogisticaexportacion]]></PackageName>
+							<ClassName><![CDATA[Deposito]]></ClassName>
+							<ItemName><![CDATA[1784232122625]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[idUbicacion]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA["CONTROL_UNION"]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[nombreDeposito]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA["CONTROL_UNION"]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[idDeposito]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[7]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[habilitado]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacidadJugo]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacidadCascara]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacidadAceite]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoJugoTnDia]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoCascaraTnDia]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[costoAceiteTnDia]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[velocidadCargaTnHora]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[velocidadConsolidacionTnHora]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InEnvironment>true</InEnvironment>
+					<InitialLocationType>XYZ</InitialLocationType>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<Id>1795000000022</Id>
 						<TableReference>
 						</TableReference>
 					</InitializationDatabaseTableQuery>
@@ -17258,6 +17482,12 @@ alternativa.contenedores =
 						<Parameter>
 							<Name><![CDATA[asignaciones]]></Name>
 						</Parameter>
+						<Parameter>
+							<Name><![CDATA[depositoComprometido]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[material]]></Name>
+						</Parameter>
 					</Parameters>
 					<ReplicationFlag>true</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -17370,6 +17600,21 @@ alternativa.contenedores =
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[contenedor]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[diaListoEnTerminal]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[bloqueActual]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[diaEntradaBloque]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[horasEsperadasBloque]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[diaCargosCierre]]></Name>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>true</ReplicationFlag>
@@ -19260,6 +19505,9 @@ if (!retirado) {
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[costoReal]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[material]]></Name>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>true</ReplicationFlag>
@@ -21404,6 +21652,22 @@ if (!retirado) {
 + depDodero.getStock(TipoProducto.ACEITE)]]></Expression>
 					<Color>-16728065</Color>
 						<Title><![CDATA[Dodero]]></Title>
+					</DataItem>
+					<DataItem>
+					<Id>1795000000031</Id>
+					<Expression><![CDATA[depGrupoPaz.getStock(TipoProducto.JUGO)
++ depGrupoPaz.getStock(TipoProducto.CASCARA)
++ depGrupoPaz.getStock(TipoProducto.ACEITE)]]></Expression>
+					<Color>-6579601</Color>
+						<Title><![CDATA[Grupo Paz]]></Title>
+					</DataItem>
+					<DataItem>
+					<Id>1795000000032</Id>
+					<Expression><![CDATA[depControlUnion.getStock(TipoProducto.JUGO)
++ depControlUnion.getStock(TipoProducto.CASCARA)
++ depControlUnion.getStock(TipoProducto.ACEITE)]]></Expression>
+					<Color>-16744320</Color>
+						<Title><![CDATA[Control Union]]></Title>
 					</DataItem>
 					<ScaleFromExpression><![CDATA[0]]></ScaleFromExpression>
 					<ScaleToExpression><![CDATA[1]]></ScaleToExpression>
@@ -23638,13 +23902,10 @@ return modelo.datos.importeConsolidacion(
 		<ActiveObjectClass>
 			<Id>1784232222208</Id>
 			<Name><![CDATA[Pedido]]></Name>
-			<StartupCode><![CDATA[Main m = (Main) get_Main();
-
-if (producto != null) {
-    tipoContenedor = m.obtenerTipoContenedor(producto, material);
-    capacidadContenedorTon =
-        m.obtenerCapacidadContenedorTon(producto, material);
-}]]></StartupCode>
+			<StartupCode><![CDATA[// El tipo de contenedor NO se resuelve aca: el startup del agente corre antes de
+// que crearPedido() cargue producto y material, asi que resolverlo aca lo cotiza
+// con los valores default y, desde que el material es parte de la identidad
+// (ADR-067), pide a la tabla Producto una fila que no existe (ADR-069).]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1784232222213</Id>
@@ -23798,6 +24059,141 @@ if (producto != null) {
 						<Type><![CDATA[boolean]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900000</Id>
+					<Name><![CDATA[diaConocimiento]]></Name>
+					<X>-140</X><Y>900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900010</Id>
+					<Name><![CDATA[diaAperturaRetiroVacio]]></Name>
+					<X>-140</X><Y>920</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900020</Id>
+					<Name><![CDATA[diaETD]]></Name>
+					<X>-140</X><Y>940</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900030</Id>
+					<Name><![CDATA[buque]]></Name>
+					<X>-140</X><Y>960</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900040</Id>
+					<Name><![CDATA[viajeBuque]]></Name>
+					<X>-140</X><Y>980</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900050</Id>
+					<Name><![CDATA[ventanaRetiroAbierta]]></Name>
+					<X>-140</X><Y>1000</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900060</Id>
+					<Name><![CDATA[perdioCutoff]]></Name>
+					<X>-140</X><Y>1020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900070</Id>
+					<Name><![CDATA[reprogramado]]></Name>
+					<X>-140</X><Y>1040</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1785900080</Id>
+					<Name><![CDATA[cantidadReprogramaciones]]></Name>
+					<X>-140</X><Y>1060</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -24761,142 +25157,6 @@ if (producto != null) {
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1785900000</Id>
-					<Name><![CDATA[diaConocimiento]]></Name>
-					<X>-140</X><Y>900</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[-1]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785900010</Id>
-					<Name><![CDATA[diaAperturaRetiroVacio]]></Name>
-					<X>-140</X><Y>920</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[-1]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785900020</Id>
-					<Name><![CDATA[diaETD]]></Name>
-					<X>-140</X><Y>940</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[double]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[-1]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785900030</Id>
-					<Name><![CDATA[buque]]></Name>
-					<X>-140</X><Y>960</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785900040</Id>
-					<Name><![CDATA[viajeBuque]]></Name>
-					<X>-140</X><Y>980</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785900050</Id>
-					<Name><![CDATA[ventanaRetiroAbierta]]></Name>
-					<X>-140</X><Y>1000</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[boolean]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[false]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785900060</Id>
-					<Name><![CDATA[perdioCutoff]]></Name>
-					<X>-140</X><Y>1020</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[boolean]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[false]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785900070</Id>
-					<Name><![CDATA[reprogramado]]></Name>
-					<X>-140</X><Y>1040</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[boolean]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[false]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1785900080</Id>
-					<Name><![CDATA[cantidadReprogramaciones]]></Name>
-					<X>-140</X><Y>1060</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<Functions>
@@ -27105,7 +27365,11 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 		<ActiveObjectClass>
 			<Id>1784748415668</Id>
 			<Name><![CDATA[ContenedorExportacion]]></Name>
-			<StartupCode><![CDATA[if (capacidadTon <= 0 && main != null) {
+			<StartupCode><![CDATA[// Red de seguridad para un contenedor creado sin capacidad. El material es parte
+// de la identidad del producto (ADR-067) y en el startup todavia es el default,
+// asi que solo se puede cotizar cuando ya vino con material (ADR-069): quien crea
+// el contenedor le pasa la capacidad del pedido inmediatamente despues.
+if (capacidadTon <= 0 && main != null && material != null && !material.isEmpty()) {
     capacidadTon = main.obtenerCapacidadContenedorTon(producto, material);
 }]]></StartupCode>
 			<Generic>false</Generic>
@@ -27276,6 +27540,66 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 						<Type><![CDATA[EstrategiaLogistica]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[EstrategiaLogistica.SIN_DEFINIR]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000011</Id>
+					<Name><![CDATA[claveReservaCapacidad]]></Name>
+					<X>-140</X><Y>640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000013</Id>
+					<Name><![CDATA[diaPlanificadoOperacion]]></Name>
+					<X>-140</X><Y>680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[-1]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000015</Id>
+					<Name><![CDATA[idUbicacionOperacion]]></Name>
+					<X>-140</X><Y>720</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1792600000017</Id>
+					<Name><![CDATA[tipoRecursoOperacion]]></Name>
+					<X>-140</X><Y>760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -27784,67 +28108,6 @@ return modelo.inventario.reservadoLote(idLote);]]></Body>
 							<DelimeterType>NO_DELIMETER</DelimeterType>
 						</ParameterEditor>
 					</Properties>                 
-				</Variable>
-			
-				<Variable Class="PlainVariable">
-					<Id>1792600000011</Id>
-					<Name><![CDATA[claveReservaCapacidad]]></Name>
-					<X>-140</X><Y>640</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000013</Id>
-					<Name><![CDATA[diaPlanificadoOperacion]]></Name>
-					<X>-140</X><Y>680</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[-1]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000015</Id>
-					<Name><![CDATA[idUbicacionOperacion]]></Name>
-					<X>-140</X><Y>720</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1792600000017</Id>
-					<Name><![CDATA[tipoRecursoOperacion]]></Name>
-					<X>-140</X><Y>760</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[String]]></Type>
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</InitialValue>
-					</Properties>
 				</Variable>
 			</Variables>
 			<AgentLinks>
@@ -29008,6 +29271,9 @@ estado = factible
 			<MaximumMemory>512</MaximumMemory>
 			<RandomNumberGenerationType>fixedSeed</RandomNumberGenerationType>
 			<CustomGeneratorCode>new Random()</CustomGeneratorCode>
+			<AfterSimulationRunCode><![CDATA[// Cierre de la auditoria de red (ADR-064): la corrida sigue moviendo envios despues del
+// ultimo paso diario, asi que las tablas se cierran cuando la corrida termina.
+root.cerrarAuditoriaRed();]]></AfterSimulationRunCode>
 			<SeedValue>1</SeedValue>
 			<SelectionModeForSimultaneousEvents>LIFO</SelectionModeForSimultaneousEvents>
 			<VmArgs><![CDATA[]]></VmArgs>
@@ -29087,9 +29353,6 @@ estado = factible
 				<FinalDate><![CDATA[1798761600000]]></FinalDate>
 				<FinalTime><![CDATA[365.0]]></FinalTime>
 			</ModelTimeProperties>
-			<AfterSimulationRunCode><![CDATA[// Cierre de la auditoria de red (ADR-064): la corrida sigue moviendo envios despues del
-// ultimo paso diario, asi que las tablas se cierran cuando la corrida termina.
-root.cerrarAuditoriaRed();]]></AfterSimulationRunCode>
 			<BypassInitialScreen>true</BypassInitialScreen>
 		</SimulationExperiment>
 		<!--   =========  Parameter Variation Experiment   ========  -->
@@ -30013,6 +30276,9 @@ for (int k = 0; k < KPIS.length; k++) {
 				<Id>1784382673676</Id>
 			</FreeformParamValue>
 			<FreeformParamValue>	
+				<Id>1786410000021</Id>
+			</FreeformParamValue>
+			<FreeformParamValue>	
 				<Id>1791000000003</Id>
 				<Expression Class="CodeValue">
 					<Code><![CDATA[GeneradorSintetico.ESCENARIOS[(getCurrentIteration() - 1) / REPLICAS]]]></Code>
@@ -30036,6 +30302,10 @@ for (int k = 0; k < KPIS.length; k++) {
 			</RangeVariationParamValue>
 			<RangeVariationParamValue>	
 				<Id>1784382673676</Id>
+				<Type>FIXED</Type>
+			</RangeVariationParamValue>
+			<RangeVariationParamValue>	
+				<Id>1786410000021</Id>
 				<Type>FIXED</Type>
 			</RangeVariationParamValue>
 			<RangeVariationParamValue>	
@@ -30641,6 +30911,30 @@ public class DatosEntrada implements java.io.Serializable {
 			}
 		}
 		return resultado;
+	}
+
+	/**
+	 * Capacidad declarada sin exigir la fila: cero cuando la tabla no la trae. Sirve
+	 * para saber si un deposito puede almacenar un producto sin abortar por el dato
+	 * que justamente dice que no puede (ADR-069).
+	 */
+	public double capacidadDeclaradaTn(String idUbicacion, TipoProducto producto) {
+		for (Capacidad c : capacidades) {
+			if (c.idUbicacion.equals(idUbicacion) && c.producto == producto) {
+				return c.capacidadTn;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Un deposito con capacidad cero para un producto no puede almacenarlo nunca, asi
+	 * que exigirle flete, round trip o almacenaje de ese producto es pedir un dato que
+	 * la corrida no va a leer jamas (ADR-069). El maestro real usa esto: GRUPO_PAZ y
+	 * CONTROL_UNION son depositos de CASCARA y no declaran capacidad de JUGO ni ACEITE.
+	 */
+	public boolean almacenaProducto(String idUbicacion, TipoProducto producto) {
+		return capacidadDeclaradaTn(idUbicacion, producto) > 0;
 	}
 
 	public double capacidadTn(String idUbicacion, TipoProducto producto) {
@@ -31582,6 +31876,10 @@ public class DatosEntrada implements java.io.Serializable {
 				}
 
 				for (Ubicacion deposito : depositos) {
+					if (!almacenaProducto(deposito.idUbicacion, producto)) {
+						continue;
+					}
+
 					errores.addAll(unaSola(dia, deposito.idUbicacion, producto));
 					errores.addAll(unaSolaFlete(dia, "PLANTA", deposito.idUbicacion, producto));
 				}
@@ -31592,6 +31890,10 @@ public class DatosEntrada implements java.io.Serializable {
 					errores.addAll(unaSolaRoundTrip(dia, terminal.idUbicacion, "PLANTA", producto));
 
 					for (Ubicacion deposito : depositos) {
+						if (!almacenaProducto(deposito.idUbicacion, producto)) {
+							continue;
+						}
+
 						errores.addAll(unaSolaFlete(dia, deposito.idUbicacion, terminal.idUbicacion,
 								producto));
 						errores.addAll(unaSolaRoundTrip(dia, terminal.idUbicacion, deposito.idUbicacion,
@@ -31620,6 +31922,10 @@ public class DatosEntrada implements java.io.Serializable {
 						TipoContenedor tipo = tipoContenedorDe(producto);
 						errores.addAll(esperaCoherente(dia, terminal.idUbicacion, "PLANTA", tipo));
 						for (Ubicacion deposito : depositos) {
+							if (!almacenaProducto(deposito.idUbicacion, producto)) {
+								continue;
+							}
+
 							errores.addAll(esperaCoherente(dia, terminal.idUbicacion,
 									deposito.idUbicacion, tipo));
 						}
@@ -32499,8 +32805,13 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		double[] tipoCambio = new double[12];
 		java.util.Arrays.fill(tipoCambio, 1.0);
-		for (Fila f : filas("Tipo_cambio", "id_escenario", idEscenario)) {
-			tipoCambio = leerBuckets(f);
+		// La hoja solo existe en el maestro nuevo, donde hay tarifas en pesos. El contrato
+		// original cotiza todo en USD: sin la hoja el tipo de cambio queda en 1.0, que no es
+		// un error de datos (ADR-069).
+		if (hojas().contains("Tipo_cambio")) {
+			for (Fila f : filas("Tipo_cambio", "id_escenario", idEscenario)) {
+				tipoCambio = leerBuckets(f);
+			}
 		}
 
 		for (Fila f : filas("Producto", "id_escenario", idEscenario)) {
@@ -32582,7 +32893,7 @@ public class ImportadorExcel implements java.io.Serializable {
 							f.texto("origen"), f.texto("destino"), f.producto("producto"),
 							f.texto("tipo_camion"), f.numero("capacidad_camion_tn"), unidad,
 							aUsd(valores[m], moneda, m, tipoCambio), variableUsdTn,
-							proveedor, DIA_DESDE_MES[m], DIA_HASTA_MES[m], habilitada));
+							proveedor, DIA_DESDE_MES[m], hastaDelMes(m), habilitada));
 				}
 			}
 		} else {
@@ -32610,7 +32921,7 @@ public class ImportadorExcel implements java.io.Serializable {
 							f.texto("terminal"), f.texto("sitio"), f.contenedor("tipo_contenedor"),
 							aUsd(valores[m], moneda, m, tipoCambio),
 							f.numero("horas_espera_incluidas"), f.numero("tarifa_espera_usd_hora"),
-							proveedor, DIA_DESDE_MES[m], DIA_HASTA_MES[m], habilitada));
+							proveedor, DIA_DESDE_MES[m], hastaDelMes(m), habilitada));
 				}
 			}
 		}
@@ -32755,6 +33066,31 @@ public class ImportadorExcel implements java.io.Serializable {
 		int cCalidad = columnaAlias(encabezados, new String[] {"calidad"});
 		int cMaterial = columnaAlias(encabezados, new String[] {"material"});
 
+		// El maestro 2026 nombra la columna de toneladas con el bucket de campania
+		// ("1-365") y repite "Producto" para el material: dos encabezados que el
+		// contrato no conoce y que, sin tolerarlos, dejan la hoja ilegible. Lo que se
+		// interpreta se informa, para que la traza diga que columna se leyo como que.
+		if (cToneladas < 0) {
+			cToneladas = columnaBucketUnica(hoja, columnas);
+
+			if (cToneladas > 0) {
+				advertencias.add("La hoja " + hoja + " no trae columna de toneladas del contrato:"
+						+ " se lee la columna de rango de dias '"
+						+ libro.getCellStringValue(hoja, 1, cToneladas)
+						+ "' como stock inicial en toneladas.");
+			}
+		}
+
+		if (cMaterial < 0) {
+			cMaterial = columnaRepetida(hoja, columnas, cProducto);
+
+			if (cMaterial > 0) {
+				advertencias.add("La hoja " + hoja + " repite el encabezado '"
+						+ libro.getCellStringValue(hoja, 1, cProducto) + "': la segunda columna se lee"
+						+ " como material del stock inicial (ADR-067).");
+			}
+		}
+
 		// Producto, ubicacion y toneladas son el minimo irreducible: lo demas tiene
 		// un default explicito y auditable.
 		if (cProducto < 0 || cUbicacion < 0 || cToneladas < 0) {
@@ -32839,6 +33175,78 @@ public class ImportadorExcel implements java.io.Serializable {
 	}
 
 	/**
+	 * Columna cuyo encabezado es un rango de dias ("1-365", "0-364"): asi nombra el
+	 * maestro 2026 la columna de valor de una hoja que no varia en el tiempo.
+	 * Devuelve -1 si no hay ninguna o si hay mas de una, porque con dos rangos no
+	 * se puede saber cual es el valor y adivinar seria peor que fallar.
+	 */
+	private int columnaBucketUnica(String hoja, int columnas) {
+		int encontrada = -1;
+
+		for (int c = 1; c <= columnas; c++) {
+			if (!libro.cellExists(hoja, 1, c)) {
+				continue;
+			}
+
+			if (!esRangoDeDias(libro.getCellStringValue(hoja, 1, c))) {
+				continue;
+			}
+
+			if (encontrada > 0) {
+				return -1;
+			}
+
+			encontrada = c;
+		}
+
+		return encontrada;
+	}
+
+	/** Encabezado con forma "entero - entero", el bucket de dias del maestro 2026. */
+	private boolean esRangoDeDias(String texto) {
+		if (texto == null) {
+			return false;
+		}
+
+		String limpio = texto.trim();
+		int guion = limpio.indexOf('-');
+
+		if (guion <= 0 || guion == limpio.length() - 1) {
+			return false;
+		}
+
+		try {
+			Integer.parseInt(limpio.substring(0, guion).trim());
+			Integer.parseInt(limpio.substring(guion + 1).trim());
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Segunda aparicion del mismo encabezado que la columna dada. El maestro 2026
+	 * escribe el material del stock inicial en una segunda columna llamada tambien
+	 * "Producto", y el mapa de encabezados solo guarda la primera.
+	 */
+	private int columnaRepetida(String hoja, int columnas, int columna) {
+		if (columna < 1 || !libro.cellExists(hoja, 1, columna)) {
+			return -1;
+		}
+
+		String buscado = normalizar(libro.getCellStringValue(hoja, 1, columna));
+
+		for (int c = columna + 1; c <= columnas; c++) {
+			if (libro.cellExists(hoja, 1, c)
+					&& normalizar(libro.getCellStringValue(hoja, 1, c)).equals(buscado)) {
+				return c;
+			}
+		}
+
+		return -1;
+	}
+
+	/**
 	 * Nombre real de la hoja de stock inicial. Se acepta cualquier hoja cuyo
 	 * nombre normalizado empiece con STOCK y contenga INICIAL, porque la hoja la
 	 * escribe una persona y una errata de tipeo no deberia leerse como "no hay
@@ -32871,6 +33279,15 @@ public class ImportadorExcel implements java.io.Serializable {
 	};
 	private static final int[] DIA_DESDE_MES = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
 	private static final int[] DIA_HASTA_MES = {30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333, 364};
+
+	/** Hasta que dia rige el tramo mensual m. El ultimo queda abierto: el flujo sigue
+	 * cerrando envios despues del ultimo dia de campania (ADR-064) y esos cargos se
+	 * cotizan con la tarifa del dia de devengo, que puede ser 365 o mas. Es el mismo
+	 * criterio que el maestro usa en TarifaEspera, donde el ultimo tramo termina en
+	 * 9999 (ADR-069). */
+	private int hastaDelMes(int mes) {
+		return mes == 11 ? 9999 : DIA_HASTA_MES[mes];
+	}
 
 	/** Los 12 valores de un bucket mensual, en el orden de COLUMNAS_MES. Una celda
 	 * vacia es 0 (el sitio no cobra ese concepto ese mes), no un error de carga. */
@@ -33155,7 +33572,7 @@ public class ImportadorExcel implements java.io.Serializable {
 						valores[6][m], DatosEntrada.Unidad.USD_CONTENEDOR,
 						0, valores[3][m],
 						valores[4][m], DatosEntrada.Unidad.USD_CONTENEDOR,
-						"MAESTRO_2026", DIA_DESDE_MES[m], DIA_HASTA_MES[m], true));
+						"MAESTRO_2026", DIA_DESDE_MES[m], hastaDelMes(m), true));
 			}
 		}
 	}
@@ -33188,7 +33605,7 @@ public class ImportadorExcel implements java.io.Serializable {
 			for (int m = 0; m < 12; m++) {
 				datos.tarifasThc.add(new DatosEntrada.TarifaThc(naviera, tipo,
 						aUsd(valores[m], moneda, m, tipoCambio),
-						"MAESTRO_2026", DIA_DESDE_MES[m], DIA_HASTA_MES[m], true));
+						"MAESTRO_2026", DIA_DESDE_MES[m], hastaDelMes(m), true));
 			}
 		}
 	}
@@ -35127,6 +35544,7 @@ public class Inventario implements java.io.Serializable {
 	}
 }]]></Text>
 		</JavaClass>
+		<!--   =========   Java Class   ========  -->
 		<JavaClass>
 			<Id>1792600000001</Id>
 			<Name><![CDATA[ReservaCapacidad]]></Name>
@@ -35208,8 +35626,8 @@ public class ReservaCapacidad implements java.io.Serializable {
 				+ (idContenedor.isEmpty() ? "" : " | " + idContenedor);
 	}
 }]]></Text>
-			<ImportSection><![CDATA[]]></ImportSection>
 		</JavaClass>
+		<!--   =========   Java Class   ========  -->
 		<JavaClass>
 			<Id>1793000000100</Id>
 			<Name><![CDATA[UnidadFlotaProducto]]></Name>
@@ -35273,8 +35691,8 @@ public class UnidadFlotaProducto implements java.io.Serializable {
 				+ (idViajeActual.isEmpty() ? "" : " | " + idViajeActual);
 	}
 }]]></Text>
-			<ImportSection><![CDATA[]]></ImportSection>
 		</JavaClass>
+		<!--   =========   Java Class   ========  -->
 		<JavaClass>
 			<Id>1793000000200</Id>
 			<Name><![CDATA[ViajeProducto]]></Name>
@@ -35382,8 +35800,8 @@ public class ViajeProducto implements java.io.Serializable {
 				+ " | " + estado;
 	}
 }]]></Text>
-			<ImportSection><![CDATA[]]></ImportSection>
 		</JavaClass>
+		<!--   =========   Java Class   ========  -->
 		<JavaClass>
 			<Id>1793000000300</Id>
 			<Name><![CDATA[ResultadoDisponibilidadFlota]]></Name>
@@ -35425,7 +35843,6 @@ public class ResultadoDisponibilidadFlota implements java.io.Serializable {
 				+ (motivo.isEmpty() ? "" : " | " + motivo);
 	}
 }]]></Text>
-			<ImportSection><![CDATA[]]></ImportSection>
 		</JavaClass>
 		<!--   =========   Java Class   ========  -->
 		<JavaClass>
@@ -35644,7 +36061,6 @@ public class AuditoriaRed implements java.io.Serializable {
 		return valor ? "true" : "false";
 	}
 }]]></Text>
-			<ImportSection><![CDATA[]]></ImportSection>
 		</JavaClass>
 		<!--   =========   Java Class   ========  -->
 		<JavaClass>
@@ -35932,7 +36348,6 @@ public class RegistroDecisionAlternativa implements java.io.Serializable {
 		return f.toString();
 	}
 }]]></Text>
-			<ImportSection><![CDATA[]]></ImportSection>
 		</JavaClass>
 		<!--   =========   Java Class   ========  -->
 		<JavaClass>
@@ -36057,7 +36472,6 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 		return f.toString();
 	}
 }]]></Text>
-			<ImportSection><![CDATA[]]></ImportSection>
 		</JavaClass>
 		<!--   =========   Java Class   ========  -->
 		<JavaClass>
@@ -36150,7 +36564,6 @@ public class SnapshotInventario implements java.io.Serializable {
 		return f.toString();
 	}
 }]]></Text>
-			<ImportSection><![CDATA[]]></ImportSection>
 		</JavaClass>
 	</JavaClasses>
     <RequiredLibraryReference>

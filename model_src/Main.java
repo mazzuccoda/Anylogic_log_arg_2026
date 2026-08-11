@@ -172,6 +172,8 @@ class Main extends Agent {
     //  lotes
     //  planes
     //  depFrinoa
+    //  depGrupoPaz
+    //  depControlUnion
     //  depNorry
     //  depBoreas
     //  depRuta9
@@ -196,6 +198,29 @@ class Main extends Agent {
     //  salidaEnvios
     //  entradaEnvios
     //  contenedoresExportacion
+
+    // ----- Codigo de arranque (StartupCode) -----
+    void onStartup() {
+        depositos.clear();
+
+        depositos.add(depFrinoa);
+        depositos.add(depNorry);
+        depositos.add(depBoreas);
+        depositos.add(depRuta9);
+        depositos.add(depDodero);
+        depositos.add(depGrupoPaz);
+        depositos.add(depControlUnion);
+
+        terminales.clear();
+
+        terminales.add(terminalZarate);
+        terminales.add(terminalT4);
+
+        cargarDatosEntrada();
+        inicializarFlotaProducto();
+        cargarStockInicial();
+        abrirAuditoriaRed();
+    }
 
     // ----- Funciones -----
 
@@ -844,6 +869,11 @@ class Main extends Agent {
         pedido.codigoPedido = codigo;
         pedido.producto = producto;
         pedido.material = plan.material;
+
+        // Recien aca producto y material son los del pedido real, asi que el contenedor
+        // se resuelve aca y no en el startup del agente (ADR-069).
+        pedido.tipoContenedor = obtenerTipoContenedor(producto, plan.material);
+        pedido.capacidadContenedorTon = obtenerCapacidadContenedorTon(producto, plan.material);
         pedido.toneladasSolicitadas = toneladas;
         pedido.toneladasReservadas = 0;
         pedido.toneladasEntregadas = 0;
@@ -1282,6 +1312,37 @@ class Main extends Agent {
                 + "):"
                 + detalle
             );
+        }
+
+        // La red del modelo es un superconjunto de la del libro: un escenario puede no
+        // declarar un deposito que existe en el canvas. Se lo saca de la coleccion en vez de
+        // dejarlo pidiendo capacidades y tarifas que el libro no tiene por que traer (ADR-069).
+        for (int i = depositos.size() - 1; i >= 0; i--) {
+            Deposito deposito = depositos.get(i);
+
+            if (!datos.existeUbicacion(deposito.idUbicacion)) {
+                deposito.habilitado = false;
+                depositos.remove(i);
+
+                traceln(
+                    "Advertencia de datos: el libro no declara el deposito "
+                    + deposito.idUbicacion
+                    + ", que queda fuera de la red de esta corrida."
+                );
+            }
+        }
+
+        // El caso inverso si es un error: la red fisica son agentes del canvas (limitacion
+        // declarada en ADR-069) y un deposito del libro sin agente no almacena nada. Sin este
+        // aviso el sintoma aparece mucho despues como "la ubicacion no tiene capacidad".
+        for (DatosEntrada.Ubicacion u : datos.ubicacionesDeTipo("DEPOSITO")) {
+            if (u.habilitada && buscarDeposito(u.idUbicacion) == null) {
+                error(
+                    "El libro declara el deposito " + u.idUbicacion
+                    + " pero la red del modelo no tiene un agente Deposito para el:"
+                    + " hay que agregarlo en Main (ADR-069)."
+                );
+            }
         }
 
         aplicarEscenario();
@@ -4555,14 +4616,23 @@ class Main extends Agent {
 
         for (Deposito deposito : depositos) {
 
+            // Un deposito sin capacidad declarada para el producto no lo almacena nunca, asi que
+            // no necesita tarifa de almacenaje: exigirla abortaria la carga por una combinacion
+            // fisicamente imposible (ADR-069).
             deposito.costoJugoTnDia =
-                datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.JUGO);
+                datos.almacenaProducto(deposito.idUbicacion, TipoProducto.JUGO)
+                ? datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.JUGO)
+                : 0;
 
             deposito.costoCascaraTnDia =
-                datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.CASCARA);
+                datos.almacenaProducto(deposito.idUbicacion, TipoProducto.CASCARA)
+                ? datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.CASCARA)
+                : 0;
 
             deposito.costoAceiteTnDia =
-                datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.ACEITE);
+                datos.almacenaProducto(deposito.idUbicacion, TipoProducto.ACEITE)
+                ? datos.storageUsdTnDia(dia, deposito.idUbicacion, TipoProducto.ACEITE)
+                : 0;
         }
     }
 

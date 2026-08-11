@@ -408,3 +408,18 @@ Una fase está terminada cuando:
 - está documentada;
 - tiene respaldo versionado;
 - no rompe regresión.
+## 11o. MOD — El maestro real corre entero (ADR-069)
+
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y corrido en AnyLogic PLE 8.9.9**: campaña completa de 365 días desde `datos/Maestro_Simulacion.xlsx` y regresión desde `datos/entrada_ejemplo.xlsx`. Es la primera corrida real de 11k a 11n (ADR-065 a ADR-068), que estaban declarados pendientes de compilar: al correrlos con el maestro real, la carga y la campaña abortaron en ocho puntos distintos.
+
+- [x] `Stock_inicial` con las toneladas en la columna de rango `1-365` y el material en la segunda columna `Producto`, las dos con advertencia explícita — 6 589 tn que antes no entraban, y que con `material = ""` habrían entrado inertes (ADR-067).
+- [x] El tipo de contenedor se resuelve en `crearPedido()`, no en el `StartupCode` de `Pedido`/`ContenedorExportacion`: el arranque del agente corre antes de que el pedido tenga producto y material.
+- [x] `GRUPO_PAZ` y `CONTROL_UNION` como agentes `Deposito` de la red, con su stock en el tablero; un agente que el libro no declara sale de la colección con advertencia, y un depósito habilitado del libro sin agente es un error que aborta nombrándolo.
+- [x] `capacidadDeclaradaTn()`/`almacenaProducto()`: un depósito sin capacidad declarada de un producto no necesita almacenaje, flete ni round trip de ese producto (cobertura de tarifas y refresco diario).
+- [x] El último de los 12 buckets mensuales queda abierto — el flujo cierra envíos después del último día de campaña y esos cargos se cotizan con la tarifa del día de devengo (abortaba en el día 365).
+- [x] Hoja `Tipo_cambio` opcional: sin ella el tipo de cambio es 1,0. Esto **reabre `datos/entrada_ejemplo.xlsx`**, que desde ADR-068 no cargaba.
+- [x] Datos del maestro: las cuatro distancias `GRUPO_PAZ`/`CONTROL_UNION` → `ZARATE`/`T4` a 1 200 km (confirmadas por el usuario), capacidades explícitas en cero de los productos que esos depósitos no almacenan, y tarifas de espera y flete de cáscara.
+- [x] `tools/exportar_modelo.py` exporta el `StartupCode` de cada agente: dos de los ocho errores estaban en código de arranque que el espejo revisable no mostraba.
+- [x] Campaña `E-00` completa: 29 439 tn exportadas de 30 656 pedidas, servicio 72 %, 16 atrasados, auditoría `COMPLETA` con descuadre de inventario 0. `JUGO/JCL` queda en su techo por dato (15 842 tn disponibles contra 16 961 pedidas) sin canibalizar `JCCL`/`PCL`.
+- [ ] **No corrido, por pedido explícito:** el barrido de escenarios (`fase-28`) con estos números.
+- [ ] Pendiente: cargar en el maestro las columnas de oportunidad/penalidad de ADR-049 (hoy sin equivalente) y los tramos depósito-depósito que ADR-066 necesita para ejercitar el rebalanceo.
