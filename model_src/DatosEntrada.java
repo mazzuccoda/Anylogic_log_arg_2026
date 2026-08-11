@@ -556,6 +556,30 @@ public class DatosEntrada implements java.io.Serializable {
 		return resultado;
 	}
 
+	/**
+	 * Capacidad declarada sin exigir la fila: cero cuando la tabla no la trae. Sirve
+	 * para saber si un deposito puede almacenar un producto sin abortar por el dato
+	 * que justamente dice que no puede (ADR-069).
+	 */
+	public double capacidadDeclaradaTn(String idUbicacion, TipoProducto producto) {
+		for (Capacidad c : capacidades) {
+			if (c.idUbicacion.equals(idUbicacion) && c.producto == producto) {
+				return c.capacidadTn;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Un deposito con capacidad cero para un producto no puede almacenarlo nunca, asi
+	 * que exigirle flete, round trip o almacenaje de ese producto es pedir un dato que
+	 * la corrida no va a leer jamas (ADR-069). El maestro real usa esto: GRUPO_PAZ y
+	 * CONTROL_UNION son depositos de CASCARA y no declaran capacidad de JUGO ni ACEITE.
+	 */
+	public boolean almacenaProducto(String idUbicacion, TipoProducto producto) {
+		return capacidadDeclaradaTn(idUbicacion, producto) > 0;
+	}
+
 	public double capacidadTn(String idUbicacion, TipoProducto producto) {
 		for (Capacidad c : capacidades) {
 			if (c.idUbicacion.equals(idUbicacion) && c.producto == producto) {
@@ -1495,6 +1519,10 @@ public class DatosEntrada implements java.io.Serializable {
 				}
 
 				for (Ubicacion deposito : depositos) {
+					if (!almacenaProducto(deposito.idUbicacion, producto)) {
+						continue;
+					}
+
 					errores.addAll(unaSola(dia, deposito.idUbicacion, producto));
 					errores.addAll(unaSolaFlete(dia, "PLANTA", deposito.idUbicacion, producto));
 				}
@@ -1505,6 +1533,10 @@ public class DatosEntrada implements java.io.Serializable {
 					errores.addAll(unaSolaRoundTrip(dia, terminal.idUbicacion, "PLANTA", producto));
 
 					for (Ubicacion deposito : depositos) {
+						if (!almacenaProducto(deposito.idUbicacion, producto)) {
+							continue;
+						}
+
 						errores.addAll(unaSolaFlete(dia, deposito.idUbicacion, terminal.idUbicacion,
 								producto));
 						errores.addAll(unaSolaRoundTrip(dia, terminal.idUbicacion, deposito.idUbicacion,
@@ -1533,6 +1565,10 @@ public class DatosEntrada implements java.io.Serializable {
 						TipoContenedor tipo = tipoContenedorDe(producto);
 						errores.addAll(esperaCoherente(dia, terminal.idUbicacion, "PLANTA", tipo));
 						for (Ubicacion deposito : depositos) {
+							if (!almacenaProducto(deposito.idUbicacion, producto)) {
+								continue;
+							}
+
 							errores.addAll(esperaCoherente(dia, terminal.idUbicacion,
 									deposito.idUbicacion, tipo));
 						}

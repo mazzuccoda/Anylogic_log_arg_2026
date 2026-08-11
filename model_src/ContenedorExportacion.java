@@ -37,4 +37,15 @@ class ContenedorExportacion extends Agent {
     int diaPlanificadoOperacion = -1;
     String idUbicacionOperacion = "";
     String tipoRecursoOperacion = "";
+
+    // ----- Codigo de arranque (StartupCode) -----
+    void onStartup() {
+        // Red de seguridad para un contenedor creado sin capacidad. El material es parte
+        // de la identidad del producto (ADR-067) y en el startup todavia es el default,
+        // asi que solo se puede cotizar cuando ya vino con material (ADR-069): quien crea
+        // el contenedor le pasa la capacidad del pedido inmediatamente despues.
+        if (capacidadTon <= 0 && main != null && material != null && !material.isEmpty()) {
+            capacidadTon = main.obtenerCapacidadContenedorTon(producto, material);
+        }
+    }
 }

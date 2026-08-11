@@ -61,6 +61,14 @@ class Pedido extends Agent {
     boolean reprogramado = false;
     int cantidadReprogramaciones = 0;
 
+    // ----- Codigo de arranque (StartupCode) -----
+    void onStartup() {
+        // El tipo de contenedor NO se resuelve aca: el startup del agente corre antes de
+        // que crearPedido() cargue producto y material, asi que resolverlo aca lo cotiza
+        // con los valores default y, desde que el material es parte de la identidad
+        // (ADR-067), pide a la tabla Producto una fila que no existe (ADR-069).
+    }
+
     // ----- Funciones -----
 
     int calcularCantidadContenedores() {

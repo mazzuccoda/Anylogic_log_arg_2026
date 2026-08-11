@@ -123,8 +123,13 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		double[] tipoCambio = new double[12];
 		java.util.Arrays.fill(tipoCambio, 1.0);
-		for (Fila f : filas("Tipo_cambio", "id_escenario", idEscenario)) {
-			tipoCambio = leerBuckets(f);
+		// La hoja solo existe en el maestro nuevo, donde hay tarifas en pesos. El contrato
+		// original cotiza todo en USD: sin la hoja el tipo de cambio queda en 1.0, que no es
+		// un error de datos (ADR-069).
+		if (hojas().contains("Tipo_cambio")) {
+			for (Fila f : filas("Tipo_cambio", "id_escenario", idEscenario)) {
+				tipoCambio = leerBuckets(f);
+			}
 		}
 
 		for (Fila f : filas("Producto", "id_escenario", idEscenario)) {
@@ -206,7 +211,7 @@ public class ImportadorExcel implements java.io.Serializable {
 							f.texto("origen"), f.texto("destino"), f.producto("producto"),
 							f.texto("tipo_camion"), f.numero("capacidad_camion_tn"), unidad,
 							aUsd(valores[m], moneda, m, tipoCambio), variableUsdTn,
-							proveedor, DIA_DESDE_MES[m], DIA_HASTA_MES[m], habilitada));
+							proveedor, DIA_DESDE_MES[m], hastaDelMes(m), habilitada));
 				}
 			}
 		} else {
@@ -234,7 +239,7 @@ public class ImportadorExcel implements java.io.Serializable {
 							f.texto("terminal"), f.texto("sitio"), f.contenedor("tipo_contenedor"),
 							aUsd(valores[m], moneda, m, tipoCambio),
 							f.numero("horas_espera_incluidas"), f.numero("tarifa_espera_usd_hora"),
-							proveedor, DIA_DESDE_MES[m], DIA_HASTA_MES[m], habilitada));
+							proveedor, DIA_DESDE_MES[m], hastaDelMes(m), habilitada));
 				}
 			}
 		}
@@ -379,6 +384,31 @@ public class ImportadorExcel implements java.io.Serializable {
 		int cCalidad = columnaAlias(encabezados, new String[] {"calidad"});
 		int cMaterial = columnaAlias(encabezados, new String[] {"material"});
 
+		// El maestro 2026 nombra la columna de toneladas con el bucket de campania
+		// ("1-365") y repite "Producto" para el material: dos encabezados que el
+		// contrato no conoce y que, sin tolerarlos, dejan la hoja ilegible. Lo que se
+		// interpreta se informa, para que la traza diga que columna se leyo como que.
+		if (cToneladas < 0) {
+			cToneladas = columnaBucketUnica(hoja, columnas);
+
+			if (cToneladas > 0) {
+				advertencias.add("La hoja " + hoja + " no trae columna de toneladas del contrato:"
+						+ " se lee la columna de rango de dias '"
+						+ libro.getCellStringValue(hoja, 1, cToneladas)
+						+ "' como stock inicial en toneladas.");
+			}
+		}
+
+		if (cMaterial < 0) {
+			cMaterial = columnaRepetida(hoja, columnas, cProducto);
+
+			if (cMaterial > 0) {
+				advertencias.add("La hoja " + hoja + " repite el encabezado '"
+						+ libro.getCellStringValue(hoja, 1, cProducto) + "': la segunda columna se lee"
+						+ " como material del stock inicial (ADR-067).");
+			}
+		}
+
 		// Producto, ubicacion y toneladas son el minimo irreducible: lo demas tiene
 		// un default explicito y auditable.
 		if (cProducto < 0 || cUbicacion < 0 || cToneladas < 0) {
@@ -463,6 +493,78 @@ public class ImportadorExcel implements java.io.Serializable {
 	}
 
 	/**
+	 * Columna cuyo encabezado es un rango de dias ("1-365", "0-364"): asi nombra el
+	 * maestro 2026 la columna de valor de una hoja que no varia en el tiempo.
+	 * Devuelve -1 si no hay ninguna o si hay mas de una, porque con dos rangos no
+	 * se puede saber cual es el valor y adivinar seria peor que fallar.
+	 */
+	private int columnaBucketUnica(String hoja, int columnas) {
+		int encontrada = -1;
+
+		for (int c = 1; c <= columnas; c++) {
+			if (!libro.cellExists(hoja, 1, c)) {
+				continue;
+			}
+
+			if (!esRangoDeDias(libro.getCellStringValue(hoja, 1, c))) {
+				continue;
+			}
+
+			if (encontrada > 0) {
+				return -1;
+			}
+
+			encontrada = c;
+		}
+
+		return encontrada;
+	}
+
+	/** Encabezado con forma "entero - entero", el bucket de dias del maestro 2026. */
+	private boolean esRangoDeDias(String texto) {
+		if (texto == null) {
+			return false;
+		}
+
+		String limpio = texto.trim();
+		int guion = limpio.indexOf('-');
+
+		if (guion <= 0 || guion == limpio.length() - 1) {
+			return false;
+		}
+
+		try {
+			Integer.parseInt(limpio.substring(0, guion).trim());
+			Integer.parseInt(limpio.substring(guion + 1).trim());
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Segunda aparicion del mismo encabezado que la columna dada. El maestro 2026
+	 * escribe el material del stock inicial en una segunda columna llamada tambien
+	 * "Producto", y el mapa de encabezados solo guarda la primera.
+	 */
+	private int columnaRepetida(String hoja, int columnas, int columna) {
+		if (columna < 1 || !libro.cellExists(hoja, 1, columna)) {
+			return -1;
+		}
+
+		String buscado = normalizar(libro.getCellStringValue(hoja, 1, columna));
+
+		for (int c = columna + 1; c <= columnas; c++) {
+			if (libro.cellExists(hoja, 1, c)
+					&& normalizar(libro.getCellStringValue(hoja, 1, c)).equals(buscado)) {
+				return c;
+			}
+		}
+
+		return -1;
+	}
+
+	/**
 	 * Nombre real de la hoja de stock inicial. Se acepta cualquier hoja cuyo
 	 * nombre normalizado empiece con STOCK y contenga INICIAL, porque la hoja la
 	 * escribe una persona y una errata de tipeo no deberia leerse como "no hay
@@ -495,6 +597,15 @@ public class ImportadorExcel implements java.io.Serializable {
 	};
 	private static final int[] DIA_DESDE_MES = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
 	private static final int[] DIA_HASTA_MES = {30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333, 364};
+
+	/** Hasta que dia rige el tramo mensual m. El ultimo queda abierto: el flujo sigue
+	 * cerrando envios despues del ultimo dia de campania (ADR-064) y esos cargos se
+	 * cotizan con la tarifa del dia de devengo, que puede ser 365 o mas. Es el mismo
+	 * criterio que el maestro usa en TarifaEspera, donde el ultimo tramo termina en
+	 * 9999 (ADR-069). */
+	private int hastaDelMes(int mes) {
+		return mes == 11 ? 9999 : DIA_HASTA_MES[mes];
+	}
 
 	/** Los 12 valores de un bucket mensual, en el orden de COLUMNAS_MES. Una celda
 	 * vacia es 0 (el sitio no cobra ese concepto ese mes), no un error de carga. */
@@ -779,7 +890,7 @@ public class ImportadorExcel implements java.io.Serializable {
 						valores[6][m], DatosEntrada.Unidad.USD_CONTENEDOR,
 						0, valores[3][m],
 						valores[4][m], DatosEntrada.Unidad.USD_CONTENEDOR,
-						"MAESTRO_2026", DIA_DESDE_MES[m], DIA_HASTA_MES[m], true));
+						"MAESTRO_2026", DIA_DESDE_MES[m], hastaDelMes(m), true));
 			}
 		}
 	}
@@ -812,7 +923,7 @@ public class ImportadorExcel implements java.io.Serializable {
 			for (int m = 0; m < 12; m++) {
 				datos.tarifasThc.add(new DatosEntrada.TarifaThc(naviera, tipo,
 						aUsd(valores[m], moneda, m, tipoCambio),
-						"MAESTRO_2026", DIA_DESDE_MES[m], DIA_HASTA_MES[m], true));
+						"MAESTRO_2026", DIA_DESDE_MES[m], hastaDelMes(m), true));
 			}
 		}
 	}
