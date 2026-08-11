@@ -17,7 +17,6 @@ resultados/
 # Datos con tarifas reales (confidenciales). Versionar sólo ejemplos.
 datos/entrada_*.xlsx
 !datos/entrada_ejemplo.xlsx
-datos/Maestro_*.xlsx
 
 # Herramientas
 __pycache__/

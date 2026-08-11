@@ -2785,7 +2785,7 @@ abrirAuditoriaRed();]]></StartupCode>
 						<UnitType><![CDATA[NONE]]></UnitType>
 						<SdArray>false</SdArray>
 						<DefaultValue Class="CodeValue">
-							<Code><![CDATA["datos/entrada_ejemplo.xlsx"]]></Code>
+							<Code><![CDATA["datos/Maestro_Simulacion.xlsx"]]></Code>
 						</DefaultValue>
 						<ParameterEditor>
 							<Id>1791000000116</Id>
@@ -29321,9 +29321,6 @@ root.cerrarAuditoriaRed();]]></AfterSimulationRunCode>
 				</Parameter>
 				<Parameter>
 					<ParameterName><![CDATA[rutaExcel]]></ParameterName>
-					<ParameterValue Class="CodeValue">
-						<Code><![CDATA["datos/entrada_ejemplo.xlsx"]]></Code>
-					</ParameterValue>
 				</Parameter>
 				<Parameter>
 					<ParameterName><![CDATA[idEscenario]]></ParameterName>
@@ -32803,15 +32800,14 @@ public class ImportadorExcel implements java.io.Serializable {
 			errores.add("La hoja Escenario no tiene ninguna fila con id_escenario = " + idEscenario + ".");
 		}
 
-		double[] tipoCambio = new double[12];
-		java.util.Arrays.fill(tipoCambio, 1.0);
 		// La hoja solo existe en el maestro nuevo, donde hay tarifas en pesos. El contrato
-		// original cotiza todo en USD: sin la hoja el tipo de cambio queda en 1.0, que no es
-		// un error de datos (ADR-069).
-		if (hojas().contains("Tipo_cambio")) {
-			for (Fila f : filas("Tipo_cambio", "id_escenario", idEscenario)) {
-				tipoCambio = leerBuckets(f);
-			}
+		// original cotiza todo en USD: sin la hoja no hay conversion que hacer, y una tarifa
+		// en pesos sin esta hoja falla al convertir, con la hoja y el dia en el mensaje
+		// (ADR-069, ADR-070).
+		Tramos tipoCambio = null;
+
+		for (Fila f : filas("Tipo_cambio", "id_escenario", idEscenario, false)) {
+			tipoCambio = leerTramos("Tipo_cambio", f);
 		}
 
 		for (Fila f : filas("Producto", "id_escenario", idEscenario)) {
@@ -32882,18 +32878,19 @@ public class ImportadorExcel implements java.io.Serializable {
 			// Renombrada en el maestro nuevo, con buckets mensuales en vez de vigencia +
 			// una columna tarifa, y sin variable_usd_tn (se asume 0, ADR-068).
 			for (Fila f : filas("TarifaFleteCamionproducto", "id_escenario", idEscenario)) {
-				double[] valores = leerBuckets(f);
+				Tramos tramos = verificarGrilla("TarifaFleteCamionproducto",
+						leerTramos("TarifaFleteCamionproducto", f));
 				String moneda = f.textoOpcional("Moneda", "USD");
 				String proveedor = f.textoOpcional("proveedor", "MAESTRO_2026");
 				boolean habilitada = f.booleanoOpcional("habilitada", true);
 				DatosEntrada.Unidad unidad = unidadDeViaje(f.texto("unidad"));
 				double variableUsdTn = f.numeroOpcional("variable_usd_tn", 0);
-				for (int m = 0; m < 12; m++) {
+				for (int m = 0; m < tramos.cantidad(); m++) {
 					datos.tarifasFlete.add(new DatosEntrada.TarifaFlete(
 							f.texto("origen"), f.texto("destino"), f.producto("producto"),
 							f.texto("tipo_camion"), f.numero("capacidad_camion_tn"), unidad,
-							aUsd(valores[m], moneda, m, tipoCambio), variableUsdTn,
-							proveedor, DIA_DESDE_MES[m], hastaDelMes(m), habilitada));
+							aUsd(tramos.valor[m], moneda, tramos.desde[m], tipoCambio), variableUsdTn,
+							proveedor, tramos.desde[m], tramos.hasta[m], habilitada));
 				}
 			}
 		} else {
@@ -32912,16 +32909,17 @@ public class ImportadorExcel implements java.io.Serializable {
 				// Buckets mensuales en vez de vigencia + tarifa_usd_contenedor (ADR-068);
 				// horas_espera_incluidas y tarifa_espera_usd_hora siguen siendo columnas
 				// planas, no varian por mes.
-				double[] valores = leerBuckets(f);
+				Tramos tramos = verificarGrilla("TarifaRoundTrip",
+						leerTramos("TarifaRoundTrip", f));
 				String moneda = f.textoOpcional("Moneda", "USD");
 				String proveedor = f.textoOpcional("proveedor", "MAESTRO_2026");
 				boolean habilitada = f.booleanoOpcional("habilitada", true);
-				for (int m = 0; m < 12; m++) {
+				for (int m = 0; m < tramos.cantidad(); m++) {
 					datos.tarifasRoundTrip.add(new DatosEntrada.TarifaRoundTrip(
 							f.texto("terminal"), f.texto("sitio"), f.contenedor("tipo_contenedor"),
-							aUsd(valores[m], moneda, m, tipoCambio),
+							aUsd(tramos.valor[m], moneda, tramos.desde[m], tipoCambio),
 							f.numero("horas_espera_incluidas"), f.numero("tarifa_espera_usd_hora"),
-							proveedor, DIA_DESDE_MES[m], hastaDelMes(m), habilitada));
+							proveedor, tramos.desde[m], tramos.hasta[m], habilitada));
 				}
 			}
 		}
@@ -33273,43 +33271,143 @@ public class ImportadorExcel implements java.io.Serializable {
 	 * +-1 dia ("60-89" en vez de "59-90"), asi que la columna manda por posicion, no
 	 * por el numero que dice.
 	 */
-	private static final String[] COLUMNAS_MES = {
-		"0-31", "31-59", "60-89", "89-120", "121-150", "151-181",
-		"182-212", "213-242", "243-273", "274-303", "304-334", "334-365"
-	};
-	private static final int[] DIA_DESDE_MES = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
-	private static final int[] DIA_HASTA_MES = {30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333, 364};
+	/**
+	 * Un tramo de vigencia leido del encabezado de la hoja: el maestro tarifa por
+	 * rangos de dias en columnas ("0-31", "31-59", ...) y los rangos cambian entre
+	 * rondas del relevamiento. Antes los nombres estaban escritos en el codigo y una
+	 * hoja con otros rangos se leia como cero -sin error de lectura- y recien fallaba
+	 * mucho despues como "la tarifa de flete debe ser > 0" (ADR-070).
+	 */
+	private class Tramos {
 
-	/** Hasta que dia rige el tramo mensual m. El ultimo queda abierto: el flujo sigue
-	 * cerrando envios despues del ultimo dia de campania (ADR-064) y esos cargos se
-	 * cotizan con la tarifa del dia de devengo, que puede ser 365 o mas. Es el mismo
-	 * criterio que el maestro usa en TarifaEspera, donde el ultimo tramo termina en
-	 * 9999 (ADR-069). */
-	private int hastaDelMes(int mes) {
-		return mes == 11 ? 9999 : DIA_HASTA_MES[mes];
+		private final int[] desde;
+		private final int[] hasta;
+		private final double[] valor;
+
+		private Tramos(int[] desde, int[] hasta, double[] valor) {
+			this.desde = desde;
+			this.hasta = hasta;
+			this.valor = valor;
+		}
+
+		private int cantidad() {
+			return desde.length;
+		}
+
+		/** El valor vigente el dia dado, o 0 si ningun tramo lo cubre. */
+		private double valorDelDia(int dia) {
+			for (int i = 0; i < desde.length; i++) {
+				if (dia >= desde[i] && dia <= hasta[i]) {
+					return valor[i];
+				}
+			}
+			return 0;
+		}
+
+		private boolean mismosLimites(Tramos otro) {
+			if (otro == null || otro.desde.length != desde.length) {
+				return false;
+			}
+			for (int i = 0; i < desde.length; i++) {
+				if (otro.desde[i] != desde[i] || otro.hasta[i] != hasta[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 
-	/** Los 12 valores de un bucket mensual, en el orden de COLUMNAS_MES. Una celda
-	 * vacia es 0 (el sitio no cobra ese concepto ese mes), no un error de carga. */
-	private double[] leerBuckets(Fila f) {
-		double[] valores = new double[12];
-		for (int m = 0; m < 12; m++) {
-			valores[m] = f.numeroOpcional(COLUMNAS_MES[m], 0);
+	/**
+	 * Los tramos que declara la fila en sus encabezados de rango de dias, en el orden
+	 * de las columnas. El tope de cada tramo es el dia anterior al inicio del
+	 * siguiente, no el numero que dice el encabezado: las hojas del maestro escriben
+	 * el mismo corte de dos formas ("59-90" y "60-89"), y tomar el declarado deja
+	 * huecos o solapes de un dia. El ultimo tramo queda abierto porque el flujo cierra
+	 * envios despues del ultimo dia de campania y esos cargos se cotizan con la tarifa
+	 * del dia de devengo (ADR-064, ADR-069).
+	 */
+	private Tramos leerTramos(String hoja, Fila f) {
+		java.util.List<int[]> columnas = f.columnasDeRango();
+
+		if (columnas.isEmpty()) {
+			String falta = "La hoja " + hoja + " no tiene ninguna columna con rango de dias"
+					+ " ('0-31', '31-59', ...): no se puede saber que vigencia tiene la tarifa.";
+			if (!errores.contains(falta)) {
+				errores.add(falta);
+			}
+			return new Tramos(new int[0], new int[0], new double[0]);
 		}
-		return valores;
+
+		int[] desde = new int[columnas.size()];
+		int[] hasta = new int[columnas.size()];
+		double[] valor = new double[columnas.size()];
+
+		for (int i = 0; i < columnas.size(); i++) {
+			desde[i] = columnas.get(i)[1];
+			valor[i] = f.numeroDeColumna(columnas.get(i)[0]);
+		}
+
+		for (int i = 0; i < columnas.size(); i++) {
+			hasta[i] = i + 1 < columnas.size() ? desde[i + 1] - 1 : 9999;
+		}
+
+		return new Tramos(desde, hasta, valor);
+	}
+
+	/**
+	 * Grilla de tramos de la primera hoja de tarifas que se leyo. Las hojas del
+	 * maestro comparten los mismos cortes, y si una difiere hay que verlo al cargar:
+	 * TarifaSitio se acumula por posicion de tramo entre siete hojas distintas.
+	 */
+	private Tramos grillaTramos = null;
+
+	private Tramos verificarGrilla(String hoja, Tramos tramos) {
+		if (tramos.cantidad() == 0) {
+			return tramos;
+		}
+
+		if (grillaTramos == null) {
+			grillaTramos = tramos;
+			return tramos;
+		}
+
+		if (!tramos.mismosLimites(grillaTramos)) {
+			String detalle = "La hoja " + hoja + " declara " + tramos.cantidad() + " tramos de dias"
+					+ " (el primero " + tramos.desde[0] + "-" + tramos.hasta[0] + ") y el resto del"
+					+ " libro declara " + grillaTramos.cantidad() + " (el primero "
+					+ grillaTramos.desde[0] + "-" + grillaTramos.hasta[0] + "): las tarifas del"
+					+ " maestro tienen que compartir los cortes de vigencia.";
+			if (!errores.contains(detalle)) {
+				errores.add(detalle);
+			}
+		}
+
+		return tramos;
 	}
 
 	/** Convierte a USD un valor tarifado en la moneda de la fila (ADR-068). Solo
 	 * 'USD' se deja pasar sin convertir; cualquier otro valor -incluido '$', que es
-	 * como el maestro nuevo marca los pesos argentinos- se toma como ARS. */
-	private double aUsd(double valor, String moneda, int mes, double[] tipoCambio) {
-		if (moneda != null && moneda.trim().equalsIgnoreCase("USD")) {
+	 * como el maestro marca los pesos argentinos- se divide por el tipo de cambio
+	 * vigente el dia en que empieza el tramo. Un peso sin tipo de cambio es un error
+	 * de datos, no un cero: cotizar en cero abarata la alternativa y cambia la
+	 * decision (ADR-070). */
+	private double aUsd(double valor, String moneda, int dia, Tramos tipoCambio) {
+		if (moneda == null || moneda.trim().length() == 0
+				|| moneda.trim().equalsIgnoreCase("USD")) {
 			return valor;
 		}
-		double tc = tipoCambio[mes];
+
+		double tc = tipoCambio == null ? 0 : tipoCambio.valorDelDia(dia);
+
 		if (tc <= 0) {
-			return 0;
+			String falta = "Hay tarifas en " + moneda.trim() + " y la hoja Tipo_cambio no declara"
+					+ " un tipo de cambio positivo para el dia " + dia + ".";
+			if (!errores.contains(falta)) {
+				errores.add(falta);
+			}
+			return valor;
 		}
+
 		return valor / tc;
 	}
 
@@ -33415,14 +33513,27 @@ public class ImportadorExcel implements java.io.Serializable {
 	 * lee aparte en leerGastosThc() hacia datos.tarifasThc, una tabla nueva con su
 	 * propia clave.
 	 */
-	private void leerTarifaSitioMaestroNuevo(DatosEntrada datos, String idEscenario, double[] tipoCambio) {
-		// acumulado[idUbicacion|producto][concepto][mes]; concepto: 0=in, 1=storage,
+	private void leerTarifaSitioMaestroNuevo(DatosEntrada datos, String idEscenario, Tramos tipoCambio) {
+		// Los siete conceptos se acumulan por posicion de tramo, asi que los tramos los
+		// define la primera hoja con datos y las demas se verifican contra ella (ADR-070).
+		Tramos grilla = grillaDeHojas(new String[] {"Tarifa_almacenaje", "Gastos_terminal",
+				"Despachante", "TarifaConsolidado", "Consolidado", "TarifaCross_docking",
+				"Cross_docking"}, idEscenario);
+
+		if (grilla == null) {
+			errores.add("El libro no trae TarifaSitio ni ninguna hoja de concepto"
+					+ " (Tarifa_almacenaje, Gastos_terminal, Despachante, Consolidado,"
+					+ " Cross_docking) con tramos de dias.");
+			return;
+		}
+
+		// acumulado[idUbicacion|producto][concepto][tramo]; concepto: 0=in, 1=storage,
 		// 2=out, 3=costoTerminal, 4=despachante, 5=consolidacion, 6=crossdock.
 		java.util.Map<String, double[][]> acumulado = new java.util.LinkedHashMap<String, double[][]>();
 
 		for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
 			for (TipoProducto p : TipoProducto.values()) {
-				acumulado.put(u.idUbicacion + "|" + p, new double[7][12]);
+				acumulado.put(u.idUbicacion + "|" + p, new double[7][grilla.cantidad()]);
 			}
 		}
 
@@ -33445,10 +33556,10 @@ public class ImportadorExcel implements java.io.Serializable {
 				errores.add("Concepto desconocido '" + f.texto("Concepto") + "' en Tarifa_almacenaje.");
 				continue;
 			}
-			double[] valores = leerBuckets(f);
+			Tramos tramos = verificarGrilla("Tarifa_almacenaje", leerTramos("Tarifa_almacenaje", f));
 			String moneda = f.textoOpcional("Moneda", "USD");
-			for (int m = 0; m < 12; m++) {
-				fila[indice][m] = aUsd(valores[m], moneda, m, tipoCambio);
+			for (int m = 0; m < tramos.cantidad() && m < grilla.cantidad(); m++) {
+				fila[indice][m] = aUsd(tramos.valor[m], moneda, tramos.desde[m], tipoCambio);
 			}
 		}
 
@@ -33468,10 +33579,10 @@ public class ImportadorExcel implements java.io.Serializable {
 			if (fila == null) {
 				continue;
 			}
-			double[] valores = leerBuckets(f);
+			Tramos tramos = verificarGrilla("Gastos_terminal", leerTramos("Gastos_terminal", f));
 			String moneda = f.textoOpcional("Moneda", "USD");
-			for (int m = 0; m < 12; m++) {
-				fila[3][m] = aUsd(valores[m], moneda, m, tipoCambio);
+			for (int m = 0; m < tramos.cantidad() && m < grilla.cantidad(); m++) {
+				fila[3][m] = aUsd(tramos.valor[m], moneda, tramos.desde[m], tipoCambio);
 			}
 		}
 
@@ -33491,10 +33602,10 @@ public class ImportadorExcel implements java.io.Serializable {
 			if (fila == null) {
 				continue;
 			}
-			double[] valores = leerBuckets(f);
+			Tramos tramos = verificarGrilla("Despachante", leerTramos("Despachante", f));
 			String moneda = f.textoOpcional("Moneda", "USD");
-			for (int m = 0; m < 12; m++) {
-				fila[4][m] = aUsd(valores[m], moneda, m, tipoCambio);
+			for (int m = 0; m < tramos.cantidad() && m < grilla.cantidad(); m++) {
+				fila[4][m] = aUsd(tramos.valor[m], moneda, tramos.desde[m], tipoCambio);
 			}
 		}
 
@@ -33522,10 +33633,10 @@ public class ImportadorExcel implements java.io.Serializable {
 				if (fila == null) {
 					continue;
 				}
-				double[] valores = leerBuckets(f);
+				Tramos tramos = verificarGrilla(hojaConsolidado, leerTramos(hojaConsolidado, f));
 				String moneda = f.textoOpcional("Moneda", "USD");
-				for (int m = 0; m < 12; m++) {
-					fila[5][m] = aUsd(valores[m], moneda, m, tipoCambio);
+				for (int m = 0; m < tramos.cantidad() && m < grilla.cantidad(); m++) {
+					fila[5][m] = aUsd(tramos.valor[m], moneda, tramos.desde[m], tipoCambio);
 				}
 			}
 		}
@@ -33550,10 +33661,10 @@ public class ImportadorExcel implements java.io.Serializable {
 				if (fila == null) {
 					continue;
 				}
-				double[] valores = leerBuckets(f);
+				Tramos tramos = verificarGrilla(hojaCrossDock, leerTramos(hojaCrossDock, f));
 				String moneda = f.textoOpcional("Moneda", "USD");
-				for (int m = 0; m < 12; m++) {
-					fila[6][m] = aUsd(valores[m], moneda, m, tipoCambio);
+				for (int m = 0; m < tramos.cantidad() && m < grilla.cantidad(); m++) {
+					fila[6][m] = aUsd(tramos.valor[m], moneda, tramos.desde[m], tipoCambio);
 				}
 			}
 		}
@@ -33563,7 +33674,7 @@ public class ImportadorExcel implements java.io.Serializable {
 			String idUbicacion = entrada.getKey().substring(0, corte);
 			TipoProducto producto = TipoProducto.valueOf(entrada.getKey().substring(corte + 1));
 			double[][] valores = entrada.getValue();
-			for (int m = 0; m < 12; m++) {
+			for (int m = 0; m < grilla.cantidad(); m++) {
 				datos.tarifasSitio.add(new DatosEntrada.TarifaSitio(
 						idUbicacion, producto,
 						valores[0][m], valores[1][m], valores[2][m],
@@ -33572,7 +33683,7 @@ public class ImportadorExcel implements java.io.Serializable {
 						valores[6][m], DatosEntrada.Unidad.USD_CONTENEDOR,
 						0, valores[3][m],
 						valores[4][m], DatosEntrada.Unidad.USD_CONTENEDOR,
-						"MAESTRO_2026", DIA_DESDE_MES[m], hastaDelMes(m), true));
+						"MAESTRO_2026", grilla.desde[m], grilla.hasta[m], true));
 			}
 		}
 	}
@@ -33587,7 +33698,26 @@ public class ImportadorExcel implements java.io.Serializable {
 	 * descartan con una advertencia en vez de abortar el import: en los datos
 	 * reales todos los pedidos declaran naviera MAERSK, que si esta en el enum.
 	 */
-	private void leerGastosThc(DatosEntrada datos, String idEscenario, double[] tipoCambio) {
+	/** Los tramos de dias de la primera de esas hojas que tenga datos del escenario. */
+	private Tramos grillaDeHojas(String[] candidatas, String idEscenario) {
+		for (String hoja : candidatas) {
+			if (!hojas().contains(hoja)) {
+				continue;
+			}
+
+			for (Fila f : filas(hoja, "id_escenario", idEscenario, false)) {
+				Tramos tramos = leerTramos(hoja, f);
+
+				if (tramos.cantidad() > 0) {
+					return verificarGrilla(hoja, tramos);
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private void leerGastosThc(DatosEntrada datos, String idEscenario, Tramos tipoCambio) {
 		if (!hojas().contains("Gastos_THC")) {
 			return;
 		}
@@ -33600,12 +33730,12 @@ public class ImportadorExcel implements java.io.Serializable {
 						+ f.texto("Tipo Contenor") + ").");
 				continue;
 			}
-			double[] valores = leerBuckets(f);
+			Tramos tramos = verificarGrilla("Gastos_THC", leerTramos("Gastos_THC", f));
 			String moneda = f.textoOpcional("Moneda", "USD");
-			for (int m = 0; m < 12; m++) {
+			for (int m = 0; m < tramos.cantidad(); m++) {
 				datos.tarifasThc.add(new DatosEntrada.TarifaThc(naviera, tipo,
-						aUsd(valores[m], moneda, m, tipoCambio),
-						"MAESTRO_2026", DIA_DESDE_MES[m], hastaDelMes(m), true));
+						aUsd(tramos.valor[m], moneda, tramos.desde[m], tipoCambio),
+						"MAESTRO_2026", tramos.desde[m], tramos.hasta[m], true));
 			}
 		}
 	}
@@ -33776,10 +33906,18 @@ public class ImportadorExcel implements java.io.Serializable {
 	 * existe, anota el error y sigue: el objetivo es listar todo lo que falta.
 	 */
 	private java.util.List<Fila> filas(String hoja, String columnaFiltro, String valorFiltro) {
+		return filas(hoja, columnaFiltro, valorFiltro, true);
+	}
+
+	/** @param obligatoria si la hoja ausente es un error de contrato o simplemente no hay datos. */
+	private java.util.List<Fila> filas(String hoja, String columnaFiltro, String valorFiltro,
+			boolean obligatoria) {
 		java.util.List<Fila> resultado = new java.util.ArrayList<Fila>();
 
 		if (!hojas().contains(hoja)) {
-			errores.add("Falta la hoja " + hoja + ".");
+			if (obligatoria) {
+				errores.add("Falta la hoja " + hoja + ".");
+			}
 			return resultado;
 		}
 
@@ -33858,6 +33996,51 @@ public class ImportadorExcel implements java.io.Serializable {
 			}
 			String v = libro.getCellStringValue(hoja, fila, columna);
 			return v == null ? "" : v.trim();
+		}
+
+		/**
+		 * Las columnas cuyo encabezado es un rango de dias, ordenadas por posicion, como
+		 * pares {columna, primer dia}. Es lo que define la vigencia de las tarifas del
+		 * maestro, que cambia de ronda en ronda (ADR-070).
+		 */
+		private java.util.List<int[]> columnasDeRango() {
+			java.util.List<int[]> encontradas = new java.util.ArrayList<int[]>();
+
+			for (java.util.Map.Entry<String, Integer> e : encabezados.entrySet()) {
+				if (!esRangoDeDias(e.getKey())) {
+					continue;
+				}
+
+				int guion = e.getKey().indexOf('-');
+				int primerDia = Integer.parseInt(e.getKey().substring(0, guion).trim());
+				encontradas.add(new int[] {e.getValue().intValue(), primerDia});
+			}
+
+			java.util.Collections.sort(encontradas, new java.util.Comparator<int[]>() {
+				public int compare(int[] a, int[] b) {
+					return a[0] - b[0];
+				}
+			});
+
+			return encontradas;
+		}
+
+		/** Valor numerico de una columna por posicion. Celda vacia o no numerica es 0: en
+		 * las grillas de tarifa por rango de dias, un mes en blanco es "no cobra". */
+		private double numeroDeColumna(int columna) {
+			String v = comoTexto(columna);
+
+			if (v.length() == 0) {
+				return 0;
+			}
+
+			try {
+				return Double.parseDouble(v.replace(",", "."));
+			} catch (NumberFormatException e) {
+				errores.add("El valor '" + v + "' de la hoja " + hoja + " fila " + fila
+						+ " no es un numero.");
+				return 0;
+			}
 		}
 
 		private int columna(String nombre) {

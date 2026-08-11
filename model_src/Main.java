@@ -7,7 +7,7 @@ class Main extends Agent {
     // ----- Parámetros -----
     AuditoriaRed.Nivel nivelAuditoriaRed = AuditoriaRed.Nivel.DESACTIVADA;
     OrigenDatos origenDatos = OrigenDatos.SINTETICO;
-    String rutaExcel = "datos/entrada_ejemplo.xlsx";
+    String rutaExcel = "datos/Maestro_Simulacion.xlsx";
     String idEscenario = "E-00";
     long semillaBase = 1;
     double diasEstimadosAlmacenamiento = 30;
