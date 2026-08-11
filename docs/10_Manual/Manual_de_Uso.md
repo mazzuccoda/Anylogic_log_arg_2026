@@ -40,7 +40,7 @@ Es la corrida de un escenario, con animación y tablero en vivo. Sirve para ente
    | Parámetro | Qué hace | Valor típico |
    |---|---|---|
    | `origenDatos` | De dónde salen las tablas de entrada | `SINTETICO` |
-   | `rutaExcel` | Libro `.xlsx` a leer si `origenDatos = EXCEL` | `"datos/entrada_ejemplo.xlsx"` |
+   | `rutaExcel` | Libro `.xlsx` a leer si `origenDatos = EXCEL` | `"datos/Maestro_Simulacion.xlsx"` |
    | `idEscenario` | Qué fila de la tabla `Escenario` se aplica | `"E-00"` |
    | `replica` | Número de réplica; cambia la semilla | `0` |
    | `semillaBase` | Semilla base; la corrida usa `semillaBase + replica` | `1` |
@@ -71,7 +71,9 @@ El modelo lee exactamente las mismas tablas, vengan del generador sintético o d
 3. En `Simulation → Properties`, poner `origenDatos = OrigenDatos.EXCEL` y `rutaExcel` con la ruta al libro (relativa a la carpeta del modelo o absoluta).
 4. Correr. Si falta algo, la corrida se detiene **antes del día 1** e informa todos los problemas juntos: hojas faltantes, columnas faltantes, celdas no numéricas con hoja/fila/columna, y después las validaciones de negocio (tarifa faltante, capacidad cero, etc.).
 
-**El maestro real no se versiona.** `.gitignore` excluye `datos/Maestro_*.xlsx` porque trae tarifas reales: el experimento `Simulation` queda apuntando a `datos/entrada_ejemplo.xlsx`, que sí está en el repo. Para correr el maestro, copiarlo a `datos/` y poner `rutaExcel = "datos/Maestro_Simulacion.xlsx"` en las propiedades del experimento. La red física del modelo es un superconjunto de la del libro (ADR-069): un depósito del canvas que el libro no declara sale de la red con una advertencia, así que el mismo modelo corre los dos libros sin editar nada más.
+**El experimento `Simulation` corre el maestro real** (`datos/Maestro_Simulacion.xlsx`, versionado en el repo desde ADR-070). Para la regresión del contrato original basta poner `rutaExcel = "datos/entrada_ejemplo.xlsx"` en las propiedades del experimento: la red física del modelo es un superconjunto de la del libro (ADR-069), así que un depósito del canvas que el libro no declara sale de la red con una advertencia y el mismo modelo corre los dos libros sin editar nada más.
+
+**Tarifas por rango de días y moneda (ADR-070).** El maestro tarifa en una grilla de columnas cuyo encabezado es un rango de días (`'0-31'`, `'31-59'`, `'59-90'`, …) y esos nombres cambian entre rondas del relevamiento: el importador los lee **del encabezado**, con el tope de cada tramo dado por el inicio del siguiente, así que renombrar los cortes no rompe nada. Lo que sí es un error de datos: que dos hojas de tarifa declaren cortes distintos, que una hoja de tarifas no tenga ninguna columna de rango, o que haya una tarifa en `$` sin tipo de cambio para ese tramo en la hoja `Tipo_cambio` — los tres abortan la carga con el nombre de la hoja o el día en el mensaje, en vez de dejar la tarifa en cero.
 
 Un libro anterior a C1 **no importa**: las hojas de tarifas cambiaron (`TarifaAlmacenamiento` y `TarifaServicioCarga` se reemplazan por `TarifaSitio`, y se agregan `TarifaRoundTrip` y `TarifaEspera`), y toda tarifa pide ahora `proveedor`, `vigencia_desde`, `vigencia_hasta` y `habilitada` (ADR-051). Si cambiaste de versión del modelo y tu libro es viejo, la forma rápida de actualizarlo es regenerar la plantilla y volver a cargar tus valores:
 

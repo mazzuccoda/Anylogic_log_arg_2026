@@ -423,3 +423,18 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y cor
 - [x] Campaña `E-00` completa: 29 439 tn exportadas de 30 656 pedidas, servicio 72 %, 16 atrasados, auditoría `COMPLETA` con descuadre de inventario 0. `JUGO/JCL` queda en su techo por dato (15 842 tn disponibles contra 16 961 pedidas) sin canibalizar `JCCL`/`PCL`.
 - [ ] **No corrido, por pedido explícito:** el barrido de escenarios (`fase-28`) con estos números.
 - [ ] Pendiente: cargar en el maestro las columnas de oportunidad/penalidad de ADR-049 (hoy sin equivalente) y los tramos depósito-depósito que ADR-066 necesita para ejercitar el rebalanceo.
+
+## 11p. MOD — La vigencia la declara el encabezado y los pesos se convierten con el TC del tramo (ADR-070)
+
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y corrido en AnyLogic PLE 8.9.9**: campaña completa desde `datos/Maestro_Simulacion.xlsx` con los cortes de vigencia de la ronda nueva, regresión desde `datos/entrada_ejemplo.xlsx` y dos pruebas negativas de carga. La ronda nueva renombró los cortes (`'60-89'` → `'59-90'`) y la carga abortaba con **723** errores `La tarifa de flete debe ser > 0`: el importador buscaba las columnas por una lista de nombres escrita en el código y leía 0.
+
+- [x] `Fila.columnasDeRango()` + `leerTramos()`: los tramos son las columnas cuyo encabezado tiene la forma `entero-entero`, en el orden en que aparecen. `COLUMNAS_MES`, `DIA_DESDE_MES`, `DIA_HASTA_MES` y `hastaDelMes()` eliminados; sin columnas de rango, la hoja es un error de datos, no una tarifa cero.
+- [x] El tope de cada tramo es el día anterior al inicio del siguiente (`'0-31'` rige 0–30, `'59-90'` rige 59–89) y el último queda abierto en 9999: la grilla es una partición cualquiera sea la convención de la ronda.
+- [x] `verificarGrilla()`/`grillaDeHojas()`: todas las hojas de tarifa comparten los cortes, y si una difiere la carga falla nombrando la hoja y su primer tramo — `TarifaSitio` acumula siete hojas **por posición** de tramo.
+- [x] `aUsd(valor, moneda, dia, tipoCambio)`: `$` se divide por el tipo de cambio vigente el día en que empieza el tramo, leído de `Tipo_cambio` con el mismo mecanismo; `USD` y moneda vacía pasan sin convertir.
+- [x] Un peso sin tipo de cambio **aborta la carga** nombrando moneda y día, en vez de devolver 0 (una tarifa en cero abarata la alternativa y cambia la decisión del evaluador). La hoja sigue siendo opcional para libros que cotizan todo en USD.
+- [x] Datos del maestro autorizados por el usuario: `PLANTA → GRUPO_PAZ` y `PLANTA → CONTROL_UNION` para `CASCARA` a 1 700 USD/viaje, el mismo valor que el resto de los tramos de 1 200 km.
+- [x] El experimento `Simulation` apunta a `datos/Maestro_Simulacion.xlsx`, que el usuario versionó, y el libro sale del `.gitignore`.
+- [x] Campaña `E-00` completa: 29 439 tn exportadas de 30 656, servicio 72 %, 8 453 167 USD de caja, descuadre de inventario 0. Regresión del libro canónico **idéntica** a ADR-069 (30 364 tn, 97 %).
+- [ ] **No corrido, por pedido explícito:** el barrido de escenarios (`fase-28`).
+- [ ] Pendiente (dato): tarifa de los tramos depósito-depósito `BOREAS`/`NORRY` → `RUTA9`, que ADR-066 necesita para ejercitar el rebalanceo. No se inventaron.
