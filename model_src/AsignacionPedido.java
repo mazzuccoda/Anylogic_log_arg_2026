@@ -28,6 +28,10 @@ public class AsignacionPedido implements java.io.Serializable {
 	public String idAlternativa = "";
 
 	public TipoProducto producto = TipoProducto.JUGO;
+
+	/** Subdivision del producto (ADR-067), heredada del pedido que origina la asignacion. */
+	public String material = "";
+
 	public EstrategiaLogistica circuito = EstrategiaLogistica.SIN_DEFINIR;
 	public boolean esCrossDock = false;
 
@@ -101,7 +105,7 @@ public class AsignacionPedido implements java.io.Serializable {
 
 	public static String encabezadoCsv() {
 		return "run_id,escenario,replica,id_asignacion,id_decision,id_alternativa,"
-				+ "codigo_pedido,producto,origen,circuito,es_cross_dock,prioridad,"
+				+ "codigo_pedido,producto,material,origen,circuito,es_cross_dock,prioridad,"
 				+ "dia_asignacion,dia_primer_despacho,dia_ultima_entrega,"
 				+ "toneladas_asignadas,toneladas_reservadas_activas,toneladas_contenerizadas,"
 				+ "toneladas_despachadas,toneladas_entregadas,"
@@ -127,6 +131,7 @@ public class AsignacionPedido implements java.io.Serializable {
 				+ AuditoriaRed.ent(replica) + "," + AuditoriaRed.txt(idAsignacion) + ","
 				+ AuditoriaRed.txt(idDecision) + "," + AuditoriaRed.txt(idAlternativa) + ","
 				+ AuditoriaRed.txt(codigoPedido) + "," + AuditoriaRed.txt("" + producto) + ","
+				+ AuditoriaRed.txt(material) + ","
 				+ AuditoriaRed.txt(idSitioOrigen) + "," + AuditoriaRed.txt("" + circuito) + ","
 				+ AuditoriaRed.si(esCrossDock) + "," + AuditoriaRed.ent(prioridad) + ","
 				+ AuditoriaRed.num(diaAsignacion) + "," + AuditoriaRed.num(diaPrimerDespacho) + ","

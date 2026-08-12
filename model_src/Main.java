@@ -3090,7 +3090,7 @@ class Main extends Agent {
         // lista de cargos: si fueran dos fuentes, reconciliarlas solo probaria que dos
         // exportaciones coinciden, no que el modelo cobro una sola vez (ADR-064).
         return "run_id,escenario,replica,id_costo,dia,dia_campania,tipo_contable,categoria,"
-            + "codigo_pedido,id_asignacion,id_decision,id_contenedor,id_lote,producto,circuito,"
+            + "codigo_pedido,id_asignacion,id_decision,id_contenedor,id_lote,producto,material,circuito,"
             + "origen,destino,sitio,proveedor,unidad,cantidad,tarifa,importe_usd,id_operacion,"
             + "alcance,es_incremental,motivo";
     }
@@ -3116,11 +3116,23 @@ class Main extends Agent {
         java.util.LinkedHashMap<String, String> asignacionDeContenedor =
             new java.util.LinkedHashMap<String, String>();
 
+        java.util.LinkedHashMap<String, String> materialDeContenedor =
+            new java.util.LinkedHashMap<String, String>();
+
         java.util.LinkedHashMap<String, String> decisionDeAsignacion =
             new java.util.LinkedHashMap<String, String>();
 
         java.util.LinkedHashMap<String, Double> diaDecisionDePedido =
             new java.util.LinkedHashMap<String, Double>();
+
+        // Material por lote (ADR-067/071): el cargo solo lleva idLote, asi que el material se
+        // resuelve aca contra el agente, igual que la asignacion se resuelve contra el contenedor.
+        java.util.LinkedHashMap<String, String> materialDeLote =
+            new java.util.LinkedHashMap<String, String>();
+
+        for (LoteProducto lote : lotes) {
+            materialDeLote.put("" + lote.idLote, lote.material);
+        }
 
         for (Pedido pedido : pedidos) {
 
@@ -3138,6 +3150,8 @@ class Main extends Agent {
             for (ContenedorExportacion contenedor : pedido.contenedores) {
                 asignacionDeContenedor.put(
                     contenedor.idContenedor, contenedor.idAsignacionPedido);
+                materialDeContenedor.put(
+                    contenedor.idContenedor, contenedor.material);
             }
         }
 
@@ -3150,6 +3164,20 @@ class Main extends Agent {
 
             if (idAsignacion == null) {
                 idAsignacion = "";
+            }
+
+            // Material del cargo (ADR-067/071): por contenedor si es un cargo de contenedor, si no
+            // por lote (almacenaje, IN, flete de guarda). Un cargo de alcance RED (oportunidad del
+            // frio propio, penalidad de sobrecarga) no tiene material: es de toda la red.
+            String material =
+                cargo.codigoContenedor != null && !cargo.codigoContenedor.isEmpty()
+                ? materialDeContenedor.get(cargo.codigoContenedor)
+                : (cargo.idLote != null && !cargo.idLote.isEmpty()
+                    ? materialDeLote.get(cargo.idLote)
+                    : null);
+
+            if (material == null) {
+                material = "";
             }
 
             String idDecision =
@@ -3193,6 +3221,7 @@ class Main extends Agent {
                 + AuditoriaRed.txt(cargo.codigoPedido) + "," + AuditoriaRed.txt(idAsignacion) + ","
                 + AuditoriaRed.txt(idDecision) + "," + AuditoriaRed.txt(cargo.codigoContenedor) + ","
                 + AuditoriaRed.txt(cargo.idLote) + "," + AuditoriaRed.txt("" + cargo.producto) + ","
+                + AuditoriaRed.txt(material) + ","
                 + AuditoriaRed.txt("" + cargo.estrategia) + "," + AuditoriaRed.txt(cargo.origen) + ","
                 + AuditoriaRed.txt(cargo.destino) + "," + AuditoriaRed.txt(cargo.sitio) + ","
                 + AuditoriaRed.txt(cargo.proveedor) + "," + AuditoriaRed.txt("" + cargo.unidad) + ","
@@ -5937,6 +5966,7 @@ class Main extends Agent {
         siguienteIdAsignacion++;
 
         asignacion.motivoAsignacion = motivo == null ? "" : motivo;
+        asignacion.material = pedido.material;
         asignacion.prioridad = pedido.asignaciones.size() + 1;
 
         // Decision que creo esta asignacion (ADR-064). Se toma del contexto y no por parametro para
