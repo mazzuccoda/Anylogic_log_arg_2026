@@ -30,7 +30,7 @@ public class AuditoriaRed implements java.io.Serializable {
 	 * Version del esquema de las tablas. Cambia cuando cambia una columna o una clave: el
 	 * tablero que consume los csv necesita saber contra que version fue generado.
 	 */
-	public static final String VERSION_ESQUEMA = "ADR-064.1";
+	public static final String VERSION_ESQUEMA = "ADR-064.2";
 
 	public static final String DECISIONES = "decisiones_alternativas";
 	public static final String ASIGNACIONES = "asignaciones_elegidas";

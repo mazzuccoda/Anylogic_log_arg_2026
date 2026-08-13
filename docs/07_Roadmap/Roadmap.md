@@ -438,3 +438,14 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y cor
 - [x] Campaña `E-00` completa: 29 439 tn exportadas de 30 656, servicio 72 %, 8 453 167 USD de caja, descuadre de inventario 0. Regresión del libro canónico **idéntica** a ADR-069 (30 364 tn, 97 %).
 - [ ] **No corrido, por pedido explícito:** el barrido de escenarios (`fase-28`).
 - [ ] Pendiente (dato): tarifa de los tramos depósito-depósito `BOREAS`/`NORRY` → `RUTA9`, que ADR-066 necesita para ejercitar el rebalanceo. No se inventaron.
+
+## 11q. MOD — El material sale en `costos_eventos` y `asignaciones_elegidas` (ADR-071)
+
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/` (esquema `ADR-064.2`). Motivado por un reporte contable pedido por el usuario (`Resumen_cuentas.xlsx`, aging por material en los mismos 12 tramos de días que ya usan las hojas de tarifa) que necesita separar `JUGO` en `JCL`/`JCCL`/`PCL`, y ninguna tabla de auditoría exportaba `material` (ADR-067) — sólo `producto`.
+
+- [x] `AsignacionPedido` gana el campo `material` (seteado en `crearAsignacion()` desde `pedido.material`), columna nueva junto a `producto` en `encabezadoCsv()`/`toCsv()`.
+- [x] `Main.exportarCostosEventos()` resuelve `material` por contenedor (`materialDeContenedor`, mismo patrón que `asignacionDeContenedor`) o por lote (`materialDeLote`, contra la población `lotes`), sin agregar el campo a `RegistroCostos.Cargo` ni tocar sus 15 sitios de `registro.registrar(...)`. Los cargos de alcance `RED` quedan con `material = ""`.
+- [x] `AuditoriaRed.VERSION_ESQUEMA` de `ADR-064.1` a `ADR-064.2`; `costos_eventos.csv` de 27 a 28 columnas, `asignaciones_elegidas.csv` de 30 a 31.
+- [x] `decisiones_alternativas`, `ejecucion_arcos` y `snapshot_inventario` **no cambian** — fuera de alcance mientras no haya un caso de uso concreto.
+- [x] `tools/exportar_modelo.py` corrido; `model_src/`/`MANIFIESTO.md` regenerados y el diff revisado línea por línea contra lo esperado.
+- [ ] **No compilado ni corrido en AnyLogic** (sin motor de simulación en este entorno, igual que la primera vuelta de ADR-069): pendiente que el usuario corra `E-00` con `datos/Maestro_Simulacion.xlsx` en el IDE y confirme que reconcilia igual que ADR-070 (8 453 167 USD de caja, 29 439 tn exportadas) — no debería cambiar ningún número, es plumbing de exportación.

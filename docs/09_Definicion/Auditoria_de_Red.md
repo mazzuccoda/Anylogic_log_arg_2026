@@ -45,7 +45,7 @@ Las dos últimas **no son tablas nuevas**: `costos_eventos` es `RegistroCostos.C
 
 ### 4.1 Esquema publicado
 
-`resultados/esquema_auditoria.json` se genera en la misma corrida, desde los mismos métodos `encabezadoCsv()` que escriben los CSV: archivo, columnas y clave primaria de cada tabla. No puede quedar viejo. `version_esquema` (hoy `ADR-064.1`) cambia cuando cambia una columna o una clave, y aparece también en `resultados/manifiesto_auditoria_<run_id>.json` junto con el conteo de filas de la corrida.
+`resultados/esquema_auditoria.json` se genera en la misma corrida, desde los mismos métodos `encabezadoCsv()` que escriben los CSV: archivo, columnas y clave primaria de cada tabla. No puede quedar viejo. `version_esquema` (hoy `ADR-064.2`) cambia cuando cambia una columna o una clave, y aparece también en `resultados/manifiesto_auditoria_<run_id>.json` junto con el conteo de filas de la corrida.
 
 ## 5. Diccionario de campos
 
@@ -86,9 +86,11 @@ Tres aclaraciones que importan al leer la tabla: **ser más cara no es un descar
 
 **Campos que el modelo no produce y por eso no están:** costo de espera, costo de oportunidad por alternativa, y un segundo ranking. `ordenarAlternativas()` produce **un solo** orden; inventar un ranking alternativo sería inventar una política.
 
-### 5.2 `asignaciones_elegidas` (30 columnas)
+### 5.2 `asignaciones_elegidas` (31 columnas)
 
-`run_id`, `escenario`, `replica`, `id_asignacion`, `id_decision`, `id_alternativa`, `codigo_pedido`, `producto`, `origen`, `circuito`, `es_cross_dock`, `prioridad`, `dia_asignacion`, `dia_primer_despacho`, `dia_ultima_entrega`, `toneladas_asignadas`, `toneladas_reservadas_activas`, `toneladas_contenerizadas`, `toneladas_despachadas`, `toneladas_entregadas`, `contenedores_creados`, `contenedores_entregados`, `costo_incremental_estimado`, `costo_end_to_end_estimado`, `costo_real_contenedores_usd`, `desvio_costo_usd`, `dias_ciclo_real`, `cerrada`, `cancelada`, `motivo_asignacion`.
+`run_id`, `escenario`, `replica`, `id_asignacion`, `id_decision`, `id_alternativa`, `codigo_pedido`, `producto`, `material`, `origen`, `circuito`, `es_cross_dock`, `prioridad`, `dia_asignacion`, `dia_primer_despacho`, `dia_ultima_entrega`, `toneladas_asignadas`, `toneladas_reservadas_activas`, `toneladas_contenerizadas`, `toneladas_despachadas`, `toneladas_entregadas`, `contenedores_creados`, `contenedores_entregados`, `costo_incremental_estimado`, `costo_end_to_end_estimado`, `costo_real_contenedores_usd`, `desvio_costo_usd`, `dias_ciclo_real`, `cerrada`, `cancelada`, `motivo_asignacion`.
+
+`material` (ADR-067/071) es el que tiene el pedido que originó la asignación; vacío significa que el producto no distingue material.
 
 `costo_real_contenedores_usd` es la suma de los cargos **atribuibles al contenedor** de esa asignación, no el costo total: el almacenaje se devenga contra el lote y no contra la asignación. `desvio_costo_usd` compara ese real con el estimado y hay que leerlo con ese alcance.
 
@@ -120,11 +122,13 @@ Recurso: `recurso_utilizado`, `id_recurso`, `estado_final`.
 
 `id_decision` está vacío en los arcos que no nacen de una decisión de circuito: los viajes de producto planta–depósito preventivos, el cross dock y la espera de posición.
 
-### 5.4 `costos_eventos` (27 columnas)
+### 5.4 `costos_eventos` (28 columnas)
 
-Es `RegistroCostos.Cargo`: `run_id`, `escenario`, `replica`, `id_costo`, `dia`, `dia_campania`, `tipo_contable` (`CAJA` o `ECONOMICO`), `categoria`, `codigo_pedido`, `id_asignacion`, `id_decision`, `id_contenedor`, `id_lote`, `producto`, `circuito`, `origen`, `destino`, `sitio`, `proveedor`, `unidad`, `cantidad`, `tarifa`, `importe_usd`, `id_operacion`, `alcance` (`RED`, `PEDIDO`, `LOTE`, `CONTENEDOR`), `es_incremental`, `motivo`.
+Es `RegistroCostos.Cargo`: `run_id`, `escenario`, `replica`, `id_costo`, `dia`, `dia_campania`, `tipo_contable` (`CAJA` o `ECONOMICO`), `categoria`, `codigo_pedido`, `id_asignacion`, `id_decision`, `id_contenedor`, `id_lote`, `producto`, `material`, `circuito`, `origen`, `destino`, `sitio`, `proveedor`, `unidad`, `cantidad`, `tarifa`, `importe_usd`, `id_operacion`, `alcance` (`RED`, `PEDIDO`, `LOTE`, `CONTENEDOR`), `es_incremental`, `motivo`.
 
 `tipo_contable = ECONOMICO` es costo de oportunidad, no caja: **no se suma** al total de campaña. `alcance` dice contra qué se devengó el cargo y es lo que hace que el desvío por asignación tenga un alcance declarado y no un número inventado.
+
+`material` (ADR-067/071) no es un campo propio de `Cargo`: se resuelve al exportar contra el contenedor (si el cargo es de alcance `CONTENEDOR`) o contra el lote (si es de alcance `LOTE`); un cargo `RED` queda con `material` vacío, porque no es de ningún producto en particular.
 
 ### 5.5 `snapshot_inventario` (24 columnas)
 
