@@ -450,3 +450,15 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/` (esquema `ADR-064.
 - [x] `decisiones_alternativas`, `ejecucion_arcos` y `snapshot_inventario` **no cambian** — fuera de alcance mientras no haya un caso de uso concreto.
 - [x] `tools/exportar_modelo.py` corrido; `model_src/`/`MANIFIESTO.md` regenerados y el diff revisado línea por línea contra lo esperado.
 - [ ] **No compilado ni corrido en AnyLogic** (sin motor de simulación en este entorno, igual que la primera vuelta de ADR-069): pendiente que el usuario corra `E-00` con `datos/Maestro_Simulacion.xlsx` en el IDE y confirme que reconcilia igual que ADR-070 (8 453 167 USD de caja, 29 439 tn exportadas) — no debería cambiar ningún número, es plumbing de exportación.
+
+## 11r. MOD — `toneladas` explícito en `costos_eventos` (ADR-072)
+
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/` (esquema `ADR-064.3`). Motivado por el mismo reporte contable de §11q: la columna Tn de `FLETE DEPOSITO` (y de las otras 6 cuentas por contenedor/viaje) no se podía completar de forma exacta desde `costos_eventos.csv` — `cantidad` ahí es contenedores o viajes, no toneladas, y `FLETE_PRODUCTO` ni siquiera lleva `id_asignacion` para intentar un join. Se evaluó "resolver por lote" (pedido explícito del usuario) y se descartó con evidencia: `LoteProducto.toneladas` es un balance de stock que cambia día a día, no la tonelada de un envío puntual, y el call site que genera la mayor parte del gap ni pasa `idLote`.
+
+- [x] `RegistroCostos.Cargo` gana el campo `toneladas`, capturado en el momento del cargo — no derivado después.
+- [x] `registro.registrar(...)` overloadeado: la firma vieja (17 args) delega con `toneladas = cantidad` y no se toca en los 9 sitios que ya facturan por tonelada; sólo los 6 que facturan por contenedor/viaje (`registrarFleteProducto` rama `USD_VIAJE`, `registrarRoundTrip`, `CONSOLIDACION`/`CROSS_DOCK`, `registrarCargosTerminal` con `THC` y `COSTO_TERMINAL`, `DESPACHANTE`) pasan a la firma nueva (18 args) con la tonelada real, que ya estaba en scope (`toneladas`/`envio.toneladas`).
+- [x] Verificación de aridad de los 15 sitios de `registro.registrar(...)` (no sólo los 6 tocados): script ad hoc cuenta argumentos de nivel superior de cada llamada, ignorando comas dentro de comentarios `//`. Confirma 17 en los 9 sin tocar y 18 en los 6 nuevos.
+- [x] Excepción documentada (no inventada): `DESPACHANTE` con tarifa por pedido (`USD_PEDIDO`, no usada en el maestro actual) sólo lleva la tonelada del envío que dispara el cargo, no la del pedido completo — comentario en el propio call site.
+- [x] `AuditoriaRed.VERSION_ESQUEMA` de `ADR-064.2` a `ADR-064.3`; `costos_eventos.csv` de 28 a 29 columnas. `asignaciones_elegidas.csv` no cambia.
+- [x] `tools/exportar_modelo.py` corrido; `model_src/`/`MANIFIESTO.md` regenerados y diff revisado línea por línea.
+- [ ] **No compilado ni corrido en AnyLogic**: pendiente que el usuario corra `E-00` en el IDE y confirme que reconcilia igual que corridas anteriores (no debería cambiar ningún importe, sólo agrega toneladas por evento).

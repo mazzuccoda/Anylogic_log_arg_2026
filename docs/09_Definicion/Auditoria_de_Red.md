@@ -45,7 +45,7 @@ Las dos últimas **no son tablas nuevas**: `costos_eventos` es `RegistroCostos.C
 
 ### 4.1 Esquema publicado
 
-`resultados/esquema_auditoria.json` se genera en la misma corrida, desde los mismos métodos `encabezadoCsv()` que escriben los CSV: archivo, columnas y clave primaria de cada tabla. No puede quedar viejo. `version_esquema` (hoy `ADR-064.2`) cambia cuando cambia una columna o una clave, y aparece también en `resultados/manifiesto_auditoria_<run_id>.json` junto con el conteo de filas de la corrida.
+`resultados/esquema_auditoria.json` se genera en la misma corrida, desde los mismos métodos `encabezadoCsv()` que escriben los CSV: archivo, columnas y clave primaria de cada tabla. No puede quedar viejo. `version_esquema` (hoy `ADR-064.3`) cambia cuando cambia una columna o una clave, y aparece también en `resultados/manifiesto_auditoria_<run_id>.json` junto con el conteo de filas de la corrida.
 
 ## 5. Diccionario de campos
 
@@ -122,13 +122,15 @@ Recurso: `recurso_utilizado`, `id_recurso`, `estado_final`.
 
 `id_decision` está vacío en los arcos que no nacen de una decisión de circuito: los viajes de producto planta–depósito preventivos, el cross dock y la espera de posición.
 
-### 5.4 `costos_eventos` (28 columnas)
+### 5.4 `costos_eventos` (29 columnas)
 
-Es `RegistroCostos.Cargo`: `run_id`, `escenario`, `replica`, `id_costo`, `dia`, `dia_campania`, `tipo_contable` (`CAJA` o `ECONOMICO`), `categoria`, `codigo_pedido`, `id_asignacion`, `id_decision`, `id_contenedor`, `id_lote`, `producto`, `material`, `circuito`, `origen`, `destino`, `sitio`, `proveedor`, `unidad`, `cantidad`, `tarifa`, `importe_usd`, `id_operacion`, `alcance` (`RED`, `PEDIDO`, `LOTE`, `CONTENEDOR`), `es_incremental`, `motivo`.
+Es `RegistroCostos.Cargo`: `run_id`, `escenario`, `replica`, `id_costo`, `dia`, `dia_campania`, `tipo_contable` (`CAJA` o `ECONOMICO`), `categoria`, `codigo_pedido`, `id_asignacion`, `id_decision`, `id_contenedor`, `id_lote`, `producto`, `material`, `circuito`, `origen`, `destino`, `sitio`, `proveedor`, `unidad`, `cantidad`, `toneladas`, `tarifa`, `importe_usd`, `id_operacion`, `alcance` (`RED`, `PEDIDO`, `LOTE`, `CONTENEDOR`), `es_incremental`, `motivo`.
 
 `tipo_contable = ECONOMICO` es costo de oportunidad, no caja: **no se suma** al total de campaña. `alcance` dice contra qué se devengó el cargo y es lo que hace que el desvío por asignación tenga un alcance declarado y no un número inventado.
 
-`material` (ADR-067/071) no es un campo propio de `Cargo`: se resuelve al exportar contra el contenedor (si el cargo es de alcance `CONTENEDOR`) o contra el lote (si es de alcance `LOTE`); un cargo `RED` queda con `material` vacío, porque no es de ningún producto en particular.
+`material` (ADR-067/071) no es un campo propio de `Cargo`: se resuelve al exportar contra el contenedor (si el cargo es de alcance `CONTENEDOR`), contra el lote (si es de alcance `LOTE`) o contra el pedido (fallback final, para cargos sin contenedor ni lote todavía); un cargo `RED` queda con `material` vacío, porque no es de ningún producto en particular.
+
+`toneladas` (ADR-072) **es** un campo propio de `Cargo`, capturado en el momento del devengo — no una derivación posterior. Para `ALMACENAMIENTO`, `IN_DEPOSITO`, `OUT_DEPOSITO`, `OPORTUNIDAD_FRIO` y `PENALIDAD_SOBRECARGA`, que ya facturan por tonelada, vale lo mismo que `cantidad`. Para las cuentas que facturan por contenedor o por viaje (`FLETE_PRODUCTO` cuando la tarifa es `USD_VIAJE`, `ROUND_TRIP`, `CONSOLIDACION`, `CROSS_DOCK`, `COSTO_TERMINAL`, `THC`, `DESPACHANTE`) es la tonelada física del envío que originó el cargo, no derivable de `cantidad` (que ahí es contenedores o viajes). Única excepción documentada: `DESPACHANTE` con tarifa por pedido (`USD_PEDIDO`, no usada en el maestro actual) se cobra una sola vez por pedido pero sólo lleva la tonelada del envío que disparó el cargo, no la del pedido completo — el resto de sus envíos llegan después y no vuelven a pasar por el registro (clave repetida).
 
 ### 5.5 `snapshot_inventario` (24 columnas)
 

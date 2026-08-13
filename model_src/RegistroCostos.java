@@ -78,6 +78,15 @@ public class RegistroCostos implements java.io.Serializable {
 		public final double tarifa;
 		public final double importe;
 
+		/**
+		 * Toneladas fisicas del envio/lote que origina el cargo (ADR-072), independiente de
+		 * `cantidad` -que es la cantidad en la unidad de facturacion: viajes o contenedores
+		 * cuando la tarifa no es por tonelada-. Para las categorias que ya facturan por
+		 * tonelada (ALMACENAMIENTO, IN/OUT_DEPOSITO, OPORTUNIDAD_FRIO, PENALIDAD_SOBRECARGA)
+		 * vale lo mismo que `cantidad`, sin dato nuevo que aportar.
+		 */
+		public final double toneladas;
+
 		public final String idOperacion;
 		public final String motivo;
 
@@ -85,7 +94,7 @@ public class RegistroCostos implements java.io.Serializable {
 				String codigoPedido, String codigoContenedor, String idLote, TipoProducto producto,
 				String origen, String destino, String sitio, EstrategiaLogistica estrategia,
 				String proveedor, DatosEntrada.Unidad unidad, double cantidad, double tarifa,
-				String idOperacion, String motivo) {
+				double toneladas, String idOperacion, String motivo) {
 			this.id = id;
 			this.dia = dia;
 			this.categoria = categoria;
@@ -103,6 +112,7 @@ public class RegistroCostos implements java.io.Serializable {
 			this.cantidad = cantidad;
 			this.tarifa = tarifa;
 			this.importe = cantidad * tarifa;
+			this.toneladas = toneladas;
 			this.idOperacion = idOperacion;
 			this.motivo = motivo;
 		}
@@ -141,12 +151,35 @@ public class RegistroCostos implements java.io.Serializable {
 	 * Anota un cargo y devuelve su importe. Repetir la misma operacion, categoria
 	 * y unidad devuelve cero: el devengo doble es un error de modelo, no una
 	 * suma mas.
+	 *
+	 * Overload sin `toneladas` (ADR-072): para las categorias que ya facturan por tonelada
+	 * la cantidad facturada YA es la tonelada del evento, asi que delega con
+	 * `toneladas = cantidad` en vez de duplicar el dato en cada sitio que llama.
 	 */
 	public double registrar(double dia, Categoria categoria, Tipo tipo,
 			String codigoPedido, String codigoContenedor, String idLote, TipoProducto producto,
 			String origen, String destino, String sitio, EstrategiaLogistica estrategia,
 			String proveedor, DatosEntrada.Unidad unidad, double cantidad, double tarifa,
 			String idOperacion, String motivo) {
+
+		return registrar(dia, categoria, tipo, codigoPedido, codigoContenedor, idLote, producto,
+				origen, destino, sitio, estrategia, proveedor, unidad, cantidad, tarifa,
+				cantidad, idOperacion, motivo);
+	}
+
+	/**
+	 * Version con `toneladas` explicito (ADR-072): para los cargos que facturan por
+	 * contenedor o por viaje (FLETE_PRODUCTO por viaje, ROUND_TRIP, CONSOLIDACION,
+	 * CROSS_DOCK, COSTO_TERMINAL, THC, DESPACHANTE), donde `cantidad` es contenedores o
+	 * viajes y no toneladas. El costo real de un envio no se puede prorratear en el reporte
+	 * sin este dato: hay que capturarlo aca, donde el llamador todavia tiene el envio/lote a
+	 * mano, no despues.
+	 */
+	public double registrar(double dia, Categoria categoria, Tipo tipo,
+			String codigoPedido, String codigoContenedor, String idLote, TipoProducto producto,
+			String origen, String destino, String sitio, EstrategiaLogistica estrategia,
+			String proveedor, DatosEntrada.Unidad unidad, double cantidad, double tarifa,
+			double toneladas, String idOperacion, String motivo) {
 
 		if (idOperacion == null || idOperacion.isEmpty()) {
 			throw new RuntimeException("Cargo sin idOperacion: " + categoria
@@ -158,10 +191,15 @@ public class RegistroCostos implements java.io.Serializable {
 					+ "): cantidad " + cantidad + ", tarifa " + tarifa + ".");
 		}
 
+		if (toneladas < 0) {
+			throw new RuntimeException("Cargo con toneladas negativas en " + categoria
+					+ " (" + idOperacion + "): " + toneladas + ".");
+		}
+
 		Cargo cargo = new Cargo(secuencia + 1, dia, categoria, tipo,
 				codigoPedido, codigoContenedor, idLote, producto,
 				origen, destino, sitio, estrategia, proveedor,
-				unidad, cantidad, tarifa, idOperacion, motivo);
+				unidad, cantidad, tarifa, toneladas, idOperacion, motivo);
 
 		if (!claves.add(cargo.clave())) {
 			return 0;

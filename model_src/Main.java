@@ -3091,7 +3091,7 @@ class Main extends Agent {
         // exportaciones coinciden, no que el modelo cobro una sola vez (ADR-064).
         return "run_id,escenario,replica,id_costo,dia,dia_campania,tipo_contable,categoria,"
             + "codigo_pedido,id_asignacion,id_decision,id_contenedor,id_lote,producto,material,circuito,"
-            + "origen,destino,sitio,proveedor,unidad,cantidad,tarifa,importe_usd,id_operacion,"
+            + "origen,destino,sitio,proveedor,unidad,cantidad,toneladas,tarifa,importe_usd,id_operacion,"
             + "alcance,es_incremental,motivo";
     }
 
@@ -3238,7 +3238,8 @@ class Main extends Agent {
                 + AuditoriaRed.txt("" + cargo.estrategia) + "," + AuditoriaRed.txt(cargo.origen) + ","
                 + AuditoriaRed.txt(cargo.destino) + "," + AuditoriaRed.txt(cargo.sitio) + ","
                 + AuditoriaRed.txt(cargo.proveedor) + "," + AuditoriaRed.txt("" + cargo.unidad) + ","
-                + AuditoriaRed.num(cargo.cantidad) + "," + AuditoriaRed.num(cargo.tarifa) + ","
+                + AuditoriaRed.num(cargo.cantidad) + "," + AuditoriaRed.num(cargo.toneladas) + ","
+                + AuditoriaRed.num(cargo.tarifa) + ","
                 + AuditoriaRed.num(cargo.importe) + "," + AuditoriaRed.txt(cargo.idOperacion) + ","
                 + AuditoriaRed.txt(alcance) + "," + AuditoriaRed.si(incremental) + ","
                 + AuditoriaRed.txt(cargo.motivo));
@@ -4699,6 +4700,7 @@ class Main extends Agent {
                 origen, destino, origen, estrategia, tarifa.proveedor,
                 DatosEntrada.Unidad.USD_VIAJE, viajes,
                 datos.fleteTarifaUnitaria(dia, origen, destino, producto),
+                toneladas,
                 idOperacion, "flete por viaje"
             );
 
@@ -4771,6 +4773,7 @@ class Main extends Agent {
                 envio.idSitioOrigen,
                 pedido.tipoContenedor
             ),
+            envio.toneladas,
             "ENV-" + envio.idEnvio, "ciclo terminal -> origen -> terminal"
         );
 
@@ -4819,6 +4822,7 @@ class Main extends Agent {
             envio.idSitioOrigen, envio.terminalDestino.idUbicacion, sitio,
             envio.circuito, tarifa.proveedor,
             unidad, cantidad, usd,
+            envio.toneladas,
             "ENV-" + envio.idEnvio,
             cruza ? "cross dock del envio" : "estiba del envio"
         );
@@ -4998,6 +5002,7 @@ class Main extends Agent {
             envio.circuito, tarifa.proveedor,
             DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
             thcUsdContenedorPedido(dia, envio.pedido, terminal),
+            envio.toneladas,
             "ENV-" + envio.idEnvio, "thc del contenedor"
         );
 
@@ -5012,6 +5017,7 @@ class Main extends Agent {
             envio.circuito, tarifa.proveedor,
             DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
             datos.costoTerminalUsdContenedor(dia, terminal, envio.producto),
+            envio.toneladas,
             "ENV-" + envio.idEnvio, "costo de terminal del contenedor"
         );
 
@@ -5054,6 +5060,13 @@ class Main extends Agent {
             tarifa.despachanteUnidad,
             porPedido ? 1 : contenedores,
             datos.despachanteTarifa(dia, terminal, envio.producto),
+            // Con tarifa por pedido (USD_PEDIDO) el cargo cubre el pedido entero pero se registra
+            // una sola vez, en el primer envio que llega (los siguientes chocan por clave repetida
+            // y no vuelven a pasar por aca): las toneladas del pedido completo todavia no estan
+            // despachadas en ese momento, asi que se deja la del envio que dispara el cargo en vez
+            // de inventar el total futuro del pedido. Con tarifa por contenedor (el caso de hoy en
+            // el maestro) es exacto: un cargo por envio, toneladas de ese envio.
+            envio.toneladas,
             porPedido ? "PED-" + pedido.codigoPedido : "ENV-" + envio.idEnvio,
             "despacho de exportacion"
         );

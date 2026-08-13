@@ -7492,7 +7492,7 @@ auditoria.abrir(AuditoriaRed.INVENTARIO, SnapshotInventario.encabezadoCsv());]]>
 // exportaciones coinciden, no que el modelo cobro una sola vez (ADR-064).
 return "run_id,escenario,replica,id_costo,dia,dia_campania,tipo_contable,categoria,"
     + "codigo_pedido,id_asignacion,id_decision,id_contenedor,id_lote,producto,material,circuito,"
-    + "origen,destino,sitio,proveedor,unidad,cantidad,tarifa,importe_usd,id_operacion,"
+    + "origen,destino,sitio,proveedor,unidad,cantidad,toneladas,tarifa,importe_usd,id_operacion,"
     + "alcance,es_incremental,motivo";]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -7647,7 +7647,8 @@ for (RegistroCostos.Cargo cargo : registro.detalle()) {
         + AuditoriaRed.txt("" + cargo.estrategia) + "," + AuditoriaRed.txt(cargo.origen) + ","
         + AuditoriaRed.txt(cargo.destino) + "," + AuditoriaRed.txt(cargo.sitio) + ","
         + AuditoriaRed.txt(cargo.proveedor) + "," + AuditoriaRed.txt("" + cargo.unidad) + ","
-        + AuditoriaRed.num(cargo.cantidad) + "," + AuditoriaRed.num(cargo.tarifa) + ","
+        + AuditoriaRed.num(cargo.cantidad) + "," + AuditoriaRed.num(cargo.toneladas) + ","
+        + AuditoriaRed.num(cargo.tarifa) + ","
         + AuditoriaRed.num(cargo.importe) + "," + AuditoriaRed.txt(cargo.idOperacion) + ","
         + AuditoriaRed.txt(alcance) + "," + AuditoriaRed.si(incremental) + ","
         + AuditoriaRed.txt(cargo.motivo));
@@ -9540,6 +9541,7 @@ if (tarifa.unidad == DatosEntrada.Unidad.USD_VIAJE) {
         origen, destino, origen, estrategia, tarifa.proveedor,
         DatosEntrada.Unidad.USD_VIAJE, viajes,
         datos.fleteTarifaUnitaria(dia, origen, destino, producto),
+        toneladas,
         idOperacion, "flete por viaje"
     );
 
@@ -9624,6 +9626,7 @@ double importe = registro.registrar(
         envio.idSitioOrigen,
         pedido.tipoContenedor
     ),
+    envio.toneladas,
     "ENV-" + envio.idEnvio, "ciclo terminal -> origen -> terminal"
 );
 
@@ -9684,6 +9687,7 @@ double importe = registro.registrar(
     envio.idSitioOrigen, envio.terminalDestino.idUbicacion, sitio,
     envio.circuito, tarifa.proveedor,
     unidad, cantidad, usd,
+    envio.toneladas,
     "ENV-" + envio.idEnvio,
     cruza ? "cross dock del envio" : "estiba del envio"
 );
@@ -9987,6 +9991,7 @@ double thc = registro.registrar(
     envio.circuito, tarifa.proveedor,
     DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
     thcUsdContenedorPedido(dia, envio.pedido, terminal),
+    envio.toneladas,
     "ENV-" + envio.idEnvio, "thc del contenedor"
 );
 
@@ -10001,6 +10006,7 @@ double terminalCargo = registro.registrar(
     envio.circuito, tarifa.proveedor,
     DatosEntrada.Unidad.USD_CONTENEDOR, contenedores,
     datos.costoTerminalUsdContenedor(dia, terminal, envio.producto),
+    envio.toneladas,
     "ENV-" + envio.idEnvio, "costo de terminal del contenedor"
 );
 
@@ -10055,6 +10061,13 @@ double importe = registro.registrar(
     tarifa.despachanteUnidad,
     porPedido ? 1 : contenedores,
     datos.despachanteTarifa(dia, terminal, envio.producto),
+    // Con tarifa por pedido (USD_PEDIDO) el cargo cubre el pedido entero pero se registra
+    // una sola vez, en el primer envio que llega (los siguientes chocan por clave repetida
+    // y no vuelven a pasar por aca): las toneladas del pedido completo todavia no estan
+    // despachadas en ese momento, asi que se deja la del envio que dispara el cargo en vez
+    // de inventar el total futuro del pedido. Con tarifa por contenedor (el caso de hoy en
+    // el maestro) es exacto: un cargo por envio, toneladas de ese envio.
+    envio.toneladas,
     porPedido ? "PED-" + pedido.codigoPedido : "ENV-" + envio.idEnvio,
     "despacho de exportacion"
 );
@@ -34781,6 +34794,15 @@ public class RegistroCostos implements java.io.Serializable {
 		public final double tarifa;
 		public final double importe;
 
+		/**
+		 * Toneladas fisicas del envio/lote que origina el cargo (ADR-072), independiente de
+		 * `cantidad` -que es la cantidad en la unidad de facturacion: viajes o contenedores
+		 * cuando la tarifa no es por tonelada-. Para las categorias que ya facturan por
+		 * tonelada (ALMACENAMIENTO, IN/OUT_DEPOSITO, OPORTUNIDAD_FRIO, PENALIDAD_SOBRECARGA)
+		 * vale lo mismo que `cantidad`, sin dato nuevo que aportar.
+		 */
+		public final double toneladas;
+
 		public final String idOperacion;
 		public final String motivo;
 
@@ -34788,7 +34810,7 @@ public class RegistroCostos implements java.io.Serializable {
 				String codigoPedido, String codigoContenedor, String idLote, TipoProducto producto,
 				String origen, String destino, String sitio, EstrategiaLogistica estrategia,
 				String proveedor, DatosEntrada.Unidad unidad, double cantidad, double tarifa,
-				String idOperacion, String motivo) {
+				double toneladas, String idOperacion, String motivo) {
 			this.id = id;
 			this.dia = dia;
 			this.categoria = categoria;
@@ -34806,6 +34828,7 @@ public class RegistroCostos implements java.io.Serializable {
 			this.cantidad = cantidad;
 			this.tarifa = tarifa;
 			this.importe = cantidad * tarifa;
+			this.toneladas = toneladas;
 			this.idOperacion = idOperacion;
 			this.motivo = motivo;
 		}
@@ -34844,12 +34867,35 @@ public class RegistroCostos implements java.io.Serializable {
 	 * Anota un cargo y devuelve su importe. Repetir la misma operacion, categoria
 	 * y unidad devuelve cero: el devengo doble es un error de modelo, no una
 	 * suma mas.
+	 *
+	 * Overload sin `toneladas` (ADR-072): para las categorias que ya facturan por tonelada
+	 * la cantidad facturada YA es la tonelada del evento, asi que delega con
+	 * `toneladas = cantidad` en vez de duplicar el dato en cada sitio que llama.
 	 */
 	public double registrar(double dia, Categoria categoria, Tipo tipo,
 			String codigoPedido, String codigoContenedor, String idLote, TipoProducto producto,
 			String origen, String destino, String sitio, EstrategiaLogistica estrategia,
 			String proveedor, DatosEntrada.Unidad unidad, double cantidad, double tarifa,
 			String idOperacion, String motivo) {
+
+		return registrar(dia, categoria, tipo, codigoPedido, codigoContenedor, idLote, producto,
+				origen, destino, sitio, estrategia, proveedor, unidad, cantidad, tarifa,
+				cantidad, idOperacion, motivo);
+	}
+
+	/**
+	 * Version con `toneladas` explicito (ADR-072): para los cargos que facturan por
+	 * contenedor o por viaje (FLETE_PRODUCTO por viaje, ROUND_TRIP, CONSOLIDACION,
+	 * CROSS_DOCK, COSTO_TERMINAL, THC, DESPACHANTE), donde `cantidad` es contenedores o
+	 * viajes y no toneladas. El costo real de un envio no se puede prorratear en el reporte
+	 * sin este dato: hay que capturarlo aca, donde el llamador todavia tiene el envio/lote a
+	 * mano, no despues.
+	 */
+	public double registrar(double dia, Categoria categoria, Tipo tipo,
+			String codigoPedido, String codigoContenedor, String idLote, TipoProducto producto,
+			String origen, String destino, String sitio, EstrategiaLogistica estrategia,
+			String proveedor, DatosEntrada.Unidad unidad, double cantidad, double tarifa,
+			double toneladas, String idOperacion, String motivo) {
 
 		if (idOperacion == null || idOperacion.isEmpty()) {
 			throw new RuntimeException("Cargo sin idOperacion: " + categoria
@@ -34861,10 +34907,15 @@ public class RegistroCostos implements java.io.Serializable {
 					+ "): cantidad " + cantidad + ", tarifa " + tarifa + ".");
 		}
 
+		if (toneladas < 0) {
+			throw new RuntimeException("Cargo con toneladas negativas en " + categoria
+					+ " (" + idOperacion + "): " + toneladas + ".");
+		}
+
 		Cargo cargo = new Cargo(secuencia + 1, dia, categoria, tipo,
 				codigoPedido, codigoContenedor, idLote, producto,
 				origen, destino, sitio, estrategia, proveedor,
-				unidad, cantidad, tarifa, idOperacion, motivo);
+				unidad, cantidad, tarifa, toneladas, idOperacion, motivo);
 
 		if (!claves.add(cargo.clave())) {
 			return 0;
@@ -36108,7 +36159,7 @@ public class AuditoriaRed implements java.io.Serializable {
 	 * Version del esquema de las tablas. Cambia cuando cambia una columna o una clave: el
 	 * tablero que consume los csv necesita saber contra que version fue generado.
 	 */
-	public static final String VERSION_ESQUEMA = "ADR-064.2";
+	public static final String VERSION_ESQUEMA = "ADR-064.3";
 
 	public static final String DECISIONES = "decisiones_alternativas";
 	public static final String ASIGNACIONES = "asignaciones_elegidas";
