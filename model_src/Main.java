@@ -3134,7 +3134,17 @@ class Main extends Agent {
             materialDeLote.put("" + lote.idLote, lote.material);
         }
 
+        // Material por pedido (ADR-071): ultimo fallback. El flete por viaje de circuito
+        // CONSOLIDACION_TERMINAL se registra sin contenedor ni lote (todavia no existe el
+        // contenedor cuando se cobra el viaje), asi que sin este mapa esos cargos quedaban con
+        // material vacio -en la corrida de referencia, 706 900 USD de FLETE_PRODUCTO- pese a que
+        // el cargo ya sabe de que pedido es.
+        java.util.LinkedHashMap<String, String> materialDePedido =
+            new java.util.LinkedHashMap<String, String>();
+
         for (Pedido pedido : pedidos) {
+
+            materialDePedido.put(pedido.codigoPedido, pedido.material);
 
             for (AsignacionPedido asignacion : pedido.asignaciones) {
 
@@ -3167,14 +3177,17 @@ class Main extends Agent {
             }
 
             // Material del cargo (ADR-067/071): por contenedor si es un cargo de contenedor, si no
-            // por lote (almacenaje, IN, flete de guarda). Un cargo de alcance RED (oportunidad del
-            // frio propio, penalidad de sobrecarga) no tiene material: es de toda la red.
+            // por lote (almacenaje, IN, flete de guarda), si no por pedido (flete por viaje sin
+            // contenedor ni lote todavia). Un cargo de alcance RED (oportunidad del frio propio,
+            // penalidad de sobrecarga) no tiene material: es de toda la red.
             String material =
                 cargo.codigoContenedor != null && !cargo.codigoContenedor.isEmpty()
                 ? materialDeContenedor.get(cargo.codigoContenedor)
                 : (cargo.idLote != null && !cargo.idLote.isEmpty()
                     ? materialDeLote.get(cargo.idLote)
-                    : null);
+                    : (cargo.codigoPedido != null && !cargo.codigoPedido.isEmpty()
+                        ? materialDePedido.get(cargo.codigoPedido)
+                        : null));
 
             if (material == null) {
                 material = "";
