@@ -182,6 +182,96 @@ public class AuditoriaRed implements java.io.Serializable {
 		return texto;
 	}
 
+	// ------------------------------------------------------------------ calendario
+
+	/**
+	 * Ancla del calendario de la corrida (ADR-071): que fecha es el dia 1 de campania.
+	 * Vacia significa que el paquete no la declara y las columnas de fecha salen vacias.
+	 *
+	 * Es estatica porque la escribe el arranque de la corrida y la leen las filas de las
+	 * seis tablas, que no conocen al agente. El barrido corre las corridas una despues de
+	 * otra y cada una vuelve a anclar antes de escribir su primera fila.
+	 */
+	private static String inicioCampania = "";
+
+	private static long inicioCampaniaMs = 0;
+
+	public static void anclarCalendario(String fechaIso) {
+		inicioCampania = fechaIso == null || !esFechaIso(fechaIso) ? "" : fechaIso.trim();
+		inicioCampaniaMs = inicioCampania.isEmpty() ? 0 : medianocheUtc(inicioCampania);
+	}
+
+	public static String inicioCampania() {
+		return inicioCampania;
+	}
+
+	/** Una fecha del contrato es YYYY-MM-DD y ademas existe: 2026-02-30 no es fecha. */
+	public static boolean esFechaIso(String texto) {
+		if (texto == null) {
+			return false;
+		}
+
+		String t = texto.trim();
+
+		if (!t.matches("\\d{4}-\\d{2}-\\d{2}")) {
+			return false;
+		}
+
+		try {
+			medianocheUtc(t);
+			return true;
+
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Fecha calendario del dia de campania de una fila: el dia 1 es el inicio de campania.
+	 *
+	 * El dia se pisa al entero porque el reloj del modelo es continuo y la fila publica una
+	 * fecha, no un instante. Un dia negativo es el centinela de "no aplica" (un despacho que
+	 * nunca ocurrio) y no tiene fecha: publicar una la inventaria.
+	 */
+	public static String fecha(double dia) {
+		if (inicioCampania.isEmpty() || dia < 0) {
+			return "";
+		}
+
+		java.util.GregorianCalendar c = calendarioUtc();
+		c.setTimeInMillis(inicioCampaniaMs + (long) (Math.floor(dia) - 1) * 86400000L);
+
+		return String.format(
+			java.util.Locale.US, "%04d-%02d-%02d",
+			c.get(java.util.Calendar.YEAR),
+			c.get(java.util.Calendar.MONTH) + 1,
+			c.get(java.util.Calendar.DAY_OF_MONTH));
+	}
+
+	/**
+	 * Medianoche UTC de una fecha del contrato. El calendario es UTC y no el del sistema:
+	 * con el huso local la misma corrida daria una fecha distinta segun donde se abra.
+	 */
+	private static long medianocheUtc(String fechaIso) {
+		java.util.GregorianCalendar c = calendarioUtc();
+		c.setLenient(false);
+
+		c.set(
+			Integer.parseInt(fechaIso.substring(0, 4)),
+			Integer.parseInt(fechaIso.substring(5, 7)) - 1,
+			Integer.parseInt(fechaIso.substring(8, 10)));
+
+		return c.getTimeInMillis();
+	}
+
+	private static java.util.GregorianCalendar calendarioUtc() {
+		java.util.GregorianCalendar c =
+			new java.util.GregorianCalendar(java.util.TimeZone.getTimeZone("UTC"));
+
+		c.clear();
+		return c;
+	}
+
 	// ------------------------------------------------------------------ formato csv
 
 	/** Texto escapado: una coma, una comilla o un salto de linea no rompen la tabla. */

@@ -81,7 +81,7 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 			+ "tipo_arco,origen,destino,circuito,es_cross_dock,"
 			+ "toneladas,contenedores,viajes,distancia_km,"
 			+ "dia_programacion,dia_inicio,dia_fin,duracion_real_horas,duracion_esperada_horas,"
-			+ "recurso_utilizado,id_recurso,estado_final";
+			+ "recurso_utilizado,id_recurso,estado_final,fecha_inicio,fecha_fin";
 	}
 
 	public String toCsv() {
@@ -115,7 +115,10 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 		f.append(AuditoriaRed.num(duracionEsperadaHoras)).append(',');
 		f.append(AuditoriaRed.txt(recursoUtilizado)).append(',');
 		f.append(AuditoriaRed.txt(idRecurso)).append(',');
-		f.append(AuditoriaRed.txt(estadoFinal));
+		f.append(AuditoriaRed.txt(estadoFinal)).append(',');
+
+		f.append(AuditoriaRed.txt(AuditoriaRed.fecha(diaInicio))).append(',');
+		f.append(AuditoriaRed.txt(AuditoriaRed.fecha(diaFin)));
 
 		return f.toString();
 	}

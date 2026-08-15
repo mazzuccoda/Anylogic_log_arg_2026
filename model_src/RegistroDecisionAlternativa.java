@@ -169,7 +169,8 @@ public class RegistroDecisionAlternativa implements java.io.Serializable {
 			+ "costo_unitario_sin_restriccion,"
 			+ "factible,orden_ranking,resultado_ejecucion,codigo_motivo,detalle_motivo,"
 			+ "toneladas_tomadas,costo_elegida_usd_tn,diferencia_vs_elegida_usd_tn,"
-			+ "saldo_pedido_antes,saldo_pedido_despues,es_mas_barata_no_factible";
+			+ "saldo_pedido_antes,saldo_pedido_despues,es_mas_barata_no_factible,"
+			+ "fecha,fecha_cutoff";
 	}
 
 	public String toCsv() {
@@ -278,7 +279,10 @@ public class RegistroDecisionAlternativa implements java.io.Serializable {
 		f.append(AuditoriaRed.num(diferenciaVsElegidaUsdTn)).append(',');
 		f.append(AuditoriaRed.num(saldoPedidoAntes)).append(',');
 		f.append(AuditoriaRed.num(saldoPedidoDespues)).append(',');
-		f.append(AuditoriaRed.si(esMasBarataNoFactible));
+		f.append(AuditoriaRed.si(esMasBarataNoFactible)).append(',');
+
+		f.append(AuditoriaRed.txt(AuditoriaRed.fecha(diaCampania))).append(',');
+		f.append(AuditoriaRed.txt(AuditoriaRed.fecha(diaCutoff)));
 
 		return f.toString();
 	}

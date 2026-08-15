@@ -35,7 +35,8 @@ public class VolcarDatos {
 				+ "\tdias_entre_cutoff_y_etd_default\tpermite_reserva_antes_retiro"
 				+ "\tpermite_transferencia_antes_retiro\tpermite_reserva_capacidad_futura\tpermite_fallback_politica_fija\texportar_diagnostico_capacidad"
 				+ "\tpolitica_reprogramacion_buque"
-				+ "\thabilita_flota_producto_multidiaria\tdias_max_programacion_flota");
+				+ "\thabilita_flota_producto_multidiaria\tdias_max_programacion_flota"
+				+ "\tfecha_inicio_campania");
 		for (String id : GeneradorSintetico.ESCENARIOS) {
 			DatosEntrada.Escenario e = GeneradorSintetico.escenario(id, semilla);
 			System.out.println(e.idEscenario
@@ -85,7 +86,8 @@ public class VolcarDatos {
 					+ "\t" + e.exportarDiagnosticoCapacidad
 					+ "\t" + e.politicaReprogramacionBuque
 					+ "\t" + e.habilitaFlotaProductoMultidiaria
-					+ "\t" + e.diasMaxProgramacionFlota);
+					+ "\t" + e.diasMaxProgramacionFlota
+					+ "\t" + e.fechaInicioCampania);
 		}
 
 		hoja("Producto", "producto\ttipo_contenedor\tcapacidad_contenedor_tn\ttoneladas_objetivo_lote_tn");

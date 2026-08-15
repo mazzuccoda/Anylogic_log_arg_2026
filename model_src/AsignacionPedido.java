@@ -112,7 +112,7 @@ public class AsignacionPedido implements java.io.Serializable {
 				+ "contenedores_creados,contenedores_entregados,"
 				+ "costo_incremental_estimado,costo_end_to_end_estimado,"
 				+ "costo_real_contenedores_usd,desvio_costo_usd,"
-				+ "dias_ciclo_real,cerrada,cancelada,motivo_asignacion";
+				+ "dias_ciclo_real,cerrada,cancelada,motivo_asignacion,fecha_asignacion";
 	}
 
 	/**
@@ -148,7 +148,8 @@ public class AsignacionPedido implements java.io.Serializable {
 				+ AuditoriaRed.num(costoRealContenedores) + ","
 				+ AuditoriaRed.num(costoRealContenedores - costoIncrementalEstimado) + ","
 				+ AuditoriaRed.num(ciclo) + "," + AuditoriaRed.si(cerrada) + ","
-				+ AuditoriaRed.si(cancelada) + "," + AuditoriaRed.txt(motivoAsignacion);
+				+ AuditoriaRed.si(cancelada) + "," + AuditoriaRed.txt(motivoAsignacion) + ","
+				+ AuditoriaRed.txt(AuditoriaRed.fecha(diaAsignacion));
 	}
 
 	public String descripcion() {

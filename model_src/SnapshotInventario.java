@@ -49,7 +49,7 @@ public class SnapshotInventario implements java.io.Serializable {
 			+ "stock_reservado_viajes_tn,stock_en_transito_entrada_tn,stock_en_transito_salida_tn,"
 			+ "ingresos_dia_tn,egresos_dia_tn,produccion_dia_tn,ocupacion_pct,"
 			+ "costo_almacenaje_dia_usd,dias_stock_promedio,lotes_abiertos,lote_mas_antiguo_dias,"
-			+ "descuadre_tn";
+			+ "descuadre_tn,fecha";
 	}
 
 	/** Lo que C-12 exige que sea cero: la identidad del balance diario del nodo. */
@@ -83,7 +83,9 @@ public class SnapshotInventario implements java.io.Serializable {
 		f.append(AuditoriaRed.num(diasStockPromedio)).append(',');
 		f.append(AuditoriaRed.ent(lotesAbiertos)).append(',');
 		f.append(AuditoriaRed.num(loteMasAntiguoDias)).append(',');
-		f.append(AuditoriaRed.num(descuadre()));
+		f.append(AuditoriaRed.num(descuadre())).append(',');
+
+		f.append(AuditoriaRed.txt(AuditoriaRed.fecha(dia)));
 
 		return f.toString();
 	}

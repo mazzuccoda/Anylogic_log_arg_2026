@@ -2710,6 +2710,21 @@ abrirAuditoriaRed();]]></StartupCode>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
+					<Id>1794100000003</Id>
+					<Name><![CDATA[fechaInicioCampaniaEfectiva]]></Name>
+					<X>-700</X><Y>3100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
 					<Id>1793100001048</Id>
 					<Name><![CDATA[diagnosticoFlota]]></Name>
 					<X>-700</X><Y>3080</Y>
@@ -2765,6 +2780,30 @@ abrirAuditoriaRed();]]></StartupCode>
 						</DefaultValue>
 						<ParameterEditor>
 							<Id>1791000000114</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1794100000001</Id>
+					<Name><![CDATA[fechaInicioCampania]]></Name>
+					<X>700</X><Y>-100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[String]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA["2026-04-01"]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1794100000002</Id>
 							<EditorContolType>TEXT_BOX</EditorContolType>
 							<MinSliderValue><![CDATA[0]]></MinSliderValue>
 							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
@@ -6499,6 +6538,7 @@ for (Pedido pedido : candidatos) {
 DatosEntrada.Escenario escenario = datos.escenario;
 
 duracionCampaniaDias = escenario.duracionCampaniaDias;
+anclarCalendarioDeCampania();
 habilitaCrossDock = escenario.habilitaCrossDock;
 exportarDiagnosticoCapacidad = escenario.exportarDiagnosticoCapacidad;
 politicaSeleccion = datos.politicaSeleccion();
@@ -7493,7 +7533,7 @@ auditoria.abrir(AuditoriaRed.INVENTARIO, SnapshotInventario.encabezadoCsv());]]>
 return "run_id,escenario,replica,id_costo,dia,dia_campania,tipo_contable,categoria,"
     + "codigo_pedido,id_asignacion,id_decision,id_contenedor,id_lote,producto,material,circuito,"
     + "origen,destino,sitio,proveedor,unidad,cantidad,tarifa,importe_usd,id_operacion,"
-    + "alcance,es_incremental,motivo";]]></Body>
+    + "alcance,es_incremental,motivo,fecha";]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -7637,7 +7677,8 @@ for (RegistroCostos.Cargo cargo : registro.detalle()) {
         + AuditoriaRed.num(cargo.cantidad) + "," + AuditoriaRed.num(cargo.tarifa) + ","
         + AuditoriaRed.num(cargo.importe) + "," + AuditoriaRed.txt(cargo.idOperacion) + ","
         + AuditoriaRed.txt(alcance) + "," + AuditoriaRed.si(incremental) + ","
-        + AuditoriaRed.txt(cargo.motivo));
+        + AuditoriaRed.txt(cargo.motivo) + ","
+        + AuditoriaRed.txt(AuditoriaRed.fecha(Math.floor(cargo.dia))));
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -7745,6 +7786,8 @@ try {
     salida.println("  \"replica\": " + replica + ",");
     salida.println("  \"nivel_auditoria\": \"" + auditoria.nivel + "\",");
     salida.println("  \"duracion_campania_dias\": " + duracionCampaniaDias + ",");
+    salida.println(
+        "  \"fecha_inicio_campania\": \"" + fechaInicioCampaniaEfectiva + "\",");
     salida.println("  \"generado\": \"" + new java.util.Date() + "\",");
     salida.println("  \"tablas\": {");
 
@@ -8751,7 +8794,7 @@ if (descuadresInventarioAuditoria > 0) {
 // a reconciliar dos calendarios que pueden diferir. El encabezado es una funcion para que el
 // esquema publicado y el csv no puedan divergir.
 return "run_id,escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
-    + "reservada,consumida,liberada,ocupada,libre,cola";]]></Body>
+    + "reservada,consumida,liberada,ocupada,libre,cola,fecha";]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -14222,6 +14265,77 @@ return cola == null ? 0 : cola.intValue();]]></Body>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1794100000011</Id>
+					<Name><![CDATA[ultimoDiaConCapacidad]]></Name>
+					<X>-300</X><Y>4560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Ultimo dia que la agenda de capacidad tiene que publicar: la campania entera y, si una
+// reserva quedo planificada mas alla del ultimo dia de campania, tambien ese dia. El
+// horizonte no puede salir de una constante porque la reserva se programa contra el
+// cut-off del pedido, que es un dato del libro (ADR-060).
+int ultimo = duracionCampaniaDias;
+
+for (java.util.Map<Integer, Integer> porDia : ocupacionCapacidad.values()) {
+
+    for (Integer dia : porDia.keySet()) {
+
+        if (dia.intValue() > ultimo) {
+            ultimo = dia.intValue();
+        }
+    }
+}
+
+for (ReservaCapacidad reserva : reservasCapacidad) {
+
+    if (reserva.diaPlanificado > ultimo) {
+        ultimo = reserva.diaPlanificado;
+    }
+}
+
+return ultimo;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1794100000012</Id>
+					<Name><![CDATA[anclarCalendarioDeCampania]]></Name>
+					<X>-300</X><Y>4590</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Fecha calendario del dia 1 (ADR-071). Manda la del escenario, porque el calendario es
+// un atributo de la campania igual que su duracion; el parametro de la corrida es el
+// default para el libro que no la declara y para los datos sinteticos.
+String delEscenario =
+    datos.escenario.fechaInicioCampania == null
+    ? ""
+    : datos.escenario.fechaInicioCampania.trim();
+
+fechaInicioCampaniaEfectiva =
+    delEscenario.isEmpty()
+    ? (fechaInicioCampania == null ? "" : fechaInicioCampania.trim())
+    : delEscenario;
+
+if (
+    !fechaInicioCampaniaEfectiva.isEmpty()
+    && !AuditoriaRed.esFechaIso(fechaInicioCampaniaEfectiva)
+) {
+    // Una fecha mal escrita no puede degradarse a columna vacia: el tablero la usa para
+    // fechar la campania entera.
+    throw new RuntimeException(
+        "fecha_inicio_campania invalida: '" + fechaInicioCampaniaEfectiva
+        + "'. Se espera una fecha real en formato YYYY-MM-DD.");
+}
+
+AuditoriaRed.anclarCalendario(fechaInicioCampaniaEfectiva);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1792600003014</Id>
 					<Name><![CDATA[reservasDelDia]]></Name>
 					<X>-300</X><Y>4530</Y>
@@ -14331,6 +14445,8 @@ try {
 
     salida.println(encabezadoCapacidadRecursos());
 
+    int ultimoDia = ultimoDiaConCapacidad();
+
     for (String clave : ocupacionCapacidad.keySet()) {
 
         int corte = clave.indexOf('|');
@@ -14338,7 +14454,10 @@ try {
         String tipoRecurso = clave.substring(0, corte);
         String idUbicacion = clave.substring(corte + 1);
 
-        for (int dia = 0; dia < duracionCampaniaDias; dia++) {
+        // Los dias del modelo van del 1 al ultimo paso diario: arrancar en 0 publicaba un dia
+        // que nunca existio y cortar en la duracion dejaba afuera la capacidad reservada para
+        // el cierre, que es justo cuando la agenda esta mas apretada (ADR-071).
+        for (int dia = 1; dia <= ultimoDia; dia++) {
 
             int nominal = capacidadNominalDia(tipoRecurso, idUbicacion, dia);
             int ocupada = capacidadOcupadaDia(tipoRecurso, idUbicacion, dia);
@@ -14355,7 +14474,8 @@ try {
                 + reservasDelDia(tipoRecurso, idUbicacion, dia, "ACTIVA") + ","
                 + reservasDelDia(tipoRecurso, idUbicacion, dia, "CONSUMIDA") + ","
                 + reservasDelDia(tipoRecurso, idUbicacion, dia, "LIBERADA") + ","
-                + ocupada + "," + Math.max(0, nominal - ocupada) + "," + cola);
+                + ocupada + "," + Math.max(0, nominal - ocupada) + "," + cola + ","
+                + AuditoriaRed.txt(AuditoriaRed.fecha(dia)));
         }
     }
 
@@ -29398,6 +29518,7 @@ static class Corrida {
 	String config;
 	int replica;
 	long semilla;
+	String fechaInicioCampania;
 	double[] kpis;
 }
 
@@ -29745,6 +29866,7 @@ c.config = String.format(java.util.Locale.US, "%d/%d  x%.2f  x%.2f  %-3s %s  %s"
 	root.datos.escenario.politicaSeleccion);
 c.replica = root.replica;
 c.semilla = root.semillaBase + root.replica;
+c.fechaInicioCampania = root.fechaInicioCampaniaEfectiva;
 
 c.kpis = new double[] {
 	root.costoTotalCampania(),
@@ -30226,7 +30348,7 @@ try {
 		new java.io.File(carpeta, "kpis_por_corrida.csv"), "UTF-8");
 
 	StringBuilder cabecera = new StringBuilder(
-		"version_modelo,id_escenario,replica,semilla");
+		"version_modelo,id_escenario,replica,semilla,fecha_inicio_campania");
 	for (String kpi : KPIS) {
 		cabecera.append(",").append(kpi);
 	}
@@ -30243,7 +30365,8 @@ try {
 			fila.append(VERSION_MODELO).append(",")
 				.append(c.idEscenario).append(",")
 				.append(c.replica).append(",")
-				.append(c.semilla);
+				.append(c.semilla).append(",")
+				.append(c.fechaInicioCampania);
 
 			for (double v : c.kpis) {
 				fila.append(",").append(String.format(java.util.Locale.US, "%.4f", v));
@@ -30490,6 +30613,13 @@ public class DatosEntrada implements java.io.Serializable {
 		 * para un viaje lejano y no sirve al pedido de manana.
 		 */
 		public double diasMaxProgramacionFlota = 2;
+
+		/**
+		 * Fecha calendario del dia 1 de campania, YYYY-MM-DD (ADR-071). Opcional: vacia
+		 * significa que la corrida usa el parametro fechaInicioCampania. No cambia ninguna
+		 * decision, solo fecha las filas que el modelo publica.
+		 */
+		public String fechaInicioCampania = "";
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -31445,6 +31575,13 @@ public class DatosEntrada implements java.io.Serializable {
 
 		if (escenario.duracionCampaniaDias <= 0) {
 			errores.add("duracion_campania_dias debe ser > 0.");
+		}
+
+		if (escenario.fechaInicioCampania != null
+				&& !escenario.fechaInicioCampania.trim().isEmpty()
+				&& !AuditoriaRed.esFechaIso(escenario.fechaInicioCampania)) {
+			errores.add("fecha_inicio_campania debe ser una fecha real en formato YYYY-MM-DD: '"
+					+ escenario.fechaInicioCampania + "'.");
 		}
 
 		if (escenario.camionesProducto <= 0) {
@@ -32823,6 +32960,7 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.numeroOpcional("dias_max_programacion_flota", 2);
 			e.politicaReprogramacionBuque =
 					f.textoOpcional("politica_reprogramacion_buque", "CONTINUAR").toUpperCase();
+			e.fechaInicioCampania = f.fechaOpcional("fecha_inicio_campania");
 			datos.escenario = e;
 		}
 
@@ -34102,6 +34240,41 @@ public class ImportadorExcel implements java.io.Serializable {
 			return v.length() == 0 ? porDefecto : v;
 		}
 
+		/**
+		 * Fecha del contrato, en YYYY-MM-DD. Una celda con formato de fecha llega como numero
+		 * de serie de Excel: se convierte para que el libro pueda tipearla como fecha y no
+		 * obligue a escribirla como texto. Lo que no sea ni una cosa ni la otra vuelve tal
+		 * cual y lo rechaza la validacion del contrato, con el valor a la vista.
+		 */
+		private String fechaOpcional(String nombre) {
+			String v = textoOpcional(nombre, "");
+
+			if (v.length() == 0 || v.indexOf('-') >= 0) {
+				return v;
+			}
+
+			double serie;
+
+			try {
+				serie = Double.parseDouble(v.replace(",", "."));
+
+			} catch (NumberFormatException e) {
+				return v;
+			}
+
+			java.util.GregorianCalendar c =
+					new java.util.GregorianCalendar(java.util.TimeZone.getTimeZone("UTC"));
+
+			c.clear();
+			c.set(1899, java.util.Calendar.DECEMBER, 30);
+			c.add(java.util.Calendar.DAY_OF_MONTH, (int) Math.floor(serie));
+
+			return String.format(java.util.Locale.US, "%04d-%02d-%02d",
+					c.get(java.util.Calendar.YEAR),
+					c.get(java.util.Calendar.MONTH) + 1,
+					c.get(java.util.Calendar.DAY_OF_MONTH));
+		}
+
 		private int enteroOpcional(String nombre, int porDefecto) {
 			return tiene(nombre) && comoTexto(columna(nombre)).length() > 0
 					? entero(nombre) : porDefecto;
@@ -34450,7 +34623,7 @@ public class AsignacionPedido implements java.io.Serializable {
 				+ "contenedores_creados,contenedores_entregados,"
 				+ "costo_incremental_estimado,costo_end_to_end_estimado,"
 				+ "costo_real_contenedores_usd,desvio_costo_usd,"
-				+ "dias_ciclo_real,cerrada,cancelada,motivo_asignacion";
+				+ "dias_ciclo_real,cerrada,cancelada,motivo_asignacion,fecha_asignacion";
 	}
 
 	/**
@@ -34486,7 +34659,8 @@ public class AsignacionPedido implements java.io.Serializable {
 				+ AuditoriaRed.num(costoRealContenedores) + ","
 				+ AuditoriaRed.num(costoRealContenedores - costoIncrementalEstimado) + ","
 				+ AuditoriaRed.num(ciclo) + "," + AuditoriaRed.si(cerrada) + ","
-				+ AuditoriaRed.si(cancelada) + "," + AuditoriaRed.txt(motivoAsignacion);
+				+ AuditoriaRed.si(cancelada) + "," + AuditoriaRed.txt(motivoAsignacion) + ","
+				+ AuditoriaRed.txt(AuditoriaRed.fecha(diaAsignacion));
 	}
 
 	public String descripcion() {
@@ -36247,6 +36421,96 @@ public class AuditoriaRed implements java.io.Serializable {
 		return texto;
 	}
 
+	// ------------------------------------------------------------------ calendario
+
+	/**
+	 * Ancla del calendario de la corrida (ADR-071): que fecha es el dia 1 de campania.
+	 * Vacia significa que el paquete no la declara y las columnas de fecha salen vacias.
+	 *
+	 * Es estatica porque la escribe el arranque de la corrida y la leen las filas de las
+	 * seis tablas, que no conocen al agente. El barrido corre las corridas una despues de
+	 * otra y cada una vuelve a anclar antes de escribir su primera fila.
+	 */
+	private static String inicioCampania = "";
+
+	private static long inicioCampaniaMs = 0;
+
+	public static void anclarCalendario(String fechaIso) {
+		inicioCampania = fechaIso == null || !esFechaIso(fechaIso) ? "" : fechaIso.trim();
+		inicioCampaniaMs = inicioCampania.isEmpty() ? 0 : medianocheUtc(inicioCampania);
+	}
+
+	public static String inicioCampania() {
+		return inicioCampania;
+	}
+
+	/** Una fecha del contrato es YYYY-MM-DD y ademas existe: 2026-02-30 no es fecha. */
+	public static boolean esFechaIso(String texto) {
+		if (texto == null) {
+			return false;
+		}
+
+		String t = texto.trim();
+
+		if (!t.matches("\\d{4}-\\d{2}-\\d{2}")) {
+			return false;
+		}
+
+		try {
+			medianocheUtc(t);
+			return true;
+
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Fecha calendario del dia de campania de una fila: el dia 1 es el inicio de campania.
+	 *
+	 * El dia se pisa al entero porque el reloj del modelo es continuo y la fila publica una
+	 * fecha, no un instante. Un dia negativo es el centinela de "no aplica" (un despacho que
+	 * nunca ocurrio) y no tiene fecha: publicar una la inventaria.
+	 */
+	public static String fecha(double dia) {
+		if (inicioCampania.isEmpty() || dia < 0) {
+			return "";
+		}
+
+		java.util.GregorianCalendar c = calendarioUtc();
+		c.setTimeInMillis(inicioCampaniaMs + (long) (Math.floor(dia) - 1) * 86400000L);
+
+		return String.format(
+			java.util.Locale.US, "%04d-%02d-%02d",
+			c.get(java.util.Calendar.YEAR),
+			c.get(java.util.Calendar.MONTH) + 1,
+			c.get(java.util.Calendar.DAY_OF_MONTH));
+	}
+
+	/**
+	 * Medianoche UTC de una fecha del contrato. El calendario es UTC y no el del sistema:
+	 * con el huso local la misma corrida daria una fecha distinta segun donde se abra.
+	 */
+	private static long medianocheUtc(String fechaIso) {
+		java.util.GregorianCalendar c = calendarioUtc();
+		c.setLenient(false);
+
+		c.set(
+			Integer.parseInt(fechaIso.substring(0, 4)),
+			Integer.parseInt(fechaIso.substring(5, 7)) - 1,
+			Integer.parseInt(fechaIso.substring(8, 10)));
+
+		return c.getTimeInMillis();
+	}
+
+	private static java.util.GregorianCalendar calendarioUtc() {
+		java.util.GregorianCalendar c =
+			new java.util.GregorianCalendar(java.util.TimeZone.getTimeZone("UTC"));
+
+		c.clear();
+		return c;
+	}
+
 	// ------------------------------------------------------------------ formato csv
 
 	/** Texto escapado: una coma, una comilla o un salto de linea no rompen la tabla. */
@@ -36452,7 +36716,8 @@ public class RegistroDecisionAlternativa implements java.io.Serializable {
 			+ "costo_unitario_sin_restriccion,"
 			+ "factible,orden_ranking,resultado_ejecucion,codigo_motivo,detalle_motivo,"
 			+ "toneladas_tomadas,costo_elegida_usd_tn,diferencia_vs_elegida_usd_tn,"
-			+ "saldo_pedido_antes,saldo_pedido_despues,es_mas_barata_no_factible";
+			+ "saldo_pedido_antes,saldo_pedido_despues,es_mas_barata_no_factible,"
+			+ "fecha,fecha_cutoff";
 	}
 
 	public String toCsv() {
@@ -36561,7 +36826,10 @@ public class RegistroDecisionAlternativa implements java.io.Serializable {
 		f.append(AuditoriaRed.num(diferenciaVsElegidaUsdTn)).append(',');
 		f.append(AuditoriaRed.num(saldoPedidoAntes)).append(',');
 		f.append(AuditoriaRed.num(saldoPedidoDespues)).append(',');
-		f.append(AuditoriaRed.si(esMasBarataNoFactible));
+		f.append(AuditoriaRed.si(esMasBarataNoFactible)).append(',');
+
+		f.append(AuditoriaRed.txt(AuditoriaRed.fecha(diaCampania))).append(',');
+		f.append(AuditoriaRed.txt(AuditoriaRed.fecha(diaCutoff)));
 
 		return f.toString();
 	}
@@ -36651,7 +36919,7 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 			+ "tipo_arco,origen,destino,circuito,es_cross_dock,"
 			+ "toneladas,contenedores,viajes,distancia_km,"
 			+ "dia_programacion,dia_inicio,dia_fin,duracion_real_horas,duracion_esperada_horas,"
-			+ "recurso_utilizado,id_recurso,estado_final";
+			+ "recurso_utilizado,id_recurso,estado_final,fecha_inicio,fecha_fin";
 	}
 
 	public String toCsv() {
@@ -36685,7 +36953,10 @@ public class RegistroEjecucionArco implements java.io.Serializable {
 		f.append(AuditoriaRed.num(duracionEsperadaHoras)).append(',');
 		f.append(AuditoriaRed.txt(recursoUtilizado)).append(',');
 		f.append(AuditoriaRed.txt(idRecurso)).append(',');
-		f.append(AuditoriaRed.txt(estadoFinal));
+		f.append(AuditoriaRed.txt(estadoFinal)).append(',');
+
+		f.append(AuditoriaRed.txt(AuditoriaRed.fecha(diaInicio))).append(',');
+		f.append(AuditoriaRed.txt(AuditoriaRed.fecha(diaFin)));
 
 		return f.toString();
 	}
@@ -36743,7 +37014,7 @@ public class SnapshotInventario implements java.io.Serializable {
 			+ "stock_reservado_viajes_tn,stock_en_transito_entrada_tn,stock_en_transito_salida_tn,"
 			+ "ingresos_dia_tn,egresos_dia_tn,produccion_dia_tn,ocupacion_pct,"
 			+ "costo_almacenaje_dia_usd,dias_stock_promedio,lotes_abiertos,lote_mas_antiguo_dias,"
-			+ "descuadre_tn";
+			+ "descuadre_tn,fecha";
 	}
 
 	/** Lo que C-12 exige que sea cero: la identidad del balance diario del nodo. */
@@ -36777,7 +37048,9 @@ public class SnapshotInventario implements java.io.Serializable {
 		f.append(AuditoriaRed.num(diasStockPromedio)).append(',');
 		f.append(AuditoriaRed.ent(lotesAbiertos)).append(',');
 		f.append(AuditoriaRed.num(loteMasAntiguoDias)).append(',');
-		f.append(AuditoriaRed.num(descuadre()));
+		f.append(AuditoriaRed.num(descuadre())).append(',');
+
+		f.append(AuditoriaRed.txt(AuditoriaRed.fecha(dia)));
 
 		return f.toString();
 	}
