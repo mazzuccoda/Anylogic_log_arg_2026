@@ -45,13 +45,35 @@ Las dos últimas **no son tablas nuevas**: `costos_eventos` es `RegistroCostos.C
 
 ### 4.1 Esquema publicado
 
-`resultados/esquema_auditoria.json` se genera en la misma corrida, desde los mismos métodos `encabezadoCsv()` que escriben los CSV: archivo, columnas y clave primaria de cada tabla. No puede quedar viejo. `version_esquema` (hoy `ADR-064.1`) cambia cuando cambia una columna o una clave, y aparece también en `resultados/manifiesto_auditoria_<run_id>.json` junto con el conteo de filas de la corrida.
+`resultados/esquema_auditoria.json` se genera en la misma corrida, desde los mismos métodos `encabezadoCsv()` que escriben los CSV: archivo, columnas y clave primaria de cada tabla. No puede quedar viejo. `version_esquema` (hoy `ADR-064.2`) cambia cuando cambia una columna o una clave, y aparece también en `resultados/manifiesto_auditoria_<run_id>.json` junto con el conteo de filas de la corrida.
 
 ## 5. Diccionario de campos
 
 Convenciones: los importes son USD, las toneladas `tn`, las duraciones en horas salvo que el nombre diga `_dias`, los días son días de campaña (`dia_simulacion` es el reloj del modelo, con fracción). Un campo vacío es un dato que el modelo **no produce**; nunca es un cero implícito.
 
-### 5.1 `decisiones_alternativas` (97 columnas)
+### 5.0 Las fechas de calendario (ADR-071)
+
+Cada tabla publica, al lado de su día ancla, la fecha calendario correspondiente:
+
+```
+fecha = fecha_inicio_campania + (piso(dia) − 1) días
+```
+
+| Tabla | Día ancla | Columna |
+|---|---|---|
+| `decisiones_alternativas` | `dia_campania` | `fecha` |
+| `decisiones_alternativas` | `dia_cutoff` | `fecha_cutoff` |
+| `asignaciones_elegidas` | `dia_asignacion` | `fecha_asignacion` |
+| `ejecucion_arcos` | `dia_inicio`, `dia_fin` | `fecha_inicio`, `fecha_fin` |
+| `costos_eventos` | `dia_campania` | `fecha` |
+| `snapshot_inventario` | `dia` | `fecha` |
+| `snapshot_capacidad_recursos` | `dia` | `fecha` |
+
+Tres reglas al leerlas: el día 1 es la fecha de inicio, no el día siguiente; un día **fraccionario** fecha el día físico en que ocurrió (piso), y un día **negativo** —el centinela de "no aplica" de `dia_programacion`, `dia_primer_despacho` y `dia_ultima_entrega`— fecha **vacío**, nunca un día antes del inicio. En `costos_eventos` la fecha sigue `dia_campania`, que es el día de **devengo** con el que se resolvió la tarifa, no el `dia` con fracción.
+
+La aritmética es de días calendario en UTC: no hay huso horario ni horario de verano que corra un día. La fecha es una etiqueta de salida y no entra en ninguna decisión: sin declararla, las columnas quedan vacías y la corrida es idéntica.
+
+### 5.1 `decisiones_alternativas` (99 columnas)
 
 **Corrida y decisión.** `run_id`, `escenario`, `replica`, `dia_simulacion`, `dia_campania`, `politica_seleccion` y `criterio_orden` (la política económica vigente, para poder comparar corridas), `id_decision`, `ronda`, `id_alternativa`.
 
@@ -71,6 +93,8 @@ Convenciones: los importes son USD, las toneladas `tn`, las duraciones en horas 
 
 **Resultado.** `factible`, `orden_ranking` (el único ranking que produce el modelo), `resultado_ejecucion`, `codigo_motivo`, `detalle_motivo`, `toneladas_tomadas`, `costo_elegida_usd_tn`, `diferencia_vs_elegida_usd_tn`, `saldo_pedido_antes`, `saldo_pedido_despues`, `es_mas_barata_no_factible`.
 
+**Calendario (ADR-071).** `fecha` (del `dia_campania` de la decisión) y `fecha_cutoff`.
+
 `resultado_ejecucion` toma cuatro valores:
 
 | Valor | Significado |
@@ -86,13 +110,13 @@ Tres aclaraciones que importan al leer la tabla: **ser más cara no es un descar
 
 **Campos que el modelo no produce y por eso no están:** costo de espera, costo de oportunidad por alternativa, y un segundo ranking. `ordenarAlternativas()` produce **un solo** orden; inventar un ranking alternativo sería inventar una política.
 
-### 5.2 `asignaciones_elegidas` (30 columnas)
+### 5.2 `asignaciones_elegidas` (31 columnas)
 
-`run_id`, `escenario`, `replica`, `id_asignacion`, `id_decision`, `id_alternativa`, `codigo_pedido`, `producto`, `origen`, `circuito`, `es_cross_dock`, `prioridad`, `dia_asignacion`, `dia_primer_despacho`, `dia_ultima_entrega`, `toneladas_asignadas`, `toneladas_reservadas_activas`, `toneladas_contenerizadas`, `toneladas_despachadas`, `toneladas_entregadas`, `contenedores_creados`, `contenedores_entregados`, `costo_incremental_estimado`, `costo_end_to_end_estimado`, `costo_real_contenedores_usd`, `desvio_costo_usd`, `dias_ciclo_real`, `cerrada`, `cancelada`, `motivo_asignacion`.
+`run_id`, `escenario`, `replica`, `id_asignacion`, `id_decision`, `id_alternativa`, `codigo_pedido`, `producto`, `origen`, `circuito`, `es_cross_dock`, `prioridad`, `dia_asignacion`, `dia_primer_despacho`, `dia_ultima_entrega`, `toneladas_asignadas`, `toneladas_reservadas_activas`, `toneladas_contenerizadas`, `toneladas_despachadas`, `toneladas_entregadas`, `contenedores_creados`, `contenedores_entregados`, `costo_incremental_estimado`, `costo_end_to_end_estimado`, `costo_real_contenedores_usd`, `desvio_costo_usd`, `dias_ciclo_real`, `cerrada`, `cancelada`, `motivo_asignacion`, `fecha_asignacion`.
 
 `costo_real_contenedores_usd` es la suma de los cargos **atribuibles al contenedor** de esa asignación, no el costo total: el almacenaje se devenga contra el lote y no contra la asignación. `desvio_costo_usd` compara ese real con el estimado y hay que leerlo con ese alcance.
 
-### 5.3 `ejecucion_arcos` (29 columnas)
+### 5.3 `ejecucion_arcos` (31 columnas)
 
 Un arco es un **hecho físico terminado**: se emite al salir del bloque, cuando ya existen la duración real y el estado final.
 
@@ -100,6 +124,7 @@ Claves e identidad: `run_id`, `escenario`, `replica`, `id_evento_arco`, `id_deci
 Hecho: `tipo_arco`, `origen`, `destino`, `circuito`, `es_cross_dock`, `toneladas`, `contenedores`, `viajes`, `distancia_km`.
 Tiempo: `dia_programacion`, `dia_inicio`, `dia_fin`, `duracion_real_horas`, `duracion_esperada_horas`.
 Recurso: `recurso_utilizado`, `id_recurso`, `estado_final`.
+Calendario: `fecha_inicio`, `fecha_fin`.
 
 `duracion_esperada_horas` **negativa** significa "no aplica": esperar un portacontenedor o una posición no tiene techo físico, y así lo trata C-05 (ADR-063). Los diez tipos de arco:
 
@@ -120,15 +145,15 @@ Recurso: `recurso_utilizado`, `id_recurso`, `estado_final`.
 
 `id_decision` está vacío en los arcos que no nacen de una decisión de circuito: los viajes de producto planta–depósito preventivos, el cross dock y la espera de posición.
 
-### 5.4 `costos_eventos` (27 columnas)
+### 5.4 `costos_eventos` (28 columnas)
 
-Es `RegistroCostos.Cargo`: `run_id`, `escenario`, `replica`, `id_costo`, `dia`, `dia_campania`, `tipo_contable` (`CAJA` o `ECONOMICO`), `categoria`, `codigo_pedido`, `id_asignacion`, `id_decision`, `id_contenedor`, `id_lote`, `producto`, `circuito`, `origen`, `destino`, `sitio`, `proveedor`, `unidad`, `cantidad`, `tarifa`, `importe_usd`, `id_operacion`, `alcance` (`RED`, `PEDIDO`, `LOTE`, `CONTENEDOR`), `es_incremental`, `motivo`.
+Es `RegistroCostos.Cargo`: `run_id`, `escenario`, `replica`, `id_costo`, `dia`, `dia_campania`, `tipo_contable` (`CAJA` o `ECONOMICO`), `categoria`, `codigo_pedido`, `id_asignacion`, `id_decision`, `id_contenedor`, `id_lote`, `producto`, `circuito`, `origen`, `destino`, `sitio`, `proveedor`, `unidad`, `cantidad`, `tarifa`, `importe_usd`, `id_operacion`, `alcance` (`RED`, `PEDIDO`, `LOTE`, `CONTENEDOR`), `es_incremental`, `motivo`, `fecha`.
 
 `tipo_contable = ECONOMICO` es costo de oportunidad, no caja: **no se suma** al total de campaña. `alcance` dice contra qué se devengó el cargo y es lo que hace que el desvío por asignación tenga un alcance declarado y no un número inventado.
 
-### 5.5 `snapshot_inventario` (24 columnas)
+### 5.5 `snapshot_inventario` (25 columnas)
 
-`run_id`, `escenario`, `replica`, `dia`, `ubicacion`, `tipo_ubicacion`, `producto`, `capacidad_tn`, `stock_inicial_dia_tn`, `stock_fisico_tn`, `stock_libre_tn`, `stock_reservado_pedidos_tn`, `stock_reservado_viajes_tn`, `stock_en_transito_entrada_tn`, `stock_en_transito_salida_tn`, `ingresos_dia_tn`, `egresos_dia_tn`, `produccion_dia_tn`, `ocupacion_pct`, `costo_almacenaje_dia_usd`, `dias_stock_promedio`, `lotes_abiertos`, `lote_mas_antiguo_dias`, `descuadre_tn`.
+`run_id`, `escenario`, `replica`, `dia`, `ubicacion`, `tipo_ubicacion`, `producto`, `capacidad_tn`, `stock_inicial_dia_tn`, `stock_fisico_tn`, `stock_libre_tn`, `stock_reservado_pedidos_tn`, `stock_reservado_viajes_tn`, `stock_en_transito_entrada_tn`, `stock_en_transito_salida_tn`, `ingresos_dia_tn`, `egresos_dia_tn`, `produccion_dia_tn`, `ocupacion_pct`, `costo_almacenaje_dia_usd`, `dias_stock_promedio`, `lotes_abiertos`, `lote_mas_antiguo_dias`, `descuadre_tn`, `fecha`.
 
 El balance de cada fila cierra por construcción y C-12 lo verifica todos los días:
 
@@ -138,9 +163,11 @@ stock_fisico_tn = stock_inicial_dia_tn + ingresos_dia_tn − egresos_dia_tn
 
 `descuadre_tn` es esa diferencia y tiene que ser cero. Las filas en cero no se escriben: un nodo sin stock, sin movimiento y sin capacidad no aporta información.
 
-### 5.6 `snapshot_capacidad_recursos` (13 columnas)
+### 5.6 `snapshot_capacidad_recursos` (14 columnas)
 
-`run_id`, `escenario`, `replica`, `dia`, `tipo_recurso`, `ubicacion`, `capacidad_nominal`, `reservada`, `consumida`, `liberada`, `ocupada`, `libre`, `cola`.
+`run_id`, `escenario`, `replica`, `dia`, `tipo_recurso`, `ubicacion`, `capacidad_nominal`, `reservada`, `consumida`, `liberada`, `ocupada`, `libre`, `cola`, `fecha`.
+
+Los días son los mismos que los del resto de las tablas: del **1** al último día con agenda —la campaña entera y, si alguna reserva quedó planificada más allá del cierre, también ese día (ADR-071)—. Hasta ADR-070 la exportación recorría `0 .. duracion − 1`: publicaba un día 0 que nunca existió y le faltaban los últimos días de campaña.
 
 Regla contra el doble conteo (ADR-060): hay **una sola ocupación por (recurso, sitio, día)**. `ocupada` es la ocupación física; ejecutar un contenedor ya reservado convierte reserva en consumo **sin volver a ocupar**, así que `reservada + consumida` no es la ocupación. `libre = capacidad_nominal − ocupada`. La invariante `ocupada ≤ capacidad_nominal` la vigila C-03.
 
@@ -168,3 +195,4 @@ Ninguna compara dos exportaciones entre sí: todas comparan la tabla contra el e
 - Leer `esquema_auditoria.json` para las columnas y `manifiesto_auditoria_<run_id>.json` para el conteo de filas esperado; comparar `version_esquema` antes de asumir un campo.
 - Uniones estables: `decisiones_alternativas.id_alternativa` → `asignaciones_elegidas.id_alternativa` → `ejecucion_arcos.id_asignacion` → `costos_eventos.id_asignacion`; y por `id_contenedor` / `id_lote` para el costo que no es de la asignación.
 - Los importes **sólo** se suman de `costos_eventos`, filtrando `tipo_contable = CAJA`. Ninguna otra tabla trae dinero.
+- Para agrupar por semana, mes o trimestre, usar la columna `fecha` de cada tabla: el modelo publica el día calendario y **no** deriva semana, mes ni año, que son convenciones del tablero. `fecha_inicio_campania` viene en el manifiesto y en `kpis_por_corrida.csv`, así que dos corridas de campañas distintas se pueden poner en la misma línea de tiempo.

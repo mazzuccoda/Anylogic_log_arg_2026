@@ -114,6 +114,7 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.numeroOpcional("dias_max_programacion_flota", 2);
 			e.politicaReprogramacionBuque =
 					f.textoOpcional("politica_reprogramacion_buque", "CONTINUAR").toUpperCase();
+			e.fechaInicioCampania = f.fechaOpcional("fecha_inicio_campania");
 			datos.escenario = e;
 		}
 
@@ -1391,6 +1392,41 @@ public class ImportadorExcel implements java.io.Serializable {
 			}
 			String v = comoTexto(columna(nombre));
 			return v.length() == 0 ? porDefecto : v;
+		}
+
+		/**
+		 * Fecha del contrato, en YYYY-MM-DD. Una celda con formato de fecha llega como numero
+		 * de serie de Excel: se convierte para que el libro pueda tipearla como fecha y no
+		 * obligue a escribirla como texto. Lo que no sea ni una cosa ni la otra vuelve tal
+		 * cual y lo rechaza la validacion del contrato, con el valor a la vista.
+		 */
+		private String fechaOpcional(String nombre) {
+			String v = textoOpcional(nombre, "");
+
+			if (v.length() == 0 || v.indexOf('-') >= 0) {
+				return v;
+			}
+
+			double serie;
+
+			try {
+				serie = Double.parseDouble(v.replace(",", "."));
+
+			} catch (NumberFormatException e) {
+				return v;
+			}
+
+			java.util.GregorianCalendar c =
+					new java.util.GregorianCalendar(java.util.TimeZone.getTimeZone("UTC"));
+
+			c.clear();
+			c.set(1899, java.util.Calendar.DECEMBER, 30);
+			c.add(java.util.Calendar.DAY_OF_MONTH, (int) Math.floor(serie));
+
+			return String.format(java.util.Locale.US, "%04d-%02d-%02d",
+					c.get(java.util.Calendar.YEAR),
+					c.get(java.util.Calendar.MONTH) + 1,
+					c.get(java.util.Calendar.DAY_OF_MONTH));
 		}
 
 		private int enteroOpcional(String nombre, int porDefecto) {

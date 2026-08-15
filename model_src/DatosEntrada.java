@@ -106,6 +106,13 @@ public class DatosEntrada implements java.io.Serializable {
 		 * para un viaje lejano y no sirve al pedido de manana.
 		 */
 		public double diasMaxProgramacionFlota = 2;
+
+		/**
+		 * Fecha calendario del dia 1 de campania, YYYY-MM-DD (ADR-071). Opcional: vacia
+		 * significa que la corrida usa el parametro fechaInicioCampania. No cambia ninguna
+		 * decision, solo fecha las filas que el modelo publica.
+		 */
+		public String fechaInicioCampania = "";
 	}
 
 	public static class Ubicacion implements java.io.Serializable {
@@ -1061,6 +1068,13 @@ public class DatosEntrada implements java.io.Serializable {
 
 		if (escenario.duracionCampaniaDias <= 0) {
 			errores.add("duracion_campania_dias debe ser > 0.");
+		}
+
+		if (escenario.fechaInicioCampania != null
+				&& !escenario.fechaInicioCampania.trim().isEmpty()
+				&& !AuditoriaRed.esFechaIso(escenario.fechaInicioCampania)) {
+			errores.add("fecha_inicio_campania debe ser una fecha real en formato YYYY-MM-DD: '"
+					+ escenario.fechaInicioCampania + "'.");
 		}
 
 		if (escenario.camionesProducto <= 0) {

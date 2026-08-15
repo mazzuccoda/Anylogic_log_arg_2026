@@ -273,6 +273,7 @@ Los datos operativos de la planta (velocidades, `contenedores_por_dia`, tarifa d
 | `politica_reprogramacion_buque` | texto | Qué pasa con el saldo que perdió el cut-off: `CONTINUAR` lo rolea y lo entrega tarde (default), `CANCELAR` lo da de baja |
 | `permite_fallback_politica_fija` | bool | Con una politica `FIJA_*`, si el saldo que el circuito fijo no puede tomar por capacidad pasa al evaluador (default `false`, ADR-060) |
 | `exportar_diagnostico_capacidad` | bool | Si la corrida escribe `resultados/capacidad_por_dia.csv`, `asignaciones_capacidad.csv` y `asignaciones_capacidad_decisiones.csv` (default `false`) |
+| `fecha_inicio_campania` | texto o fecha | Opcional. Fecha calendario del **día 1** de la campaña, en `YYYY-MM-DD` (ADR-071). Vacía, manda el parámetro de corrida `fechaInicioCampania`; vacíos los dos, las columnas de fecha salen vacías |
 | `politica_prioridad` | enum | `FECHA_LIMITE`, `FIFO`, `MAYOR_VOLUMEN` |
 | `tipo_cambio_ars_usd` | double | Para tarifas en ARS |
 
@@ -381,7 +382,7 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 
 | Hoja | Columnas |
 |---|---|
-| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default`, `umbral_alerta_pct`, `umbral_sobrecarga_pct`, `umbral_objetivo_pct`, `dias_forecast`, `politica_frio_propio`, `politica_seleccion`, `servicio_minimo_proyectado`, `factor_tarifa_flete`, `factor_tarifa_round_trip`, `factor_tarifa_cross_dock`, `factor_tarifa_terminal`, `factor_consolidacion_planta`, `factor_cupo_cross_dock`, `factor_capacidad_terminal`, `dias_anticipacion_planificacion_default`, `dias_anticipacion_retiro_default`, `dias_entre_cutoff_y_etd_default`, `permite_reserva_antes_retiro`, `permite_transferencia_antes_retiro`, `permite_reserva_capacidad_futura`, `politica_reprogramacion_buque`, `permite_fallback_politica_fija`, `exportar_diagnostico_capacidad` |
+| `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default`, `umbral_alerta_pct`, `umbral_sobrecarga_pct`, `umbral_objetivo_pct`, `dias_forecast`, `politica_frio_propio`, `politica_seleccion`, `servicio_minimo_proyectado`, `factor_tarifa_flete`, `factor_tarifa_round_trip`, `factor_tarifa_cross_dock`, `factor_tarifa_terminal`, `factor_consolidacion_planta`, `factor_cupo_cross_dock`, `factor_capacidad_terminal`, `dias_anticipacion_planificacion_default`, `dias_anticipacion_retiro_default`, `dias_entre_cutoff_y_etd_default`, `permite_reserva_antes_retiro`, `permite_transferencia_antes_retiro`, `permite_reserva_capacidad_futura`, `politica_reprogramacion_buque`, `permite_fallback_politica_fija`, `exportar_diagnostico_capacidad`, `habilita_flota_producto_multidiaria`, `dias_max_programacion_flota`, `fecha_inicio_campania` |
 | `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn`, `toneladas_objetivo_lote_tn` |
 | `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `contenedores_por_dia`, `posiciones_cross_dock` |
 | `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |
@@ -438,3 +439,17 @@ Dos columnas nuevas, opcionales, en la hoja `Escenario`. Un libro que no las tra
 | `dias_max_programacion_flota` | double | `2` | Horizonte de compromiso de la agenda: hasta cuántos días adelante se programa un viaje que no puede salir hoy. Más días adelantan producto que todavía no tiene pedido; menos días dejan camiones ociosos |
 
 Las duraciones **no** se cargan: se derivan de `Distancia`, de `velocidad_camion_kmh`, de `horas_operativas_dia` y de las velocidades de carga y descarga de cada ubicación. La tabla `Distancia` declara **un solo sentido por tramo** y el modelo la lee de forma simétrica; un tramo que no está en la tabla no aborta la corrida, se descarta el movimiento con `RUTA_SIN_DISTANCIA`.
+
+## 13. Fecha de inicio de campaña (ADR-071)
+
+La columna `fecha_inicio_campania` de la hoja `Escenario` es opcional y fecha el **día 1** de la campaña. Un libro que no la trae corre igual: las columnas de fecha de la auditoría quedan vacías.
+
+| Origen | Prioridad |
+|---|---|
+| `Escenario.fecha_inicio_campania` | 1 — es un atributo de la campaña, igual que `duracion_campania_dias`, y así un barrido que compara campañas de años distintos fecha cada una como corresponde |
+| Parámetro de corrida `fechaInicioCampania` | 2 — default `2026-04-01` |
+| ninguno de los dos | fecha vacía en todas las tablas |
+
+Formato **`YYYY-MM-DD`**, y sólo ése. La celda puede venir como texto (`2026-04-01`) o como fecha de Excel: el importador convierte el serial (base 1899-12-30) al mismo formato. Una fecha inexistente o mal escrita (`2026-02-30`, `01/04/2026`) **aborta la carga** nombrando el valor; nunca degrada a fecha vacía, porque una fecha vacía se lee como "el libro no la declara" y no como "el libro la declara mal".
+
+La fecha no entra en ninguna decisión: no cambia la vigencia de las tarifas, ni el cut-off, ni la estacionalidad, ni el reloj del motor, que siguen razonando en días de campaña. Es una etiqueta de salida. Dónde aparece, en `docs/09_Definicion/Auditoria_de_Red.md` §5.0.

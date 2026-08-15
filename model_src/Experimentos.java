@@ -32,6 +32,7 @@ class Escenarios extends ParamVariationExperiment {
         	String config;
         	int replica;
         	long semilla;
+        	String fechaInicioCampania;
         	double[] kpis;
         }
 
@@ -382,6 +383,7 @@ class Escenarios extends ParamVariationExperiment {
         	root.datos.escenario.politicaSeleccion);
         c.replica = root.replica;
         c.semilla = root.semillaBase + root.replica;
+        c.fechaInicioCampania = root.fechaInicioCampaniaEfectiva;
 
         c.kpis = new double[] {
         	root.costoTotalCampania(),
@@ -488,7 +490,7 @@ class Escenarios extends ParamVariationExperiment {
         		new java.io.File(carpeta, "kpis_por_corrida.csv"), "UTF-8");
 
         	StringBuilder cabecera = new StringBuilder(
-        		"version_modelo,id_escenario,replica,semilla");
+        		"version_modelo,id_escenario,replica,semilla,fecha_inicio_campania");
         	for (String kpi : KPIS) {
         		cabecera.append(",").append(kpi);
         	}
@@ -505,7 +507,8 @@ class Escenarios extends ParamVariationExperiment {
         			fila.append(VERSION_MODELO).append(",")
         				.append(c.idEscenario).append(",")
         				.append(c.replica).append(",")
-        				.append(c.semilla);
+        				.append(c.semilla).append(",")
+        				.append(c.fechaInicioCampania);
 
         			for (double v : c.kpis) {
         				fila.append(",").append(String.format(java.util.Locale.US, "%.4f", v));

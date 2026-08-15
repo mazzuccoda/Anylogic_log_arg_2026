@@ -33,7 +33,7 @@ ENUMS = {
 def volcar(id_escenario: str, semilla: str) -> str:
     with tempfile.TemporaryDirectory() as tmp:
         trabajo = Path(tmp)
-        for fuente in ("DatosEntrada.java", "GeneradorSintetico.java"):
+        for fuente in ("DatosEntrada.java", "GeneradorSintetico.java", "AuditoriaRed.java"):
             shutil.copy(ESPEJO / fuente, trabajo / fuente)
         shutil.copy(RAIZ / "tools" / "VolcarDatos.java", trabajo / "VolcarDatos.java")
         for nombre, cuerpo in ENUMS.items():

@@ -7,6 +7,7 @@ class Main extends Agent {
     // ----- Parámetros -----
     AuditoriaRed.Nivel nivelAuditoriaRed = AuditoriaRed.Nivel.DESACTIVADA;
     OrigenDatos origenDatos = OrigenDatos.SINTETICO;
+    String fechaInicioCampania = "2026-04-01";
     String rutaExcel = "datos/Maestro_Simulacion.xlsx";
     String idEscenario = "E-00";
     long semillaBase = 1;
@@ -161,6 +162,7 @@ class Main extends Agent {
     LinkedHashMap<String, Integer> descartesFlotaPorMotivo = new LinkedHashMap<String, Integer>();
     java.util.HashSet<String> pedidosConDescartePorFlota = new java.util.HashSet<String>();
     int pedidosPerdieronCutoffPorFlota = 0;
+    String fechaInicioCampaniaEfectiva = "";
     java.util.ArrayList<String> diagnosticoFlota = new java.util.ArrayList<String>();
 
     // ----- Colecciones -----
@@ -2446,6 +2448,7 @@ class Main extends Agent {
         DatosEntrada.Escenario escenario = datos.escenario;
 
         duracionCampaniaDias = escenario.duracionCampaniaDias;
+        anclarCalendarioDeCampania();
         habilitaCrossDock = escenario.habilitaCrossDock;
         exportarDiagnosticoCapacidad = escenario.exportarDiagnosticoCapacidad;
         politicaSeleccion = datos.politicaSeleccion();
@@ -3092,7 +3095,7 @@ class Main extends Agent {
         return "run_id,escenario,replica,id_costo,dia,dia_campania,tipo_contable,categoria,"
             + "codigo_pedido,id_asignacion,id_decision,id_contenedor,id_lote,producto,circuito,"
             + "origen,destino,sitio,proveedor,unidad,cantidad,tarifa,importe_usd,id_operacion,"
-            + "alcance,es_incremental,motivo";
+            + "alcance,es_incremental,motivo,fecha";
     }
 
     void exportarCostosEventos() {
@@ -3199,7 +3202,8 @@ class Main extends Agent {
                 + AuditoriaRed.num(cargo.cantidad) + "," + AuditoriaRed.num(cargo.tarifa) + ","
                 + AuditoriaRed.num(cargo.importe) + "," + AuditoriaRed.txt(cargo.idOperacion) + ","
                 + AuditoriaRed.txt(alcance) + "," + AuditoriaRed.si(incremental) + ","
-                + AuditoriaRed.txt(cargo.motivo));
+                + AuditoriaRed.txt(cargo.motivo) + ","
+                + AuditoriaRed.txt(AuditoriaRed.fecha(Math.floor(cargo.dia))));
         }
     }
 
@@ -3283,6 +3287,8 @@ class Main extends Agent {
             salida.println("  \"replica\": " + replica + ",");
             salida.println("  \"nivel_auditoria\": \"" + auditoria.nivel + "\",");
             salida.println("  \"duracion_campania_dias\": " + duracionCampaniaDias + ",");
+            salida.println(
+                "  \"fecha_inicio_campania\": \"" + fechaInicioCampaniaEfectiva + "\",");
             salida.println("  \"generado\": \"" + new java.util.Date() + "\",");
             salida.println("  \"tablas\": {");
 
@@ -4093,7 +4099,7 @@ class Main extends Agent {
         // a reconciliar dos calendarios que pueden diferir. El encabezado es una funcion para que el
         // esquema publicado y el csv no puedan divergir.
         return "run_id,escenario,replica,dia,tipo_recurso,ubicacion,capacidad_nominal,"
-            + "reservada,consumida,liberada,ocupada,libre,cola";
+            + "reservada,consumida,liberada,ocupada,libre,cola,fecha";
     }
 
     void escribirEsquemaAuditoria() {
@@ -7945,6 +7951,61 @@ class Main extends Agent {
         return cola == null ? 0 : cola.intValue();
     }
 
+    int ultimoDiaConCapacidad() {
+        // Ultimo dia que la agenda de capacidad tiene que publicar: la campania entera y, si una
+        // reserva quedo planificada mas alla del ultimo dia de campania, tambien ese dia. El
+        // horizonte no puede salir de una constante porque la reserva se programa contra el
+        // cut-off del pedido, que es un dato del libro (ADR-060).
+        int ultimo = duracionCampaniaDias;
+
+        for (java.util.Map<Integer, Integer> porDia : ocupacionCapacidad.values()) {
+
+            for (Integer dia : porDia.keySet()) {
+
+                if (dia.intValue() > ultimo) {
+                    ultimo = dia.intValue();
+                }
+            }
+        }
+
+        for (ReservaCapacidad reserva : reservasCapacidad) {
+
+            if (reserva.diaPlanificado > ultimo) {
+                ultimo = reserva.diaPlanificado;
+            }
+        }
+
+        return ultimo;
+    }
+
+    void anclarCalendarioDeCampania() {
+        // Fecha calendario del dia 1 (ADR-071). Manda la del escenario, porque el calendario es
+        // un atributo de la campania igual que su duracion; el parametro de la corrida es el
+        // default para el libro que no la declara y para los datos sinteticos.
+        String delEscenario =
+            datos.escenario.fechaInicioCampania == null
+            ? ""
+            : datos.escenario.fechaInicioCampania.trim();
+
+        fechaInicioCampaniaEfectiva =
+            delEscenario.isEmpty()
+            ? (fechaInicioCampania == null ? "" : fechaInicioCampania.trim())
+            : delEscenario;
+
+        if (
+            !fechaInicioCampaniaEfectiva.isEmpty()
+            && !AuditoriaRed.esFechaIso(fechaInicioCampaniaEfectiva)
+        ) {
+            // Una fecha mal escrita no puede degradarse a columna vacia: el tablero la usa para
+            // fechar la campania entera.
+            throw new RuntimeException(
+                "fecha_inicio_campania invalida: '" + fechaInicioCampaniaEfectiva
+                + "'. Se espera una fecha real en formato YYYY-MM-DD.");
+        }
+
+        AuditoriaRed.anclarCalendario(fechaInicioCampaniaEfectiva);
+    }
+
     int reservasDelDia(String tipoRecurso, String idUbicacion, int dia, String estado) {
         // Reservas de ese recurso, sitio y dia en un estado: ACTIVA, CONSUMIDA o LIBERADA.
         int total = 0;
@@ -8004,6 +8065,8 @@ class Main extends Agent {
 
             salida.println(encabezadoCapacidadRecursos());
 
+            int ultimoDia = ultimoDiaConCapacidad();
+
             for (String clave : ocupacionCapacidad.keySet()) {
 
                 int corte = clave.indexOf('|');
@@ -8011,7 +8074,10 @@ class Main extends Agent {
                 String tipoRecurso = clave.substring(0, corte);
                 String idUbicacion = clave.substring(corte + 1);
 
-                for (int dia = 0; dia < duracionCampaniaDias; dia++) {
+                // Los dias del modelo van del 1 al ultimo paso diario: arrancar en 0 publicaba un dia
+                // que nunca existio y cortar en la duracion dejaba afuera la capacidad reservada para
+                // el cierre, que es justo cuando la agenda esta mas apretada (ADR-071).
+                for (int dia = 1; dia <= ultimoDia; dia++) {
 
                     int nominal = capacidadNominalDia(tipoRecurso, idUbicacion, dia);
                     int ocupada = capacidadOcupadaDia(tipoRecurso, idUbicacion, dia);
@@ -8028,7 +8094,8 @@ class Main extends Agent {
                         + reservasDelDia(tipoRecurso, idUbicacion, dia, "ACTIVA") + ","
                         + reservasDelDia(tipoRecurso, idUbicacion, dia, "CONSUMIDA") + ","
                         + reservasDelDia(tipoRecurso, idUbicacion, dia, "LIBERADA") + ","
-                        + ocupada + "," + Math.max(0, nominal - ocupada) + "," + cola);
+                        + ocupada + "," + Math.max(0, nominal - ocupada) + "," + cola + ","
+                        + AuditoriaRed.txt(AuditoriaRed.fecha(dia)));
                 }
             }
 

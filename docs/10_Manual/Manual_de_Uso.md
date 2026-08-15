@@ -185,6 +185,8 @@ Para responder **por qué** el modelo decidió lo que decidió —qué alternati
 | `snapshot_inventario.csv` | día, ubicación y producto |
 | `capacidad_por_dia.csv` | día, recurso y ubicación |
 
+Todas traen la **fecha de calendario** al lado de su día (ADR-071): `fecha = fecha_inicio_campania + día − 1`. La fecha de inicio sale de la columna `fecha_inicio_campania` de la hoja `Escenario` y, si el libro no la trae, del parámetro de corrida `fechaInicioCampania` (default `2026-04-01`); sin ninguna de las dos, las columnas quedan vacías y la corrida no cambia. Una fecha mal escrita no arranca la corrida: se espera `YYYY-MM-DD` o una celda de fecha de Excel.
+
 Con `datos/entrada_ejemplo.xlsx` son unos 45 MB por corrida, así que **el barrido corre con la auditoría apagada** (`DESACTIVADA`, el default del parámetro). El diccionario de campos, las claves y las uniones están en [Auditoría de red](../09_Definicion/Auditoria_de_Red.md); `resultados/esquema_auditoria.json` trae el esquema real de la corrida y `resultados/manifiesto_auditoria_<run_id>.json` el conteo de filas que tiene que tener cada archivo.
 
 ---
