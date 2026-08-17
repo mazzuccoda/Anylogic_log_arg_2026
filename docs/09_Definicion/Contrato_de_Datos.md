@@ -70,6 +70,8 @@ Reemplaza `obtenerTipoContenedor()` y `obtenerCapacidadContenedorTon()` hardcode
 | `habilita_cross_dock` | bool | |
 | `contenedores_por_dia` | double | >= 0. Capacidad de consolidación del sitio, en contenedores por día (ADR-048). Reemplaza a `posiciones_consolidacion × contenedores_por_posicion_dia` |
 | `posiciones_cross_dock` | int | >= 0 |
+| `latitud` | double | Opcional (ADR-072). Grados decimales, entre −56 y −21. Alias aceptado: `lat` |
+| `longitud` | double | Opcional (ADR-072). Grados decimales, entre −74 y −53. Alias aceptados: `long`, `lon` |
 
 Nota: hoy la habilitación se deriva de `capacidad > 0` (ADR-009). El contrato la separa porque un depósito puede almacenar sin poder consolidar. Si se confirma que en la práctica coinciden, se cargan iguales; el modelo no cambia.
 
@@ -384,7 +386,7 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 |---|---|
 | `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default`, `umbral_alerta_pct`, `umbral_sobrecarga_pct`, `umbral_objetivo_pct`, `dias_forecast`, `politica_frio_propio`, `politica_seleccion`, `servicio_minimo_proyectado`, `factor_tarifa_flete`, `factor_tarifa_round_trip`, `factor_tarifa_cross_dock`, `factor_tarifa_terminal`, `factor_consolidacion_planta`, `factor_cupo_cross_dock`, `factor_capacidad_terminal`, `dias_anticipacion_planificacion_default`, `dias_anticipacion_retiro_default`, `dias_entre_cutoff_y_etd_default`, `permite_reserva_antes_retiro`, `permite_transferencia_antes_retiro`, `permite_reserva_capacidad_futura`, `politica_reprogramacion_buque`, `permite_fallback_politica_fija`, `exportar_diagnostico_capacidad`, `habilita_flota_producto_multidiaria`, `dias_max_programacion_flota`, `fecha_inicio_campania` |
 | `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn`, `toneladas_objetivo_lote_tn` |
-| `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `contenedores_por_dia`, `posiciones_cross_dock` |
+| `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `contenedores_por_dia`, `posiciones_cross_dock`, `latitud` (opcional, ADR-072), `longitud` (opcional, ADR-072) |
 | `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |
 | `Distancia` | `origen`, `destino`, `distancia_km` |
 | `TarifaSitio` | `id_ubicacion`, `producto`, `in_usd_tn`, `storage_usd_tn_dia`, `out_usd_tn`, `oportunidad_usd_tn_dia`, `penalidad_sobrecarga_usd_tn_dia`, `consolidacion_tarifa`, `consolidacion_unidad`, `cross_dock_tarifa`, `cross_dock_unidad`, `thc_usd_contenedor`, `costo_terminal_usd_contenedor`, `despachante_tarifa`, `despachante_unidad`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
@@ -453,3 +455,20 @@ La columna `fecha_inicio_campania` de la hoja `Escenario` es opcional y fecha el
 Formato **`YYYY-MM-DD`**, y sólo ése. La celda puede venir como texto (`2026-04-01`) o como fecha de Excel: el importador convierte el serial (base 1899-12-30) al mismo formato. Una fecha inexistente o mal escrita (`2026-02-30`, `01/04/2026`) **aborta la carga** nombrando el valor; nunca degrada a fecha vacía, porque una fecha vacía se lee como "el libro no la declara" y no como "el libro la declara mal".
 
 La fecha no entra en ninguna decisión: no cambia la vigencia de las tarifas, ni el cut-off, ni la estacionalidad, ni el reloj del motor, que siguen razonando en días de campaña. Es una etiqueta de salida. Dónde aparece, en `docs/09_Definicion/Auditoria_de_Red.md` §5.0.
+
+## 14. Coordenadas de los sitios (ADR-072)
+
+Las columnas `latitud` y `longitud` de la hoja `Ubicacion` son **opcionales** y sirven sólo para dibujar: un libro que no las trae corre igual y la vista de red cae al esquema por tipo de nodo.
+
+| Regla | Detalle |
+|---|---|
+| Unidad | grados decimales, con signo. `-26.9032792`, `-65.341295970` |
+| Alias | `latitud` o `lat`; `longitud`, `long` o `lon` |
+| Rango | latitud entre **−56 y −21**, longitud entre **−74 y −53** (Argentina continental). Fuera de rango **aborta la carga** nombrando el sitio y la columna |
+| Escala | un relevamiento pegado con el separador corrido (`-269032792`) se **normaliza** dividiendo por 10 hasta caer en rango. Es la forma en que salen de varias planillas de campo y no hay ambigüedad posible: ninguna coordenada argentina válida es un múltiplo de 10 de otra |
+| Una sola de las dos | error de datos: latitud y longitud van juntas o ninguna |
+| Cobertura parcial | el mapa geográfico se dibuja sólo si **todos** los sitios de la red las traen; si falta uno, la vista cae al esquema por tipo de nodo y lo dice en pantalla. No es error de carga: media red geográfica y media inventada sería peor que el esquema |
+
+**La coordenada no se usa para calcular nada.** La distancia que se costea, el tiempo de viaje y la elección de circuito salen de la tabla `Distancia`, igual que antes; la coordenada sólo posiciona el nodo en el dibujo (ADR-072). Dos consecuencias buscadas: una coordenada mal cargada deforma el mapa pero **no** puede cambiar un costo ni una decisión, y la distancia real por ruta puede diferir de la distancia en línea recta del dibujo sin que eso sea una inconsistencia.
+
+El **libro canónico `datos/entrada_ejemplo.xlsx` no declara coordenadas** a propósito: el generador sintético no las inventa, y así el camino "libro sin coordenadas" queda ejercitado en cada regresión. El maestro real sí las trae.

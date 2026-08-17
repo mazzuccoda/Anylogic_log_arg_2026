@@ -142,7 +142,7 @@ public class ImportadorExcel implements java.io.Serializable {
 		}
 
 		for (Fila f : filas("Ubicacion", "id_escenario", idEscenario)) {
-			datos.ubicaciones.add(new DatosEntrada.Ubicacion(
+			DatosEntrada.Ubicacion ubicacion = new DatosEntrada.Ubicacion(
 					f.texto("id_ubicacion"),
 					f.texto("tipo"),
 					f.booleano("habilitada"),
@@ -151,7 +151,31 @@ public class ImportadorExcel implements java.io.Serializable {
 					f.numero("velocidad_consolidacion_tn_hora"),
 					f.numero("capacidad_diaria_tn"),
 					f.numero("contenedores_por_dia"),
-					f.numero("posiciones_cross_dock")));
+					f.numero("posiciones_cross_dock"));
+
+			// ADR-072: las coordenadas son opcionales. Una sola de las dos no alcanza para ubicar
+			// el nodo, asi que se toman las dos o ninguna.
+			double latitudCelda = f.numeroOpcionalAlias(new String[] {"latitud", "lat"}, Double.NaN);
+			double longitudCelda = f.numeroOpcionalAlias(new String[] {"longitud", "long", "lon"}, Double.NaN);
+
+			double latitud = coordenada(latitudCelda,
+					LATITUD_MINIMA, LATITUD_MAXIMA, ubicacion.idUbicacion, "latitud");
+
+			double longitud = coordenada(longitudCelda,
+					LONGITUD_MINIMA, LONGITUD_MAXIMA, ubicacion.idUbicacion, "longitud");
+
+			if (!Double.isNaN(latitud) && !Double.isNaN(longitud)) {
+				ubicacion.latitud = latitud;
+				ubicacion.longitud = longitud;
+
+			// Se mira la celda y no el valor validado: una coordenada rechazada por rango ya dio su
+			// propio error, y repetirla como "declara una sola" es el mismo problema contado dos veces.
+			} else if (Double.isNaN(latitudCelda) != Double.isNaN(longitudCelda)) {
+				errores.add("La ubicacion " + ubicacion.idUbicacion + " declara una sola"
+						+ " coordenada: latitud y longitud van juntas o ninguna.");
+			}
+
+			datos.ubicaciones.add(ubicacion);
 		}
 
 		for (Fila f : filas("CapacidadUbicacion", "id_escenario", idEscenario)) {
@@ -731,6 +755,42 @@ public class ImportadorExcel implements java.io.Serializable {
 		}
 
 		return valor / tc;
+	}
+
+	// Rango continental del pais. Sirve para dos cosas: detectar la coordenada mal escalada y
+	// rechazar la que quedo en otro continente por un signo o un pegado en la columna equivocada.
+	private static final double LATITUD_MINIMA = -56;
+	private static final double LATITUD_MAXIMA = -21;
+	private static final double LONGITUD_MINIMA = -74;
+	private static final double LONGITUD_MAXIMA = -53;
+
+	/**
+	 * Coordenada del relevamiento, normalizada de escala (ADR-072).
+	 *
+	 * El relevamiento las trae sin separador decimal (-269032792 por -26,9032792), asi que un
+	 * valor fuera de rango se divide por diez hasta que entra. Si aun asi no entra, la carga
+	 * aborta con el sitio y el valor a la vista: un nodo dibujado en otro continente es un
+	 * error silencioso, y la vista de red se leeria como si el dato estuviera bien.
+	 */
+	private double coordenada(double valor, double minimo, double maximo, String sitio, String columna) {
+		if (Double.isNaN(valor) || valor == 0) {
+			return Double.NaN;
+		}
+
+		double normalizado = valor;
+
+		for (int i = 0; i < 12 && Math.abs(normalizado) > Math.abs(minimo); i++) {
+			normalizado = normalizado / 10.0;
+		}
+
+		if (normalizado < minimo || normalizado > maximo) {
+			errores.add("La " + columna + " de la ubicacion " + sitio + " (" + valor + ") no queda"
+					+ " dentro del pais ni normalizando la escala: " + normalizado
+					+ " esta fuera de [" + minimo + ", " + maximo + "].");
+			return Double.NaN;
+		}
+
+		return normalizado;
 	}
 
 	/** Igual criterio de nombre comercial que ubicacionDe(), pero sin agregar error:
@@ -1437,6 +1497,22 @@ public class ImportadorExcel implements java.io.Serializable {
 		private double numeroOpcional(String nombre, double porDefecto) {
 			return tiene(nombre) && comoTexto(columna(nombre)).length() > 0
 					? numero(nombre) : porDefecto;
+		}
+
+		/** El primero de varios encabezados posibles que la hoja traiga. Las columnas nuevas
+		 * del relevamiento llegan con el nombre del negocio ('Lat'), no con el del contrato. */
+		private double numeroOpcionalAlias(String[] nombres, double porDefecto) {
+			for (int i = 0; i < nombres.length; i++) {
+				for (java.util.Map.Entry<String, Integer> e : encabezados.entrySet()) {
+					if (e.getKey().trim().equalsIgnoreCase(nombres[i])) {
+						String v = comoTexto(e.getValue().intValue());
+						if (v.length() > 0) {
+							return numeroDeColumna(e.getValue().intValue());
+						}
+					}
+				}
+			}
+			return porDefecto;
 		}
 
 		private boolean booleanoOpcional(String nombre, boolean porDefecto) {

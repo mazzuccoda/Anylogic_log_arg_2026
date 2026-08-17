@@ -1051,3 +1051,22 @@ Dos corridas de referencia en AnyLogic PLE 8.9.9, `nivelAuditoriaRed = COMPLETA`
 | V-FECHA-10 | Fechar no cambia ninguna decision | **Verificado** por regresion: `entrada_ejemplo.xlsx` da 30 364 tn exportadas, servicio 97 %, 4 atrasados, 1 421 asignaciones, 109 878 cargos, 25 578 alternativas y descuadre 0 — **identico** a V-TAR-10. La campania del maestro exporta las mismas 29 439 tn de V-TAR-09 con descuadre 0 |
 
 El **barrido no se corrio**, por pedido explicito.
+
+## V-RED. Vista de red en vivo (ADR-072)
+
+Corridas de referencia en AnyLogic PLE 8.9.9: campaña completa desde `datos/Maestro_Simulacion.xlsx` con `animacionRed = true`, la misma con `animacionRed = false`, el libro canónico `datos/entrada_ejemplo.xlsx` (sin coordenadas), una copia del maestro con las coordenadas multiplicadas por `1e7` y otra con una latitud fuera del país.
+
+| Caso | Qué verifica | Cómo se midió |
+|---|---|---|
+| V-RED-01 | La animación no cambia ninguna decisión ni ningún costo | **Verificado** por corrida pareada: las siete tablas de la corrida con `animacionRed = true` y de la corrida con `animacionRed = false` son **idénticas byte a byte** (`asignaciones_capacidad`, `asignaciones_elegidas`, `capacidad_por_dia`, `costos_eventos`, `decisiones_alternativas`, `ejecucion_arcos`, `snapshot_inventario`), comparadas con `cmp -s` |
+| V-RED-02 | Dibujar no cuesta tiempo de corrida significativo | **Verificado** por reloj: campaña completa **369 s** con animación contra **379 s** sin ella, las dos `Finished`. La diferencia está dentro del ruido entre corridas, así que el default queda en `true` |
+| V-RED-03 | El mapa geográfico se dibuja desde la hoja `Ubicacion` | **Verificado** por corrida del maestro: los diez sitios en su posición relativa correcta (cúmulo de Tucumán arriba a la izquierda, ZARATE/T4/DODERO/RUTA9 en el litoral) y la leyenda declarando `Mapa geografico` |
+| V-RED-04 | Un libro sin coordenadas cae al esquema y lo declara | **Verificado** por corrida de `entrada_ejemplo.xlsx`: `Finished`, nodos por columna según tipo (planta, depósitos, terminales) y la leyenda dice `Esquema por tipo de nodo: la tabla Ubicacion no trae latitud y longitud` |
+| V-RED-05 | Las coordenadas sin separador decimal se normalizan | **Verificado** por corrida de una copia del maestro con lat/lon multiplicadas por `1e7`: la carga no falla y el mapa sale igual que con las coordenadas en grados |
+| V-RED-06 | Una coordenada fuera del país aborta la carga | **Verificado** por prueba negativa: con `latitud = -12,5` en PLANTA la corrida falla con `La latitud de la ubicacion PLANTA (-12.5) no queda dentro del pais ni normalizando la escala`, y **no** se emite además el mensaje de "declara una sola coordenada": el problema se cuenta una vez |
+| V-RED-07 | Los sitios del cúmulo son legibles | **Verificado** por lectura de pantalla: los seis sitios de Tucumán, a menos de 40 km entre sí, quedan separados con su etiqueta de dos líneas (nombre y `stock / capacidad`) sin superponerse, y ningún nodo queda fuera del área de la vista |
+| V-RED-08 | El semáforo de ocupación y el grosor del arco siguen el estado | **Verificado** por corrida: NORRY/BOREAS/FRINOA pasan de verde a **rojo** al llegar a su capacidad declarada (`1200/1200`, `1800/1800`, `1009/1009`) y los tramos engrosan con las toneladas acumuladas; al cierre los cinco tramos que más movieron son `PLANTA-RUTA9` 19 433 tn, `RUTA9-T4` 17 096 tn, `PLANTA-ZARATE` 3 356 tn, `RUTA9-ZARATE` 3 212 tn y `DODERO-PLANTA` 2 797 tn |
+| V-RED-09 | El encabezado identifica la corrida y no inventa un día que no existe | **Verificado** por corrida completa: al terminar muestra `dia 364 de 364 · 2027-03-30 · escenario E-00 · replica 0 · run E-00-R0`. Antes del ajuste el reloj marcaba el instante de cierre y el rótulo podía decir `dia 365 de 364` |
+| V-RED-10 | La navegación entre las dos vistas funciona en las dos direcciones | **Verificado** por lectura de pantalla: *Ver red en vivo* desde el tablero y *Ver tablero* desde la red, con la corrida andando y también al terminar |
+
+El **barrido no se corrió**, por pedido explícito.

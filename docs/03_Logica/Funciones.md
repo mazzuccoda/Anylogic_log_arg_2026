@@ -515,3 +515,27 @@ Punto único de entrada para cobrar THC en los tres lugares que lo hacen (`regis
 ### 11.4 `ImportadorExcel.leerGastosThc()` / lectura de `TarifaConsolidado` y `TarifaCross_docking`
 
 `leerGastosThc()` lee `Gastos_THC` hacia `datos.tarifasThc`, descartando con `advertencias` (no con error que aborte el import) las filas cuyo `Proveedor` no es una naviera real del enum `Naviera` (`FORWARDER`, `SILVERFREIGHT`). `leerTarifaSitioMaestroNuevo()` ganó dos conceptos más en su acumulador (`consolidacion`, `crossdock`) leídos de `TarifaConsolidado`/`TarifaCross_docking` (o `Consolidado`/`Cross_docking`, sin el prefijo) con la misma técnica que `Gastos_terminal`/`Despachante`: `Lugar Consolidado` resuelve el sitio, `Tipo de Contenedor` resuelve el producto vía `productoDeContenedor()`.
+
+## 12. Vista de red en vivo (ADR-072)
+
+**Estado:** implementadas. Son funciones de **presentación**: leen estado ya calculado y no escriben nada del modelo. Con `animacionRed = false` ninguna hace trabajo (todas cortan en la primera línea) y la corrida decide y cuesta igual.
+
+### 12.1 Coordenadas: `DatosEntrada.Ubicacion.latitud` / `.longitud` / `tieneCoordenadas()`
+
+Dos campos `double` que arrancan en `Double.NaN` —"el libro no las declara"— más el predicado que pregunta por las dos juntas. `ImportadorExcel.coordenada(valor, minimo, maximo, idUbicacion, columna)` normaliza la escala dividiendo por 10 hasta caer en el rango declarado y falla si no cae; `numeroOpcionalAlias()` acepta `latitud`/`lat` y `longitud`/`long`/`lon`. Declarar una sola de las dos es error de datos. **Ninguna función de costo, de distancia ni de tiempo las lee.**
+
+### 12.2 Posiciones: `calcularPosicionesRedVisual`, `separarNodosRedVisual`, `recortarNodosRedVisual`, `columnaRedVisual`
+
+`calcularPosicionesRedVisual()` proyecta latitud y longitud sobre el área de la vista si **todos** los sitios de la red las traen: corrige la longitud por el coseno de la latitud media, conserva la relación de aspecto y da vuelta el eje Y (la pantalla crece hacia abajo, la latitud hacia arriba). Si el libro no las trae, cae al esquema de tres columnas por tipo de nodo (`columnaRedVisual()`: planta, depósitos, terminales). `separarNodosRedVisual()` empuja los nodos que quedan a menos de 112 px —seis de los diez sitios están dentro de 25 km— con dirección fija cuando coinciden exactamente, así la vista es la misma en cada corrida; `recortarNodosRedVisual()` los deja dentro del área con margen para el título y la etiqueta, y se llama **dentro** del ciclo para que el recorte no vuelva a superponer lo que ya se separó.
+
+### 12.3 Estado del nodo: `capacidadNodoRedVisual`, `stockNodoRedVisual`, `colorOcupacionRedVisual`, `colorTipoNodoRedVisual`
+
+Capacidad y stock salen de las mismas dos funciones que alimentan los paneles (`datos.capacidadDeclaradaTn()` y el inventario del sitio), no de un acumulador paralelo: el semáforo del mapa y el número del panel no pueden divergir. La terminal no almacena y va con ocupación `-1`, que es el gris de "sin capacidad declarada" y no un 0 % engañoso.
+
+### 12.4 Flujo por tramo: `claveTramoVisual` y `registrarFlujoVisual`
+
+`claveTramoVisual(origen, destino)` ordena los extremos alfabéticamente: el arco es la **infraestructura**, así que acumula los dos sentidos —lo que se dimensiona es el tramo—. `registrarFlujoVisual(origen, destino, toneladas)` suma toneladas y cantidad de movimientos de cada movimiento **ya ejecutado**, en el mismo punto donde el modelo cierra la etapa física del envío; con la animación apagada no acumula nada.
+
+### 12.5 Dibujo y refresco: `dibujarRedVisual`, `dibujarLeyendaRedVisual`, `actualizarRedVisual`, `textoTramosRedVisual`
+
+`dibujarRedVisual()` crea las figuras **una sola vez** al arrancar (arcos primero, para que queden debajo de los nodos) y `actualizarRedVisual()` corre al final de cada paso diario cambiando sólo color, grosor y texto de figuras que ya existen: no se crea un objeto por evento, que es lo que haría caer el rendimiento en una campaña de 365 días. `textoTramosRedVisual()` lista los cinco tramos que más movieron, del mismo acumulador que dibuja los arcos. Sin tipos de agente nuevos: PLE está en 10 de 10 y las figuras son `ShapeOval`, `ShapeLine` y `ShapeText` colgadas de `presentation`.

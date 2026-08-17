@@ -7,6 +7,7 @@ class Main extends Agent {
     // ----- Parámetros -----
     AuditoriaRed.Nivel nivelAuditoriaRed = AuditoriaRed.Nivel.DESACTIVADA;
     OrigenDatos origenDatos = OrigenDatos.SINTETICO;
+    boolean animacionRed = true;
     String fechaInicioCampania = "2026-04-01";
     String rutaExcel = "datos/Maestro_Simulacion.xlsx";
     String idEscenario = "E-00";
@@ -162,6 +163,15 @@ class Main extends Agent {
     LinkedHashMap<String, Integer> descartesFlotaPorMotivo = new LinkedHashMap<String, Integer>();
     java.util.HashSet<String> pedidosConDescartePorFlota = new java.util.HashSet<String>();
     int pedidosPerdieronCutoffPorFlota = 0;
+    java.util.LinkedHashMap<String, double[]> posicionRedVisual = new java.util.LinkedHashMap<String, double[]>();
+    java.util.LinkedHashMap<String, com.anylogic.engine.presentation.ShapeOval> nodoRedVisual = new java.util.LinkedHashMap<String, com.anylogic.engine.presentation.ShapeOval>();
+    java.util.LinkedHashMap<String, com.anylogic.engine.presentation.ShapeText> etiquetaRedVisual = new java.util.LinkedHashMap<String, com.anylogic.engine.presentation.ShapeText>();
+    java.util.LinkedHashMap<String, com.anylogic.engine.presentation.ShapeLine> arcoRedVisual = new java.util.LinkedHashMap<String, com.anylogic.engine.presentation.ShapeLine>();
+    java.util.LinkedHashMap<String, double[]> flujoRedVisual = new java.util.LinkedHashMap<String, double[]>();
+    com.anylogic.engine.presentation.ShapeText rotuloRedVisual = null;
+    com.anylogic.engine.presentation.ShapeText resumenRedVisual = null;
+    boolean redVisualDibujada = false;
+    boolean redVisualGeografica = false;
     String fechaInicioCampaniaEfectiva = "";
     java.util.ArrayList<String> diagnosticoFlota = new java.util.ArrayList<String>();
 
@@ -222,6 +232,7 @@ class Main extends Agent {
         inicializarFlotaProducto();
         cargarStockInicial();
         abrirAuditoriaRed();
+        dibujarRedVisual();          // vista de red (ADR-072): presentacion, no decide nada
     }
 
     // ----- Funciones -----
@@ -4270,9 +4281,489 @@ class Main extends Agent {
         // pueda quedar desincronizada de la que vigila C-05.
         cerrarArcoEnvio(envio);
 
+        // El tramo cargado hacia la terminal es el unico movimiento del envio que la vista dibuja:
+        // el resto de los bloques son operaciones dentro de un sitio o el vacio de vuelta.
+        if (
+            "viajarPuerto".equals(envio.bloqueActual)
+            || "viajarTerminalGranel".equals(envio.bloqueActual)
+        ) {
+            registrarFlujoVisual(
+                envio.idSitioOrigen,
+                envio.pedido == null ? "" : envio.pedido.puertoSalida.idUbicacion,
+                envio.toneladas);
+        }
+
         envio.bloqueActual = bloque;
         envio.diaEntradaBloque = time();
         envio.horasEsperadasBloque = horasEsperadas;
+    }
+
+    String claveTramoVisual(String origen, String destino) {
+        // El tramo dibujado es la infraestructura, no el sentido del viaje: la tabla Distancia
+        // declara un solo sentido (ADR-061) y los dos usan la misma linea.
+        return origen.compareTo(destino) <= 0 ? origen + "|" + destino : destino + "|" + origen;
+    }
+
+    void registrarFlujoVisual(String origen, String destino, double toneladas) {
+        // Acumulador de presentacion (ADR-072): da el grosor del arco. No es una fuente de verdad
+        // del movimiento fisico -esa es ejecucion_arcos- y con la animacion apagada no se llena.
+        if (!animacionRed || origen == null || destino == null || origen.equals(destino) || toneladas <= 0) {
+            return;
+        }
+
+        String clave = claveTramoVisual(origen, destino);
+        double[] acumulado = flujoRedVisual.get(clave);
+
+        if (acumulado == null) {
+            acumulado = new double[2];
+            flujoRedVisual.put(clave, acumulado);
+        }
+
+        acumulado[0] += toneladas;
+        acumulado[1]++;
+    }
+
+    double capacidadNodoRedVisual(String idUbicacion) {
+        // Capacidad de almacenamiento declarada del nodo, sumada sobre los productos. La terminal no
+        // almacena: devuelve 0 y el nodo se dibuja sin semaforo de ocupacion.
+        double total = 0;
+
+        for (TipoProducto producto : TipoProducto.values()) {
+            total +=
+                "PLANTA".equals(idUbicacion)
+                ? planta.getCapacidad(producto)
+                : datos.capacidadDeclaradaTn(idUbicacion, producto);
+        }
+
+        return total;
+    }
+
+    double stockNodoRedVisual(String idUbicacion) {
+        double total = 0;
+
+        for (TipoProducto producto : TipoProducto.values()) {
+            total += inventario.stock(idUbicacion, producto);
+        }
+
+        return total;
+    }
+
+    java.awt.Color colorOcupacionRedVisual(double ocupacionPct) {
+        // Semaforo de ocupacion del nodo. Sin capacidad declarada no hay semaforo: gris.
+        if (ocupacionPct < 0) {
+            return new java.awt.Color(148, 163, 184);
+        }
+
+        if (ocupacionPct < 70) {
+            return new java.awt.Color(34, 150, 83);
+        }
+
+        if (ocupacionPct < 90) {
+            return new java.awt.Color(235, 160, 20);
+        }
+
+        return new java.awt.Color(200, 50, 50);
+    }
+
+    java.awt.Color colorTipoNodoRedVisual(String tipo) {
+        if ("PLANTA".equals(tipo)) {
+            return new java.awt.Color(30, 58, 138);
+        }
+
+        return "TERMINAL".equals(tipo)
+            ? new java.awt.Color(109, 40, 217)
+            : new java.awt.Color(100, 116, 139);
+    }
+
+    int columnaRedVisual(String tipo) {
+        if ("PLANTA".equals(tipo)) {
+            return 0;
+        }
+
+        return "TERMINAL".equals(tipo) ? 2 : 1;
+    }
+
+    void calcularPosicionesRedVisual() {
+        // Posicion de cada nodo en el lienzo. Con coordenadas en la tabla Ubicacion el mapa es
+        // geografico (ADR-072); sin ellas se dibuja el esquema por tipo de nodo, que no necesita
+        // ningun dato nuevo. Las coordenadas no entran en ninguna decision: el tiempo y el costo del
+        // tramo siguen saliendo de la tabla Distancia.
+        posicionRedVisual.clear();
+
+        double izquierda = 1960;
+        double arriba = -840;
+        double ancho = 660;
+        double alto = 620;
+
+        redVisualGeografica = !datos.ubicaciones.isEmpty();
+
+        for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+            if (!u.tieneCoordenadas()) {
+                redVisualGeografica = false;
+            }
+        }
+
+        if (redVisualGeografica) {
+
+            double latMin = Double.MAX_VALUE;
+            double latMax = -Double.MAX_VALUE;
+            double lonMin = Double.MAX_VALUE;
+            double lonMax = -Double.MAX_VALUE;
+
+            for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+                latMin = Math.min(latMin, u.latitud);
+                latMax = Math.max(latMax, u.latitud);
+                lonMin = Math.min(lonMin, u.longitud);
+                lonMax = Math.max(lonMax, u.longitud);
+            }
+
+            // Proyeccion equirectangular con el meridiano corregido por la latitud media: a -30 grados
+            // un grado de longitud mide poco mas de la mitad que uno de latitud, y sin el factor el
+            // pais sale estirado.
+            double latMedia = (latMin + latMax) / 2;
+            double lonMedia = (lonMin + lonMax) / 2;
+            double factorLon = Math.cos(Math.toRadians(latMedia));
+
+            double anchoGrados = Math.max(0.001, (lonMax - lonMin) * factorLon);
+            double altoGrados = Math.max(0.001, latMax - latMin);
+            double escala = Math.min(ancho / anchoGrados, alto / altoGrados);
+
+            for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+                double x = izquierda + ancho / 2 + (u.longitud - lonMedia) * factorLon * escala;
+                double y = arriba + alto / 2 - (u.latitud - latMedia) * escala;
+                posicionRedVisual.put(u.idUbicacion, new double[] {x, y});
+            }
+
+            separarNodosRedVisual(izquierda, arriba, ancho, alto);
+
+        } else {
+
+            int[] porTipo = new int[3];
+            int[] dibujados = new int[3];
+
+            for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+                porTipo[columnaRedVisual(u.tipo)]++;
+            }
+
+            for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+                int columna = columnaRedVisual(u.tipo);
+                int cantidad = Math.max(1, porTipo[columna]);
+
+                double x = izquierda + columna * ancho / 2;
+                double y = arriba + alto * (dibujados[columna] + 1.0) / (cantidad + 1.0);
+
+                dibujados[columna]++;
+                posicionRedVisual.put(u.idUbicacion, new double[] {x, y});
+            }
+        }
+    }
+
+    void recortarNodosRedVisual(double izquierda, double arriba, double ancho, double alto) {
+        // Deja los nodos dentro del area de la vista, con margen para el titulo de arriba y para la
+        // etiqueta de dos lineas que cuelga del nodo de abajo.
+        for (double[] p : posicionRedVisual.values()) {
+            p[0] = Math.max(izquierda + 40, Math.min(izquierda + ancho - 40, p[0]));
+            p[1] = Math.max(arriba + 50, Math.min(arriba + alto - 40, p[1]));
+        }
+    }
+
+    void separarNodosRedVisual(double izquierda, double arriba, double ancho, double alto) {
+        // Seis de los diez sitios estan en un radio de 25 km: en el mapa geografico quedarian
+        // superpuestos y el nodo no se podria leer. Se separan lo minimo para distinguirlos, asi que
+        // la posicion dibujada es aproximada y la geografia se conserva solo en grande. La distancia
+        // que se costea es siempre la de la tabla, nunca la del dibujo.
+        // La separacion minima se mide en pixeles de pantalla y tiene que dar lugar a la etiqueta de dos
+        // lineas que va debajo del nodo, no solo al circulo.
+        double minima = 112;
+        java.util.ArrayList<String> nodos = new java.util.ArrayList<String>(posicionRedVisual.keySet());
+
+        for (int iteracion = 0; iteracion < 600; iteracion++) {
+
+            boolean movido = false;
+
+            for (int i = 0; i < nodos.size(); i++) {
+                for (int j = i + 1; j < nodos.size(); j++) {
+
+                    double[] a = posicionRedVisual.get(nodos.get(i));
+                    double[] b = posicionRedVisual.get(nodos.get(j));
+
+                    double dx = b[0] - a[0];
+                    double dy = b[1] - a[1];
+                    double distancia = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distancia >= minima) {
+                        continue;
+                    }
+
+                    // Dos nodos exactamente encima: se los separa en una direccion fija para que el
+                    // resultado sea el mismo en cada corrida (la vista no puede depender del azar).
+                    if (distancia < 0.0001) {
+                        dx = 1;
+                        dy = 0;
+                        distancia = 1;
+                    }
+
+                    double empuje = (minima - distancia) / 2;
+
+                    a[0] -= dx / distancia * empuje;
+                    a[1] -= dy / distancia * empuje;
+                    b[0] += dx / distancia * empuje;
+                    b[1] += dy / distancia * empuje;
+
+                    movido = true;
+                }
+            }
+
+            // El recorte al area se hace dentro del ciclo: si se hiciera solo al final, los nodos empujados
+            // contra el borde volverian a superponerse justo donde el cumulo es mas denso.
+            recortarNodosRedVisual(izquierda, arriba, ancho, alto);
+
+            if (!movido) {
+                break;
+            }
+        }
+
+        recortarNodosRedVisual(izquierda, arriba, ancho, alto);
+    }
+
+    void dibujarRedVisual() {
+        // Vista de red (ADR-072). Capa de presentacion: lee estado ya calculado y no escribe nada del
+        // modelo. Con animacionRed = false no se crea ninguna figura y la corrida decide igual.
+        if (!animacionRed || redVisualDibujada) {
+            return;
+        }
+
+        redVisualDibujada = true;
+
+        calcularPosicionesRedVisual();
+
+        // Los arcos se agregan primero para que queden por debajo de los nodos.
+        for (DatosEntrada.Distancia d : datos.distancias) {
+
+            String clave = claveTramoVisual(d.origen, d.destino);
+
+            if (arcoRedVisual.containsKey(clave)) {
+                continue;
+            }
+
+            double[] desde = posicionRedVisual.get(d.origen);
+            double[] hasta = posicionRedVisual.get(d.destino);
+
+            if (desde == null || hasta == null) {
+                continue;
+            }
+
+            com.anylogic.engine.presentation.ShapeLine arco =
+                new com.anylogic.engine.presentation.ShapeLine(
+                    true, desde[0], desde[1], new java.awt.Color(203, 213, 225),
+                    hasta[0] - desde[0], hasta[1] - desde[1], 0, com.anylogic.engine.presentation.LineStyle.LINE_STYLE_SOLID);
+
+            arco.setX(desde[0]);
+            arco.setY(desde[1]);
+            arco.setDx(hasta[0] - desde[0]);
+            arco.setDy(hasta[1] - desde[1]);
+            arco.setLineWidth(1);
+
+            presentation.add(arco);
+            arcoRedVisual.put(clave, arco);
+        }
+
+        double capacidadMaxima = 0;
+
+        for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+            capacidadMaxima = Math.max(capacidadMaxima, capacidadNodoRedVisual(u.idUbicacion));
+        }
+
+        for (DatosEntrada.Ubicacion u : datos.ubicaciones) {
+
+            double[] p = posicionRedVisual.get(u.idUbicacion);
+
+            if (p == null) {
+                continue;
+            }
+
+            // El radio dice capacidad declarada; por area, no por radio, para no exagerar el nodo
+            // grande. La terminal no almacena y va con el radio minimo.
+            double capacidad = capacidadNodoRedVisual(u.idUbicacion);
+            double radio =
+                capacidadMaxima <= 0
+                ? 13
+                : 11 + 13 * Math.sqrt(Math.max(0, capacidad) / capacidadMaxima);
+
+            com.anylogic.engine.presentation.ShapeOval nodo =
+                new com.anylogic.engine.presentation.ShapeOval(
+                    true, p[0], p[1], 0, new java.awt.Color(148, 163, 184),
+                    colorTipoNodoRedVisual(u.tipo), radio, radio, 0, com.anylogic.engine.presentation.LineStyle.LINE_STYLE_SOLID);
+
+            nodo.setX(p[0]);
+            nodo.setY(p[1]);
+            nodo.setRadiusX(radio);
+            nodo.setRadiusY(radio);
+            nodo.setLineColor(colorTipoNodoRedVisual(u.tipo));
+            nodo.setLineWidth("PLANTA".equals(u.tipo) ? 3 : 2);
+
+            presentation.add(nodo);
+            nodoRedVisual.put(u.idUbicacion, nodo);
+
+            com.anylogic.engine.presentation.ShapeText etiqueta =
+                new com.anylogic.engine.presentation.ShapeText(
+                    true, p[0], p[1] + radio + 4, 0, new java.awt.Color(30, 41, 59),
+                    u.idUbicacion, new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 10),
+                    com.anylogic.engine.presentation.TextAlignment.ALIGNMENT_CENTER);
+
+            etiqueta.setX(p[0]);
+            etiqueta.setY(p[1] + radio + 4);
+
+            presentation.add(etiqueta);
+            etiquetaRedVisual.put(u.idUbicacion, etiqueta);
+        }
+
+        dibujarLeyendaRedVisual();
+        actualizarRedVisual();
+    }
+
+    void dibujarLeyendaRedVisual() {
+        // Titulo, identidad de la corrida y leyenda. La identidad va en pantalla para que una captura
+        // del mapa se pueda reproducir: sin escenario, replica y run_id, no se sabe que se esta viendo.
+        com.anylogic.engine.presentation.ShapeText titulo =
+            new com.anylogic.engine.presentation.ShapeText(
+                true, 1960, -880, 0, new java.awt.Color(30, 58, 95),
+                "Red logistica de exportacion", new java.awt.Font("SansSerif", java.awt.Font.BOLD, 16),
+                com.anylogic.engine.presentation.TextAlignment.ALIGNMENT_LEFT);
+
+        titulo.setX(1960);
+        titulo.setY(-880);
+        presentation.add(titulo);
+
+        rotuloRedVisual =
+            new com.anylogic.engine.presentation.ShapeText(
+                true, 1960, -858, 0, new java.awt.Color(71, 85, 105),
+                "", new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 11), com.anylogic.engine.presentation.TextAlignment.ALIGNMENT_LEFT);
+
+        rotuloRedVisual.setX(1960);
+        rotuloRedVisual.setY(-858);
+        presentation.add(rotuloRedVisual);
+
+        com.anylogic.engine.presentation.ShapeText leyenda =
+            new com.anylogic.engine.presentation.ShapeText(
+                true, 2700, -800, 0, new java.awt.Color(71, 85, 105),
+                "Nodo: tamano = capacidad declarada, color = ocupacion"
+                + "\n   verde < 70%   ambar 70-90%   rojo > 90%   gris sin capacidad declarada"
+                + "\nBorde: azul planta, gris deposito, violeta terminal"
+                + "\nArco: grosor = toneladas movidas en la campania"
+                + "\n"
+                + (redVisualGeografica
+                    ? "\nMapa geografico. Los sitios a menos de 25 km se separan para poder leerlos:\nla posicion dibujada es aproximada y la distancia que se costea es la de la tabla."
+                    : "\nEsquema por tipo de nodo: la tabla Ubicacion no trae latitud y longitud."),
+                new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 11), com.anylogic.engine.presentation.TextAlignment.ALIGNMENT_LEFT);
+
+        leyenda.setX(2700);
+        leyenda.setY(-800);
+        presentation.add(leyenda);
+
+        resumenRedVisual =
+            new com.anylogic.engine.presentation.ShapeText(
+                true, 2700, -640, 0, new java.awt.Color(30, 41, 59),
+                "", new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 11), com.anylogic.engine.presentation.TextAlignment.ALIGNMENT_LEFT);
+
+        resumenRedVisual.setX(2700);
+        resumenRedVisual.setY(-640);
+        presentation.add(resumenRedVisual);
+    }
+
+    void actualizarRedVisual() {
+        // Refresco diario de la vista. Solo cambia color, grosor y texto de figuras que ya existen:
+        // no crea objetos por evento, que es lo que haria caer el rendimiento en una campania larga.
+        if (!animacionRed || !redVisualDibujada) {
+            return;
+        }
+
+        for (String idUbicacion : nodoRedVisual.keySet()) {
+
+            com.anylogic.engine.presentation.ShapeOval nodo = nodoRedVisual.get(idUbicacion);
+
+            double capacidad = capacidadNodoRedVisual(idUbicacion);
+            double stock = stockNodoRedVisual(idUbicacion);
+            double ocupacion = capacidad <= 0 ? -1 : 100.0 * stock / capacidad;
+
+            nodo.setFillColor(colorOcupacionRedVisual(ocupacion));
+
+            com.anylogic.engine.presentation.ShapeText etiqueta = etiquetaRedVisual.get(idUbicacion);
+
+            // Nombre y ocupacion en dos lineas: en el cumulo de Tucuman una sola linea se solapa con la
+            // etiqueta del sitio vecino y no se puede leer ninguna de las dos.
+            etiqueta.setText(
+                idUbicacion
+                + (capacidad > 0
+                    ? "\n" + Math.round(stock) + " / " + Math.round(capacidad) + " tn"
+                    : "\n" + Math.round(stock) + " tn"));
+        }
+
+        double toneladasMaximas = 0;
+
+        for (double[] flujo : flujoRedVisual.values()) {
+            toneladasMaximas = Math.max(toneladasMaximas, flujo[0]);
+        }
+
+        for (String clave : arcoRedVisual.keySet()) {
+
+            com.anylogic.engine.presentation.ShapeLine arco = arcoRedVisual.get(clave);
+            double[] flujo = flujoRedVisual.get(clave);
+            double toneladas = flujo == null ? 0 : flujo[0];
+
+            if (toneladas <= 0 || toneladasMaximas <= 0) {
+                arco.setLineWidth(1);
+                arco.setColor(new java.awt.Color(214, 221, 231));
+                continue;
+            }
+
+            arco.setLineWidth(1 + 7 * Math.sqrt(toneladas / toneladasMaximas));
+            arco.setColor(new java.awt.Color(37, 99, 235));
+        }
+
+        // Al terminar la campania el reloj marca el instante de cierre, un dia despues del ultimo dia con
+        // agenda: el rotulo muestra el ultimo dia de campania y no un "dia 365 de 364" que no existe.
+        int diaRotulo = Math.min(diaCampania(), datos.escenario.duracionCampaniaDias);
+
+        rotuloRedVisual.setText(
+            "dia " + diaRotulo + " de " + datos.escenario.duracionCampaniaDias
+            + (AuditoriaRed.fecha(diaRotulo).isEmpty()
+                ? "" : "  ·  " + AuditoriaRed.fecha(diaRotulo))
+            + "  ·  escenario " + idEscenario + "  ·  replica " + replica
+            + "  ·  run " + auditoria.runId);
+
+        resumenRedVisual.setText(textoTramosRedVisual());
+    }
+
+    String textoTramosRedVisual() {
+        // Los cinco tramos que mas movieron, que es lo que el grosor del arco no alcanza a decir con
+        // precision. Sale del mismo acumulador que dibuja los arcos, no de una cuenta paralela.
+        java.util.ArrayList<String> claves = new java.util.ArrayList<String>(flujoRedVisual.keySet());
+
+        java.util.Collections.sort(claves, new java.util.Comparator<String>() {
+            public int compare(String a, String b) {
+                return Double.compare(flujoRedVisual.get(b)[0], flujoRedVisual.get(a)[0]);
+            }
+        });
+
+        StringBuilder texto = new StringBuilder("Tramos con mas movimiento (tn acumuladas)");
+
+        for (int i = 0; i < Math.min(5, claves.size()); i++) {
+            double[] flujo = flujoRedVisual.get(claves.get(i));
+            texto.append("\n   ")
+                .append(claves.get(i).replace("|", " - "))
+                .append("   ")
+                .append(Math.round(flujo[0]))
+                .append(" tn en ")
+                .append(Math.round(flujo[1]))
+                .append(" movimientos");
+        }
+
+        if (claves.isEmpty()) {
+            texto.append("\n   todavia no se movio producto");
+        }
+
+        return texto.toString();
     }
 
     void reconciliarEnviosEnCurso() {
@@ -8755,6 +9246,7 @@ class Main extends Agent {
         // El viaje ya recorrio el arco: sale del origen al salir y entra al destino al llegar
         // (ADR-061), asi que la duracion real existe recien aca (ADR-064).
         registrarArcoViajeProducto(viaje);
+        registrarFlujoVisual(viaje.origen, viaje.destino, viaje.toneladas);
 
         Deposito destino = buscarDeposito(viaje.destino);
 
@@ -9473,5 +9965,6 @@ class Main extends Agent {
         reconciliarCostos();              // los totales explican cargo por cargo (ADR-052)
         tomarSnapshotInventarioDelDia();  // C-12: el balance de cada nodo cierra (ADR-064)
         exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)
+        actualizarRedVisual();            // vista de red (ADR-072): refresco de presentacion
     }
 }

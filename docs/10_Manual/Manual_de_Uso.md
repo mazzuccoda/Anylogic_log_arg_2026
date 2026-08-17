@@ -139,6 +139,15 @@ Notas importantes:
 
 El tablero de `Main` durante la corrida (paso 3). Sirve para entender **cómo** se llegó al resultado: cuándo se llena el depósito, cuándo se satura la flota, cuándo empiezan los atrasos.
 
+Dos vistas, con un botón para ir de una a la otra (ADR-072):
+
+| Vista | Botón | Qué muestra |
+|---|---|---|
+| `vistaTablero` | *Ver tablero* | los nueve paneles y los cinco gráficos de siempre |
+| `vistaRed` | *Ver red en vivo* | el mapa de la red: un nodo por sitio con su ocupación del día, un arco por tramo con las toneladas acumuladas y los cinco tramos que más movieron |
+
+La vista de red no agrega ningún número que no esté ya en el modelo: es la misma ocupación de los paneles, puesta sobre la red. Sirve para ver **dónde** aparece el problema, que es justo lo que una columna de un panel no dice. Se apaga con el parámetro de corrida `animacionRed = false`, y con eso la corrida decide exactamente lo mismo: no se dibuja nada y no se acumula el flujo por tramo.
+
 ### 7.2 En el tablero del barrido
 
 La pantalla del experimento `Escenarios` muestra las medias de las réplicas ya terminadas: la tabla por escenario con la configuración que le corresponde (camiones, factor de capacidad de depósito, factor de producción, cross dock, sitio de consolidación) y el frente de decisión, que marca qué escenarios están dominados. Es la lectura rápida; la evidencia sigue siendo el CSV.
