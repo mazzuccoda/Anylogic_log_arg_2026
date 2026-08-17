@@ -305,3 +305,42 @@ Diecisiete KPIs nuevos en `resultados/kpis_por_corrida.csv`:
 | `toneladas_transferidas_salidas` | Toneladas que efectivamente salieron |
 
 Cómo leerlos sin equivocarse: `pico_camiones_producto_en_ruta` dimensiona la flota, `toneladas_no_programadas_por_flota` dice cuánto falta y `espera_maxima_flota_producto_dias` cuánto cuesta en tiempo. Una utilización baja con toneladas sin programar no es contradictoria: significa que el volumen se pidió cuando los camiones estaban en ruta.
+
+---
+
+## 9. Vista de red en vivo (ADR-072)
+
+Los paneles dicen *cuánto*; la vista de red dice **dónde**. Es la segunda vista de `Main`, se llega con el botón *Ver red en vivo* y se vuelve con *Ver tablero*.
+
+```
+  Red logistica de exportacion
+  dia 120 de 364 · 2026-07-29 · escenario E-00 · replica 0 · run E-00-R0
+
+     (NORRY)   (BOREAS)  (FRINOA)              Leyenda
+        (GRUPO_PAZ)                            Tramos con mas movimiento
+   (PLANTA)  (CONTROL_UNION)
+
+                        (ZARATE)
+              (RUTA9)  (T4)  (DODERO)
+```
+
+| Elemento | Qué codifica | De dónde sale |
+|---|---|---|
+| Posición del nodo | latitud y longitud de la hoja `Ubicacion`, si el libro las trae; si no, tres columnas por tipo de sitio | `DatosEntrada.Ubicacion.latitud` / `.longitud` |
+| Tamaño del nodo | capacidad declarada del sitio, por área y no por radio | `datos.capacidadDeclaradaTn()` / `Planta.getCapacidad()` |
+| Color de relleno | ocupación del día: verde < 70 %, ámbar 70–90 %, rojo > 90 %, gris sin capacidad declarada | `Inventario.stock()` sobre la capacidad |
+| Borde | azul planta, gris depósito, violeta terminal | `Ubicacion.tipo` |
+| Etiqueta | nombre y `stock / capacidad` del día | las mismas dos cuentas |
+| Grosor del arco | toneladas acumuladas movidas en el tramo, en toda la campaña | acumulador de los movimientos ya ejecutados |
+| Panel de tramos | los cinco tramos que más movieron, con toneladas y cantidad de movimientos | el mismo acumulador |
+| Encabezado | día, fecha de calendario, escenario, réplica y `run_id` | `diaCampania()`, `AuditoriaRed.fecha()`, `auditoria.runId` |
+
+Cómo leerla sin equivocarse:
+
+- **Un nodo rojo no es un error, es el techo del sitio**: significa que la ocupación del día está sobre el 90 % de la capacidad declarada. En la campaña del maestro los depósitos de Tucumán quedan rojos casi todo el año y `RUTA9` y `DODERO` verdes: ahí se ve que el cuello está arriba, no en el litoral.
+- **Un arco fino con un nodo rojo al lado es la señal interesante**: hay stock que no se mueve por ese tramo.
+- **La distancia del dibujo no es la distancia que se costea.** Seis de los diez sitios están dentro de 25 km, así que se separan lo mínimo para poder leerlos: la posición es aproximada. Lo que se cobra y lo que tarda sale siempre de la tabla `Distancia`.
+- **El arco es por infraestructura, no por sentido**: `PLANTA – RUTA9` acumula lo que va y lo que vuelve, porque lo que se dimensiona es el tramo.
+- Sin `latitud` y `longitud` en el libro, la vista sigue funcionando como esquema por tipo de nodo y la leyenda lo dice en pantalla; no se inventan coordenadas.
+
+Se apaga con el parámetro de corrida `animacionRed = false`: no se crea ninguna figura, no se acumula flujo por tramo y la corrida decide y cuesta exactamente lo mismo.

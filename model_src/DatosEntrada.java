@@ -127,6 +127,16 @@ public class DatosEntrada implements java.io.Serializable {
 		public double contenedoresPorDia;            // capacidad de consolidacion del sitio (ADR-048)
 		public double posicionesCrossDock;           // operaciones de cross dock por dia
 
+		// Coordenadas geograficas del sitio (ADR-072). Son opcionales y no entran en ninguna
+		// decision: el tiempo y el costo del tramo los da la tabla Distancia, no la posicion.
+		// Sin ellas la vista de red se dibuja con el esquema por tipo de nodo.
+		public double latitud = Double.NaN;
+		public double longitud = Double.NaN;
+
+		public boolean tieneCoordenadas() {
+			return !Double.isNaN(latitud) && !Double.isNaN(longitud);
+		}
+
 		public Ubicacion(String idUbicacion, String tipo, boolean habilitada,
 				double velocidadCargaTnHora, double velocidadDescargaTnHora,
 				double velocidadConsolidacionTnHora, double capacidadDiariaTn,

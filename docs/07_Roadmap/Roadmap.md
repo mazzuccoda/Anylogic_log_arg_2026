@@ -451,3 +451,16 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y cor
 - [x] Corregido un bug de ADR-060 que la fecha hacía visible: `capacidad_por_dia` se exportaba con `0 .. duracion − 1` (día 0 fantasma y últimos días faltantes) y ahora recorre `1 .. ultimoDiaConCapacidad()`.
 - [x] Verificación fila por fila contra la fórmula recalculada afuera del modelo en las dos corridas: **0 discrepancias**. Regresión del libro canónico **idéntica** a ADR-070 (30 364 tn, 97 %, 1 421 asignaciones, 109 878 cargos).
 - [ ] **No corrido, por pedido explícito:** el barrido de escenarios (`fase-28`).
+
+## 11r. MOD — Vista de red en vivo, PR 1 del plan de animación (ADR-072)
+
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y corrido en AnyLogic PLE 8.9.9**: campaña completa desde `datos/Maestro_Simulacion.xlsx` con la vista encendida y la misma campaña con `animacionRed = false`. Es la primera de las tres PRs del MOD de animación, recortado después de revisar el repositorio del tablero web (`mazzuccoda/tablero_Anylogic`): en AnyLogic queda **sólo el instante**, y la comparación de corridas, los costos, el Sankey y el mapa geográfico de playback quedan en el web, que ya los tiene.
+
+- [x] `latitud` y `longitud` opcionales en la hoja `Ubicacion`, con alias (`lat`, `long`, `lon`), validación de rango argentino, normalización de escala y error explícito si un sitio declara una sola de las dos. La coordenada **no** se usa para calcular distancias, tiempos ni costos.
+- [x] Coordenadas de los diez sitios cargadas en `datos/Maestro_Simulacion.xlsx` con el relevamiento del usuario; `datos/entrada_ejemplo.xlsx` **no** las declara, así que el camino "libro sin coordenadas" queda ejercitado en cada regresión.
+- [x] Vista `vistaRed` en `Main`: un nodo por sitio (tamaño = capacidad declarada, color = ocupación del día), un arco por tramo de `Distancia` (grosor = toneladas acumuladas), etiquetas, leyenda, los cinco tramos que más movieron e identidad de la corrida (día, fecha, escenario, réplica, `run_id`).
+- [x] Navegación entre las dos vistas con los botones *Ver red en vivo* y *Ver tablero*; los nueve paneles del tablero **no** se tocaron.
+- [x] Sin tipos de agente nuevos: PLE está en 10 de 10. Las figuras son `ShapeOval`, `ShapeLine` y `ShapeText` creadas una vez y actualizadas por día.
+- [x] Parámetro de corrida `animacionRed` (default `true`) para apagarla; corrida pareada que verifica que apagada y encendida deciden **igual**.
+- [ ] **No corrido, por pedido explícito:** el barrido de escenarios (`fase-28`).
+- [ ] Pendiente de las PRs 2 y 3 del MOD: figuras moviéndose por tramo, panel de envíos en curso por bloque, `nodos_red.csv` y `snapshot_envios_en_curso.csv` para el tablero web.
