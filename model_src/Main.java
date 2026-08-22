@@ -8,6 +8,8 @@ class Main extends Agent {
     AuditoriaRed.Nivel nivelAuditoriaRed = AuditoriaRed.Nivel.DESACTIVADA;
     OrigenDatos origenDatos = OrigenDatos.SINTETICO;
     boolean animacionRed = true;
+    double pasoAnimacionDias = 0.05;
+    int maximoFigurasRedVisual = 150;
     String fechaInicioCampania = "2026-04-01";
     String rutaExcel = "datos/Maestro_Simulacion.xlsx";
     String idEscenario = "E-00";
@@ -170,6 +172,9 @@ class Main extends Agent {
     java.util.LinkedHashMap<String, double[]> flujoRedVisual = new java.util.LinkedHashMap<String, double[]>();
     com.anylogic.engine.presentation.ShapeText rotuloRedVisual = null;
     com.anylogic.engine.presentation.ShapeText resumenRedVisual = null;
+    java.util.ArrayList<com.anylogic.engine.presentation.ShapeOval> figurasRedVisual = new java.util.ArrayList<com.anylogic.engine.presentation.ShapeOval>();
+    com.anylogic.engine.presentation.ShapeText estadoRedVisual = null;
+    int figurasRedVisualPico = 0;
     boolean redVisualDibujada = false;
     boolean redVisualGeografica = false;
     String fechaInicioCampaniaEfectiva = "";
@@ -3886,9 +3891,6 @@ class Main extends Agent {
             return;
         }
 
-        String terminal =
-            envio.pedido == null ? "" : envio.pedido.puertoSalida.idUbicacion;
-
         RegistroEjecucionArco arco = new RegistroEjecucionArco();
 
         arco.tipoArco = tipo;
@@ -3916,29 +3918,10 @@ class Main extends Agent {
         arco.contenedores = envio.contenedor == null ? 0 : 1;
         arco.viajes = 1;
 
-        if (RegistroEjecucionArco.TERMINAL_ORIGEN_VACIO.equals(tipo)) {
-            arco.origen = terminal;
-            arco.destino = envio.idSitioOrigen;
+        String[] extremos = extremosArcoEnvio(envio, tipo);
 
-        } else if (RegistroEjecucionArco.ORIGEN_TERMINAL_CARGADO.equals(tipo)) {
-            arco.origen = envio.idSitioOrigen;
-            arco.destino = terminal;
-
-        } else if (RegistroEjecucionArco.ESPERA_PORTACONTENEDOR.equals(tipo)) {
-            arco.origen = terminal;
-            arco.destino = envio.idSitioOrigen;
-
-        } else if (
-            RegistroEjecucionArco.DESCARGA_TERMINAL.equals(tipo)
-            || RegistroEjecucionArco.CONSOLIDACION_TERMINAL.equals(tipo)
-        ) {
-            arco.origen = terminal;
-            arco.destino = terminal;
-
-        } else {
-            arco.origen = envio.idSitioOrigen;
-            arco.destino = envio.idSitioOrigen;
-        }
+        arco.origen = extremos[0];
+        arco.destino = extremos[1];
 
         // La tabla Distancia declara un solo sentido por tramo (ADR-061): el arco del vacio va
         // terminal -> origen y su fila es la de la ida.
@@ -4651,6 +4634,9 @@ class Main extends Agent {
                 + "\n   verde < 70%   ambar 70-90%   rojo > 90%   gris sin capacidad declarada"
                 + "\nBorde: azul planta, gris deposito, violeta terminal"
                 + "\nArco: grosor = toneladas movidas en la campania"
+                + "\nFigura sobre el arco: un movimiento en curso, avanzando con el reloj del modelo"
+                + "\n   azul contenedor hacia la terminal   gris portacontenedor vacio al origen"
+                + "\n   naranja camion de producto cargado   naranja claro camion de regreso"
                 + "\n"
                 + (redVisualGeografica
                     ? "\nMapa geografico. Los sitios a menos de 25 km se separan para poder leerlos:\nla posicion dibujada es aproximada y la distancia que se costea es la de la tabla."
@@ -4669,6 +4655,17 @@ class Main extends Agent {
         resumenRedVisual.setX(2700);
         resumenRedVisual.setY(-640);
         presentation.add(resumenRedVisual);
+
+        // Panel "ahora mismo" (ADR-073). Estado instantaneo del flujo, que es lo que ningun CSV puede
+        // dar: el bug de los envios congelados de ADR-063 se lee aca sin abrir una tabla.
+        estadoRedVisual =
+            new com.anylogic.engine.presentation.ShapeText(
+                true, 2700, -540, 0, new java.awt.Color(30, 41, 59),
+                "", new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 11), com.anylogic.engine.presentation.TextAlignment.ALIGNMENT_LEFT);
+
+        estadoRedVisual.setX(2700);
+        estadoRedVisual.setY(-540);
+        presentation.add(estadoRedVisual);
     }
 
     void actualizarRedVisual() {
@@ -4733,6 +4730,266 @@ class Main extends Agent {
             + "  ·  run " + auditoria.runId);
 
         resumenRedVisual.setText(textoTramosRedVisual());
+
+        // El panel instantaneo se refresca tambien al cierre del dia: asi la parte de C-05 que
+        // publica -envios en curso y retenidos por bloque- se ve recien calculada y no con el
+        // valor del dia anterior.
+        moverFigurasRedVisual();
+    }
+
+    String[] extremosArcoEnvio(Envio envio, String tipo) {
+        // Los dos extremos fisicos del bloque en el que esta el envio. La fila de ejecucion_arcos
+        // (ADR-064) y la figura que se mueve (ADR-073) los piden a la misma funcion: escrita dos
+        // veces, la animacion podria mostrar un sentido y la tabla auditar el otro.
+        String terminal =
+            envio == null || envio.pedido == null ? "" : envio.pedido.puertoSalida.idUbicacion;
+
+        String origen = envio == null ? "" : envio.idSitioOrigen;
+
+        if (
+            RegistroEjecucionArco.TERMINAL_ORIGEN_VACIO.equals(tipo)
+            || RegistroEjecucionArco.ESPERA_PORTACONTENEDOR.equals(tipo)
+        ) {
+            return new String[] {terminal, origen};
+        }
+
+        if (RegistroEjecucionArco.ORIGEN_TERMINAL_CARGADO.equals(tipo)) {
+            return new String[] {origen, terminal};
+        }
+
+        if (
+            RegistroEjecucionArco.DESCARGA_TERMINAL.equals(tipo)
+            || RegistroEjecucionArco.CONSOLIDACION_TERMINAL.equals(tipo)
+        ) {
+            return new String[] {terminal, terminal};
+        }
+
+        return new String[] {origen, origen};
+    }
+
+    com.anylogic.engine.presentation.ShapeOval figuraRedVisual(int indice) {
+        // Pool de figuras: se crean una vez y se reusan viaje tras viaje. Crear una figura por
+        // movimiento y descartarla al llegar haria crecer el arbol de presentacion durante toda la
+        // campania, que es lo que degrada la corrida larga.
+        while (figurasRedVisual.size() <= indice) {
+
+            com.anylogic.engine.presentation.ShapeOval figura =
+                new com.anylogic.engine.presentation.ShapeOval(
+                    true, 0, 0, 0, new java.awt.Color(255, 255, 255),
+                    new java.awt.Color(37, 99, 235), 5, 5, 0,
+                    com.anylogic.engine.presentation.LineStyle.LINE_STYLE_SOLID);
+
+            figura.setRadiusX(5);
+            figura.setRadiusY(5);
+            figura.setLineWidth(1);
+            figura.setVisible(false);
+
+            presentation.add(figura);
+            figurasRedVisual.add(figura);
+        }
+
+        return figurasRedVisual.get(indice);
+    }
+
+    boolean ubicarFiguraRedVisual(int indice, String origen, String destino, double progreso, java.awt.Color color, double radio) {
+        // Interpolacion lineal sobre el arco dibujado. El avance sale del reloj del motor y de la
+        // duracion que el modelo ya fijo para ese bloque: la figura no tiene una velocidad propia
+        // ni usa la distancia geometrica de la pantalla.
+        double[] desde = posicionRedVisual.get(origen);
+        double[] hasta = posicionRedVisual.get(destino);
+
+        if (desde == null || hasta == null || origen.equals(destino)) {
+            return false;
+        }
+
+        double avance = Math.max(0, Math.min(1, progreso));
+
+        double dx = hasta[0] - desde[0];
+        double dy = hasta[1] - desde[1];
+        double largo = Math.sqrt(dx * dx + dy * dy);
+
+        // Corrimiento perpendicular al tramo: la ida y la vuelta comparten la linea -la tabla
+        // Distancia declara un solo sentido- y sin separarlas las figuras se pisan y no se ve
+        // para donde va cada una. El signo lo da el sentido del viaje, no un sorteo.
+        double desvioX = largo <= 0 ? 0 : -dy / largo * 7;
+        double desvioY = largo <= 0 ? 0 : dx / largo * 7;
+
+        com.anylogic.engine.presentation.ShapeOval figura = figuraRedVisual(indice);
+
+        figura.setX(desde[0] + dx * avance + desvioX);
+        figura.setY(desde[1] + dy * avance + desvioY);
+        figura.setRadiusX(radio);
+        figura.setRadiusY(radio);
+        figura.setFillColor(color);
+        figura.setVisible(true);
+
+        return true;
+    }
+
+    void moverFigurasRedVisual() {
+        // Movimiento sobre el tramo y panel instantaneo (ADR-073). Presentacion pura: recorre estado
+        // ya calculado, interpola posiciones y no escribe ni una variable del modelo. Con
+        // animacionRed = false no hace nada.
+        if (!animacionRed || !redVisualDibujada || estadoRedVisual == null) {
+            return;
+        }
+
+        int usadas = 0;
+
+        int contenedoresCargados = 0;
+        int portacontenedoresVacios = 0;
+        double toneladasHaciaTerminal = 0;
+
+        for (Envio envio : envios) {
+
+            if (
+                envio.estado == EstadoEnvio.ENTREGADO
+                || envio.bloqueActual == null
+                || envio.bloqueActual.isEmpty()
+                || envio.diaEntradaBloque < 0
+                || envio.horasEsperadasBloque <= 0
+            ) {
+                continue;
+            }
+
+            String tipo = tipoArcoDeBloque(envio.bloqueActual);
+
+            boolean cargado = RegistroEjecucionArco.ORIGEN_TERMINAL_CARGADO.equals(tipo);
+            boolean vacio = RegistroEjecucionArco.TERMINAL_ORIGEN_VACIO.equals(tipo);
+
+            // Solo los dos bloques que son movimiento entre sitios. Cargar, descargar y consolidar
+            // pasan dentro de un sitio -la figura quedaria quieta sobre el nodo- y la cola de
+            // portacontenedor es espera de un recurso finito, no un viaje.
+            if (!cargado && !vacio) {
+                continue;
+            }
+
+            if (cargado) {
+                contenedoresCargados++;
+                toneladasHaciaTerminal += envio.toneladas;
+            } else {
+                portacontenedoresVacios++;
+            }
+
+            String[] extremos = extremosArcoEnvio(envio, tipo);
+
+            double progreso =
+                (time() - envio.diaEntradaBloque) / (envio.horasEsperadasBloque / 24.0);
+
+            if (
+                usadas < maximoFigurasRedVisual
+                && ubicarFiguraRedVisual(
+                    usadas, extremos[0], extremos[1], progreso,
+                    cargado ? new java.awt.Color(37, 99, 235) : new java.awt.Color(148, 163, 184),
+                    cargado ? 5 : 4)
+            ) {
+                usadas++;
+            }
+        }
+
+        int camionesIda = 0;
+        int camionesRegreso = 0;
+        double toneladasDeProducto = 0;
+
+        for (ViajeProducto viaje : viajesProducto) {
+
+            // El viaje que solo ocupa flota no mueve producto por si mismo: el movimiento fisico es el
+            // del envio a granel, que ya se dibuja arriba. Dibujarlo tambien seria mostrar dos
+            // camiones donde el modelo tiene uno.
+            if (viaje.ocupaSoloFlota) {
+                continue;
+            }
+
+            String origen = "";
+            String destino = "";
+            double progreso = 0;
+            boolean ida = false;
+
+            if (
+                viaje.estado == EstadoViajeProducto.EN_TRANSITO_DESTINO
+                && viaje.diaSalida >= 0 && viaje.duracionIdaDias > 0
+            ) {
+                ida = true;
+                origen = viaje.origen;
+                destino = viaje.destino;
+                progreso = (time() - viaje.diaSalida) / viaje.duracionIdaDias;
+
+                camionesIda++;
+                toneladasDeProducto += viaje.toneladas;
+
+            } else if (
+                viaje.estado == EstadoViajeProducto.RETORNANDO
+                && viaje.diaInicioRetorno >= 0 && viaje.duracionRetornoDias > 0
+            ) {
+                origen = viaje.destino;
+                destino = viaje.origen;
+                progreso = (time() - viaje.diaInicioRetorno) / viaje.duracionRetornoDias;
+
+                camionesRegreso++;
+
+            } else {
+                continue;
+            }
+
+            if (
+                usadas < maximoFigurasRedVisual
+                && ubicarFiguraRedVisual(
+                    usadas, origen, destino, progreso,
+                    ida ? new java.awt.Color(234, 88, 12) : new java.awt.Color(253, 186, 116),
+                    4)
+            ) {
+                usadas++;
+            }
+        }
+
+        for (int i = usadas; i < figurasRedVisual.size(); i++) {
+            figurasRedVisual.get(i).setVisible(false);
+        }
+
+        figurasRedVisualPico = Math.max(figurasRedVisualPico, usadas);
+
+        estadoRedVisual.setText(textoEstadoRedVisual(
+            contenedoresCargados, toneladasHaciaTerminal, portacontenedoresVacios,
+            camionesIda, camionesRegreso, toneladasDeProducto, usadas));
+    }
+
+    String textoEstadoRedVisual(int contenedoresCargados, double toneladasHaciaTerminal, int portacontenedoresVacios, int camionesIda, int camionesRegreso, double toneladasDeProducto, int figuras) {
+        // Panel "ahora mismo": el instante, que es lo unico que ninguna tabla exportada puede dar.
+        // La parte de bloques la publica C-05 al cierre del dia y se muestra tal cual: contarla otra
+        // vez aca seria una segunda cuenta del mismo hecho.
+        int enMovimiento =
+            contenedoresCargados + portacontenedoresVacios + camionesIda + camionesRegreso;
+
+        StringBuilder texto = new StringBuilder("Ahora mismo   dia ");
+
+        texto.append(Math.round(time() * 100) / 100.0)
+            .append("\n   contenedores hacia la terminal: ").append(contenedoresCargados)
+            .append("   ").append(Math.round(toneladasHaciaTerminal)).append(" tn")
+            .append("\n   portacontenedores vacios al origen: ").append(portacontenedoresVacios)
+            .append("\n   camiones de producto: ").append(camionesIda).append(" cargados   ")
+            .append(camionesRegreso).append(" de regreso   ")
+            .append(Math.round(toneladasDeProducto)).append(" tn");
+
+        if (figuras < enMovimiento) {
+            texto.append("\n   figuras dibujadas: ").append(figuras).append(" de ")
+                .append(enMovimiento).append(" (tope maximoFigurasRedVisual)");
+        }
+
+        int diaCierre = Math.min(diaCampania(), datos.escenario.duracionCampaniaDias);
+
+        texto.append("\n\nEnvios en curso por bloque, cierre del dia ").append(diaCierre)
+            .append(" (C-05)")
+            .append("\n   en curso: ").append(enviosEnCurso)
+            .append("   ").append(Math.round(toneladasEnviosEnCurso)).append(" tn")
+            .append("   retenidos: ").append(enviosRetenidos);
+
+        if (detalleEnviosEnCurso.isEmpty()) {
+            texto.append("\n   ningun bloque retiene envios");
+        } else {
+            texto.append("\n   ").append(detalleEnviosEnCurso.replace(" · ", "\n   "));
+        }
+
+        return texto.toString();
     }
 
     String textoTramosRedVisual() {
@@ -9966,5 +10223,13 @@ class Main extends Agent {
         tomarSnapshotInventarioDelDia();  // C-12: el balance de cada nodo cierra (ADR-064)
         exportarCapacidadSiCorresponde(); // diagnostico de capacidad al cierre (ADR-060)
         actualizarRedVisual();            // vista de red (ADR-072): refresco de presentacion
+    }
+
+    // evento pasoAnimacion [timeout cyclic] cada pasoAnimacionDias day
+    void pasoAnimacion_accion() {
+        // Paso de animacion (ADR-073). Es el unico evento del modelo que no decide nada: mueve las
+        // figuras del tramo con el reloj del motor y refresca el panel de estado. Con animacionRed
+        // = false no hace nada y la corrida decide igual.
+        moverFigurasRedVisual();
     }
 }

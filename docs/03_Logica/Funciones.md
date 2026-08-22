@@ -538,4 +538,29 @@ Capacidad y stock salen de las mismas dos funciones que alimentan los paneles (`
 
 ### 12.5 Dibujo y refresco: `dibujarRedVisual`, `dibujarLeyendaRedVisual`, `actualizarRedVisual`, `textoTramosRedVisual`
 
-`dibujarRedVisual()` crea las figuras **una sola vez** al arrancar (arcos primero, para que queden debajo de los nodos) y `actualizarRedVisual()` corre al final de cada paso diario cambiando sólo color, grosor y texto de figuras que ya existen: no se crea un objeto por evento, que es lo que haría caer el rendimiento en una campaña de 365 días. `textoTramosRedVisual()` lista los cinco tramos que más movieron, del mismo acumulador que dibuja los arcos. Sin tipos de agente nuevos: PLE está en 10 de 10 y las figuras son `ShapeOval`, `ShapeLine` y `ShapeText` colgadas de `presentation`.
+`dibujarRedVisual()` crea las figuras de la red **una sola vez** al arrancar (arcos primero, para que queden debajo de los nodos) y `actualizarRedVisual()` corre al final de cada paso diario cambiando sólo color, grosor y texto de figuras que ya existen: no se crea un objeto por evento, que es lo que haría caer el rendimiento en una campaña de 365 días. `textoTramosRedVisual()` lista los cinco tramos que más movieron, del mismo acumulador que dibuja los arcos. Sin tipos de agente nuevos: PLE está en 10 de 10 y las figuras son `ShapeOval`, `ShapeLine` y `ShapeText` colgadas de `presentation`.
+
+## 13. Movimiento sobre el tramo y panel instantáneo (ADR-073)
+
+**Estado:** implementadas. Segunda PR del plan de animación, y **presentación pura** igual que la §12: leen `Envio` y `ViajeProducto`, interpolan una posición y no escriben ninguna variable del modelo. Con `animacionRed = false` cortan en la primera línea.
+
+### 13.1 Extremos compartidos con la auditoría: `extremosArcoEnvio(envio, tipo)`
+
+Devuelve los dos extremos físicos del bloque en el que está el envío (`{origen, destino}`) según el tipo de arco de ADR-064: `TERMINAL_ORIGEN_VACIO` y `ESPERA_PORTACONTENEDOR` van terminal → origen, `ORIGEN_TERMINAL_CARGADO` va origen → terminal, `DESCARGA_TERMINAL` y `CONSOLIDACION_TERMINAL` empiezan y terminan en la terminal, y el resto pasa dentro del sitio de origen. La fila de `ejecucion_arcos` y la figura que se mueve la piden a **la misma** función: escrita dos veces, la animación podría mostrar un sentido y la tabla auditar el otro. Es un refactor sin cambio de conducta: los cinco casos y su orden son los que tenía `registrarArcoEnvio()`.
+
+### 13.2 Pool de figuras: `figuraRedVisual(indice)` y `ubicarFiguraRedVisual(...)`
+
+`figuraRedVisual()` crea `ShapeOval` **sólo cuando hace falta** y las guarda en `figurasRedVisual` para reusarlas viaje tras viaje: crear una figura por movimiento y descartarla al llegar haría crecer el árbol de presentación durante los 365 días. `ubicarFiguraRedVisual()` interpola linealmente entre las posiciones ya calculadas de los dos nodos (`posicionRedVisual`), aplica un corrimiento perpendicular de 7 px —ida y vuelta comparten la línea, porque la tabla `Distancia` declara un solo sentido— y devuelve `false` cuando falta un nodo o los dos extremos coinciden, para que el índice del pool no se consuma con una figura quieta encima de un nodo.
+
+### 13.3 Movimiento: `moverFigurasRedVisual()`
+
+Corre en el evento cíclico `pasoAnimacion` (cada `pasoAnimacionDias`, default `0.05` días) y también al final del paso diario, para que el panel muestre el C-05 recién calculado. Recorre dos poblaciones:
+
+- **`Envio`**: sólo los dos bloques que son movimiento **entre sitios** (`ORIGEN_TERMINAL_CARGADO`, azul; `TERMINAL_ORIGEN_VACIO`, gris). Cargar, descargar y consolidar pasan dentro de un sitio —la figura quedaría quieta sobre el nodo— y la cola de portacontenedor es espera de un recurso finito, no un viaje. El avance es `(time() − diaEntradaBloque) / (horasEsperadasBloque / 24)`: sale del reloj del motor y de la duración que el modelo ya fijó, no de una velocidad de pantalla.
+- **`ViajeProducto`**: ida (`EN_TRANSITO_DESTINO`, naranja, con `diaSalida`/`duracionIdaDias`) y retorno (`RETORNANDO`, naranja claro, con `diaInicioRetorno`/`duracionRetornoDias`). Los viajes con `ocupaSoloFlota` se **omiten**: ahí el movimiento físico es el del envío a granel, que ya se dibuja arriba, y dibujarlo otra vez mostraría dos camiones donde el modelo tiene uno.
+
+Las figuras que sobran se ocultan (`setVisible(false)`) en lugar de destruirse, y `figurasRedVisualPico` guarda el máximo simultáneo observado. El tope es `maximoFigurasRedVisual` (default `150`): si en un instante hay más movimientos que figuras, se dibujan las primeras y **el panel lo dice**; ningún envío ni viaje se altera por eso.
+
+### 13.4 Panel instantáneo: `textoEstadoRedVisual(...)`
+
+Dos bloques que no son lo mismo y por eso están rotulados distinto: **"Ahora mismo"**, el instante (contenedores hacia la terminal y sus toneladas, portacontenedores vacíos al origen, camiones de producto cargados y de regreso con sus toneladas), y **"Envíos en curso por bloque, cierre del día (C-05)"**, que muestra tal cual `enviosEnCurso`, `toneladasEnviosEnCurso`, `enviosRetenidos` y `detalleEnviosEnCurso` de `reconciliarEnviosEnCurso()`. No se cuenta C-05 por segunda vez: dos cuentas del mismo hecho pueden divergir y entonces ninguna sirve de diagnóstico. Los dos números **no tienen por qué coincidir**, y ahí está el valor del panel: C-05 muestrea al cierre del día y un viaje a terminal dura 17 h, así que un envío despachado y llegado dentro del mismo día no aparece en ningún muestreo diario.

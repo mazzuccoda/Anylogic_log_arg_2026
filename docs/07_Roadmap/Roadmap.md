@@ -463,4 +463,18 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y cor
 - [x] Sin tipos de agente nuevos: PLE está en 10 de 10. Las figuras son `ShapeOval`, `ShapeLine` y `ShapeText` creadas una vez y actualizadas por día.
 - [x] Parámetro de corrida `animacionRed` (default `true`) para apagarla; corrida pareada que verifica que apagada y encendida deciden **igual**.
 - [ ] **No corrido, por pedido explícito:** el barrido de escenarios (`fase-28`).
-- [ ] Pendiente de las PRs 2 y 3 del MOD: figuras moviéndose por tramo, panel de envíos en curso por bloque, `nodos_red.csv` y `snapshot_envios_en_curso.csv` para el tablero web.
+- [x] Pendiente de las PRs 2 y 3 del MOD: figuras moviéndose por tramo, panel de envíos en curso por bloque (**hechas en ADR-073**), `nodos_red.csv` y `snapshot_envios_en_curso.csv` para el tablero web (PR 3, pendiente).
+
+## 11s. MOD — Movimiento sobre el tramo y panel instantáneo, PR 2 del plan de animación (ADR-073)
+
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y corrido en AnyLogic PLE 8.9.9**: campaña completa desde `datos/Maestro_Simulacion.xlsx` con la animación encendida y la misma campaña con `animacionRed = false`, las dos `Finished`.
+
+- [x] Figuras que se mueven por el tramo con el avance tomado del estado del modelo: `(time() − diaEntradaBloque) / (horasEsperadasBloque / 24)` para el envío y `diaSalida`/`duracionIdaDias`, `diaInicioRetorno`/`duracionRetornoDias` para el viaje de producto. Sin velocidad de pantalla y sin usar la distancia geométrica del dibujo.
+- [x] Cuatro sentidos por color: contenedor cargado a la terminal, portacontenedor vacío al origen, camión de producto cargado y camión de regreso, con corrimiento perpendicular para separar ida y vuelta sobre la misma línea.
+- [x] `extremosArcoEnvio()` extraída de `registrarArcoEnvio()`: la fila de `ejecucion_arcos` y la figura piden los extremos a la **misma** función, así la tabla y la pantalla no pueden mostrar sentidos distintos. Refactor sin cambio de conducta.
+- [x] Sólo se dibujan los bloques que son movimiento **entre sitios**; cargar, descargar y consolidar pasan dentro de un sitio, y el viaje de producto que sólo ocupa flota no se dibuja porque ese movimiento ya lo dibuja el envío a granel.
+- [x] Pool de `ShapeOval` reusadas, con las que sobran ocultas y no destruidas; tope `maximoFigurasRedVisual` (default 150) que **declara en pantalla** cuántos movimientos no se dibujaron. Sin tipos de agente nuevos: PLE sigue en 10 de 10.
+- [x] Panel con dos bloques rotulados distinto porque miden distinto: "Ahora mismo" (el instante, refrescado cada `pasoAnimacionDias = 0.05` días) y "cierre del día (C-05)", que **publica** `enviosEnCurso` / `toneladasEnviosEnCurso` / `enviosRetenidos` / `detalleEnviosEnCurso` sin volver a contarlos.
+- [x] Corrida pareada con `animacionRed = false`: las **siete tablas idénticas byte a byte** y los mismos conteos de manifiesto. Campaña del maestro en 29 439 tn / 72 % / 8 453 166 USD, igual que ADR-071 y ADR-072.
+- [ ] **No corrido, por pedido explícito:** el barrido de escenarios (`fase-28`).
+- [ ] Pendiente de la PR 3 del MOD: `nodos_red.csv` y `snapshot_envios_en_curso.csv` para el playback del tablero web.

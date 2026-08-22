@@ -144,7 +144,9 @@ Dos vistas, con un botón para ir de una a la otra (ADR-072):
 | Vista | Botón | Qué muestra |
 |---|---|---|
 | `vistaTablero` | *Ver tablero* | los nueve paneles y los cinco gráficos de siempre |
-| `vistaRed` | *Ver red en vivo* | el mapa de la red: un nodo por sitio con su ocupación del día, un arco por tramo con las toneladas acumuladas y los cinco tramos que más movieron |
+| `vistaRed` | *Ver red en vivo* | el mapa de la red: un nodo por sitio con su ocupación del día, un arco por tramo con las toneladas acumuladas, los cinco tramos que más movieron, las figuras que se mueven por el tramo y el panel del instante (ADR-073) |
+
+En la vista de red, cada círculo que avanza sobre un arco es **un movimiento en curso**: azul contenedor cargado a la terminal, gris portacontenedor vacío al origen, naranja camión de producto cargado y naranja claro el de regreso. Avanzan con el reloj del modelo y la duración que el modelo ya le fijó al bloque, así que una figura que no se mueve es un bloque trabado. Abajo a la izquierda, el panel separa el **instante** ("Ahora mismo") del **cierre del día** ("C-05", con el bloque que retiene cada envío): que los dos no coincidan es normal, porque C-05 muestrea una vez por día y hay viajes que empiezan y terminan dentro del mismo día. Si un instante tiene más movimientos que figuras (`maximoFigurasRedVisual`, default 150), el panel dice cuántos no se dibujaron; el recorte es sólo visual.
 
 La vista de red no agrega ningún número que no esté ya en el modelo: es la misma ocupación de los paneles, puesta sobre la red. Sirve para ver **dónde** aparece el problema, que es justo lo que una columna de un panel no dice. Se apaga con el parámetro de corrida `animacionRed = false`, y con eso la corrida decide exactamente lo mismo: no se dibuja nada y no se acumula el flujo por tramo.
 
