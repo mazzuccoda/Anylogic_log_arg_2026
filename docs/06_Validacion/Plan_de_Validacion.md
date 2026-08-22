@@ -1070,3 +1070,22 @@ Corridas de referencia en AnyLogic PLE 8.9.9: campaña completa desde `datos/Mae
 | V-RED-10 | La navegación entre las dos vistas funciona en las dos direcciones | **Verificado** por lectura de pantalla: *Ver red en vivo* desde el tablero y *Ver tablero* desde la red, con la corrida andando y también al terminar |
 
 El **barrido no se corrió**, por pedido explícito.
+
+## V-MOV. Movimiento sobre el tramo y panel instantáneo (ADR-073)
+
+Corridas de referencia en AnyLogic PLE 8.9.9: campaña completa desde `datos/Maestro_Simulacion.xlsx` con `animacionRed = true` y la misma campaña con `animacionRed = false`, las dos `Finished` en el día 364 de 364.
+
+| Caso | Qué verifica | Cómo se midió |
+|---|---|---|
+| V-MOV-01 | Mover figuras no cambia ninguna decisión ni ningún costo | **Verificado** por corrida pareada: las siete tablas (`asignaciones_capacidad`, `asignaciones_elegidas`, `capacidad_por_dia`, `costos_eventos`, `decisiones_alternativas`, `ejecucion_arcos`, `snapshot_inventario`) son **idénticas byte a byte** entre la corrida con animación y la corrida sin ella, comparadas con `cmp -s`, y los conteos del manifiesto coinciden uno a uno |
+| V-MOV-02 | La campaña sigue dando los mismos números que ADR-071/072 | **Verificado** por corrida completa: 29 439 tn exportadas de 30 656, servicio 72 %, 8 453 166 USD de caja, 1 399 asignaciones, 50 472 alternativas, 10 754 arcos, 115 282 cargos y 3 593 snapshots con descuadre de inventario 0 |
+| V-MOV-03 | Extraer `extremosArcoEnvio()` no cambió la auditoría de arcos | **Verificado** por lectura del diff (los cinco casos y su orden son los de `registrarArcoEnvio()`, sin rama nueva ni rama perdida) y por los conteos: `ejecucion_arcos.csv` da las mismas 10 754 filas que ADR-071/072 con la misma campaña |
+| V-MOV-04 | Las figuras se mueven con el reloj del modelo | **Verificado** por lectura de pantalla en distintos instantes: los círculos avanzan sobre `PLANTA-RUTA9`, `RUTA9-T4`, `PLANTA-ZARATE` y `DODERO-PLANTA` entre paso y paso de animación, y se detienen cuando la corrida se pausa |
+| V-MOV-05 | Los cuatro sentidos se distinguen por color | **Verificado** por lectura de pantalla: azul hacia la terminal, gris volviendo vacío al origen, naranja el camión de producto cargado y naranja claro el de regreso, con el corrimiento perpendicular separando ida y vuelta sobre la misma línea |
+| V-MOV-06 | Los bloques que pasan dentro de un sitio no dibujan viaje | **Verificado** por lectura de código y pantalla: `cargarCamion`, `descargarPuerto` y `consolidarCarga` devuelven origen igual a destino, `ubicarFiguraRedVisual()` devuelve `false` y no se consume una figura quieta encima del nodo |
+| V-MOV-07 | Un viaje de producto que sólo ocupa flota no se dibuja dos veces | **Verificado** por lectura de código: los `ViajeProducto` con `ocupaSoloFlota` se omiten, porque ese movimiento físico ya lo dibuja el `Envio` a granel |
+| V-MOV-08 | El panel del instante y C-05 se leen como lo que son | **Verificado** por lectura de pantalla en la corrida: el bloque "Ahora mismo" cambia entre pasos de animación y el bloque "cierre del día (C-05)" cambia una vez por día, con el detalle por bloque (`viajarPuerto 3`, `viajarPuerto 7`) tomado tal cual de `detalleEnviosEnCurso` |
+| V-MOV-09 | El tope de figuras acota la presentación y se declara | **Verificado** por lectura de código y de pantalla: el pico simultáneo observado en la campaña del maestro fue de decenas de figuras contra un tope de 150, así que el recorte no se ejerció; cuando se alcanza, el panel publica `figuras dibujadas: N de M (tope maximoFigurasRedVisual)` y ningún envío se altera |
+| V-MOV-10 | Las figuras que sobran no quedan colgadas en la pantalla | **Verificado** por lectura de pantalla al terminar la campaña: con el flujo vacío no queda ninguna figura visible sobre los tramos, y el pool se conserva oculto en vez de destruirse |
+
+El **barrido no se corrió**, por pedido explícito.

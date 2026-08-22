@@ -344,3 +344,27 @@ Cómo leerla sin equivocarse:
 - Sin `latitud` y `longitud` en el libro, la vista sigue funcionando como esquema por tipo de nodo y la leyenda lo dice en pantalla; no se inventan coordenadas.
 
 Se apaga con el parámetro de corrida `animacionRed = false`: no se crea ninguna figura, no se acumula flujo por tramo y la corrida decide y cuesta exactamente lo mismo.
+
+### Figuras sobre el tramo y panel del instante (ADR-073)
+
+Sobre los arcos se mueven círculos, uno por movimiento en curso, y cada color es un movimiento distinto:
+
+| Color | Qué es | Cómo avanza |
+|---|---|---|
+| Azul | contenedor cargado subiendo a la terminal | `(time() − diaEntradaBloque) / (horasEsperadasBloque / 24)` del `Envio` |
+| Gris | portacontenedor volviendo vacío al origen | el mismo cálculo, en sentido terminal → origen |
+| Naranja | camión de producto cargado hacia el destino | `diaSalida` y `duracionIdaDias` del `ViajeProducto` |
+| Naranja claro | camión de producto de regreso | `diaInicioRetorno` y `duracionRetornoDias` |
+
+La ida y la vuelta comparten la línea del tramo —la tabla `Distancia` declara un solo sentido— y se separan con un corrimiento perpendicular fijo. **El avance no es una velocidad de pantalla**: sale del reloj del motor y de la duración que el modelo ya le fijó a ese bloque, así que una figura que casi no se mueve es un bloque largo, y una que no se mueve es un bloque trabado.
+
+Lo que **no** se dibuja, a propósito: cargar, descargar y consolidar pasan dentro de un sitio (la figura quedaría quieta encima del nodo y se leería como un movimiento trabado), la cola que espera portacontenedor es espera de un recurso y no un viaje, y el viaje de producto que sólo ocupa flota no se dibuja porque ese movimiento ya lo dibuja el envío a granel.
+
+El panel de abajo a la izquierda tiene **dos bloques que no miden lo mismo**:
+
+- **"Ahora mismo"**: el instante. Contenedores hacia la terminal con sus toneladas, portacontenedores vacíos al origen, y camiones de producto cargados y de regreso con sus toneladas. Se refresca cada `pasoAnimacionDias` (default `0.05` días).
+- **"Envíos en curso por bloque, cierre del día (C-05)"**: el muestreo diario de la reconciliación, con el bloque que retiene cada envío. Es el detector del bug de los envíos congelados (ADR-063).
+
+**Que los dos no coincidan es correcto.** El primero mira el instante; el segundo, el cierre del día. Un viaje a terminal dura 17 h, así que un envío despachado y llegado dentro del mismo día no aparece en ningún muestreo diario.
+
+Si en un instante hay más movimientos que figuras disponibles, se dibujan las primeras `maximoFigurasRedVisual` (default `150`) y el panel agrega `figuras dibujadas: N de M`: el recorte es **sólo visual**, no se altera ni se descarta ningún envío. Con `animacionRed = false` no se crea ni se mueve ninguna figura.
