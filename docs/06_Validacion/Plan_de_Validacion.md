@@ -1089,3 +1089,23 @@ Corridas de referencia en AnyLogic PLE 8.9.9: campaña completa desde `datos/Mae
 | V-MOV-10 | Las figuras que sobran no quedan colgadas en la pantalla | **Verificado** por lectura de pantalla al terminar la campaña: con el flujo vacío no queda ninguna figura visible sobre los tramos, y el pool se conserva oculto en vez de destruirse |
 
 El **barrido no se corrió**, por pedido explícito.
+
+## V-CAP. Capacidad de almacenamiento por tramo de días (ADR-074)
+
+Corridas de referencia en AnyLogic PLE 8.9.9, todas desde libros derivados de `datos/Maestro_Simulacion.xlsx`: el maestro en formato viejo (`capacidad_tn`), el mismo libro con `CapacidadUbicacion` en columnas de rango y valores iguales (`maestro_tramos`), y un libro dirigido con tres bajas temporales (`maestro_dirigido`: PLANTA/JUGO 5000→3500 en días 120–180, FRINOA/JUGO 1000→0 en 181–211, BOREAS/JUGO 1800→600 en 243–272).
+
+| Caso | Qué verifica | Cómo se midió |
+|---|---|---|
+| V-CAP-01 | El formato viejo sigue cargando igual | **Verificado**: las siete tablas de auditoría son **idénticas byte a byte** a la línea base ADR-073 |
+| V-CAP-02 | El formato por tramos con los mismos valores no cambia ninguna decisión | **Verificado**: `maestro_tramos` da las siete tablas **idénticas byte a byte** a la línea base |
+| V-CAP-03 | La capacidad publicada sigue el tramo | **Verificado** en `snapshot_inventario.csv`: PLANTA/JUGO `capacidad_tn` 5000 el día 119, 3500 los días 120–180, 5000 el día 181; FRINOA/JUGO 1000→0→1000 en 180/181/212; BOREAS/JUGO 1800→600→1800 en 242/243/273 |
+| V-CAP-04 | La baja de planta fuerza la transferencia a terceros | **Verificado**: en 120–180 el stock de PLANTA/JUGO no pasa de 3 313 tn (línea base: 4 728) y los egresos de planta suben de 4 176 a 5 440 tn en la ventana |
+| V-CAP-05 | El stock de un tercero no se destruye cuando su capacidad baja | **Verificado**: FRINOA/JUGO mantiene 1 000 tn con capacidad 0 los 31 días; BOREAS/JUGO mantiene 1 800 tn con capacidad 600 los 30 días |
+| V-CAP-06 | Un tercero sobreocupado no recibe producto nuevo | **Verificado**: ingresos a FRINOA/JUGO en 181–211 = 0 tn (línea base en la misma ventana: 703 tn); ingresos a BOREAS/JUGO en 243–272 = 0 |
+| V-CAP-07 | La sobreocupación queda visible | **Verificado**: tablero `depósitos sobreocupados: 61 días` (31 de FRINOA + 30 de BOREAS) y KPIs `ton_dia_sobreocupacion_depositos` / `dias_sobreocupacion_depositos` |
+| V-CAP-08 | Inventario cuadrado | **Verificado**: `descuadre_tn` máximo 0 en toda la corrida dirigida; campaña `Finished`, 29 439 tn exportadas |
+| V-CAP-09 | Capacidad negativa aborta la carga | **Verificado**: `capacidad_tn negativa en NORRY / JUGO (tramo 90-119)` |
+| V-CAP-10 | Grilla de capacidad distinta a la de tarifas aborta la carga | **Verificado**: ocho errores `La hoja <tarifa> declara 12 tramos de dias y la hoja CapacidadUbicacion declara 12 (primer corte distinto: dia 59 contra dia 60)` |
+| V-CAP-11 | Fila de capacidad faltante aborta la carga | **Verificado**: `Falta la capacidad de ACEITE en BOREAS (tabla CapacidadUbicacion). Cero se carga explicitamente.` |
+
+El **barrido no se corrió**, por pedido explícito.

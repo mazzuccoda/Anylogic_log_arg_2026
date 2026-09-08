@@ -400,6 +400,10 @@ Las mutadoras `recibirProducto`, `retirarProducto`, `reservarProducto`, `liberar
 - `puedeOperarCrossDock(...)`;
 - `solicitarPosicionCrossDock(...)`.
 
+### 5.x `getCapacidad(producto)` y `espacioLibre(producto)` con capacidad por tramo (ADR-074)
+
+`Deposito.getCapacidad(producto)` y `Planta.getCapacidad(producto)` ya no leen un parámetro copiado al inicio: consultan `datos.capacidadDeclaradaTn(idUbicacion, producto, diaCampania())`, que resuelve el tramo vigente de `DatosEntrada.Capacidad` (`desdeDia[]`, `hastaDia[]`, `capacidadTn[]`; el formato viejo `capacidad_tn` es un único tramo `[0, 9999]`). Todas las lecturas de capacidad —espacio libre, evaluador, sobrecarga de planta, semáforo de la red, tablero y `snapshot_inventario`— pasan por estas dos funciones, así que se vuelven diarias sin tocar ninguna regla de decisión. `espacioLibre = max(0, capacidad vigente − stock físico)`: con la capacidad por debajo del stock el espacio libre es 0 y el depósito no recibe. `Main.registrarSobreocupacionDepositos()` acumula por día `max(0, stock − capacidad)` de cada depósito y producto en `tonDiaSobreocupacionDepositos` / `diasSobreocupacionDepositos`.
+
 ## 6. Funciones de Pedido
 
 ### `calcularCantidadContenedores()`

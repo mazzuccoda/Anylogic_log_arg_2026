@@ -9,9 +9,6 @@ class Deposito extends Agent {
     String nombreDeposito = "Deposito";
     int idDeposito = 0;
     boolean habilitado = true;
-    double capacidadJugo = 0;
-    double capacidadCascara = 0;
-    double capacidadAceite = 0;
     double costoJugoTnDia = 0;
     double costoCascaraTnDia = 0;
     double costoAceiteTnDia;
@@ -39,20 +36,12 @@ class Deposito extends Agent {
     }
 
     double getCapacidad(TipoProducto producto) {
-        switch (producto) {
+        // La capacidad es dato de la tabla y varia por tramo de dias (ADR-074): se lee con el
+        // dia de campania en vez de copiarse al agente. Una baja con stock adentro no destruye
+        // ni mueve producto: el espacio libre queda en cero hasta que el stock salga.
+        Main modelo = (Main) getRootAgent();
 
-            case JUGO:
-                return capacidadJugo;
-
-            case CASCARA:
-                return capacidadCascara;
-
-            case ACEITE:
-                return capacidadAceite;
-
-            default:
-                return 0;
-        }
+        return modelo.datos.capacidadDeclaradaTn(idUbicacion, producto, modelo.diaCampania());
     }
 
     double getEspacioDisponible(TipoProducto producto) {

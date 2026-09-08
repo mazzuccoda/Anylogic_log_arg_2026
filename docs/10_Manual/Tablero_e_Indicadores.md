@@ -43,7 +43,7 @@ Por producto, toneladas **en planta** y **en depósito**, más los lotes comerci
 
 - Stock: `planta.getStock(producto)` y `stockTotalDepositos(producto)`, ambos derivados de las capas de inventario (ADR-023). No son saldos que se mantengan aparte.
 - Lotes comerciales: `lotes.size()` en total y `lotesComercialesAbiertos()` abiertos. Un lote acumula la producción de varios días y se cierra al alcanzar su objetivo (ADR-047), así que el total crece de a poco: una identidad por cada objetivo completado, no una por día de producción. Si los abiertos son más que la cantidad de productos, hay lotes de distinto cliente o calidad conviviendo.
-- Sobrecarga: tonelada-día por encima del nivel nominal de planta, días en sobrecarga y pico de ocupación. Desde la fase 19 la planta **no descarta producto** (ADR-048): si la sobrecarga crece, falta capacidad de frío **o** falta transporte; el panel de flota dice cuál de las dos.
+- Sobrecarga: tonelada-día por encima del nivel nominal de planta, días en sobrecarga y pico de ocupación. Desde la fase 19 la planta **no descarta producto** (ADR-048): si la sobrecarga crece, falta capacidad de frío **o** falta transporte; el panel de flota dice cuál de las dos. Desde ADR-074 la misma línea agrega `depósitos sobreocupados: N días` cuando algún tercero tiene stock por encima de la capacidad vigente del tramo (baja de capacidad con stock adentro); el stock no se mueve ni se destruye, el depósito sólo deja de recibir hasta que despache o recupere capacidad.
 - Stock inicial: toneladas de inventario preexistente cargadas, consumidas y el déficit estructural (ADR-057). Sin hoja `StockInicial` dice `sin carga`. El **déficit estructural** es `max(0, demanda − stock inicial − producción planificada)` por producto, calculado sobre los datos de entrada: si es mayor que cero, ningún dimensionamiento de flota, depósito o frío llega al 100 % de servicio, y hay que leer el nivel de servicio contra ese techo y no contra el 100 %.
 
 ### Transporte y flota
@@ -164,6 +164,8 @@ Los mismos que escribe `resultados/kpis_por_corrida.csv`, todos calculados al ci
 | `ton_dia_sobre_nominal` | Tonelada-día de planta por encima del nivel nominal | tn·día | ≥ 0 |
 | `dias_sobrecarga` | Días con la planta por encima del nivel nominal | días | ≥ 0 |
 | `pico_ocupacion_planta_pct` | Máxima ocupación de la planta en la campaña | % | ≥ 0 |
+| `ton_dia_sobreocupacion_depositos` | Tonelada-día de depósitos terceros con stock por encima de la capacidad vigente del tramo (ADR-074) | tn·día | ≥ 0 |
+| `dias_sobreocupacion_depositos` | Días con al menos un depósito sobreocupado (ADR-074) | días | ≥ 0 |
 | `contenedores_circuito_planta` | Contenedores estibados en la planta (circuito 1) | unidades | ≥ 0 |
 | `contenedores_circuito_deposito` | Contenedores estibados en un depósito (circuito 2) | unidades | ≥ 0 |
 | `contenedores_circuito_cross_dock` | Contenedores que cruzaron el depósito sin almacenarse (circuito 3) | unidades | ≥ 0 |

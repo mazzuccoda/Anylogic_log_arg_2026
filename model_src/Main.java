@@ -74,6 +74,8 @@ class Main extends Agent {
     double tonDiaSobreNominalPlanta = 0;
     double tonDiaSobreCriticoPlanta = 0;
     int diasSobrecargaPlanta = 0;
+    double tonDiaSobreocupacionDepositos = 0;
+    int diasSobreocupacionDepositos = 0;
     double picoOcupacionPlantaPct = 0;
     double costoOportunidadFrio = 0;
     double costoPenalidadSobrecarga = 0;
@@ -1368,15 +1370,12 @@ class Main extends Agent {
     }
 
     void aplicarDatosAAgentes() {
-        // Los agentes no guardan datos propios: son una vista de las tablas.
-        planta.capacidadJugo =
-            datos.capacidadTn("PLANTA", TipoProducto.JUGO);
-
-        planta.capacidadCascara =
-            datos.capacidadTn("PLANTA", TipoProducto.CASCARA);
-
-        planta.capacidadAceite =
-            datos.capacidadTn("PLANTA", TipoProducto.ACEITE);
+        // Los agentes no guardan datos propios: son una vista de las tablas. La capacidad
+        // no se copia porque varia por tramo de dias (ADR-074): Planta y Deposito la leen
+        // de la tabla con el dia de campania. Aca solo se exige que la fila exista.
+        for (TipoProducto producto : TipoProducto.values()) {
+            datos.capacidadObligatoria("PLANTA", producto);
+        }
 
         for (Deposito deposito : depositos) {
 
@@ -1387,15 +1386,9 @@ class Main extends Agent {
             deposito.velocidadCargaTnHora = ubicacion.velocidadCargaTnHora;
             deposito.velocidadConsolidacionTnHora = ubicacion.velocidadConsolidacionTnHora;
 
-            deposito.capacidadJugo =
-                datos.capacidadTn(deposito.idUbicacion, TipoProducto.JUGO);
-
-            deposito.capacidadCascara =
-                datos.capacidadTn(deposito.idUbicacion, TipoProducto.CASCARA);
-
-            deposito.capacidadAceite =
-                datos.capacidadTn(deposito.idUbicacion, TipoProducto.ACEITE);
-
+            for (TipoProducto producto : TipoProducto.values()) {
+                datos.capacidadObligatoria(deposito.idUbicacion, producto);
+            }
         }
 
         for (Terminal terminal : terminales) {
@@ -2834,6 +2827,32 @@ class Main extends Agent {
 
         if (diaEnSobrecarga) {
             diasSobrecargaPlanta++;
+        }
+    }
+
+    void registrarSobreocupacionDepositos() {
+        // Un deposito de terceros queda por encima de su capacidad cuando esta baja con stock
+        // adentro (ADR-074). El stock no se destruye ni se mueve solo: el deposito deja de
+        // recibir y libera a medida que despacha. Aca se mide cuanto y cuantos dias paso.
+        boolean diaSobreocupado = false;
+
+        for (Deposito deposito : depositos) {
+            for (TipoProducto producto : TipoProducto.values()) {
+
+                double sobre =
+                    max(0, deposito.getStock(producto) - deposito.getCapacidad(producto));
+
+                if (sobre <= 0.0001) {
+                    continue;
+                }
+
+                diaSobreocupado = true;
+                tonDiaSobreocupacionDepositos += sobre;
+            }
+        }
+
+        if (diaSobreocupado) {
+            diasSobreocupacionDepositos++;
         }
     }
 
@@ -10210,6 +10229,7 @@ class Main extends Agent {
         devengarAlmacenamientoDiario();          // 10. devengar almacenaje
         devengarOportunidadFrioPropio();         // 10b. devengar el uso del frio propio
         registrarOcupacionPlanta();              // 10c. medir la sobrecarga del dia
+        registrarSobreocupacionDepositos();      // 10c'. depositos por encima de su capacidad (ADR-074)
         registrarAtrasos();                      // 11. registrar indicadores del dia
         registrarPerdidaDeCutoff();              // 11b. que pedidos perdieron su buque
         medirFlotaDelDia();                      // 11c. camiones en ruta y pico (ADR-061)

@@ -215,7 +215,7 @@ Con `datos/entrada_ejemplo.xlsx` son unos 45 MB por corrida, así que **el barri
 
 ### Dimensionar depósitos
 
-1. Usar `factor_capacidad_deposito` (E-03 = 0,5 y E-04 = 2,0) o cambiar `CapacidadUbicacion` en el Excel para dimensionar depósito por depósito.
+1. Usar `factor_capacidad_deposito` (E-03 = 0,5 y E-04 = 2,0) o cambiar `CapacidadUbicacion` en el Excel para dimensionar depósito por depósito. Desde ADR-074 `CapacidadUbicacion` admite una columna por tramo de días (`0-31`, `31-59`, `59-90`, …, con los mismos cortes que las hojas de tarifa) para representar mantenimientos propios o proveedores que sólo ofrecen espacio algunos meses; una baja con stock adentro no destruye ni mueve el stock, el sitio queda sobreocupado y deja de recibir hasta despachar, y el tablero lo muestra como `depósitos sobreocupados: N días`.
 2. Mirar `ton_dia_sobre_nominal`, `dias_sobrecarga` y `pico_ocupacion_planta_pct`: como la planta ya no descarta producto (ADR-048), el faltante de capacidad de la red se lee ahí, junto con `nivel_servicio`.
 
 ### Evaluar el cross docking
