@@ -108,7 +108,7 @@ public class VolcarDatos {
 
 		hoja("CapacidadUbicacion", "id_ubicacion\tproducto\tcapacidad_tn");
 		for (DatosEntrada.Capacidad c : d.capacidades) {
-			System.out.println(c.idUbicacion + "\t" + c.producto + "\t" + c.capacidadTn);
+			System.out.println(c.idUbicacion + "\t" + c.producto + "\t" + c.maxima());
 		}
 
 		hoja("Distancia", "origen\tdestino\tdistancia_km");

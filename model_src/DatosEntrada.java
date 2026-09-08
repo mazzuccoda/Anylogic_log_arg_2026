@@ -153,16 +153,50 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * Capacidad de almacenamiento por tramo de dias (ADR-074): la camara propia en
+	 * mantenimiento o el tercero que solo ofrece espacio algunos meses se declaran con
+	 * la misma grilla de tramos que las tarifas. Un valor unico se guarda como un solo
+	 * tramo abierto.
+	 */
 	public static class Capacidad implements java.io.Serializable {
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 2L;
 		public String idUbicacion;
 		public TipoProducto producto;
-		public double capacidadTn;
+		public int[] desdeDia;
+		public int[] hastaDia;
+		public double[] capacidadTn;
 
 		public Capacidad(String idUbicacion, TipoProducto producto, double capacidadTn) {
+			this(idUbicacion, producto, new int[] {0}, new int[] {9999}, new double[] {capacidadTn});
+		}
+
+		public Capacidad(String idUbicacion, TipoProducto producto,
+				int[] desdeDia, int[] hastaDia, double[] capacidadTn) {
 			this.idUbicacion = idUbicacion;
 			this.producto = producto;
+			this.desdeDia = desdeDia;
+			this.hastaDia = hastaDia;
 			this.capacidadTn = capacidadTn;
+		}
+
+		/** Capacidad vigente el dia dado; cero si ningun tramo lo cubre. */
+		public double delDia(int dia) {
+			for (int i = 0; i < desdeDia.length; i++) {
+				if (dia >= desdeDia[i] && dia <= hastaDia[i]) {
+					return capacidadTn[i];
+				}
+			}
+			return 0;
+		}
+
+		/** La mayor capacidad de la campania: dice si el sitio almacena el producto alguna vez. */
+		public double maxima() {
+			double maxima = 0;
+			for (double c : capacidadTn) {
+				maxima = Math.max(maxima, c);
+			}
+			return maxima;
 		}
 	}
 
@@ -579,12 +613,23 @@ public class DatosEntrada implements java.io.Serializable {
 	 * que justamente dice que no puede (ADR-069).
 	 */
 	public double capacidadDeclaradaTn(String idUbicacion, TipoProducto producto) {
+		Capacidad c = capacidad(idUbicacion, producto);
+		return c == null ? 0 : c.maxima();
+	}
+
+	/** Capacidad vigente el dia dado sin exigir la fila: cero si no esta declarada (ADR-074). */
+	public double capacidadDeclaradaTn(String idUbicacion, TipoProducto producto, int dia) {
+		Capacidad c = capacidad(idUbicacion, producto);
+		return c == null ? 0 : c.delDia(dia);
+	}
+
+	public Capacidad capacidad(String idUbicacion, TipoProducto producto) {
 		for (Capacidad c : capacidades) {
 			if (c.idUbicacion.equals(idUbicacion) && c.producto == producto) {
-				return c.capacidadTn;
+				return c;
 			}
 		}
-		return 0;
+		return null;
 	}
 
 	/**
@@ -597,14 +642,14 @@ public class DatosEntrada implements java.io.Serializable {
 		return capacidadDeclaradaTn(idUbicacion, producto) > 0;
 	}
 
-	public double capacidadTn(String idUbicacion, TipoProducto producto) {
-		for (Capacidad c : capacidades) {
-			if (c.idUbicacion.equals(idUbicacion) && c.producto == producto) {
-				return c.capacidadTn;
-			}
+	/** Exige la fila: la capacidad de un sitio de la red es dato obligatorio, cero incluido. */
+	public Capacidad capacidadObligatoria(String idUbicacion, TipoProducto producto) {
+		Capacidad c = capacidad(idUbicacion, producto);
+		if (c == null) {
+			throw new RuntimeException("Falta la capacidad de " + producto + " en " + idUbicacion
+					+ " (tabla CapacidadUbicacion). Cero se carga explicitamente.");
 		}
-		throw new RuntimeException("Falta la capacidad de " + producto + " en " + idUbicacion
-				+ " (tabla CapacidadUbicacion). Cero se carga explicitamente.");
+		return c;
 	}
 
 	/** Fila de la tabla Producto por producto y material (ADR-067): dos materiales del
@@ -1214,8 +1259,11 @@ public class DatosEntrada implements java.io.Serializable {
 			if (!existeUbicacion(c.idUbicacion)) {
 				errores.add("CapacidadUbicacion referencia la ubicacion inexistente " + c.idUbicacion + ".");
 			}
-			if (c.capacidadTn < 0) {
-				errores.add("capacidad_tn negativa en " + c.idUbicacion + " / " + c.producto + ".");
+			for (int i = 0; i < c.capacidadTn.length; i++) {
+				if (c.capacidadTn[i] < 0) {
+					errores.add("capacidad_tn negativa en " + c.idUbicacion + " / " + c.producto
+							+ " (tramo " + c.desdeDia[i] + "-" + c.hastaDia[i] + ").");
+				}
 			}
 		}
 
@@ -1407,7 +1455,7 @@ public class DatosEntrada implements java.io.Serializable {
 		// para siempre. Es un error de datos, no un escenario.
 		for (TipoProducto producto : TipoProducto.values()) {
 			try {
-				capacidadTn("PLANTA", producto);
+				capacidadObligatoria("PLANTA", producto);
 			} catch (RuntimeException e) {
 				errores.add(e.getMessage());
 			}
@@ -1486,7 +1534,7 @@ public class DatosEntrada implements java.io.Serializable {
 	private java.util.List<String> faltante(String idDeposito, TipoProducto producto) {
 		java.util.List<String> errores = new java.util.ArrayList<String>();
 		try {
-			capacidadTn(idDeposito, producto);
+			capacidadObligatoria(idDeposito, producto);
 		} catch (RuntimeException e) {
 			errores.add(e.getMessage());
 		}

@@ -4,11 +4,6 @@
 
 class Planta extends Agent {
 
-    // ----- Parámetros -----
-    double capacidadJugo = 5000;
-    double capacidadCascara = 1800;
-    double capacidadAceite = 1500;
-
     // ----- Variables -----
     double produccionAcumuladaJugo = 0;
     double produccionAcumuladaCascara = 0;
@@ -49,19 +44,12 @@ class Planta extends Agent {
     }
 
     double getCapacidad(TipoProducto producto) {
-        switch (producto) {
-            case JUGO:
-                return capacidadJugo;
+        // La capacidad es dato de la tabla y varia por tramo de dias (ADR-074): se lee con el
+        // dia de campania en vez de copiarse al agente. Una baja con stock adentro no destruye
+        // ni mueve producto: el espacio libre queda en cero hasta que el stock salga.
+        Main modelo = (Main) getRootAgent();
 
-            case CASCARA:
-                return capacidadCascara;
-
-            case ACEITE:
-                return capacidadAceite;
-
-            default:
-                return 0;
-        }
+        return modelo.datos.capacidadDeclaradaTn("PLANTA", producto, modelo.diaCampania());
     }
 
     double getEspacioDisponible(TipoProducto producto) {

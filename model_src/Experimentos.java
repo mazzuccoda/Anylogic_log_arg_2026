@@ -74,7 +74,8 @@ class Escenarios extends ParamVariationExperiment {
         	"toneladas_no_programadas_por_flota", "toneladas_programadas_parcialmente",
         	"movimientos_parciales_por_flota", "pedidos_perdieron_cutoff_por_flota",
         	"viajes_en_curso_fin_campania", "toneladas_transferidas_programadas",
-        	"toneladas_transferidas_salidas"
+        	"toneladas_transferidas_salidas",
+        	"ton_dia_sobreocupacion_depositos", "dias_sobreocupacion_depositos"
         };
 
         // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -471,7 +472,9 @@ class Escenarios extends ParamVariationExperiment {
         	root.pedidosPerdieronCutoffPorFlota,
         	root.viajesProductoEnCurso(),
         	root.toneladasTransferidasProgramadas,
-        	root.toneladasTransferidasSalidas
+        	root.toneladasTransferidasSalidas,
+        	root.tonDiaSobreocupacionDepositos,
+        	root.diasSobreocupacionDepositos
         };
 
         corridas.add(c);

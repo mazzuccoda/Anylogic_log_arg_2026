@@ -178,9 +178,19 @@ public class ImportadorExcel implements java.io.Serializable {
 			datos.ubicaciones.add(ubicacion);
 		}
 
+		// La capacidad puede variar por tramo de dias con la misma grilla que las tarifas
+		// (mantenimiento de una camara propia, tercero que solo ofrece espacio algunos
+		// meses). Sin columnas de rango, capacidad_tn vale toda la campania (ADR-074).
 		for (Fila f : filas("CapacidadUbicacion", "id_escenario", idEscenario)) {
+			if (f.columnasDeRango().isEmpty()) {
+				datos.capacidades.add(new DatosEntrada.Capacidad(
+						f.texto("id_ubicacion"), f.producto("producto"), f.numero("capacidad_tn")));
+				continue;
+			}
+			Tramos tramos = verificarGrilla("CapacidadUbicacion", leerTramos("CapacidadUbicacion", f));
 			datos.capacidades.add(new DatosEntrada.Capacidad(
-					f.texto("id_ubicacion"), f.producto("producto"), f.numero("capacidad_tn")));
+					f.texto("id_ubicacion"), f.producto("producto"),
+					tramos.desde, tramos.hasta, tramos.valor));
 		}
 
 		for (Fila f : filas("Distancia", "id_escenario", idEscenario)) {
@@ -706,6 +716,7 @@ public class ImportadorExcel implements java.io.Serializable {
 	 * TarifaSitio se acumula por posicion de tramo entre siete hojas distintas.
 	 */
 	private Tramos grillaTramos = null;
+	private String hojaGrilla = null;
 
 	private Tramos verificarGrilla(String hoja, Tramos tramos) {
 		if (tramos.cantidad() == 0) {
@@ -714,21 +725,32 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		if (grillaTramos == null) {
 			grillaTramos = tramos;
+			hojaGrilla = hoja;
 			return tramos;
 		}
 
 		if (!tramos.mismosLimites(grillaTramos)) {
 			String detalle = "La hoja " + hoja + " declara " + tramos.cantidad() + " tramos de dias"
-					+ " (el primero " + tramos.desde[0] + "-" + tramos.hasta[0] + ") y el resto del"
-					+ " libro declara " + grillaTramos.cantidad() + " (el primero "
-					+ grillaTramos.desde[0] + "-" + grillaTramos.hasta[0] + "): las tarifas del"
-					+ " maestro tienen que compartir los cortes de vigencia.";
+					+ " y la hoja " + hojaGrilla + " declara " + grillaTramos.cantidad()
+					+ " (primer corte distinto: " + primerCorteDistinto(tramos, grillaTramos) + "):"
+					+ " las tarifas y capacidades del maestro tienen que compartir los cortes"
+					+ " de vigencia.";
 			if (!errores.contains(detalle)) {
 				errores.add(detalle);
 			}
 		}
 
 		return tramos;
+	}
+
+	private String primerCorteDistinto(Tramos a, Tramos b) {
+		int n = Math.min(a.cantidad(), b.cantidad());
+		for (int i = 0; i < n; i++) {
+			if (a.desde[i] != b.desde[i]) {
+				return "dia " + a.desde[i] + " contra dia " + b.desde[i];
+			}
+		}
+		return "distinta cantidad de columnas";
 	}
 
 	/** Convierte a USD un valor tarifado en la moneda de la fila (ADR-068). Solo

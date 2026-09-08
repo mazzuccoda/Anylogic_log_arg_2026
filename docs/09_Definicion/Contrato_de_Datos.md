@@ -89,7 +89,12 @@ Nota: hoy la habilitación se deriva de `capacidad > 0` (ADR-009). El contrato l
 |---|---|---|
 | `id_ubicacion` | texto | FK `Ubicacion` |
 | `producto` | enum | |
-| `capacidad_tn` | double | >= 0. Cero = no almacena ese producto |
+| `capacidad_tn` | double | >= 0. Cero = no almacena ese producto. Formato de **tramo único**: rige toda la campaña |
+| `0-31`, `31-59`, `59-90`, … | double | **Formato por tramos (ADR-074).** Una columna por tramo de vigencia, con la misma grilla de encabezados que las tarifas (ADR-070): el tope de cada tramo es el día anterior al inicio del siguiente y el último queda abierto. Cada valor >= 0; cero = el sitio no ofrece espacio de ese producto en ese tramo |
+
+Las dos formas son excluyentes por fila: si la hoja trae columnas de rango se leen los tramos y `capacidad_tn` se ignora; si no las trae, `capacidad_tn` se carga como un único tramo `[0, 9999]`. La grilla de `CapacidadUbicacion` tiene que ser la misma que la de las hojas de tarifa; cortes distintos abortan la carga nombrando las dos hojas y el primer corte que difiere. Toda fila `(ubicación, producto)` es **obligatoria** para la planta y para cada depósito de la red, incluso con valor cero: la capacidad ya no se copia al agente al inicio sino que se consulta cada día, y una fila ausente no puede resolverse en silencio.
+
+**Una baja de capacidad no destruye stock (ADR-074).** Si en un tramo la capacidad vigente queda por debajo del stock físico, el sitio queda **sobreocupado**: el stock permanece, el espacio libre es 0 y el sitio no recibe producto nuevo hasta que despache o recupere capacidad. En la planta, el excedente sobre la capacidad vigente dispara la transferencia diaria a terceros (`componentePorDesborde`), acotada por el stock libre y por el espacio real de cada depósito.
 
 ### 4.4 `Distancia`
 
@@ -387,7 +392,7 @@ Hojas y encabezados que lee hoy el importador (los que faltan corresponden a tab
 | `Escenario` | `id_escenario`, `duracion_campania_dias`, `semilla_base`, `variabilidad_produccion`, `variabilidad_demanda`, `pedidos_por_campania`, `toneladas_medias_pedido`, `plazo_pedido_dias`, `camiones_producto`, `camiones_portacontenedor`, `capacidad_camion_tn`, `velocidad_camion_kmh`, `horas_operativas_dia`, `factor_produccion`, `factor_capacidad_planta`, `factor_capacidad_deposito`, `factor_storage`, `ventana_demanda`, `habilita_cross_dock`, `deterministico`, `estrategia_consolidacion`, `cliente_default`, `calidad_default`, `umbral_alerta_pct`, `umbral_sobrecarga_pct`, `umbral_objetivo_pct`, `dias_forecast`, `politica_frio_propio`, `politica_seleccion`, `servicio_minimo_proyectado`, `factor_tarifa_flete`, `factor_tarifa_round_trip`, `factor_tarifa_cross_dock`, `factor_tarifa_terminal`, `factor_consolidacion_planta`, `factor_cupo_cross_dock`, `factor_capacidad_terminal`, `dias_anticipacion_planificacion_default`, `dias_anticipacion_retiro_default`, `dias_entre_cutoff_y_etd_default`, `permite_reserva_antes_retiro`, `permite_transferencia_antes_retiro`, `permite_reserva_capacidad_futura`, `politica_reprogramacion_buque`, `permite_fallback_politica_fija`, `exportar_diagnostico_capacidad`, `habilita_flota_producto_multidiaria`, `dias_max_programacion_flota`, `fecha_inicio_campania` |
 | `Producto` | `producto`, `tipo_contenedor`, `capacidad_contenedor_tn`, `toneladas_objetivo_lote_tn` |
 | `Ubicacion` | `id_ubicacion`, `tipo`, `habilitada`, `velocidad_carga_tn_hora`, `velocidad_descarga_tn_hora`, `velocidad_consolidacion_tn_hora`, `capacidad_diaria_tn`, `contenedores_por_dia`, `posiciones_cross_dock`, `latitud` (opcional, ADR-072), `longitud` (opcional, ADR-072) |
-| `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` |
+| `CapacidadUbicacion` | `id_ubicacion`, `producto`, `capacidad_tn` **o** columnas de rango `0-31`, `31-59`, … (ADR-074) |
 | `Distancia` | `origen`, `destino`, `distancia_km` |
 | `TarifaSitio` | `id_ubicacion`, `producto`, `in_usd_tn`, `storage_usd_tn_dia`, `out_usd_tn`, `oportunidad_usd_tn_dia`, `penalidad_sobrecarga_usd_tn_dia`, `consolidacion_tarifa`, `consolidacion_unidad`, `cross_dock_tarifa`, `cross_dock_unidad`, `thc_usd_contenedor`, `costo_terminal_usd_contenedor`, `despachante_tarifa`, `despachante_unidad`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |
 | `TarifaFleteProducto` | `origen`, `destino`, `producto`, `tipo_camion`, `capacidad_camion_tn`, `unidad`, `tarifa`, `variable_usd_tn`, `proveedor`, `vigencia_desde`, `vigencia_hasta`, `habilitada` |

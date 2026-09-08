@@ -465,6 +465,18 @@ Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y cor
 - [ ] **No corrido, por pedido explícito:** el barrido de escenarios (`fase-28`).
 - [x] Pendiente de las PRs 2 y 3 del MOD: figuras moviéndose por tramo, panel de envíos en curso por bloque (**hechas en ADR-073**), `nodos_red.csv` y `snapshot_envios_en_curso.csv` para el tablero web (PR 3, pendiente).
 
+## 11t. MOD — Capacidad de almacenamiento por tramo de días (ADR-074)
+
+Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y corrido en AnyLogic PLE 8.9.9**.
+
+- [x] `CapacidadUbicacion` se lee con `leerTramos()` y la misma grilla de vigencia que las tarifas (ADR-070); el formato viejo `capacidad_tn` carga como un único tramo. `DatosEntrada.Capacidad` guarda `desdeDia[]`/`hastaDia[]`/`capacidadTn[]`.
+- [x] `Planta.getCapacidad()` y `Deposito.getCapacidad()` consultan la tabla con `diaCampania()`; se eliminaron los parámetros de capacidad copiados al inicio. Toda fila `(sitio, producto)` es obligatoria, cero incluido.
+- [x] Una baja de capacidad no destruye stock: la planta fuerza el excedente a terceros por la regla existente (`componentePorDesborde`), el tercero queda sobreocupado con espacio libre 0 y no recibe hasta despachar o recuperar capacidad. KPIs `ton_dia_sobreocupacion_depositos` / `dias_sobreocupacion_depositos` y línea en el tablero.
+- [x] Validaciones: capacidad negativa por tramo, grilla distinta a la de tarifas (nombra las dos hojas y el primer corte que difiere) y fila faltante.
+- [x] Regresión byte a byte del formato viejo y del formato nuevo equivalente; prueba dirigida V-CAP-01 a V-CAP-11.
+- [ ] El maestro versionado sigue en formato viejo; cargar la hoja con rangos cuando el usuario la entregue.
+- [ ] Sin barrido, por pedido explícito.
+
 ## 11s. MOD — Movimiento sobre el tramo y panel instantáneo, PR 2 del plan de animación (ADR-073)
 
 Implementado en `RedLogistica_Exportacion.alp` y `model_src/`, **compilado y corrido en AnyLogic PLE 8.9.9**: campaña completa desde `datos/Maestro_Simulacion.xlsx` con la animación encendida y la misma campaña con `animacionRed = false`, las dos `Finished`.

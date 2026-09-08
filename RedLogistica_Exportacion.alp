@@ -1346,6 +1346,36 @@ dibujarRedVisual();          // vista de red (ADR-072): presentacion, no decide 
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
+					<Id>1796000000001</Id>
+					<Name><![CDATA[tonDiaSobreocupacionDepositos]]></Name>
+					<X>-300</X><Y>1180</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1796000000002</Id>
+					<Name><![CDATA[diasSobreocupacionDepositos]]></Name>
+					<X>-300</X><Y>1220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
 					<Id>1794000004</Id>
 					<Name><![CDATA[picoOcupacionPlantaPct]]></Name>
 					<X>-300</X><Y>740</Y>
@@ -3769,6 +3799,7 @@ despacharContenedoresPendientes();       // 9. consolidar y despachar lo que ent
 devengarAlmacenamientoDiario();          // 10. devengar almacenaje
 devengarOportunidadFrioPropio();         // 10b. devengar el uso del frio propio
 registrarOcupacionPlanta();              // 10c. medir la sobrecarga del dia
+registrarSobreocupacionDepositos();      // 10c'. depositos por encima de su capacidad (ADR-074)
 registrarAtrasos();                      // 11. registrar indicadores del dia
 registrarPerdidaDeCutoff();              // 11b. que pedidos perdieron su buque
 medirFlotaDelDia();                      // 11c. camiones en ruta y pico (ADR-061)
@@ -5395,15 +5426,12 @@ aplicarDatosAAgentes();]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[// Los agentes no guardan datos propios: son una vista de las tablas.
-planta.capacidadJugo =
-    datos.capacidadTn("PLANTA", TipoProducto.JUGO);
-
-planta.capacidadCascara =
-    datos.capacidadTn("PLANTA", TipoProducto.CASCARA);
-
-planta.capacidadAceite =
-    datos.capacidadTn("PLANTA", TipoProducto.ACEITE);
+					<Body><![CDATA[// Los agentes no guardan datos propios: son una vista de las tablas. La capacidad
+// no se copia porque varia por tramo de dias (ADR-074): Planta y Deposito la leen
+// de la tabla con el dia de campania. Aca solo se exige que la fila exista.
+for (TipoProducto producto : TipoProducto.values()) {
+    datos.capacidadObligatoria("PLANTA", producto);
+}
 
 for (Deposito deposito : depositos) {
 
@@ -5414,15 +5442,9 @@ for (Deposito deposito : depositos) {
     deposito.velocidadCargaTnHora = ubicacion.velocidadCargaTnHora;
     deposito.velocidadConsolidacionTnHora = ubicacion.velocidadConsolidacionTnHora;
 
-    deposito.capacidadJugo =
-        datos.capacidadTn(deposito.idUbicacion, TipoProducto.JUGO);
-
-    deposito.capacidadCascara =
-        datos.capacidadTn(deposito.idUbicacion, TipoProducto.CASCARA);
-
-    deposito.capacidadAceite =
-        datos.capacidadTn(deposito.idUbicacion, TipoProducto.ACEITE);
-
+    for (TipoProducto producto : TipoProducto.values()) {
+        datos.capacidadObligatoria(deposito.idUbicacion, producto);
+    }
 }
 
 for (Terminal terminal : terminales) {
@@ -7405,6 +7427,40 @@ for (TipoProducto producto : TipoProducto.values()) {
 
 if (diaEnSobrecarga) {
     diasSobrecargaPlanta++;
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1796000000003</Id>
+					<Name><![CDATA[registrarSobreocupacionDepositos]]></Name>
+					<X>230</X><Y>1200</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[// Un deposito de terceros queda por encima de su capacidad cuando esta baja con stock
+// adentro (ADR-074). El stock no se destruye ni se mueve solo: el deposito deja de
+// recibir y libera a medida que despacha. Aca se mide cuanto y cuantos dias paso.
+boolean diaSobreocupado = false;
+
+for (Deposito deposito : depositos) {
+    for (TipoProducto producto : TipoProducto.values()) {
+
+        double sobre =
+            max(0, deposito.getStock(producto) - deposito.getCapacidad(producto));
+
+        if (sobre <= 0.0001) {
+            continue;
+        }
+
+        diaSobreocupado = true;
+        tonDiaSobreocupacionDepositos += sobre;
+    }
+}
+
+if (diaSobreocupado) {
+    diasSobreocupacionDepositos++;
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -17751,15 +17807,6 @@ alternativa.contenedores =
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
-						<Parameter>
-							<Name><![CDATA[capacidadJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadAceite]]></Name>
-						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
@@ -18052,15 +18099,6 @@ alternativa.contenedores =
 							<Name><![CDATA[habilitado]]></Name>
 						</Parameter>
 						<Parameter>
-							<Name><![CDATA[capacidadJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadAceite]]></Name>
-						</Parameter>
-						<Parameter>
 							<Name><![CDATA[costoJugoTnDia]]></Name>
 						</Parameter>
 						<Parameter>
@@ -18142,15 +18180,6 @@ alternativa.contenedores =
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[habilitado]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadAceite]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[costoJugoTnDia]]></Name>
@@ -18236,15 +18265,6 @@ alternativa.contenedores =
 							<Name><![CDATA[habilitado]]></Name>
 						</Parameter>
 						<Parameter>
-							<Name><![CDATA[capacidadJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadAceite]]></Name>
-						</Parameter>
-						<Parameter>
 							<Name><![CDATA[costoJugoTnDia]]></Name>
 						</Parameter>
 						<Parameter>
@@ -18326,15 +18346,6 @@ alternativa.contenedores =
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[habilitado]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadAceite]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[costoJugoTnDia]]></Name>
@@ -18420,15 +18431,6 @@ alternativa.contenedores =
 							<Name><![CDATA[habilitado]]></Name>
 						</Parameter>
 						<Parameter>
-							<Name><![CDATA[capacidadJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadAceite]]></Name>
-						</Parameter>
-						<Parameter>
 							<Name><![CDATA[costoJugoTnDia]]></Name>
 						</Parameter>
 						<Parameter>
@@ -18512,15 +18514,6 @@ alternativa.contenedores =
 							<Name><![CDATA[habilitado]]></Name>
 						</Parameter>
 						<Parameter>
-							<Name><![CDATA[capacidadJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadAceite]]></Name>
-						</Parameter>
-						<Parameter>
 							<Name><![CDATA[costoJugoTnDia]]></Name>
 						</Parameter>
 						<Parameter>
@@ -18602,15 +18595,6 @@ alternativa.contenedores =
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[habilitado]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadJugo]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadCascara]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacidadAceite]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[costoJugoTnDia]]></Name>
@@ -21469,7 +21453,11 @@ if (!retirado) {
 					<Text><![CDATA[text]]></Text>
 					<TextCode><![CDATA["Sobrecarga: " + round(tonDiaSobreNominalPlanta) + " tn-día · "
 + diasSobrecargaPlanta + " días · pico "
-+ round(picoOcupacionPlantaPct) + "%"]]></TextCode>
++ round(picoOcupacionPlantaPct) + "%"
++ (diasSobreocupacionDepositos > 0
+    ? " · depósitos sobreocupados: " + diasSobreocupacionDepositos + " días · "
+        + round(tonDiaSobreocupacionDepositos) + " tn-día"
+    : "")]]></TextCode>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -23815,78 +23803,6 @@ if (!retirado) {
 						</InitialValue>
 					</Properties>
 				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784242444879</Id>
-					<Name><![CDATA[capacidadJugo]]></Name>
-					<X>30</X><Y>-570</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[5000]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784242444877</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784243035035</Id>
-					<Name><![CDATA[capacidadCascara]]></Name>
-					<X>30</X><Y>-500</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[1800]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784243035033</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784243068500</Id>
-					<Name><![CDATA[capacidadAceite]]></Name>
-					<X>30</X><Y>-430</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[1500]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784243068498</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -23952,19 +23868,12 @@ return modelo.inventario.stock("PLANTA", producto);]]></Body>
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[switch (producto) {
-    case JUGO:
-        return capacidadJugo;
+					<Body><![CDATA[// La capacidad es dato de la tabla y varia por tramo de dias (ADR-074): se lee con el
+// dia de campania en vez de copiarse al agente. Una baja con stock adentro no destruye
+// ni mueve producto: el espacio libre queda en cero hasta que el stock salga.
+Main modelo = (Main) getRootAgent();
 
-    case CASCARA:
-        return capacidadCascara;
-
-    case ACEITE:
-        return capacidadAceite;
-
-    default:
-        return 0;
-}]]></Body>
+return modelo.datos.capacidadDeclaradaTn("PLANTA", producto, modelo.diaCampania());]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -24438,78 +24347,6 @@ return capacidad <= 0
 					</Properties>                 
 				</Variable>
 				<Variable Class="Parameter">
-					<Id>1784376148427</Id>
-					<Name><![CDATA[capacidadJugo]]></Name>
-					<X>190</X><Y>290</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784376148425</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784376172895</Id>
-					<Name><![CDATA[capacidadCascara]]></Name>
-					<X>380</X><Y>290</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784376172893</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
-					<Id>1784376197026</Id>
-					<Name><![CDATA[capacidadAceite]]></Name>
-					<X>580</X><Y>290</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[double]]></Type>
-						<UnitType><![CDATA[NONE]]></UnitType>
-						<SdArray>false</SdArray>
-						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</DefaultValue>
-						<ParameterEditor>
-							<Id>1784376197024</Id>
-							<EditorContolType>TEXT_BOX</EditorContolType>
-							<MinSliderValue><![CDATA[0]]></MinSliderValue>
-							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
-							<DelimeterType>NO_DELIMETER</DelimeterType>
-						</ParameterEditor>
-					</Properties>                 
-				</Variable>
-				<Variable Class="Parameter">
 					<Id>1784376224309</Id>
 					<Name><![CDATA[costoJugoTnDia]]></Name>
 					<X>190</X><Y>340</Y>
@@ -24661,20 +24498,12 @@ return modelo.inventario.stock(idUbicacion, producto);]]></Body>
 						<Name><![CDATA[producto]]></Name>
 						<Type><![CDATA[TipoProducto]]></Type>
 					</Parameter>
-					<Body><![CDATA[switch (producto) {
+					<Body><![CDATA[// La capacidad es dato de la tabla y varia por tramo de dias (ADR-074): se lee con el
+// dia de campania en vez de copiarse al agente. Una baja con stock adentro no destruye
+// ni mueve producto: el espacio libre queda en cero hasta que el stock salga.
+Main modelo = (Main) getRootAgent();
 
-    case JUGO:
-        return capacidadJugo;
-
-    case CASCARA:
-        return capacidadCascara;
-
-    case ACEITE:
-        return capacidadAceite;
-
-    default:
-        return 0;
-}]]></Body>
+return modelo.datos.capacidadDeclaradaTn(idUbicacion, producto, modelo.diaCampania());]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -30950,7 +30779,8 @@ static final String[] KPIS = {
 	"toneladas_no_programadas_por_flota", "toneladas_programadas_parcialmente",
 	"movimientos_parciales_por_flota", "pedidos_perdieron_cutoff_por_flota",
 	"viajes_en_curso_fin_campania", "toneladas_transferidas_programadas",
-	"toneladas_transferidas_salidas"
+	"toneladas_transferidas_salidas",
+	"ton_dia_sobreocupacion_depositos", "dias_sobreocupacion_depositos"
 };
 
 // Las corridas se evaluan en serie (con evaluacion paralela el agente raiz no
@@ -31344,7 +31174,9 @@ c.kpis = new double[] {
 	root.pedidosPerdieronCutoffPorFlota,
 	root.viajesProductoEnCurso(),
 	root.toneladasTransferidasProgramadas,
-	root.toneladasTransferidasSalidas
+	root.toneladasTransferidasSalidas,
+	root.tonDiaSobreocupacionDepositos,
+	root.diasSobreocupacionDepositos
 };
 
 corridas.add(c);]]></AfterSimulationRunCode>
@@ -32078,16 +31910,50 @@ public class DatosEntrada implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * Capacidad de almacenamiento por tramo de dias (ADR-074): la camara propia en
+	 * mantenimiento o el tercero que solo ofrece espacio algunos meses se declaran con
+	 * la misma grilla de tramos que las tarifas. Un valor unico se guarda como un solo
+	 * tramo abierto.
+	 */
 	public static class Capacidad implements java.io.Serializable {
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 2L;
 		public String idUbicacion;
 		public TipoProducto producto;
-		public double capacidadTn;
+		public int[] desdeDia;
+		public int[] hastaDia;
+		public double[] capacidadTn;
 
 		public Capacidad(String idUbicacion, TipoProducto producto, double capacidadTn) {
+			this(idUbicacion, producto, new int[] {0}, new int[] {9999}, new double[] {capacidadTn});
+		}
+
+		public Capacidad(String idUbicacion, TipoProducto producto,
+				int[] desdeDia, int[] hastaDia, double[] capacidadTn) {
 			this.idUbicacion = idUbicacion;
 			this.producto = producto;
+			this.desdeDia = desdeDia;
+			this.hastaDia = hastaDia;
 			this.capacidadTn = capacidadTn;
+		}
+
+		/** Capacidad vigente el dia dado; cero si ningun tramo lo cubre. */
+		public double delDia(int dia) {
+			for (int i = 0; i < desdeDia.length; i++) {
+				if (dia >= desdeDia[i] && dia <= hastaDia[i]) {
+					return capacidadTn[i];
+				}
+			}
+			return 0;
+		}
+
+		/** La mayor capacidad de la campania: dice si el sitio almacena el producto alguna vez. */
+		public double maxima() {
+			double maxima = 0;
+			for (double c : capacidadTn) {
+				maxima = Math.max(maxima, c);
+			}
+			return maxima;
 		}
 	}
 
@@ -32504,12 +32370,23 @@ public class DatosEntrada implements java.io.Serializable {
 	 * que justamente dice que no puede (ADR-069).
 	 */
 	public double capacidadDeclaradaTn(String idUbicacion, TipoProducto producto) {
+		Capacidad c = capacidad(idUbicacion, producto);
+		return c == null ? 0 : c.maxima();
+	}
+
+	/** Capacidad vigente el dia dado sin exigir la fila: cero si no esta declarada (ADR-074). */
+	public double capacidadDeclaradaTn(String idUbicacion, TipoProducto producto, int dia) {
+		Capacidad c = capacidad(idUbicacion, producto);
+		return c == null ? 0 : c.delDia(dia);
+	}
+
+	public Capacidad capacidad(String idUbicacion, TipoProducto producto) {
 		for (Capacidad c : capacidades) {
 			if (c.idUbicacion.equals(idUbicacion) && c.producto == producto) {
-				return c.capacidadTn;
+				return c;
 			}
 		}
-		return 0;
+		return null;
 	}
 
 	/**
@@ -32522,14 +32399,14 @@ public class DatosEntrada implements java.io.Serializable {
 		return capacidadDeclaradaTn(idUbicacion, producto) > 0;
 	}
 
-	public double capacidadTn(String idUbicacion, TipoProducto producto) {
-		for (Capacidad c : capacidades) {
-			if (c.idUbicacion.equals(idUbicacion) && c.producto == producto) {
-				return c.capacidadTn;
-			}
+	/** Exige la fila: la capacidad de un sitio de la red es dato obligatorio, cero incluido. */
+	public Capacidad capacidadObligatoria(String idUbicacion, TipoProducto producto) {
+		Capacidad c = capacidad(idUbicacion, producto);
+		if (c == null) {
+			throw new RuntimeException("Falta la capacidad de " + producto + " en " + idUbicacion
+					+ " (tabla CapacidadUbicacion). Cero se carga explicitamente.");
 		}
-		throw new RuntimeException("Falta la capacidad de " + producto + " en " + idUbicacion
-				+ " (tabla CapacidadUbicacion). Cero se carga explicitamente.");
+		return c;
 	}
 
 	/** Fila de la tabla Producto por producto y material (ADR-067): dos materiales del
@@ -33139,8 +33016,11 @@ public class DatosEntrada implements java.io.Serializable {
 			if (!existeUbicacion(c.idUbicacion)) {
 				errores.add("CapacidadUbicacion referencia la ubicacion inexistente " + c.idUbicacion + ".");
 			}
-			if (c.capacidadTn < 0) {
-				errores.add("capacidad_tn negativa en " + c.idUbicacion + " / " + c.producto + ".");
+			for (int i = 0; i < c.capacidadTn.length; i++) {
+				if (c.capacidadTn[i] < 0) {
+					errores.add("capacidad_tn negativa en " + c.idUbicacion + " / " + c.producto
+							+ " (tramo " + c.desdeDia[i] + "-" + c.hastaDia[i] + ").");
+				}
 			}
 		}
 
@@ -33332,7 +33212,7 @@ public class DatosEntrada implements java.io.Serializable {
 		// para siempre. Es un error de datos, no un escenario.
 		for (TipoProducto producto : TipoProducto.values()) {
 			try {
-				capacidadTn("PLANTA", producto);
+				capacidadObligatoria("PLANTA", producto);
 			} catch (RuntimeException e) {
 				errores.add(e.getMessage());
 			}
@@ -33411,7 +33291,7 @@ public class DatosEntrada implements java.io.Serializable {
 	private java.util.List<String> faltante(String idDeposito, TipoProducto producto) {
 		java.util.List<String> errores = new java.util.ArrayList<String>();
 		try {
-			capacidadTn(idDeposito, producto);
+			capacidadObligatoria(idDeposito, producto);
 		} catch (RuntimeException e) {
 			errores.add(e.getMessage());
 		}
@@ -34452,9 +34332,19 @@ public class ImportadorExcel implements java.io.Serializable {
 			datos.ubicaciones.add(ubicacion);
 		}
 
+		// La capacidad puede variar por tramo de dias con la misma grilla que las tarifas
+		// (mantenimiento de una camara propia, tercero que solo ofrece espacio algunos
+		// meses). Sin columnas de rango, capacidad_tn vale toda la campania (ADR-074).
 		for (Fila f : filas("CapacidadUbicacion", "id_escenario", idEscenario)) {
+			if (f.columnasDeRango().isEmpty()) {
+				datos.capacidades.add(new DatosEntrada.Capacidad(
+						f.texto("id_ubicacion"), f.producto("producto"), f.numero("capacidad_tn")));
+				continue;
+			}
+			Tramos tramos = verificarGrilla("CapacidadUbicacion", leerTramos("CapacidadUbicacion", f));
 			datos.capacidades.add(new DatosEntrada.Capacidad(
-					f.texto("id_ubicacion"), f.producto("producto"), f.numero("capacidad_tn")));
+					f.texto("id_ubicacion"), f.producto("producto"),
+					tramos.desde, tramos.hasta, tramos.valor));
 		}
 
 		for (Fila f : filas("Distancia", "id_escenario", idEscenario)) {
@@ -34980,6 +34870,7 @@ public class ImportadorExcel implements java.io.Serializable {
 	 * TarifaSitio se acumula por posicion de tramo entre siete hojas distintas.
 	 */
 	private Tramos grillaTramos = null;
+	private String hojaGrilla = null;
 
 	private Tramos verificarGrilla(String hoja, Tramos tramos) {
 		if (tramos.cantidad() == 0) {
@@ -34988,21 +34879,32 @@ public class ImportadorExcel implements java.io.Serializable {
 
 		if (grillaTramos == null) {
 			grillaTramos = tramos;
+			hojaGrilla = hoja;
 			return tramos;
 		}
 
 		if (!tramos.mismosLimites(grillaTramos)) {
 			String detalle = "La hoja " + hoja + " declara " + tramos.cantidad() + " tramos de dias"
-					+ " (el primero " + tramos.desde[0] + "-" + tramos.hasta[0] + ") y el resto del"
-					+ " libro declara " + grillaTramos.cantidad() + " (el primero "
-					+ grillaTramos.desde[0] + "-" + grillaTramos.hasta[0] + "): las tarifas del"
-					+ " maestro tienen que compartir los cortes de vigencia.";
+					+ " y la hoja " + hojaGrilla + " declara " + grillaTramos.cantidad()
+					+ " (primer corte distinto: " + primerCorteDistinto(tramos, grillaTramos) + "):"
+					+ " las tarifas y capacidades del maestro tienen que compartir los cortes"
+					+ " de vigencia.";
 			if (!errores.contains(detalle)) {
 				errores.add(detalle);
 			}
 		}
 
 		return tramos;
+	}
+
+	private String primerCorteDistinto(Tramos a, Tramos b) {
+		int n = Math.min(a.cantidad(), b.cantidad());
+		for (int i = 0; i < n; i++) {
+			if (a.desde[i] != b.desde[i]) {
+				return "dia " + a.desde[i] + " contra dia " + b.desde[i];
+			}
+		}
+		return "distinta cantidad de columnas";
 	}
 
 	/** Convierte a USD un valor tarifado en la moneda de la fila (ADR-068). Solo
